@@ -8,6 +8,7 @@ kolla_version: 4.0.2
 openstack_version: ocata
 
 osism_projects:
+  ansible: 2.3.0.0
   ara: 0.14.2
   cobbler: 2.8.0
   docker: 17.05.0
@@ -54,3 +55,17 @@ ansible_roles:
   ANXS.apt: 0c544ce34d193096d43fd828afea54e2a7c091df
   ANXS.utilities: b078b43445c52231d9925fdcad42e2e7e5ac9dcd
   ANXS.timezone: 9a77595bf89fc2c255c7c36c18a9cb113911144d
+  osism.cobbler: 21566b2ceeea1eeac041b380cebda3d2f8faf0be
+  osism.common: af72fd7321a941f5fc7cfe4f8c6019c956506e39
+  osism.configuration: 54c65a7c72f30d24c3df9565687fdf06493350cd
+  osism.docker: fd12368cdbd4a349237e31cc5b538a5ea49029f7
+  osism.helper: 0767c8dbb7998a687cfe2405eb1deae442b90834
+  osism.hostname: e96bf65048ed44e056d64babdf597e362d9bdd80
+  osism.hosts: 85afb48da0dc212451e2f536ebd4acf39d21d834
+  osism.manager: ededaee1e1525f20efdb84c252e370ae4ac8ae7d
+  osism.mirror: a0f277e97f37aab2817320b4b17c7cca860177df
+  osism.network-interfaces: 992e7ed6050495a708a657320908c30c7085f0ac
+  osism.operator: 4ae2fea8e057fc111c61c8cd78555ca7e3d32b4b
+  osism.proxy: 452025fb3a23f15bb57be59221d5b8297ec081bf
+  osism.repository: 680eb2bb900f3f2cb2bda71aa54d4de28b2cde3f
+  osism.resolvconf: 51939b4afaa55cbbb4e1ec7ecb42db620fd1b752
