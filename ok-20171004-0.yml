@@ -14,10 +14,10 @@ osism_projects:
   docker: 17.05.0
 
 infrastructure_projects:
-  elasticsearch: 5.5.2
+  elasticsearch: 5.6.2
   fluentd: 2.3.5
   haproxy: 1.7.8
-  kibana: 5.5.2
+  kibana: 5.6.2
   mariadb: 10.0.31
   rabbitmq: 3.6.10
 
@@ -47,7 +47,7 @@ neutron_plugins:
 integrated_projects:
   novnc: 0.6.2
   spice_html5: 0.1.6
-  logtrail: 0.1.19
+  logtrail: 0.1.21
 
 ansible_roles:
   hardening: 15.1.3
