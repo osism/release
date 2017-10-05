@@ -1,7 +1,7 @@
 ---
 repository_version: 20171004-0
 
-ceph_ansible_version: v2.3.0rc5
+ceph_ansible_version: 2.3.0rc5
 ceph_version: kraken
 
 kolla_version: 4.0.2
