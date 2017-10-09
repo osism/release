@@ -9,7 +9,6 @@ openstack_version: ocata
 osism_projects:
   ansible: 2.3.0.0
   ara: 0.14.2
-  cobbler: 2.8.0
   docker: 17.05.0
 
 infrastructure_projects:
@@ -47,6 +46,19 @@ integrated_projects:
   novnc: 0.6.2
   spice_html5: 0.1.6
   logtrail: 0.1.21
+
+docker_images:
+  aptly: 1.1.1
+  ceph_dash: 1.2
+  cephclient: "{{ ceph_version }}"
+  cobbler: 2.8
+  image_manager: latest
+  mariadb: 10.3.0
+  nginx: 1.13
+  openstackclient: "{{ openstack_version }}"
+  phpmyadmin: 4.7
+  rally: "{{ openstack_version }}-{{ repository_version }}-0"
+  registry: 2.6.2
 
 ansible_roles:
   hardening: 15.1.3
