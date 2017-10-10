@@ -49,6 +49,7 @@ integrated_projects:
 
 docker_images:
   aptly: 1.1.1
+  ara_server: "{{ osism_projects['ara]' }}"
   ceph_dash: 1.2
   cephclient: "{{ ceph_version }}"
   cobbler: 2.8
