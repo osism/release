@@ -52,6 +52,7 @@ docker_images:
   ceph_dash: 1.2
   cephclient: "{{ ceph_version }}"
   cobbler: 2.8
+  helper: "{{ openstack_version[0] }}{{ ceph_version[0] }}-{{ repository_version }}-0"
   image_manager: latest
   mariadb: 10.3.0
   nginx: 1.13
