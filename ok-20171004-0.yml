@@ -58,6 +58,7 @@ docker_images:
   openstackclient: "{{ openstack_version }}"
   phpmyadmin: 4.7
   rally: "{{ openstack_version }}-{{ repository_version }}-0"
+  redis: 4.0
   registry: 2.6.2
 
 ansible_roles:
