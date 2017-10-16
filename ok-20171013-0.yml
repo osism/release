@@ -1,7 +1,7 @@
 ---
 repository_version: 20171013-0
 
-ceph_ansible_version: 2.3.0rc5
+ceph_ansible_version: 3.0.2
 ceph_version: kraken
 
 openstack_version: ocata
@@ -56,7 +56,7 @@ docker_images:
   cobbler: 2.8
   helper: ok-20171013-0
   image_manager: latest
-  mariadb: 10.3.2
+  mariadb: 10.3.0
   nginx: 1.13.5
   openstackclient: ocata
   phpmyadmin: 4.7.4-1
