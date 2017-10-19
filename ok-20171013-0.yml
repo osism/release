@@ -71,10 +71,10 @@ ansible_roles:
   ANXS.utilities: b078b43445c52231d9925fdcad42e2e7e5ac9dcd
   ANXS.timezone: 9a77595bf89fc2c255c7c36c18a9cb113911144d
   osism.cobbler: f5d67a9363ed50031a8f3dd9928f611a0503d038
-  osism.common: 82e7dce57e4acf9d5fdd11eda42fec121e6501e3
+  osism.common: 5c59295d50e4c93fad958248d3e881a17c81dc46
   osism.configuration: 54c65a7c72f30d24c3df9565687fdf06493350cd
   osism.docker: c69335445cb0c61ace1406bc343c53cc596dd7b9
-  osism.helper: 0767c8dbb7998a687cfe2405eb1deae442b90834
+  osism.helper: cefed0468b550882b9a4dd1f36249516a02704dc
   osism.hostname: e96bf65048ed44e056d64babdf597e362d9bdd80
   osism.hosts: 85afb48da0dc212451e2f536ebd4acf39d21d834
   osism.manager: a62e0f8cbf25409e868f87f9194191e37525a9b1
