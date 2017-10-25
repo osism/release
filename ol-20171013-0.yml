@@ -1,7 +1,7 @@
 ---
 repository_version: 20171013-0
 
-ceph_ansible_version: 3.0.2
+ceph_ansible_version: 3.0.4
 ceph_version: luminous
 
 openstack_version: ocata
@@ -54,12 +54,14 @@ docker_images:
   ceph_dash: 1.2
   cephclient: luminous
   cobbler: 2.8
+  grafana: 4.5.2
   helper: ol-20171013-0
   image_manager: latest
   mariadb: 10.3.0
   nginx: 1.13.5
   openstackclient: ocata
   phpmyadmin: 4.7.4-1
+  prometheus: v1.8.1
   rally: ocata-20171013-0
   redis: 4.0.2
   registry: 2.6.2
@@ -74,7 +76,7 @@ ansible_roles:
   osism.common: 5c59295d50e4c93fad958248d3e881a17c81dc46
   osism.configuration: 54c65a7c72f30d24c3df9565687fdf06493350cd
   osism.docker: c69335445cb0c61ace1406bc343c53cc596dd7b9
-  osism.helper: cefed0468b550882b9a4dd1f36249516a02704dc
+  osism.helper: d3d6e23eaacc768ad02539c30bbf528efa06675b
   osism.hostname: e96bf65048ed44e056d64babdf597e362d9bdd80
   osism.hosts: 85afb48da0dc212451e2f536ebd4acf39d21d834
   osism.manager: a62e0f8cbf25409e868f87f9194191e37525a9b1
