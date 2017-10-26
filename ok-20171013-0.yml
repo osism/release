@@ -82,7 +82,7 @@ ansible_roles:
   osism.mirror: a0f277e97f37aab2817320b4b17c7cca860177df
   osism.network-interfaces: 992e7ed6050495a708a657320908c30c7085f0ac
   osism.operator: 4ae2fea8e057fc111c61c8cd78555ca7e3d32b4b
-  osism.prometheus: fc4e6491c693e0d303cb9a6a625860bcb63a1699
+  osism.prometheus: 6a2ba4d9101a996d7da498f4678adaa6116f12db
   osism.proxy: 452025fb3a23f15bb57be59221d5b8297ec081bf
   osism.repository: 680eb2bb900f3f2cb2bda71aa54d4de28b2cde3f
   osism.resolvconf: 51939b4afaa55cbbb4e1ec7ecb42db620fd1b752
