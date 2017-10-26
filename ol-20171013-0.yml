@@ -54,7 +54,6 @@ docker_images:
   ceph_dash: 1.2
   cephclient: luminous
   cobbler: 2.8
-  grafana: 4.5.2
   helper: ol-20171013-0
   image_manager: latest
   mariadb: 10.3.0
