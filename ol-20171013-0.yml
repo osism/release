@@ -32,7 +32,7 @@ openstack_projects:
   neutron-lbaas-agent: 10.0.1
   neutron: 10.0.4
   nova: 15.0.7
-  rally: 0.9.1
+  rally: 0.10.0
   tempest: 16.1.0
   
 horizon_plugins:
