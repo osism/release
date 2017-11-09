@@ -1,0 +1,17 @@
+---
+aptly: osism/aptly
+ara_server: osism/ara-server
+ceph: ceph/daemon
+cephclient: osism/cephclient
+cobbler: osism/cobbler
+helper: osism/helper
+image_manager: betacloud/image-manager
+mariadb: library/mariadb
+mysqld_exporter: prom/mysqld-exporter
+nginx: library/nginx
+node_exporter: prom/node-exporter
+openstackclient: osism/openstackclient
+phpmyadmin: phpmyadmin/phpmyadmin
+prometheus: prom/prometheus
+redis: library/redis
+registry: library/registry
