@@ -31,6 +31,7 @@ openstack_projects:
   manila: 4.0.1
   neutron-lbaas-agent: 10.0.1
   neutron-sfc-agent: 4.0.0
+  neutron-vpnaas-agent: 10.0.0
   neutron: 10.0.4
   nova: 15.0.7
   rally: 0.10.0

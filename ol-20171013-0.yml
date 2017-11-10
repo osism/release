@@ -30,6 +30,7 @@ openstack_projects:
   keystone: 11.0.3
   manila: 4.0.1
   neutron-lbaas-agent: 10.0.1
+  neutron-vpnaas-agent: 10.0.0
   neutron-sfc-agent: 4.0.0
   neutron: 10.0.4
   nova: 15.0.7
