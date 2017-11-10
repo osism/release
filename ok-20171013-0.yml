@@ -30,7 +30,6 @@ openstack_projects:
   keystone: 11.0.3
   manila: 4.0.1
   neutron-lbaas-agent: 10.0.1
-  neutron-sfc-agent: 4.0.0
   neutron-vpnaas-agent: 10.0.0
   neutron: 10.0.4
   nova: 15.0.7
@@ -40,10 +39,17 @@ openstack_projects:
 horizon_plugins:
   neutron-lbaas-dashboard: 2.0.0
 
-neutron_plugins:
+neutron_base_plugins:
   neutron-fwaas: 10.1.0
+  networking-generic-switch: stable-ocata
+  networking-sfc: stable-ocata
+  vmware-nsx: stable-ocata
+
+neutron_server_plugins:
   neutron-lbaas: 10.0.1
   neutron-vpnaas: 10.0.0
+  neutron-dynamic-routing: stable-ocata
+  vmware-nsxlib: stable-ocata
 
 integrated_projects:
   novnc: 0.6.2
