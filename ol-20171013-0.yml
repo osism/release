@@ -65,15 +65,19 @@ docker_images:
   helper: ol-20171013-0
   image_manager: latest
   mariadb: 10.3.0
+  mongo: 3.5
   mysqld_exporter: v0.10.0
   nginx: 1.13.5
   node_exporter: v0.15.1
   openstackclient: ocata
   phpmyadmin: 4.7.4-1
+  postgres: 9.6-alpine
   prometheus: v1.8.1
+  rabbitmq: 3.6-management
   rally: ocata-20171013-0
   redis: 4.0.2
   registry: 2.6.2
+  stackstorm: 2.5.0
 
 ansible_roles:
   hardening: 15.1.10
