@@ -18,7 +18,7 @@ openstack_projects:
   ceilometer: stable-ocata
   cinder: stable-ocata
   glance: stable-ocata
-  gnocchi: stable-ocata
+  gnocchi: 3.1.4
   heat: stable-ocata
   horizon: stable-ocata
   keystone: stable-ocata
@@ -27,8 +27,8 @@ openstack_projects:
   neutron-vpnaas-agent: stable-ocata
   neutron: stable-ocata
   nova: stable-ocata
-  rally: stable-ocata
-  tempest: stable-ocata
+  rally: 0.10.0
+  tempest: 16.1.0
   
 horizon_plugins:
   neutron-lbaas-dashboard: stable-ocata
