@@ -32,7 +32,7 @@ for filename in glob.glob("%s/*.yml" % OSISM_VERSION):
         versions = yaml.load(fp)
         all_docker_images.append(versions.get('docker_images', {}))
         if os.path.basename(filename) == 'base.yml':
-            target_tag = versions['repository_version']
+            repository_version = versions['repository_version']
 
 for docker_images in all_docker_images:
     for image in docker_images:
@@ -47,6 +47,7 @@ for docker_images in all_docker_images:
         else:
             target = images[image]
 
+        target_tag = repository_version
         if image in ['cephclient', 'openstackclient', 'ceph']:
             target_tag = docker_images[image] + '-' + target_tag
 
