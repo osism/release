@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import glob
 import os
 import sys
 
@@ -20,47 +21,50 @@ import json
 import yaml
 
 OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
-
-with open("%s.yml" % OSISM_VERSION, "rb") as fp:
-    versions = yaml.load(fp)
+docker_client = docker.APIClient(base_url='unix://var/run/docker.sock')
 
 with open("images.yml", "rb") as fp:
     images = yaml.load(fp)
 
-docker_images = versions['docker_images']
-docker_client = docker.APIClient(base_url='unix://var/run/docker.sock')
+all_docker_images = []
+for filename in glob.glob("%s/*.yml" % OSISM_VERSION):
+    with open(filename, "rb") as fp:
+        versions = yaml.load(fp)
+        all_docker_images.append(versions.get('docker_images', {}))
+        if os.path.basename(filename) == 'base.yml':
+            target_tag = versions['repository_version']
 
-for image in versions['docker_images']:
-    if image in ['rally', 'helper']:
-        continue
+for docker_images in all_docker_images:
+    for image in docker_images:
+        if image in ['rally', 'helper']:
+            continue
 
-    if not images[image][:5] == 'osism':
-        if image == 'ceph':
-            target = 'osism/ceph-daemon'
+        if not images[image][:5] == 'osism':
+            if image == 'ceph':
+                target = 'osism/ceph-daemon'
+            else:
+                target = "osism/" + images[image][images[image].find('/') + 1:]
         else:
-            target = "osism/" + images[image][images[image].find('/') + 1:]
-    else:
-        target = images[image]
+            target = images[image]
 
-    target_tag = versions['repository_version']
-    if image in ['cephclient', 'openstackclient', 'ceph']:
-        target_tag = versions['docker_images'][image] + '-' + target_tag
+        if image in ['cephclient', 'openstackclient', 'ceph']:
+            target_tag = docker_images[image] + '-' + target_tag
 
-    source_tag = versions['docker_images'][image]
-    if image == 'ceph':
-        source_tag = "tag-build-master-%s-ubuntu-16.04" % source_tag
+        source_tag = docker_images[image]
+        if image == 'ceph':
+            source_tag = "tag-build-master-%s-ubuntu-16.04" % source_tag
 
-    print("pulling - %s:%s" % (images[image], source_tag))
-    docker_client.pull(images[image], source_tag)
+        print("pulling - %s:%s" % (images[image], source_tag))
+        docker_client.pull(images[image], source_tag)
 
-    print("tagging - %s:%s" % (target, target_tag))
-    docker_client.tag("%s:%s" % (images[image], source_tag), target, target_tag)
+        print("tagging - %s:%s" % (target, target_tag))
+        docker_client.tag("%s:%s" % (images[image], source_tag), target, target_tag)
 
-    print("pushing - %s:%s" % (target, target_tag))
-    docker_client.push(target, target_tag)
+        print("pushing - %s:%s" % (target, target_tag))
+        docker_client.push(target, target_tag)
 
-    print("removing - %s:%s" % (images[image], source_tag))
-    docker_client.remove_image("%s:%s" % (images[image], source_tag))
+        print("removing - %s:%s" % (images[image], source_tag))
+        docker_client.remove_image("%s:%s" % (images[image], source_tag))
 
-    print("removing - %s:%s" % (target, target_tag))
-    docker_client.remove_image("%s:%s" % (target, target_tag))
+        print("removing - %s:%s" % (target, target_tag))
+        docker_client.remove_image("%s:%s" % (target, target_tag))
