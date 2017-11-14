@@ -15,7 +15,7 @@ openstackclient: osism/openstackclient
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
 prometheus: prom/prometheus
-rabbitmq: library/management
+rabbitmq: library/rabbitmq
 redis: library/redis
 registry: library/registry
 stackstorm: stackstorm/stackstorm
