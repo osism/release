@@ -18,7 +18,7 @@ openstack_projects:
   ceilometer: stable-ocata
   cinder: stable-ocata
   glance: stable-ocata
-  gnocchi: 3.1.4
+  gnocchi: 3.1.9
   heat: stable-ocata
   horizon: stable-ocata
   keystone: stable-ocata
