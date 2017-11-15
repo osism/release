@@ -27,6 +27,7 @@ openstack_projects:
   neutron-vpnaas-agent: stable-ocata
   neutron: stable-ocata
   nova: stable-ocata
+  panko: stable-ocata
   rally: 0.10.0
   tempest: 16.1.0
   
