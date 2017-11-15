@@ -24,7 +24,7 @@ IMAGES = os.environ.get("IMAGES", "").split(",")
 OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
 docker_client = docker.APIClient(base_url='unix://var/run/docker.sock')
 
-with open("images.yml", "rb") as fp:
+with open("etc/images.yml", "rb") as fp:
     images = yaml.load(fp)
 
 all_docker_images = []
