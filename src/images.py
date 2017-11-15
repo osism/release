@@ -20,6 +20,7 @@ import docker
 import json
 import yaml
 
+IMAGES = os.environ.get("IMAGES", "").split(",")
 OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
 docker_client = docker.APIClient(base_url='unix://var/run/docker.sock')
 
@@ -36,6 +37,10 @@ for filename in glob.glob("%s/*.yml" % OSISM_VERSION):
 
 for docker_images in all_docker_images:
     for image in docker_images:
+        if IMAGES and image not in IMAGES:
+            print("skipping %s" % image)
+            continue
+
         if image in ['rally', 'helper']:
             continue
 
