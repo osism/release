@@ -4,13 +4,14 @@ ara_server: osism/ara-server
 ceph: ceph/daemon
 cephclient: osism/cephclient
 cobbler: osism/cobbler
+haproxy_exporter: prom/haproxy-exporter
 helper: osism/helper
 image_manager: betacloud/image-manager
 mariadb: library/mariadb
+memcached_exporter: prom/memcached-exporter
 mongo: library/mongo
 mysqld_exporter: prom/mysqld-exporter
 nginx: library/nginx
-node_exporter: prom/node-exporter
 openstackclient: osism/openstackclient
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
