@@ -6,10 +6,10 @@ docker_images:
   rally: ocata-20171120-0
 
 infrastructure_projects:
-  elasticsearch: 5.6.3
+  elasticsearch: 5.6.4
   fluentd: 2.3.5
   haproxy: 1.7.9
-  kibana: 5.6.3
+  kibana: 5.6.4
   mariadb: 10.0.32
   rabbitmq: 3.6.12
 
@@ -18,7 +18,7 @@ openstack_projects:
   ceilometer: stable-ocata
   cinder: stable-ocata
   glance: stable-ocata
-  gnocchi: 3.1.9
+  gnocchi: 3.1.12
   heat: stable-ocata
   horizon: stable-ocata
   keystone: stable-ocata
@@ -49,4 +49,4 @@ neutron_server_plugins:
 integrated_projects:
   novnc: 0.6.2
   spice_html5: 0.1.6
-  logtrail: 0.1.22
+  logtrail: 0.1.23
