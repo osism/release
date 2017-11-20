@@ -19,13 +19,15 @@ docker_images:
   mongo: 3.5
   mysqld_exporter: v0.10.0
   nginx: 1.13.5
+  node_exporter: v0.15.1
   phpmyadmin: 4.7.4-1
   postgres: 9.6-alpine
   prometheus: v1.8.1
   rabbitmq: 3.6-management
   redis: 4.0.2
   registry: 2.6.2
-  stackstorm: 2.5.0
+  rundeck: 2.10.0
+
 
 ansible_roles:
   hardening: 15.1.11
