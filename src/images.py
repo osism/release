@@ -20,7 +20,9 @@ import docker
 import json
 import yaml
 
-IMAGES = os.environ.get("IMAGES", "").split(",")
+IMAGES = os.environ.get("IMAGES", None)
+if IMAGES:
+    IMAGES = IMAGES.split(",")
 OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
 docker_client = docker.APIClient(base_url='unix://var/run/docker.sock')
 
