@@ -1,0 +1,13 @@
+---
+language: generic
+
+script:
+  - bash src/trigger-travis.sh --branch master osism docker-osism-ansible $TRAVIS_ACCESS_TOKEN "new commit in release repository"
+  - bash src/trigger-travis.sh --branch master osism docker-ceph-ansible $TRAVIS_ACCESS_TOKEN "new commit in release repository"
+  - bash src/trigger-travis.sh --branch master osism docker-kolla-ansible $TRAVIS_ACCESS_TOKEN "new commit in release repository"
+
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.org#osism"
+    use_notice: true
