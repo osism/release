@@ -1,6 +1,7 @@
 ---
 aptly: osism/aptly
 ara_server: osism/ara-server
+cadvisor: google/cadvisor
 ceph: ceph/daemon
 ceph_ansible: osism/ceph-ansible
 cephclient: osism/cephclient
