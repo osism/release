@@ -2,3 +2,5 @@ PyYAML
 docker
 requests
 ruamel.yaml
+gitpython
+dictdiffer

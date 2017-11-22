@@ -1,10 +1,15 @@
 ---
-language: generic
+language: python
+
+env:
+  global:
+    - OSISM_VERSION=latest
+
+install:
+  - pip install -r requirements.txt
 
 script:
-  - bash scripts/trigger-travis.sh --branch master osism docker-osism-ansible $TRAVIS_ACCESS_TOKEN "new commit in release repository"
-  - bash scripts/trigger-travis.sh --branch master osism docker-ceph-ansible $TRAVIS_ACCESS_TOKEN "new commit in release repository"
-  - bash scripts/trigger-travis.sh --branch master osism docker-kolla-ansible $TRAVIS_ACCESS_TOKEN "new commit in release repository"
+  - bash scripts/trigger.sh
 
 notifications:
   irc:
