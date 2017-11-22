@@ -1,2 +1,4 @@
 PyYAML
 docker
+requests
+ruamel.yaml
