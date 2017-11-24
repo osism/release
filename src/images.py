@@ -23,8 +23,12 @@ import yaml
 IMAGES = os.environ.get("IMAGES", None)
 if IMAGES:
     IMAGES = IMAGES.split(",")
+
 OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
-docker_client = docker.APIClient(base_url='unix://var/run/docker.sock')
+if OSISM_VERSION == "latest":
+    OSISM_VERSION = os.readlink("latest").strip("/")
+
+docker_client = docker.APIClient(base_url='unix:///var/run/docker.sock')
 
 with open("etc/images.yml", "rb") as fp:
     images = yaml.load(fp)

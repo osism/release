@@ -5,11 +5,22 @@ env:
   global:
     - OSISM_VERSION=latest
 
+before_install:
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y install docker-ce
+  - echo 'DOCKER_OPTS="--experimental -H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock"' | sudo tee /etc/default/docker
+  - sudo service docker restart
+  - docker login --username="$TRAVIS_DOCKER_USERNAME" --password="$TRAVIS_DOCKER_PASSWORD"
+  - docker info
+
 install:
   - pip install -r requirements.txt
 
 script:
-  - bash scripts/trigger.sh
+  - 'if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_EVENT_TYPE" != "cron" ]]; then bash scripts/trigger.sh; fi'
+  - 'if [ "$TRAVIS_EVENT_TYPE" = "cron" ]; then bash scripts/update-images.sh; fi'
 
 notifications:
   irc:

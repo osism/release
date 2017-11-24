@@ -35,10 +35,11 @@ a_commit = commits_list[0]
 b_commit = commits_list[1]
 
 trigger = {
-    "docker-osism-ansible": False,
     "docker-ceph-ansible": False,
+    "docker-images": False,
     "docker-kolla-ansible": False,
-    "docker-kolla-docker": False
+    "docker-kolla-docker": False,
+    "docker-osism-ansible": False
 }
 
 path = "%s/base.yml" % OSISM_VERSION
@@ -69,7 +70,7 @@ if a_commit.diff(b_commit, paths=path):
         # change in docker_images --> ignore
         if path.startswith("docker_images"):
             #print "docker_images changed"
-            pass
+            trigger["docker-images"] = True
 
         # change in repository_version --> rebuild all
         if path.startswith("repository_version"):
@@ -95,7 +96,7 @@ if a_commit.diff(b_commit, paths=path):
         # change in docker_images --> ignore
         if path.startswith("docker_images"):
             #print "docker_images changed"
-            pass
+            trigger["docker-images"] = True
 
         # change in oenstack_version else --> rebuild docker-kolla-docker + docker-kolla-ansible
         if path.startswith("openstack_version"):
@@ -131,8 +132,7 @@ for ceph_version in ["kraken", "luminous"]:
             # change in docker_images --> ignore
             if path.startswith("docker_images"):
                 #print "docker_images changed"
-                pass
-
+                trigger["docker-images"] = True
 
         # change in everything else --> rebuild docker-kolla-ansible
         for key in ["ceph_ansible_version",
