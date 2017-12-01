@@ -1,0 +1,17 @@
+---
+ANXS.apt: https://github.com/ANXS/apt.git
+ANXS.timezone: https://github.com/ANXS/timezone.git
+ANXS.utilities: https://github.com/ANXS/utilities.git
+debops.grub: https://github.com/debops/ansible-grub.git
+hardening: https://github.com/openstack/ansible-hardening.git
+osism.common: https://github.com/osism/ansible-common.git
+osism.configuration: https://github.com/osism/ansible-configuration.git
+osism.docker: https://github.com/osism/ansible-docker.git
+osism.hostname: https://github.com/osism/ansible-hostname.git
+osism.hosts: https://github.com/osism/ansible-hosts.git
+osism.manager: https://github.com/osism/ansible-manager.git
+osism.network-interfaces: https://github.com/osism/ansible-network-interfaces.git
+osism.operator: https://github.com/osism/ansible-operator.git
+osism.proxy: https://github.com/osism/ansible-proxy.git
+osism.repository: https://github.com/osism/ansible-repository.git
+osism.resolvconf: https://github.com/osism/ansible-resolvconf.git
