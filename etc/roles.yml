@@ -15,6 +15,7 @@ osism.manager: https://github.com/osism/ansible-manager.git
 osism.mirror: https://github.com/osism/ansible-mirror.git
 osism.monitoring: https://github.com/osism/ansible-monitoring.git
 osism.network-interfaces: https://github.com/osism/ansible-network-interfaces.git
+osism.operator: https://github.com/osism/ansible-operator.git
 osism.prometheus-exporter: https://github.com/osism/ansible-prometheus-exporter.git
 osism.prometheus: https://github.com/osism/ansible-prometheus.git
 osism.proxy: https://github.com/osism/ansible-proxy.git
