@@ -2,6 +2,7 @@
 alertmanager: prom/alertmanager
 aptly: osism/aptly
 ara_server: osism/ara-server
+blackbox-exporter: prom/blackbox-exporter
 cadvisor: google/cadvisor
 ceph: ceph/daemon
 ceph_ansible: osism/ceph-ansible
