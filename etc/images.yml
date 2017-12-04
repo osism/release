@@ -4,6 +4,7 @@ ara_server: osism/ara-server
 cadvisor: google/cadvisor
 ceph: ceph/daemon
 ceph_ansible: osism/ceph-ansible
+ceph_exporter: digitalocean/ceph_exporter
 cephclient: osism/cephclient
 cobbler: osism/cobbler
 haproxy_exporter: prom/haproxy-exporter
