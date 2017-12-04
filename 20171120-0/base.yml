@@ -8,6 +8,7 @@ osism_projects:
   node_exporter: v0.15.1
 
 docker_images:
+  alertmanager: v0.11.0
   aptly: 1.1.1
   ara_server: 0.14.5
   cadvisor: v0.28.1

@@ -1,4 +1,5 @@
 ---
+alertmanager: prom/alertmanager
 aptly: osism/aptly
 ara_server: osism/ara-server
 cadvisor: google/cadvisor
