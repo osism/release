@@ -47,11 +47,11 @@ ansible_roles:
   osism.hosts: a819861e4ccc9445eb8141ec4b8c3d5371504539
   osism.manager: a40b48a21b1708e12bf46a8005673e1cf715ed6c
   osism.mirror: a0f277e97f37aab2817320b4b17c7cca860177df
-  osism.monitoring: e69a326d767bca9f105205b166ced8d9e94cb611
+  osism.monitoring: 30dca2b400b4cd254ddeed6da1d1e291e8e220d9
   osism.network-interfaces: d53615c04909a9752da0414c70ed179b6b57de1b
   osism.operator: d71e9ca46302d0c419ce2d28f12f272f41e13a75
-  osism.prometheus: be5b30f69f5dfd0e3cff40b87fea4ca1accedd32
-  osism.prometheus-exporter: 5d691233cfbc1b213388eae7f40a8f01d7bc87bd
+  osism.prometheus: 9eaf11482db225990135b3445af1e8032fed3b97
+  osism.prometheus-exporter: b5510ae18f7bced5b22c3981f9359386fdb23f6f
   osism.proxy: 0c82dcfda27fbaa8828ee01ff50ea2ff12705748
   osism.repository: d911927158656a3bd48f41145edef88473d0b64c
   osism.resolvconf: d871d84974108e1af18256c12cdfaf888e2ff0dd
