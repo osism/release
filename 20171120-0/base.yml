@@ -35,6 +35,7 @@ docker_images:
 ansible_roles:
   hardening: a327782cbac314842b674a1d3430d3ce50c56372
   debops.grub: 98fef89251f5843eba35159c19219045267cd5d3
+  debops.tinc: 2479ac3c6e7b5a23b7b3ace97cc512303fa283f5
   ANXS.apt: 0c544ce34d193096d43fd828afea54e2a7c091df
   ANXS.utilities: b078b43445c52231d9925fdcad42e2e7e5ac9dcd
   ANXS.timezone: 9a77595bf89fc2c255c7c36c18a9cb113911144d
