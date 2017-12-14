@@ -9,7 +9,7 @@ osism_projects:
 
 docker_images:
   alertmanager: v0.11.0
-  aptly: 1.1.1
+  aptly: 1.2.0
   ara_server: 0.14.5
   blackbox-exporter: v0.11.0
   cadvisor: v0.28.1
