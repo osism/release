@@ -6,10 +6,10 @@ docker_images:
   rally: ocata-20180103-0
 
 infrastructure_projects:
-  elasticsearch: 5.6.4
+  elasticsearch: 5.6.5
   fluentd: 2.3.5
   haproxy: 1.7.9
-  kibana: 5.6.4
+  kibana: 5.6.5
   mariadb: 10.0.32
   rabbitmq: 3.6.12
 
