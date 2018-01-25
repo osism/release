@@ -11,6 +11,7 @@ cephclient: osism/cephclient
 cobbler: osism/cobbler
 haproxy_exporter: prom/haproxy-exporter
 helper: osism/helper
+icinga2: jordan/icinga2
 image_manager: betacloud/image-manager
 kolla_ansible: osism/kolla-ansible
 mariadb: library/mariadb
