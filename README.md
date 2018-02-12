@@ -26,7 +26,6 @@ Push a snapshot of the new image with ``IMAGES=name_of_the_new_image OSISM_VERSI
 
 **NOTE**: The name of a new release follows the scheme ``YYYYMMDD-X``. ``X`` can be used to perform a second release on one day (that should be avoided).
 
-* Daily repository snapshots are prepared and published on the mirror system ``repository-1.osism.io``. Make sure the snapshot you want to use already exists. If this does not exist, wait for the creation or start the creation manually.
 * Copy the release directory ``latest`` to the new release directory (e.g. ``20171120-0``) and update the symlink ``latest``.
 * Set the ``repository_version`` parameter in the ``base.yml`` file to the appropriate value.
 * Set the tag of the ``rally`` image in the ``openstack-ocata.yml`` file (replace ``ocata`` with the name of the used OpenStack release) to the appropriate value.
