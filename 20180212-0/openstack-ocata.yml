@@ -25,7 +25,6 @@ openstack_projects:
   manila: stable-ocata
   mistral: stable-ocata
   neutron-lbaas-agent: stable-ocata
-  neutron-sfc-agent: stable-ocata
   neutron-vpnaas-agent: stable-ocata
   neutron: stable-ocata
   nova: stable-ocata
