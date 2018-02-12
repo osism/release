@@ -25,6 +25,7 @@ openstack_projects:
   manila: stable-ocata
   mistral: stable-ocata
   neutron-lbaas-agent: stable-ocata
+  neutron-sfc-agent: stable-ocata
   neutron-vpnaas-agent: stable-ocata
   neutron: stable-ocata
   nova: stable-ocata
@@ -38,16 +39,16 @@ horizon_plugins:
   searchlight-ui: stable-ocata
 
 neutron_base_plugins:
-  neutron-fwaas: stable-ocata
   networking-generic-switch: stable-ocata
   networking-sfc: stable-ocata
+  neutron-fwaas: stable-ocata
   vmware-nsx: stable-ocata
 
 neutron_server_plugins:
-  neutron-lbaas: stable-ocata
-  vpnaas-agent: stable-ocata
   neutron-dynamic-routing: stable-ocata
+  neutron-lbaas: stable-ocata
   vmware-nsxlib: stable-ocata
+  vpnaas-agent: stable-ocata
 
 integrated_projects:
   novnc: 0.6.2
