@@ -20,7 +20,7 @@ install:
 
 script:
   - 'if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_EVENT_TYPE" != "cron" ]]; then bash scripts/trigger.sh; fi'
-  - 'if [ "$TRAVIS_EVENT_TYPE" = "cron" ]; then bash scripts/update-images.sh; fi'
+  - 'if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then bash scripts/update-images.sh; fi'
 
 notifications:
   irc:
