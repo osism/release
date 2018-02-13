@@ -1,0 +1,6 @@
+---
+ceph_ansible_version: 3.0.15
+ceph_version: luminous
+docker_images:
+  ceph: luminous
+  cephclient: luminous
