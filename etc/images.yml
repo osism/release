@@ -11,8 +11,6 @@ cephclient: osism/cephclient
 cobbler: osism/cobbler
 haproxy_exporter: prom/haproxy-exporter
 helper: osism/helper
-icinga2: jordan/icinga2
-image_manager: betacloud/image-manager
 kolla_ansible: osism/kolla-ansible
 mariadb: library/mariadb
 memcached_exporter: prom/memcached-exporter
@@ -28,4 +26,3 @@ prometheus: prom/prometheus
 rabbitmq: library/rabbitmq
 redis: library/redis
 registry: library/registry
-rundeck: jordan/rundeck
