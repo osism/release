@@ -47,7 +47,7 @@ for docker_images in all_docker_images:
             print("skipping %s" % image)
             continue
 
-        if image in ['rally', 'helper', 'kolla-ansible', 'ceph-ansible', 'osism-ansible']:
+        if image in ['rally', 'kolla-ansible', 'ceph-ansible', 'osism-ansible']:
             continue
 
         if not images[image][:5] == 'osism':

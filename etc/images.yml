@@ -10,7 +10,6 @@ ceph_exporter: digitalocean/ceph_exporter
 cephclient: osism/cephclient
 cobbler: osism/cobbler
 haproxy_exporter: prom/haproxy-exporter
-helper: osism/helper
 kolla_ansible: osism/kolla-ansible
 mariadb: library/mariadb
 memcached_exporter: prom/memcached-exporter
