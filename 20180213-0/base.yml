@@ -16,7 +16,6 @@ docker_images:
   ceph_exporter: 1.1.0
   cobbler: 2.8
   haproxy_exporter: v0.8.0
-  image_manager: latest
   mariadb: 10.3.0
   memcached_exporter: v0.3.0
   mongo: 3.5
