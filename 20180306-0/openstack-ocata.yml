@@ -3,7 +3,7 @@ openstack_version: ocata
 
 docker_images:
   openstackclient: ocata
-  rally: ocata-20180213-0
+  rally: ocata-20180306-0
 
 infrastructure_projects:
   elasticsearch: 5.6.5

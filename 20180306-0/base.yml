@@ -1,5 +1,5 @@
 ---
-repository_version: 20180213-0
+repository_version: 20180306-0
 
 osism_projects:
   ansible: 2.3.2.0
