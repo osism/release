@@ -33,10 +33,6 @@ with open("%s/base.yml" % OSISM_VERSION, "rb") as fp:
 changed = False
 for name, repository in roles.items():
 
-    # NOTE(berendt): osism.docker pinned, has to be fixed in the future
-    if not name[:5] == "osism" or name == "osism.docker":
-        continue
-
     r = requests.get("https://api.github.com/repos/osism/ansible-%s/git/refs/heads/master" % name[6:])
 
     if r.status_code != 200:
