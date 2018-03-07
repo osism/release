@@ -1,9 +1,11 @@
 ---
+sudo: required
+
 language: python
 
-env:
-  global:
-    - OSISM_VERSION=latest
+cache:
+  directories:
+    - $HOME/.cache/pip
 
 before_install:
   - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -15,12 +17,16 @@ before_install:
   - docker login --username="$TRAVIS_DOCKER_USERNAME" --password="$TRAVIS_DOCKER_PASSWORD"
   - docker info
 
+env:
+  global:
+    - OSISM_VERSION=latest
+
 install:
   - pip install -r requirements.txt
 
 script:
   - 'if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_EVENT_TYPE" != "cron" ]]; then bash scripts/trigger.sh; fi'
-  - 'if [ "$TRAVIS_EVENT_TYPE" == "cron" ]; then bash scripts/update-images.sh; fi'
+  - 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || $FORCE_UPDATE_IMAGES == "true" ]]; then bash scripts/update-images.sh; fi'
 
 notifications:
   irc:
