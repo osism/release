@@ -28,11 +28,13 @@ if IMAGES:
 
 def process(version):
 
+    print("processing version %s" % version)
+
     with open("etc/images.yml", "rb") as fp:
         images = yaml.load(fp)
 
     all_docker_images = []
-    repository_version = 'latest'
+    repository_version = version
     for filename in glob.glob("%s/*.yml" % version):
         with open(filename, "rb") as fp:
             versions = yaml.load(fp)
