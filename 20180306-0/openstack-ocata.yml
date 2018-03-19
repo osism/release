@@ -22,6 +22,7 @@ openstack_projects:
   heat: stable-ocata
   horizon: stable-ocata
   keystone: stable-ocata
+  magnum: stable-ocata
   manila: stable-ocata
   mistral: stable-ocata
   neutron-lbaas-agent: stable-ocata

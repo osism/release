@@ -22,6 +22,7 @@ openstack_projects:
   heat: stable-pike
   horizon: stable-pike
   keystone: stable-pike
+  magnum: stable-pike
   manila: stable-pike
   mistral: stable-pike
   neutron-lbaas-agent: stable-pike
