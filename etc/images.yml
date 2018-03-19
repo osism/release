@@ -1,27 +1,35 @@
 ---
+# prometheus
+
 alertmanager: prom/alertmanager
-aptly: osism/aptly
-ara_server: osism/ara-server
 blackbox-exporter: prom/blackbox-exporter
 cadvisor: google/cadvisor
-ceph: ceph/daemon
-ceph_ansible: osism/ceph-ansible
 ceph_exporter: digitalocean/ceph_exporter
-cephclient: osism/cephclient
-cobbler: osism/cobbler
 haproxy_exporter: prom/haproxy-exporter
+memcached_exporter: prom/memcached-exporter
+mysqld_exporter: prom/mysqld-exporter
+node_exporter: prom/node-exporter
+prometheus: prom/prometheus
+
+# manager
+
+ara_server: osism/ara-server
+ceph_ansible: osism/ceph-ansible
 kolla_ansible: osism/kolla-ansible
 mariadb: library/mariadb
-memcached_exporter: prom/memcached-exporter
-mongo: library/mongo
-mysqld_exporter: prom/mysqld-exporter
-nginx: library/nginx
-node_exporter: prom/node-exporter
 openstackclient: osism/openstackclient
 osism_ansible: osism/osism-ansible
 phpmyadmin: phpmyadmin/phpmyadmin
-postgres: library/postgres
-prometheus: prom/prometheus
-rabbitmq: library/rabbitmq
 redis: library/redis
+
+# mirror
+
+aptly: osism/aptly
+cobbler: osism/cobbler
+nginx: library/nginx
 registry: library/registry
+
+# ceph
+
+ceph: ceph/daemon
+cephclient: osism/cephclient

@@ -18,14 +18,11 @@ docker_images:
   haproxy_exporter: v0.8.0
   mariadb: 10.3.0
   memcached_exporter: v0.3.0
-  mongo: 3.5
   mysqld_exporter: v0.10.0
   nginx: 1.13.5
   node_exporter: v0.15.1
   phpmyadmin: 4.7.4-1
-  postgres: 9.6-alpine
   prometheus: v2.0.0
-  rabbitmq: 3.6-management
   redis: 4.0.2
   registry: 2.6.2
 
