@@ -14,7 +14,7 @@ before_install:
   - sudo apt-get -y install docker-ce
   - echo 'DOCKER_OPTS="--experimental -H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock"' | sudo tee /etc/default/docker
   - sudo service docker restart
-  - docker login --username="$TRAVIS_DOCKER_USERNAME" --password="$TRAVIS_DOCKER_PASSWORD"
+  - echo $TRAVIS_DOCKER_PASSWORD | docker login --username="$TRAVIS_DOCKER_USERNAME" --password-stdin
   - docker info
 
 env:
