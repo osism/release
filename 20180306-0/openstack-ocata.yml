@@ -33,8 +33,12 @@ openstack_projects:
   rally: 0.10.1
   tempest: 16.1.0
   searchlight: stable-ocata
+
+ceilometer_base_plugins:
+  panko: stable-ocata
   
 horizon_plugins:
+  manila-ui: stable-ocata
   neutron-lbaas-dashboard: stable-ocata
   searchlight-ui: stable-ocata
 

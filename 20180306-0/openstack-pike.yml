@@ -32,6 +32,9 @@ openstack_projects:
   panko: stable-pike
   rally: 0.10.1
   searchlight: stable-pike
+
+ceilometer_base_plugins:
+  panko: stable-pike
   
 horizon_plugins:
   fwaas-dashboard: stable-pike
@@ -39,7 +42,6 @@ horizon_plugins:
   mistral-dashboard: stable-pike
   neutron-lbaas-dashboard: stable-pike
   searchlight-ui: stable-pike
-
 
 neutron_base_plugins:
   networking-generic-switch: stable-pike
@@ -51,8 +53,8 @@ neutron_server_plugins:
   neutron-dynamic-routing: stable-pike
   neutron-lbaas: stable-pike
   vmware-nsxlib: stable-pike
-  vpnaas-agent: stable-pike
   ovn-plugin-networking-ovn: stable-pike
+  vpnaas-agent: stable-pike
 
 integrated_projects:
   novnc: 0.6.2
