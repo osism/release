@@ -1,4 +1,5 @@
 ---
+ansible_version: ">=2.3,<2.4"
 ceph_ansible_version: 3.0.15
 ceph_version: luminous
 docker_images:

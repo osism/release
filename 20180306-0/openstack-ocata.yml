@@ -1,4 +1,5 @@
 ---
+ansible_version: ">=2.3,<2.4"
 openstack_version: ocata
 
 docker_images:
@@ -39,6 +40,7 @@ ceilometer_base_plugins:
   
 horizon_plugins:
   manila-ui: stable-ocata
+  mistral-dashboard: stable-ocata
   neutron-lbaas-dashboard: stable-ocata
   searchlight-ui: stable-ocata
 

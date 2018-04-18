@@ -1,8 +1,8 @@
 ---
+ansible_version: ">=2.5,<2.6"
 repository_version: 20180306-0
 
 osism_projects:
-  ansible: 2.5.0
   ara: 0.14.6
   docker: 17.09.0
   node_exporter: v0.15.1
