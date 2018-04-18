@@ -2,7 +2,7 @@
 repository_version: 20180306-0
 
 osism_projects:
-  ansible: 2.3.2.0
+  ansible: 2.5.0
   ara: 0.14.6
   docker: 17.09.0
   node_exporter: v0.15.1
@@ -35,7 +35,7 @@ ansible_roles:
   osism.cobbler: f5d67a9363ed50031a8f3dd9928f611a0503d038
   osism.common: e435773ec8a293a740d0c513a08e0f61c7d7c7d1
   osism.configuration: 13b79f912fa25ea86f8227154a75a1f7357cced6
-  osism.docker: 8e8a499638d06b1aabcca4f9cfa4ffe8a5418bfd
+  osism.docker: 297b9ecbe97e12eca6390a981dfb2d104b49ce68
   osism.helper: d012950728499b8e074716088f980179a64c2c6d
   osism.hostname: db86ef903f4beace1a5443b2ac3efc2e89a16ac4
   osism.hosts: 1be28338abe786a91de745ad16d751c4e3be9631
