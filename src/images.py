@@ -60,12 +60,14 @@ def process(version):
                 target = images[image]
 
             target_tag = repository_version
-            if image in ['cephclient', 'openstackclient', 'ceph']:
+            source_tag = docker_images[image]
+
+            if image in ['cephclient', 'openstackclient']:
                 target_tag = docker_images[image] + '-' + target_tag
 
-            source_tag = docker_images[image]
             if image == 'ceph':
-                source_tag = "tag-build-master-%s-ubuntu-16.04" % source_tag
+                target_tag = "%s-%s" % (source_tag.split("-")[-1], target_tag)
+                source_tag = "%s-ubuntu-16.04-x86_64" % source_tag
 
             print("pulling - %s:%s" % (images[image], source_tag))
             DOCKER_CLIENT.pull(images[image], source_tag)
