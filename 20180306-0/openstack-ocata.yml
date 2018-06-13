@@ -57,6 +57,4 @@ neutron_server_plugins:
   vpnaas-agent: stable-ocata
 
 integrated_projects:
-  novnc: 0.6.2
-  spice_html5: 0.1.6
   logtrail: 0.1.23
