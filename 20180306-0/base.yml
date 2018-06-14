@@ -33,14 +33,14 @@ ansible_roles:
   ANXS.utilities: b078b43445c52231d9925fdcad42e2e7e5ac9dcd
   ANXS.timezone: 9a77595bf89fc2c255c7c36c18a9cb113911144d
   osism.cobbler: 84856def66d8ec3f16aa36c04d8b2642f76a4ae4
-  osism.common: 366c4dfc514d290755919c85ae9c09a78d9139d7
+  osism.common: 7f597f09c5d90f7b79a0d3a451ff54929ad6ddf8
   osism.configuration: 13b79f912fa25ea86f8227154a75a1f7357cced6
   osism.docker: 297b9ecbe97e12eca6390a981dfb2d104b49ce68
   osism.helper: d012950728499b8e074716088f980179a64c2c6d
   osism.hostname: db86ef903f4beace1a5443b2ac3efc2e89a16ac4
   osism.hosts: 1be28338abe786a91de745ad16d751c4e3be9631
-  osism.manager: 83135db962880fdc54ce6998899873d1ef014949
-  osism.mirror: 68e9201b197f3c21a21c672bd7885127ba62fc41
+  osism.manager: 2ce56b01675f25752254d16474cf0836ea2a6d33
+  osism.mirror: 21d7bcb1d8e723fd7b71596119dceae431c15583
   osism.monitoring: 362a9251ad3a1d0a6c7d864ad810e3a171cf5a74
   osism.network-interfaces: 2b5e0f791dd44581c77e416c83258d767cfa94ab
   osism.operator: 7207be8b9862ea03e2b13ce110d7cdbd8ccb0ace
