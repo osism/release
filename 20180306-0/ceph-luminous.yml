@@ -1,7 +1,7 @@
 ---
 ansible_version: ">=2.3,<2.4"
-ceph_ansible_version: 3.0.31
+ceph_ansible_version: stable-3.0
 ceph_version: luminous
 docker_images:
-  ceph: v3.0.3-stable-3.0-luminous
+  ceph: v3.0.5-stable-3.0-luminous
   cephclient: luminous
