@@ -3,5 +3,5 @@ ansible_version: ">=2.3,<2.4"
 ceph_ansible_version: stable-3.0
 ceph_version: kraken
 docker_images:
-  ceph: v3.0.5-stable-3.0-kraken
+  ceph: v3.0.7-stable-3.0-kraken
   cephclient: kraken
