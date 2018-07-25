@@ -21,7 +21,7 @@ docker_images:
   mysqld_exporter: v0.10.0
   nginx: 1.13.5
   node_exporter: v0.15.1
-  phpmyadmin: 4.7.4-1
+  phpmyadmin: 4.8
   prometheus: v2.0.0
   redis: 4.0.2
   registry: 2.6.2
