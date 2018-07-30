@@ -115,7 +115,7 @@ if a_commit.diff(b_commit, paths=path):
                 #print "%s changed" % key
                 trigger["docker-kolla-docker"] = True
 
-for ceph_version in ["kraken", "luminous"]:
+for ceph_version in ["luminous"]:
     path = "%s/ceph-%s.yml" % (OSISM_VERSION, ceph_version)
     if a_commit.diff(b_commit, paths=path):
         #print "%s changed" % path
