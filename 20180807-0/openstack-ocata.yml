@@ -1,0 +1,60 @@
+---
+ansible_version: ">=2.3,<2.4"
+openstack_version: ocata
+
+docker_images:
+  openstackclient: ocata
+  rally: ocata-20180807-0
+
+infrastructure_projects:
+  elasticsearch: 5.6.5
+  fluentd: 2.3.5
+  haproxy: 1.7.9
+  kibana: 5.6.5
+  mariadb: 10.0.32
+  rabbitmq: 3.6.14
+
+openstack_projects:
+  aodh: stable-ocata
+  ceilometer: stable-ocata
+  cinder: stable-ocata
+  glance: stable-ocata
+  gnocchi: 3.1.12
+  heat: stable-ocata
+  horizon: stable-ocata
+  keystone: stable-ocata
+  magnum: stable-ocata
+  manila: stable-ocata
+  mistral: stable-ocata
+  neutron-lbaas-agent: stable-ocata
+  neutron-vpnaas-agent: stable-ocata
+  neutron: stable-ocata
+  nova: stable-ocata
+  panko: stable-ocata
+  rally: 0.10.1
+  tempest: 16.1.0
+  searchlight: stable-ocata
+
+ceilometer_base_plugins:
+  panko: stable-ocata
+  
+horizon_plugins:
+  manila-ui: stable-ocata
+  mistral-dashboard: stable-ocata
+  neutron-lbaas-dashboard: stable-ocata
+  searchlight-ui: stable-ocata
+
+neutron_base_plugins:
+  networking-generic-switch: stable-ocata
+  networking-sfc: stable-ocata
+  neutron-fwaas: stable-ocata
+  vmware-nsx: stable-ocata
+
+neutron_server_plugins:
+  neutron-dynamic-routing: stable-ocata
+  neutron-lbaas: stable-ocata
+  vmware-nsxlib: stable-ocata
+  vpnaas-agent: stable-ocata
+
+integrated_projects:
+  logtrail: 0.1.23
