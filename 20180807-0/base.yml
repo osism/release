@@ -13,7 +13,7 @@ docker_images:
   ara_server: 0.14.5
   blackbox-exporter: v0.11.0
   cadvisor: v0.28.1
-  ceph_exporter: 1.1.0
+  ceph_exporter: 2.0.0-luminous
   cobbler: 2.8
   haproxy_exporter: v0.8.0
   mariadb: 10.3.0
