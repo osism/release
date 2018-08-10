@@ -32,20 +32,20 @@ ansible_roles:
   ANXS.apt: 0c544ce34d193096d43fd828afea54e2a7c091df
   ANXS.utilities: b078b43445c52231d9925fdcad42e2e7e5ac9dcd
   ANXS.timezone: 9a77595bf89fc2c255c7c36c18a9cb113911144d
-  osism.cobbler: 84856def66d8ec3f16aa36c04d8b2642f76a4ae4
-  osism.common: 996f0182a01561f7b6cd6826a05b0fdd05e55df0
-  osism.configuration: 20a9da29466b2df292a6d396a3eeb2e1a386af2a
-  osism.docker: 982a2980994448d94d42a64f39456052faae7796
-  osism.helper: 67e2427fc8fbce4f81f769db05cb86555c46a7d5
-  osism.hostname: a959e854c33089e0523e5365b3690d74646ec142
-  osism.hosts: c7009f8f1dab6d1ac476c1df93296dcee24596f9
-  osism.manager: e86118600125f5909f73ea9db6fe9918c9d4918e
-  osism.mirror: 21d7bcb1d8e723fd7b71596119dceae431c15583
+  osism.cobbler: 1001d2668adfae061de8472fa0b62e5f4f164316
+  osism.common: ed6b6004e04408389ceaaefcc8569c5171829cd2
+  osism.configuration: b4a8aded799e52986ff246ea9a51f749f40f7f43
+  osism.docker: 05147cbc2b1ef427b12101d475b17f51b92f94d8
+  osism.helper: 30da274bafc36e165959a2a25d7486e14b59abd4
+  osism.hostname: 6c4a4bb53894e5984102ddffda0404ad7a5c559b
+  osism.hosts: 5650cf36198c465bcb9767d230b0070a46feec77
+  osism.manager: 062a4fcf3e669dbed6c30e363f1a099629064d20
+  osism.mirror: 99803c3e3f540a0bc0ce62826c522c170e19bb70
   osism.monitoring: 362a9251ad3a1d0a6c7d864ad810e3a171cf5a74
-  osism.network-interfaces: 30970cdc7b89341eba243c48f61eeaecdd94374e
-  osism.operator: d4b4a3b61d907d2f72520a158c08f12ea11fa680
-  osism.prometheus: 8d236c3a5c369fb8c82d7ad97f5fa26fc83b23f2
-  osism.prometheus-exporter: a5839bb913a2cc57991f29c3845b24b8b762a0a5
-  osism.proxy: 9e6c92e419056fd1e105ecb48abd1e6bdb4813dd
-  osism.repository: 7f6a4a63028a3249aa2aede632fe43acbc199ace
-  osism.resolvconf: f4e1d7384851684a49452656e7f5e15376f91880
+  osism.network-interfaces: cc094920d3b7129de1592c74463f890417ac359c
+  osism.operator: 9dee6b46798ee0ccbc405695748989505438f565
+  osism.prometheus: 7bfc4a74c4f151b6b68463948b10250cf34700fe
+  osism.prometheus-exporter: 9cb981e33e5ff20050198f7aeb52189645ccd7fa
+  osism.proxy: 18cc3c8cac4fb59b8bb61972f69c0df0f12c9106
+  osism.repository: ec8d09abb60e0cfdae7d510770514c8a5cff3615
+  osism.resolvconf: 7eb3f9e750f90d2b0a43ccc4606871bbfe4521b1
