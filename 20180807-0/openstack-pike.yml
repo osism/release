@@ -32,6 +32,7 @@ openstack_projects:
   nova: stable-pike
   panko: stable-pike
   rally: 0.10.1
+  tempest: 16.1.0
   searchlight: stable-pike
 
 ceilometer_base_plugins:
