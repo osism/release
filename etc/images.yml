@@ -26,6 +26,7 @@ redis: library/redis
 
 aptly: osism/aptly
 cobbler: osism/cobbler
+devpi: osism/devpi
 nginx: library/nginx
 registry: library/registry
 
