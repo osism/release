@@ -15,6 +15,7 @@ docker_images:
   cadvisor: v0.28.1
   ceph_exporter: 2.0.0-luminous
   cobbler: 2.8
+  devpi: 4.6.0
   haproxy_exporter: v0.8.0
   mariadb: 10.3.0
   memcached_exporter: v0.3.0
