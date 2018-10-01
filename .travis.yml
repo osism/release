@@ -8,14 +8,7 @@ cache:
     - $HOME/.cache/pip
 
 before_install:
-  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  - sudo apt-get update
-  - sudo apt-get -y install docker-ce
-  - echo 'DOCKER_OPTS="--experimental -H tcp://127.0.0.1:2375 -H unix:///var/run/docker.sock"' | sudo tee /etc/default/docker
-  - sudo service docker restart
-  - echo $TRAVIS_DOCKER_PASSWORD | docker login --username="$TRAVIS_DOCKER_USERNAME" --password-stdin
-  - docker info
+  - scripts/travis.sh
 
 env:
   global:
@@ -26,7 +19,6 @@ install:
 
 script:
   - 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || $FORCE_UPDATE_IMAGES == "true" ]]; then bash scripts/update-images.sh; fi'
-  - 'if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_EVENT_TYPE" != "cron" ]]; then bash scripts/trigger.sh; fi'
 
 notifications:
   irc:
