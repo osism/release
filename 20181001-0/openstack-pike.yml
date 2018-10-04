@@ -8,10 +8,10 @@ docker_images:
 
 infrastructure_projects:
   elasticsearch: 5.6.5
-  fluentd: 2.3.5
-  haproxy: 1.7.9
+  fluentd: 2.3.6
+  haproxy: 1.7.11
   kibana: 5.6.5
-  mariadb: 10.0.32
+  mariadb: 10.0.33
   rabbitmq: 3.6.16
 
 openstack_projects:
