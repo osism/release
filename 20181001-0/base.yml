@@ -1,16 +1,16 @@
 ---
-ansible_version: '>=2.5,<2.6'
+ansible_version: '>=2.6,<2.7'
 repository_version: 20181001-0
 
 osism_projects:
-  ara: 0.15.0
+  ara: 0.16.1
   docker: 18.06.0
   node_exporter: v0.15.1
 
 docker_images:
   alertmanager: v0.11.0
   aptly: 1.3.0
-  ara_server: 0.14.5
+  ara_server: 0.16.1
   blackbox-exporter: v0.11.0
   cadvisor: v0.28.1
   ceph_exporter: 2.0.0-luminous

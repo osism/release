@@ -1,5 +1,5 @@
 ---
-ansible_version: ">=2.4,<2.5"
+ansible_version: ">=2.5,<2.6"
 openstack_version: queens
 
 docker_images:
