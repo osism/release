@@ -1,0 +1,60 @@
+---
+ansible_version: ">=2.5,<2.6"
+openstack_version: queens
+
+docker_images:
+  openstackclient: queens
+  rally: queens
+
+infrastructure_projects:
+  elasticsearch: 5.6.5
+  fluentd: 2.3.6
+  haproxy: 1.7.11
+  kibana: 5.6.5
+  mariadb: 10.0.33
+  rabbitmq: 3.6.16
+
+openstack_projects:
+  aodh: stable-queens
+  ceilometer: stable-queens
+  cinder: stable-queens
+  glance: stable-queens
+  gnocchi: 4.2.5
+  heat: stable-queens
+  horizon: stable-queens
+  keystone: stable-queens
+  magnum: stable-queens
+  manila: stable-queens
+  mistral: stable-queens
+  neutron-lbaas-agent: stable-queens
+  neutron-vpnaas-agent: stable-queens
+  neutron: stable-queens
+  nova: stable-queens
+  panko: stable-queens
+  searchlight: stable-queens
+
+ceilometer_base_plugins:
+  panko: stable-queens
+  
+horizon_plugins:
+  fwaas-dashboard: stable-queens
+  manila-ui: stable-queens
+  mistral-dashboard: stable-queens
+  neutron-lbaas-dashboard: stable-queens
+  searchlight-ui: stable-queens
+
+neutron_base_plugins:
+  networking-generic-switch: stable-queens
+  networking-sfc: stable-queens
+  neutron-fwaas: stable-queens
+  vmware-nsx: stable-queens
+
+neutron_server_plugins:
+  neutron-dynamic-routing: stable-queens
+  neutron-lbaas: stable-queens
+  vmware-nsxlib: stable-queens
+  ovn-plugin-networking-ovn: stable-queens
+  vpnaas-agent: stable-queens
+
+integrated_projects:
+  logtrail: 0.1.23

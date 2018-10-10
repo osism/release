@@ -1,0 +1,53 @@
+---
+ansible_version: '>=2.6,<2.7'
+repository_version: 20181101-0
+
+osism_projects:
+  ara: 0.16.1
+  docker: 18.06.0
+  node_exporter: v0.15.1
+
+docker_images:
+  alertmanager: v0.11.0
+  aptly: 1.3.0
+  ara_server: 0.16.1
+  blackbox-exporter: v0.11.0
+  cadvisor: v0.28.1
+  ceph_exporter: 2.0.0-luminous
+  cobbler: 2.8
+  devpi: 4.6.0
+  haproxy_exporter: v0.8.0
+  mariadb: 10.3.0
+  memcached_exporter: v0.3.0
+  mysqld_exporter: v0.10.0
+  nginx: 1.13.5
+  node_exporter: v0.15.1
+  phpmyadmin: 4.8
+  prometheus: v2.0.0
+  redis: 4.0.2
+  registry: 2.6.2
+
+ansible_roles:
+  ANXS.apt: 0c544ce34d193096d43fd828afea54e2a7c091df
+  ANXS.timezone: 9a77595bf89fc2c255c7c36c18a9cb113911144d
+  ANXS.utilities: b078b43445c52231d9925fdcad42e2e7e5ac9dcd
+  debops.grub: 98fef89251f5843eba35159c19219045267cd5d3
+  hardening: 649e6ce02a0d7d6a1b6c7e8e061e67ab245ec943
+  osism.cobbler: 1001d2668adfae061de8472fa0b62e5f4f164316
+  osism.cockpit: 4c054486568e6cba424917197749b75ef31537f9
+  osism.common: b21521651c06dc7bee24c329bbc965b8bf4b985a
+  osism.configuration: b7a9a48f4d1bee1afb3719b3c9a8e4635b912f41
+  osism.docker: 93fcaef037732121c70611285637a908574c4e02
+  osism.helper: baded0a8a63c08c2019053cedcb1d79f487acf94
+  osism.hostname: 4b10d73215ce69cea89c6dd888cb96544edba32e
+  osism.hosts: 9dfb5a1b0d0f6d8004d3fb89140cf697a4647f91
+  osism.manager: 546af3fff5e9ee18440dc7267e91b060b7bb377a
+  osism.mirror: 375e75295bd361493ece28ad436ec305f99cfeed
+  osism.monitoring: a4e3657a2be4c2e68254a7def418aa146d074967
+  osism.network-interfaces: 46d6594bb8743c81b165c71017f0eb904328338e
+  osism.operator: 36899b0a766c0dc6dfbbaae763c0fe5c626cfb57
+  osism.prometheus-exporter: 109d8df9597d721d2c0a6d8a9ec1ac1ff521fb27
+  osism.prometheus: aef47da718d18fbf04589a2c87afb186085f1a1b
+  osism.proxy: 67c5727cf893b125b528d3a3bd9a24b371a0d3a0
+  osism.repository: 40e792a105d1b65eb2ab6c95fa341265650e76e1
+  osism.resolvconf: 858cf119e61ad7d1a26121a109c7d85e574268d4
