@@ -18,6 +18,7 @@ openstack_projects:
   aodh: stable-queens
   ceilometer: stable-queens
   cinder: stable-queens
+  cloudkitty: stable-queens
   designate: stable-queens
   glance: stable-queens
   gnocchi: 4.2.5
@@ -27,12 +28,14 @@ openstack_projects:
   magnum: stable-queens
   manila: stable-queens
   mistral: stable-queens
+  monasca: stable-queens
   neutron-lbaas-agent: stable-queens
   neutron-vpnaas-agent: stable-queens
   neutron: stable-queens
   nova: stable-queens
   panko: stable-queens
   searchlight: stable-queens
+  watcher: stable-queens
 
 ceilometer_base_plugins:
   panko: stable-queens
