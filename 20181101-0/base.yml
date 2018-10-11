@@ -8,7 +8,7 @@ osism_projects:
   node_exporter: v0.15.1
 
 docker_images:
-  alertmanager: v0.11.0
+  alertmanager: v0.15.2
   aptly: 1.3.0
   ara_server: 0.16.1
   blackbox-exporter: v0.12.0
@@ -23,7 +23,7 @@ docker_images:
   nginx: 1.13.5
   node_exporter: v0.16.0
   phpmyadmin: 4.8
-  prometheus: v2.0.0
+  prometheus: v2.4.3
   redis: 4.0.2
   registry: 2.6.2
 
