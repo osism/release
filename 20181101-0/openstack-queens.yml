@@ -34,6 +34,7 @@ openstack_projects:
   neutron-vpnaas-agent: stable-queens
   neutron: stable-queens
   nova: stable-queens
+  novajoin: stable-queens
   panko: stable-queens
   searchlight: stable-queens
   watcher: stable-queens
