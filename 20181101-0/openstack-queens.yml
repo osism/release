@@ -18,6 +18,7 @@ openstack_projects:
   aodh: stable-queens
   ceilometer: stable-queens
   cinder: stable-queens
+  designate: stable-queens
   glance: stable-queens
   gnocchi: 4.2.5
   heat: stable-queens
