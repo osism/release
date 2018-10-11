@@ -29,7 +29,6 @@ openstack_projects:
   magnum: stable-queens
   manila: stable-queens
   mistral: stable-queens
-  monasca: stable-queens
   neutron-lbaas-agent: stable-queens
   neutron-vpnaas-agent: stable-queens
   neutron: stable-queens
