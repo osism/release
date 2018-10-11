@@ -13,6 +13,7 @@ infrastructure_projects:
   kibana: 5.6.5
   mariadb: 10.0.33
   rabbitmq: 3.6.16
+  skydive: 0.20.0
 
 openstack_projects:
   aodh: stable-queens
