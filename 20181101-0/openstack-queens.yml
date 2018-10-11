@@ -43,11 +43,16 @@ ceilometer_base_plugins:
   panko: stable-queens
   
 horizon_plugins:
+  cloudkitty-dashboard: stable-queens
+  designate-dashboard: stable-queens
   fwaas-dashboard: stable-queens
+  heat-dashboard: stable-queens
+  magnum-ui: stable-queens
   manila-ui: stable-queens
   mistral-dashboard: stable-queens
   neutron-lbaas-dashboard: stable-queens
   searchlight-ui: stable-queens
+  watcher-dashboard: stable-queens
 
 neutron_base_plugins:
   networking-generic-switch: stable-queens
