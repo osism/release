@@ -15,6 +15,27 @@ infrastructure_projects:
   rabbitmq: 3.6.16
   skydive: 0.20.0
 
+enabled_services:
+  - chrony
+  - collectd
+  - cron
+  - dnsmasq
+  - etcd
+  - grafana
+  - iscsid
+  - kafka
+  - keepalived
+  - kolla-toolbox
+  - memcached
+  - mongodb
+  - multipathd
+  - openstack-base
+  - openvswitch
+  - ovsdpdk
+  - redis
+  - tgtd
+  - zookeeper
+
 openstack_projects:
   aodh: stable-queens
   ceilometer: stable-queens

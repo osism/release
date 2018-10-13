@@ -14,6 +14,22 @@ infrastructure_projects:
   mariadb: 10.0.33
   rabbitmq: 3.6.16
 
+enabled_services:
+  - chrony
+  - collectd
+  - cron
+  - dnsmasq
+  - grafana
+  - iscsid
+  - keepalived
+  - kolla-toolbox
+  - memcached
+  - multipathd
+  - openstack-base
+  - openvswitch
+  - redis
+  - tgtd
+
 openstack_projects:
   aodh: stable-pike
   ceilometer: stable-pike
