@@ -22,10 +22,6 @@ import yaml
 
 OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
 
-if OSISM_VERSION == "latest":
-    OSISM_VERSION = os.readlink("latest").strip("/")
-    #print "latest == %s" % OSISM_VERSION
-
 #print "checking %s" % OSISM_VERSION
 
 repo = git.Repo('.')

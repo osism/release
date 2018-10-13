@@ -16,7 +16,7 @@ fi
 python src/roles.py > roles.lst
 
 if [[ -s roles.lst ]]; then
-  release=$(basename $(readlink latest))
+  release="latest"
   echo "$release: update versions of ansible roles" > commit.msg
   echo >> commit.msg
   cat roles.lst >> commit.msg

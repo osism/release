@@ -86,8 +86,4 @@ def process(version):
 
 
 OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
-if OSISM_VERSION == "latest":
-    process(OSISM_VERSION)
-    OSISM_VERSION = os.readlink("latest").strip("/")
-
 process(OSISM_VERSION)
