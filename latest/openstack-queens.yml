@@ -7,34 +7,32 @@ docker_images:
   rally: queens
 
 infrastructure_projects:
+  chrony:
+  collectd:
+  cron:
+  dnsmasq:
   elasticsearch: 5.6.5
+  etcd:
   fluentd: 2.3.6
+  grafana:
   haproxy: 1.7.11
+  iscsid:
+  kafka:
+  keepalived:
   kibana: 5.6.5
+  kolla-toolbox:
   mariadb: 10.0.33
+  memcached:
+  mongodb:
+  multipathd:
+  openstack-base:
+  openvswitch:
+  ovsdpdk:
   rabbitmq: 3.6.16
+  redis:
   skydive: 0.20.0
-
-enabled_services:
-  - chrony
-  - collectd
-  - cron
-  - dnsmasq
-  - etcd
-  - grafana
-  - iscsid
-  - kafka
-  - keepalived
-  - kolla-toolbox
-  - memcached
-  - mongodb
-  - multipathd
-  - openstack-base
-  - openvswitch
-  - ovsdpdk
-  - redis
-  - tgtd
-  - zookeeper
+  tgtd:
+  zookeeper:
 
 openstack_projects:
   aodh: stable-queens
