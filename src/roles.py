@@ -21,8 +21,7 @@ import ruamel.yaml
 
 warnings.simplefilter('ignore', ruamel.yaml.error.UnsafeLoaderWarning)
 
-# NOTE(berendt): This script should only be used with the latest directory.
-OSISM_VERSION = "latest"
+OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
 
 with open("etc/roles.yml", "rb") as fp:
     roles = ruamel.yaml.load(fp)
