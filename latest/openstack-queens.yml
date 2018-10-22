@@ -90,3 +90,8 @@ neutron_server_plugins:
 
 integrated_projects:
   logtrail: 0.1.23
+  prometheus_rabbitmq_exporter_release: 3.6.14.1
+  prometheus_rabbitmq_exporter_accept: 0.3.3
+  prometheus_rabbitmq_exporter_prometheus: 3.4.3
+  prometheus_rabbitmq_exporter_prometheus_httpd: 2.1.8
+  prometheus_rabbitmq_exporter_prometheus_process_collector: 1.3.0
