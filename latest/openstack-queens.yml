@@ -11,17 +11,17 @@ infrastructure_projects:
   collectd:
   cron:
   dnsmasq:
-  elasticsearch: 6.4.2
+  elasticsearch: 6.4.3
   etcd:
-  fluentd: 2.3.6
+  fluentd: 2.3.7
   grafana:
   haproxy: 1.7.11
   iscsid:
   kafka:
   keepalived:
-  kibana: 6.4.2
+  kibana: 6.4.3
   kolla-toolbox:
-  mariadb: 10.0.33
+  mariadb: 10.0.37
   memcached:
   mongodb:
   multipathd:
@@ -54,7 +54,7 @@ openstack_projects:
   neutron-vpnaas-agent: stable-queens
   neutron: stable-queens
   nova: stable-queens
-  novajoin: 1.0.19
+  novajoin: 1.0.21
   panko: stable-queens
   searchlight: stable-queens
   watcher: stable-queens
