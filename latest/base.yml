@@ -5,7 +5,7 @@ repository_version: latest
 osism_projects:
   ara: 0.16.1
   docker: 18.06.0
-  node_exporter: v0.15.1
+  node_exporter: v0.17.0
 
 docker_images:
   alertmanager: v0.15.3
@@ -21,7 +21,7 @@ docker_images:
   memcached_exporter: v0.5.0
   mysqld_exporter: v0.11.0
   nginx: 1.13.12
-  node_exporter: v0.16.0
+  node_exporter: v0.17.0
   phpmyadmin: 4.8
   prometheus: v2.5.0
   redis: 4.0.11
