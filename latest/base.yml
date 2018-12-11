@@ -31,7 +31,7 @@ ansible_roles:
   ANXS.apt: 0c544ce34d193096d43fd828afea54e2a7c091df
   ANXS.timezone: 9a77595bf89fc2c255c7c36c18a9cb113911144d
   ANXS.utilities: b078b43445c52231d9925fdcad42e2e7e5ac9dcd
-  debops.grub: 98fef89251f5843eba35159c19219045267cd5d3
+  debops.grub: ee3d1c1071bda347d516e14bb3bc614d7d5fb47c
   hardening: 649e6ce02a0d7d6a1b6c7e8e061e67ab245ec943
   osism.cobbler: 1001d2668adfae061de8472fa0b62e5f4f164316
   osism.cockpit: bd6d1a282f519fb47b6fcfd8ab301146d7ed49dc
