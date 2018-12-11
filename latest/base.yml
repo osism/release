@@ -34,20 +34,20 @@ ansible_roles:
   debops.grub: 98fef89251f5843eba35159c19219045267cd5d3
   hardening: 649e6ce02a0d7d6a1b6c7e8e061e67ab245ec943
   osism.cobbler: 1001d2668adfae061de8472fa0b62e5f4f164316
-  osism.cockpit: cab65e23b401e4da16c133384b8f58583f531cff
-  osism.common: bbe8e31603d73bf5a664b99e54fe50b8910a7cb7
-  osism.configuration: cc47e5e429c397c49a4ae26ddacec87bb72fe107
-  osism.docker: 93fd63cb0b4ddf35e02cc708f169542564b0459b
-  osism.helper: 53d48a847b90db19345992d9adb728b551da0a7c
-  osism.hostname: 270341bbe583e5e9efa2a1d3ebc0deec9d78b2d4
-  osism.hosts: 7d24d4d5972f600bb1ff7b1b68791fd9942728cc
-  osism.manager: 2cec25b3bfcfafe7419dad47531960f75360739d
-  osism.mirror: ac953d454b0673556662817278b5b3832b30644e
+  osism.cockpit: bd6d1a282f519fb47b6fcfd8ab301146d7ed49dc
+  osism.common: aff2c334cad511eac4210dbc1bcb3ae3d61f3d0c
+  osism.configuration: 16f67cf028a8e7a8846facd6b9904ea902bed6ae
+  osism.docker: 6c72c98aa503035b0ce65e169d1b4d24a7877f33
+  osism.helper: e3c6c522d5e1b6c03ac910598b0d1d1405fd3250
+  osism.hostname: 8effcbce1f6b6b61aa5f213af17009aa7f03affc
+  osism.hosts: 5d7d2fa65c23edfeac21176681f300613cefa943
+  osism.manager: 1a7940a3b01a0383f2418215c61c169bb029752b
+  osism.mirror: 5d4fffdda77bc68a3b716765374203fbb1413028
   osism.monitoring: f16f4a59982e4fd58b495291c1dadd9576c86ad3
   osism.network-interfaces: 46d6594bb8743c81b165c71017f0eb904328338e
-  osism.operator: 34b13976a404be46620e02e505a2b1364d517818
-  osism.prometheus-exporter: ad3d0e24123af0c83a5054c08f237033ddac8cfd
-  osism.prometheus: 1b3b4731de896cba3b3be441dc2bd2ca45681aaa
-  osism.proxy: a735223d4568e5ad273a960de755319cad6cd020
-  osism.repository: d236b1859784f92376efd93b28e977539fc09998
-  osism.resolvconf: 6e83c47b022ca440d42acddd3cf4a96737885dfd
+  osism.operator: 1f6934478ded7f99438257852aea20c81fae9349
+  osism.prometheus-exporter: f4f40bb55384e6d9b0fc9761b4779f73165959c6
+  osism.prometheus: 6abaf408464c71983287a809532791314a7fbcf3
+  osism.proxy: d4cb6e64e9ed35e5372921153b2e0226199eb3a0
+  osism.repository: ec208bf93b9ac3564f33d6c7d1e87c512bebf055
+  osism.resolvconf: 59876fa23dd4487149d4522f77411470c477490c
