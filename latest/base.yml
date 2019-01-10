@@ -50,4 +50,4 @@ ansible_roles:
   osism.prometheus: 6abaf408464c71983287a809532791314a7fbcf3
   osism.proxy: d4cb6e64e9ed35e5372921153b2e0226199eb3a0
   osism.repository: ec208bf93b9ac3564f33d6c7d1e87c512bebf055
-  osism.resolvconf: 1d6bf6c476ef0869e26f7439da4f7916861697da
+  osism.resolvconf: c97b66a713af2169f5c9ae947b6efaf72f966bec
