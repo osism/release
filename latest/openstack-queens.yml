@@ -30,7 +30,7 @@ infrastructure_projects:
   ovsdpdk:
   rabbitmq: 3.6.16
   redis:
-  skydive: 0.20.0
+  skydive: 0.20.1
   tgtd:
   zookeeper:
 
@@ -54,7 +54,8 @@ openstack_projects:
   neutron-vpnaas-agent: stable-queens
   neutron: stable-queens
   nova: stable-queens
-  novajoin: 1.0.21
+  novajoin: 1.0.22
+  octavia: stable-queens
   panko: stable-queens
   searchlight: stable-queens
   watcher: stable-queens
@@ -73,6 +74,7 @@ horizon_plugins:
   mistral-dashboard: stable-queens
   neutron-lbaas-dashboard: stable-queens
   neutron-vpnaas-dashboard: stable-queens
+  octavia-dashboard: stable-queens
   searchlight-ui: stable-queens
   watcher-dashboard: stable-queens
 
