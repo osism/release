@@ -20,14 +20,13 @@ Add an entry to the ``etc/images.yml`` file.
 
 In the ``latest`` release directory add an entry to the ``docker_images`` parameter in the ``base.yml`` file.
 
-Push a snapshot of the new image with ``IMAGES=name_of_the_new_image OSISM_VERSION=YYYYMMDD-X python src/images.py``.
+Push a snapshot of the new image with ``IMAGES=name_of_the_new_image OSISM_VERSION=YYYY.X.0 python src/images.py``.
 
 ## How to prepare the next release
 
-**NOTE**: The name of a new release follows the scheme ``YYYYMMDD-X``. ``X`` can be used to perform a second release on one day (that should be avoided).
+**NOTE**: The name of a new release follows the scheme ``YYYY.X.0``.
 
-* Copy the release directory ``latest`` to the new release directory (e.g. ``20171120-0``) and update the symlink ``latest``.
+* Copy the release directory ``latest`` to the new release directory (e.g. ``2019.1.0``)
 * Set the ``repository_version`` parameter in the ``base.yml`` file to the appropriate value.
-* Set the tag of the ``rally`` image in the ``openstack-ocata.yml`` file (replace ``ocata`` with the name of the used OpenStack release) to the appropriate value.
-* Commit the prepared release with the message ``New release: YYYYMMDD-X``. Make further changes in subsequent commits.
-* Push snapshots of all required images with ``OSISM_VERSION=20171120-0 python src/images.py``. The ``src/images.py`` script is part of the ``release`` repository.
+* Commit the prepared release with the message ``New release: YYYY.X.0``. Make further changes in subsequent commits.
+* Push snapshots of all required images with ``OSISM_VERSION=2019.1.0 python src/images.py``. The ``src/images.py`` script is part of the ``release`` repository.
