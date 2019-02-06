@@ -30,3 +30,13 @@ Push a snapshot of the new image with ``IMAGES=name_of_the_new_image OSISM_VERSI
 * Set the ``repository_version`` parameter in the ``base.yml`` file to the appropriate value.
 * Commit the prepared release with the message ``New release: YYYY.X.0``. Make further changes in subsequent commits.
 * Push snapshots of all required images with ``OSISM_VERSION=2019.1.0 python src/images.py``. The ``src/images.py`` script is part of the ``release`` repository.
+
+## How to push images with Travis CI
+
+* trigger a custom build with a custom config
+
+   ```
+   env:
+     global:
+       - OSISM_VERSION=2019.1.0
+   ```
