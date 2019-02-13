@@ -20,6 +20,7 @@ docker_images:
   mariadb: 10.3.11
   memcached_exporter: v0.5.0
   mysqld_exporter: v0.11.0
+  nexus: 3.15.2
   nginx: 1.13.12
   node_exporter: v0.17.0
   phpmyadmin: 4.8
