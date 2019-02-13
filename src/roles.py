@@ -39,7 +39,7 @@ for name, repository in roles.items():
 
     rj = r.json()
     if base['ansible_roles'][name] != rj['object']['sha']:
-        print "%s: %s -> %s" % (name, base['ansible_roles'][name], rj['object']['sha'])
+        print("%s: %s -> %s" % (name, base['ansible_roles'][name], rj['object']['sha']))
         base['ansible_roles'][name] = rj['object']['sha']
 
 with open("%s/base.yml" % OSISM_VERSION, "wb") as fp:
