@@ -13,12 +13,15 @@
 # limitations under the License.
 
 import glob
+import logging
 import os
 import sys
 
 import docker
 import json
 import yaml
+
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 
 DOCKER_CLIENT = docker.APIClient(base_url='unix:///var/run/docker.sock')
 
@@ -28,7 +31,7 @@ if IMAGES:
 
 def process(version):
 
-    print("processing version %s" % version)
+    logging.info("processing version %s" % version)
 
     with open("etc/images.yml", "rb") as fp:
         images = yaml.load(fp)
@@ -45,7 +48,7 @@ def process(version):
     for docker_images in all_docker_images:
         for image in docker_images:
             if IMAGES and image not in IMAGES:
-                print("skipping %s" % image)
+                logging.info("skipping %s" % image)
                 continue
 
             if image in ['rally', 'kolla-ansible', 'ceph-ansible', 'osism-ansible']:
@@ -69,19 +72,19 @@ def process(version):
                 target_tag = "%s-%s" % (source_tag.split("-")[-1], target_tag)
                 source_tag = "%s-ubuntu-16.04-x86_64" % source_tag
 
-            print("pulling - %s:%s" % (images[image], source_tag))
+            logging.info("pulling - %s:%s" % (images[image], source_tag))
             DOCKER_CLIENT.pull(images[image], source_tag)
 
-            print("tagging - %s:%s" % (target, target_tag))
+            logging.info("tagging - %s:%s" % (target, target_tag))
             DOCKER_CLIENT.tag("%s:%s" % (images[image], source_tag), target, target_tag)
 
-            print("pushing - %s:%s" % (target, target_tag))
+            logging.info("pushing - %s:%s" % (target, target_tag))
             DOCKER_CLIENT.push(target, target_tag)
 
-            print("removing - %s:%s" % (images[image], source_tag))
+            logging.info("removing - %s:%s" % (images[image], source_tag))
             DOCKER_CLIENT.remove_image("%s:%s" % (images[image], source_tag))
 
-            print("removing - %s:%s" % (target, target_tag))
+            logging.info("removing - %s:%s" % (target, target_tag))
             DOCKER_CLIENT.remove_image("%s:%s" % (target, target_tag))
 
 
