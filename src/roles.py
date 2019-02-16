@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 import sys
 import warnings
@@ -19,6 +20,7 @@ import warnings
 import requests
 import ruamel.yaml
 
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 warnings.simplefilter('ignore', ruamel.yaml.error.UnsafeLoaderWarning)
 
 OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
@@ -32,6 +34,7 @@ with open("%s/base.yml" % OSISM_VERSION, "rb") as fp:
 changed = False
 for name, repository in roles.items():
 
+    logging.info("Checking %s" % name)
     r = requests.get("https://api.github.com/repos/osism/ansible-%s/git/refs/heads/master" % name[6:])
 
     if r.status_code != 200:
