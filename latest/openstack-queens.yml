@@ -36,6 +36,7 @@ infrastructure_projects:
 
 openstack_projects:
   aodh: stable-queens
+  barbican: stable-queens
   ceilometer: stable-queens
   cinder: stable-queens
   cloudkitty: stable-queens
