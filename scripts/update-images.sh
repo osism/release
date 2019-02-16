@@ -7,7 +7,7 @@ if [[ $TRAVIS != "true" ]]; then
 
 
     if [[ ! -e .venv ]]; then
-        virtualenv .venv
+        virtualenv -p python3 .venv
         pip install -r requirements.txt
     fi
 
