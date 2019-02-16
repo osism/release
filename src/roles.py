@@ -45,5 +45,5 @@ for name, repository in roles.items():
         print("%s: %s -> %s" % (name, base['ansible_roles'][name], rj['object']['sha']))
         base['ansible_roles'][name] = rj['object']['sha']
 
-with open("%s/base.yml" % OSISM_VERSION, "wb") as fp:
+with open("%s/base.yml" % OSISM_VERSION, "w") as fp:
     fp.write(ruamel.yaml.dump(base, Dumper=ruamel.yaml.RoundTripDumper, explicit_start=True))
