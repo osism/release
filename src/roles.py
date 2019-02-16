@@ -38,11 +38,12 @@ for name, repository in roles.items():
     r = requests.get("https://api.github.com/repos/osism/ansible-%s/git/refs/heads/master" % name[6:])
 
     if r.status_code != 200:
+        logging.warning("Status code %d != 200 (%s)" % (r.status_code, r.json()['message']))
         continue
 
     rj = r.json()
     if base['ansible_roles'][name] != rj['object']['sha']:
-        print("%s: %s -> %s" % (name, base['ansible_roles'][name], rj['object']['sha']))
+        logging.info("%s: %s -> %s" % (name, base['ansible_roles'][name], rj['object']['sha']))
         base['ansible_roles'][name] = rj['object']['sha']
 
 with open("%s/base.yml" % OSISM_VERSION, "w") as fp:
