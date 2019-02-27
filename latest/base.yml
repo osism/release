@@ -37,6 +37,7 @@ ansible_roles:
   osism.cobbler: 1001d2668adfae061de8472fa0b62e5f4f164316
   osism.cockpit: bd6d1a282f519fb47b6fcfd8ab301146d7ed49dc
   osism.common: aff2c334cad511eac4210dbc1bcb3ae3d61f3d0c
+  osism.chrony: 63703f90dc7f19f3e8cae44475eac8086cc104d3
   osism.configuration: 16f67cf028a8e7a8846facd6b9904ea902bed6ae
   osism.docker: ddb6a9ce3dada569c5e2b5378a1166c699209140
   osism.helper: 1c0bc25581d7ed203d3933578bebb14b4dcf9377
