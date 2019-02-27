@@ -23,7 +23,6 @@ if [[ -s roles.lst ]]; then
 
   git add $release/base.yml
   git commit -F commit.msg
-  git push
 fi
 
 rm -f roles.lst commit.msg
