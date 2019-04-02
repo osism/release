@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+COMMIT=${COMMIT:-false}
+
 if [[ $TRAVIS != "true" ]]; then
 
     command -v pip >/dev/null 2>&1 || { echo >&2 "pip not installed"; exit 1; }
@@ -15,14 +17,17 @@ fi
 
 python src/roles.py > roles.lst
 
-if [[ -s roles.lst ]]; then
-  release="latest"
-  echo "$release: update versions of ansible roles" > commit.msg
-  echo >> commit.msg
-  cat roles.lst >> commit.msg
+if [[ $COMMIT == "true" ]]; then
 
-  git add $release/base.yml
-  git commit -F commit.msg
+  if [[ -s roles.lst ]]; then
+    release="latest"
+    echo "$release: update versions of ansible roles" > commit.msg
+    echo >> commit.msg
+    cat roles.lst >> commit.msg
+
+    git add $release/base.yml
+    git commit -F commit.msg
+  fi
 fi
 
 rm -f roles.lst commit.msg
