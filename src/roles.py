@@ -35,7 +35,7 @@ changed = False
 for name, repository in roles.items():
 
     logging.info("Checking %s" % name)
-    r = requests.get("https://api.github.com/repos/osism/ansible-%s/git/refs/heads/master" % name[6:])
+    r = requests.get("https://api.github.com/repos/%s/git/refs/heads/master" % repository)
 
     if r.status_code != 200:
         logging.warning("Status code %d != 200 (%s)" % (r.status_code, r.json()['message']))
