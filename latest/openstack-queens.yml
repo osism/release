@@ -42,8 +42,6 @@ openstack_projects:
   cloudkitty: stable-queens
   designate: stable-queens
   glance: stable-queens
-  freezer: stable-queens
-  freezer-api: stable-queens
   gnocchi: 4.2.5
   heat: stable-queens
   horizon: stable-queens
@@ -67,7 +65,6 @@ ceilometer_base_plugins:
 horizon_plugins:
   cloudkitty-dashboard: stable-queens
   designate-dashboard: stable-queens
-  freezer-web-ui: stable-queens
   fwaas-dashboard: stable-queens
   heat-dashboard: stable-queens
   magnum-ui: stable-queens
