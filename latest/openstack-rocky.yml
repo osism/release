@@ -72,7 +72,7 @@ horizon_plugins:
   neutron-lbaas-dashboard: stable-rocky
   neutron-vpnaas-dashboard: stable-rocky
   octavia-dashboard: stable-rocky
-  searchlight-ui: stable-rocky
+  searchlight-ui: stable-queens
   watcher-dashboard: stable-rocky
 
 neutron_base_plugins:
