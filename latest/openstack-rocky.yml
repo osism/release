@@ -57,7 +57,7 @@ openstack_projects:
   novajoin: 1.0.22
   octavia: stable-rocky
   panko: stable-rocky
-  searchlight: stable-rocky
+  searchlight: stable-queens
   watcher: stable-rocky
 
 ceilometer_base_plugins:
