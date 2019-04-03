@@ -11,7 +11,7 @@ infrastructure_projects:
   collectd:
   cron:
   dnsmasq:
-  elasticsearch: 6.4.3
+  elasticsearch: 6.6.2
   etcd:
   fluentd: 2.3.6
   grafana:
@@ -19,7 +19,7 @@ infrastructure_projects:
   iscsid:
   kafka:
   keepalived:
-  kibana: 6.4.3
+  kibana: 6.6.2
   kolla-toolbox:
   memcached:
   mongodb:
@@ -89,7 +89,7 @@ neutron_server_plugins:
   vpnaas-agent: stable-rocky
 
 integrated_projects:
-  logtrail: 0.1.30
+  logtrail: 0.1.31
   prometheus_rabbitmq_exporter_release: 3.6.14.1
   prometheus_rabbitmq_exporter_accept: 0.3.3
   prometheus_rabbitmq_exporter_prometheus: 3.4.3
