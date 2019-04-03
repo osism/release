@@ -15,7 +15,7 @@ infrastructure_projects:
   etcd:
   fluentd: 2.3.7
   grafana:
-  haproxy: 1.7.11
+  haproxy:
   iscsid:
   kafka:
   keepalived:
