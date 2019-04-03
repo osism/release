@@ -13,7 +13,7 @@ infrastructure_projects:
   dnsmasq:
   elasticsearch: 6.4.3
   etcd:
-  fluentd: 2.3.7
+  fluentd: 2.3.6
   grafana:
   haproxy:
   iscsid:
