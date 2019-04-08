@@ -19,6 +19,8 @@ with open("%s/base.yml" % OSISM_VERSION, "rb") as fp:
 
 changed = False
 for name, repository in roles.items():
+    if name.startswith("osism"):
+        continue
 
     logging.info("Checking %s" % name)
     r = requests.get("https://api.github.com/repos/%s/git/refs/heads/master" % repository)

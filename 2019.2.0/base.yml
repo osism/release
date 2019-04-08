@@ -34,22 +34,22 @@ ansible_roles:
   ANXS.utilities: 8ec75691a6021aa0ba18214bdcba22242c2c5c10
   debops.grub: ee3d1c1071bda347d516e14bb3bc614d7d5fb47c
   hardening: ef1b4170328391d55c3ca94e8183fdd56a229c34
-  osism.cobbler: 1001d2668adfae061de8472fa0b62e5f4f164316
-  osism.cockpit: bd6d1a282f519fb47b6fcfd8ab301146d7ed49dc
-  osism.common: 9231a1cce9712bd445c155e29afd9e2de857bf3d
-  osism.chrony: 6a96de9374a2aeea68891a5d4d5cb673d74fa832
-  osism.configuration: 27a9069356fd389dded97a218e2ca37fe1fed030
-  osism.docker: dc233803d62cc6f0db0591643d72e420253dffe1
-  osism.helper: 50a4caafbb6eaa57860c6ae5ac66a53bf0abb52d
-  osism.hostname: c78ca7e4b65e029271ecd57a31a449e2b88086c5
-  osism.hosts: 60fd9b046bf905ff30ea17aef90b94c7ba147a33
-  osism.manager: 340b8d3fb6a6ed2652d7c516159027d887505bf5
-  osism.mirror: fae1a763250ea9d967e6e9d19f36299767d77f83
-  osism.monitoring: f16f4a59982e4fd58b495291c1dadd9576c86ad3
-  osism.network-interfaces: 1b78b05d425f4b127cf491cdf20677f5ad026da3
-  osism.operator: e0c6c2eff491afd83a88d2cecff0c98aac9fd9a7
-  osism.prometheus-exporter: 857ce7a6cd6cd21ee5e8be84a3e73d595e75584a
-  osism.prometheus: 512b9afb5f6060237c9a3574a3068094fc6aa535
-  osism.proxy: 64479806065a91167f224d809a19de9a291a49dd
-  osism.repository: 41d64e1785530a8a45d452b147baac565b1856a1
-  osism.resolvconf: be15f504114c87b9cbcd86e3450f6ec66f84214e
+  osism.cobbler: v2019.2.0
+  osism.cockpit: v2019.2.0
+  osism.common: v2019.2.0
+  osism.chrony: v2019.2.0
+  osism.configuration: v2019.2.0
+  osism.docker: v2019.2.0
+  osism.helper: v2019.2.0
+  osism.hostname: v2019.2.0
+  osism.hosts: v2019.2.0
+  osism.manager: v2019.2.0
+  osism.mirror: v2019.2.0
+  osism.monitoring: v2019.2.0
+  osism.network-interfaces: v2019.2.0
+  osism.operator: v2019.2.0
+  osism.prometheus-exporter: v2019.2.0
+  osism.prometheus: v2019.2.0
+  osism.proxy: v2019.2.0
+  osism.repository: v2019.2.0
+  osism.resolvconf: v2019.2.0
