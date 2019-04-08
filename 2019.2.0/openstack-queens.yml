@@ -1,0 +1,98 @@
+---
+ansible_version: ">=2.5,<2.6"
+openstack_version: queens
+
+docker_images:
+  openstackclient: queens
+  rally: queens
+
+infrastructure_projects:
+  chrony:
+  collectd:
+  cron:
+  dnsmasq:
+  elasticsearch: 6.4.3
+  etcd:
+  fluentd: 2.3.6
+  grafana:
+  haproxy: 1.7.11
+  iscsid:
+  kafka:
+  keepalived:
+  kibana: 6.4.3
+  kolla-toolbox:
+  mariadb: 10.0.37
+  memcached:
+  mongodb:
+  multipathd:
+  openstack-base:
+  openvswitch:
+  ovsdpdk:
+  rabbitmq: 3.6.16
+  redis:
+  skydive: 0.20.1
+  tgtd:
+  zookeeper:
+
+openstack_projects:
+  aodh: stable-queens
+  barbican: stable-queens
+  ceilometer: stable-queens
+  cinder: stable-queens
+  cloudkitty: stable-queens
+  designate: stable-queens
+  glance: stable-queens
+  gnocchi: 4.2.5
+  heat: stable-queens
+  horizon: stable-queens
+  keystone: stable-queens
+  magnum: stable-queens
+  manila: stable-queens
+  mistral: stable-queens
+  neutron-lbaas-agent: stable-queens
+  neutron-vpnaas-agent: stable-queens
+  neutron: stable-queens
+  nova: stable-queens
+  novajoin: 1.0.22
+  octavia: stable-queens
+  panko: stable-queens
+  searchlight: stable-queens
+  watcher: stable-queens
+
+ceilometer_base_plugins:
+  panko: stable-queens
+  
+horizon_plugins:
+  cloudkitty-dashboard: stable-queens
+  designate-dashboard: stable-queens
+  fwaas-dashboard: stable-queens
+  heat-dashboard: stable-queens
+  magnum-ui: stable-queens
+  manila-ui: stable-queens
+  mistral-dashboard: stable-queens
+  neutron-lbaas-dashboard: stable-queens
+  neutron-vpnaas-dashboard: stable-queens
+  octavia-dashboard: stable-queens
+  searchlight-ui: stable-queens
+  watcher-dashboard: stable-queens
+
+neutron_base_plugins:
+  networking-generic-switch: stable-queens
+  networking-sfc: stable-queens
+  neutron-fwaas: stable-queens
+  vmware-nsx: stable-queens
+
+neutron_server_plugins:
+  neutron-dynamic-routing: stable-queens
+  neutron-lbaas: stable-queens
+  vmware-nsxlib: stable-queens
+  ovn-plugin-networking-ovn: stable-queens
+  vpnaas-agent: stable-queens
+
+integrated_projects:
+  logtrail: 0.1.30
+  prometheus_rabbitmq_exporter_release: 3.6.14.1
+  prometheus_rabbitmq_exporter_accept: 0.3.3
+  prometheus_rabbitmq_exporter_prometheus: 3.4.3
+  prometheus_rabbitmq_exporter_prometheus_httpd: 2.1.8
+  prometheus_rabbitmq_exporter_prometheus_process_collector: 1.3.0

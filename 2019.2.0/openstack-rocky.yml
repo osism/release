@@ -1,0 +1,97 @@
+---
+ansible_version: ">=2.7,<2.8"
+openstack_version: rocky
+
+docker_images:
+  openstackclient: rocky
+  rally: rocky
+
+infrastructure_projects:
+  chrony:
+  collectd:
+  cron:
+  dnsmasq:
+  elasticsearch: 6.6.2
+  etcd:
+  fluentd: 2.3.6
+  grafana:
+  haproxy:
+  iscsid:
+  kafka:
+  keepalived:
+  kibana: 6.6.2
+  kolla-toolbox:
+  memcached:
+  mongodb:
+  multipathd:
+  openstack-base:
+  openvswitch:
+  ovsdpdk:
+  rabbitmq: 3.6.16
+  redis:
+  skydive: 0.22.0
+  tgtd:
+  zookeeper:
+
+openstack_projects:
+  aodh: stable-rocky
+  barbican: stable-rocky
+  ceilometer: stable-rocky
+  cinder: stable-rocky
+  cloudkitty: stable-rocky
+  designate: stable-rocky
+  glance: stable-rocky
+  gnocchi: 4.3.2
+  heat: stable-rocky
+  horizon: stable-rocky
+  keystone: stable-rocky
+  magnum: stable-rocky
+  manila: stable-rocky
+  mistral: stable-rocky
+  neutron-lbaas-agent: stable-rocky
+  neutron-vpnaas-agent: stable-rocky
+  neutron: stable-rocky
+  nova: stable-rocky
+  novajoin: 1.0.22
+  octavia: stable-rocky
+  panko: stable-rocky
+  searchlight: stable-queens
+  watcher: stable-rocky
+
+ceilometer_base_plugins:
+  panko: stable-rocky
+  
+horizon_plugins:
+  cloudkitty-dashboard: stable-rocky
+  designate-dashboard: stable-rocky
+  fwaas-dashboard: stable-rocky
+  heat-dashboard: stable-rocky
+  magnum-ui: stable-rocky
+  manila-ui: stable-rocky
+  mistral-dashboard: stable-rocky
+  neutron-lbaas-dashboard: stable-rocky
+  neutron-vpnaas-dashboard: stable-rocky
+  octavia-dashboard: stable-rocky
+  searchlight-ui: stable-queens
+  watcher-dashboard: stable-rocky
+
+neutron_base_plugins:
+  networking-generic-switch: stable-rocky
+  networking-sfc: stable-rocky
+  neutron-fwaas: stable-rocky
+  vmware-nsx: stable-rocky
+
+neutron_server_plugins:
+  neutron-dynamic-routing: stable-rocky
+  neutron-lbaas: stable-rocky
+  vmware-nsxlib: stable-rocky
+  ovn-plugin-networking-ovn: stable-rocky
+  vpnaas-agent: stable-rocky
+
+integrated_projects:
+  logtrail: 0.1.31
+  prometheus_rabbitmq_exporter_release: 3.6.14.1
+  prometheus_rabbitmq_exporter_accept: 0.3.3
+  prometheus_rabbitmq_exporter_prometheus: 3.4.3
+  prometheus_rabbitmq_exporter_prometheus_httpd: 2.1.8
+  prometheus_rabbitmq_exporter_prometheus_process_collector: 1.3.0
