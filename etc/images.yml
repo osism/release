@@ -15,6 +15,7 @@ prometheus: prom/prometheus
 
 ara_server: osism/ara-server
 ceph_ansible: osism/ceph-ansible
+installer: osism/installer
 kolla_ansible: osism/kolla-ansible
 mariadb: library/mariadb
 openstackclient: osism/openstackclient

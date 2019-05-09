@@ -37,7 +37,7 @@ def process(version):
                 logging.info("skipping %s" % image)
                 continue
 
-            if image in ['rally', 'kolla-ansible', 'ceph-ansible', 'osism-ansible']:
+            if image in ['rally', 'kolla-ansible', 'ceph-ansible', 'osism-ansible', 'installer']:
                 continue
 
             if not images[image][:5] == 'osism':
