@@ -59,6 +59,7 @@ openstack_projects:
   searchlight: stable-queens
   senlin: stable-rocky
   swift: stable-rocky
+  trove: stable-rocky
   watcher: stable-rocky
 
 ceilometer_base_plugins:
@@ -77,6 +78,7 @@ horizon_plugins:
   octavia-dashboard: stable-rocky
   searchlight-ui: stable-queens
   senlin-dashboard: stable-rocky
+  trove-dashboard: stable-rocky
   watcher-dashboard: stable-rocky
 
 neutron_base_plugins:
