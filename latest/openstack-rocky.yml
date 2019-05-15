@@ -57,6 +57,7 @@ openstack_projects:
   octavia: stable-rocky
   panko: stable-rocky
   searchlight: stable-queens
+  senlin: stable-rocky
   swift: stable-rocky
   watcher: stable-rocky
 
@@ -75,6 +76,7 @@ horizon_plugins:
   neutron-vpnaas-dashboard: stable-rocky
   octavia-dashboard: stable-rocky
   searchlight-ui: stable-queens
+  senlin-dashboard: stable-rocky
   watcher-dashboard: stable-rocky
 
 neutron_base_plugins:
