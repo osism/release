@@ -2,7 +2,6 @@
 ANXS.apt: https://github.com/ANXS/apt.git
 ANXS.timezone: https://github.com/ANXS/timezone.git
 ANXS.utilities: https://github.com/ANXS/utilities.git
-debops.grub: https://github.com/debops/ansible-grub.git
 hardening: https://github.com/openstack/ansible-hardening.git
 osism.chrony: https://github.com/osism/ansible-chrony.git
 osism.cockpit: https://github.com/osism/ansible-cockpit.git

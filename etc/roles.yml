@@ -2,7 +2,6 @@
 ANXS.apt: ANXS/apt
 ANXS.timezone: ANXS/timezone
 ANXS.utilities: ANXS/utilities
-debops.grub: debops/ansible-grub
 hardening: openstack/ansible-hardening
 osism.chrony: osism/ansible-chrony
 osism.cobbler: osism/ansible-cobbler
