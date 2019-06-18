@@ -48,27 +48,34 @@ def process(version):
             else:
                 target = images[image]
 
+            source = images[image]
+
             target_tag = repository_version
             source_tag = docker_images[image]
 
             if image in ['cephclient', 'openstackclient']:
                 target_tag = docker_images[image] + '-' + target_tag
 
-            if image == 'ceph':
+            if image == 'ceph' and 'stable-3.1' in source_tag:
                 target_tag = "%s-%s" % (source_tag.split("-")[-1], target_tag)
                 source_tag = "%s-ubuntu-16.04-x86_64" % source_tag
 
-            logging.info("pulling - %s:%s" % (images[image], source_tag))
-            DOCKER_CLIENT.pull(images[image], source_tag)
+            if image == 'ceph' and ('stable-3.2' in source_tag or 'stable-4.0' in source_tag):
+                target_tag = "%s-%s" % (source_tag.split("-")[-1], target_tag)
+                source = 'osism/ceph-daemon'
+                source_tag = "%s-centos-7-x86_64" % source_tag
+
+            logging.info("pulling - %s:%s" % (source, source_tag))
+            DOCKER_CLIENT.pull(source, source_tag)
 
             logging.info("tagging - %s:%s" % (target, target_tag))
-            DOCKER_CLIENT.tag("%s:%s" % (images[image], source_tag), target, target_tag)
+            DOCKER_CLIENT.tag("%s:%s" % (source, source_tag), target, target_tag)
 
             logging.info("pushing - %s:%s" % (target, target_tag))
             DOCKER_CLIENT.push(target, target_tag)
 
-            logging.info("removing - %s:%s" % (images[image], source_tag))
-            DOCKER_CLIENT.remove_image("%s:%s" % (images[image], source_tag))
+            logging.info("removing - %s:%s" % (source, source_tag))
+            DOCKER_CLIENT.remove_image("%s:%s" % (source, source_tag))
 
             logging.info("removing - %s:%s" % (target, target_tag))
             DOCKER_CLIENT.remove_image("%s:%s" % (target, target_tag))
