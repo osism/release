@@ -3,7 +3,7 @@ ansible_version: '>=2.7,<2.8'
 repository_version: latest
 
 osism_projects:
-  ara: 0.16.5
+  ara: 0.16.3
   docker: 5:18.09.6
   node_exporter: v0.17.0
 
