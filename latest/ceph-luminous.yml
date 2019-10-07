@@ -4,5 +4,5 @@ ceph_ansible_version: stable-3.2
 ceph_container_version: stable-3.2
 ceph_version: luminous
 docker_images:
-  ceph: v3.2.1-stable-3.2-luminous
+  ceph: v3.2.7-stable-3.2-luminous
   cephclient: luminous
