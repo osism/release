@@ -3,14 +3,14 @@ ansible_version: '>=2.7,<2.8'
 repository_version: latest
 
 osism_projects:
-  ara: 0.16.3
+  ara: 0.16.5
   docker: 5:18.09.6
   node_exporter: v0.17.0
 
 docker_images:
   alertmanager: v0.15.3
   aptly: 1.3.0
-  ara_server: 0.16.3
+  ara_server: 0.16.5
   blackbox-exporter: v0.12.0
   cadvisor: v0.31.0
   ceph_exporter: 2.0.1-luminous
