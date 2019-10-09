@@ -1,6 +1,6 @@
 ---
 ansible_version: '>=2.7,<2.8'
-repository_version: latest
+repository_version: 2019.4.0
 
 osism_projects:
   ara: 1.1.0
@@ -17,7 +17,7 @@ docker_images:
   cobbler: 2.8
   devpi: 4.6.0
   haproxy_exporter: v0.9.0
-  installer: latest
+  installer: 2019.4.0
   mariadb: 10.4
   memcached_exporter: v0.5.0
   mysqld_exporter: v0.11.0
@@ -34,22 +34,22 @@ ansible_roles:
   ANXS.timezone: 9a77595bf89fc2c255c7c36c18a9cb113911144d
   ANXS.utilities: 8ec75691a6021aa0ba18214bdcba22242c2c5c10
   hardening: 979805c9043793ab644dddd02091d4dce5ab267c
-  osism.cobbler: master
-  osism.cockpit: master
-  osism.common: master
-  osism.chrony: master
-  osism.configuration: master
-  osism.docker: master
-  osism.helper: master
-  osism.hostname: master
-  osism.hosts: master
-  osism.manager: master
-  osism.mirror: master
-  osism.monitoring: master
-  osism.network-interfaces: master
-  osism.operator: master
-  osism.prometheus-exporter: master
-  osism.prometheus: master
-  osism.proxy: master
-  osism.repository: master
-  osism.resolvconf: master
+  osism.cobbler: v2019.4.0
+  osism.cockpit: v2019.4.0
+  osism.common: v2019.4.0
+  osism.chrony: v2019.4.0
+  osism.configuration: v2019.4.0
+  osism.docker: v2019.4.0
+  osism.helper: v2019.4.0
+  osism.hostname: v2019.4.0
+  osism.hosts: v2019.4.0
+  osism.manager: v2019.4.0
+  osism.mirror: v2019.4.0
+  osism.monitoring: v2019.4.0
+  osism.network-interfaces: v2019.4.0
+  osism.operator: v2019.4.0
+  osism.prometheus-exporter: v2019.4.0
+  osism.prometheus: v2019.4.0
+  osism.proxy: v2019.4.0
+  osism.repository: v2019.4.0
+  osism.resolvconf: v2019.4.0
