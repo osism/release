@@ -37,7 +37,15 @@ def process(version):
                 logging.info("skipping %s" % image)
                 continue
 
+            logging.info("checking %s" % image)
+
             if image in ['rally', 'kolla-ansible', 'ceph-ansible', 'osism-ansible', 'installer']:
+                logging.info("skipping %s" % image)
+                continue
+
+            # FIXME: also handle cobbler + aptly
+            if image in ['ara_server'] and repository_version == 'latest':
+                logging.info("skipping %s" % image)
                 continue
 
             if not images[image][:5] == 'osism':
