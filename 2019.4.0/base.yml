@@ -11,6 +11,7 @@ docker_images:
   alertmanager: v0.15.3
   aptly: 1.4.0
   ara_server: 1.1.0
+  ara_web: 1.0.0
   blackbox-exporter: v0.12.0
   cadvisor: v0.31.0
   ceph_exporter: 2.0.1-luminous
