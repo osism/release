@@ -20,13 +20,13 @@ def process(version):
     logging.info("processing version %s" % version)
 
     with open("etc/images.yml", "rb") as fp:
-        images = yaml.load(fp)
+        images = yaml.load(fp, Loader=yaml.SafeLoader)
 
     all_docker_images = []
     repository_version = version
     for filename in glob.glob("%s/*.yml" % version):
         with open(filename, "rb") as fp:
-            versions = yaml.load(fp)
+            versions = yaml.load(fp, Loader=yaml.SafeLoader)
             all_docker_images.append(versions.get('docker_images', {}))
             if os.path.basename(filename) == 'base.yml' and version != 'latest':
                 repository_version = versions['repository_version']
