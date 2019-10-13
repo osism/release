@@ -13,6 +13,7 @@ prometheus: prom/prometheus
 
 # manager
 
+adminer: library/adminer
 ara_server: osism/ara-server
 ara_web: osism/ara-web
 ceph_ansible: osism/ceph-ansible

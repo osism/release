@@ -8,6 +8,7 @@ osism_projects:
   node_exporter: v0.17.0
 
 docker_images:
+  adminer: 4.7
   alertmanager: v0.15.3
   aptly: 1.4.0
   ara_server: 1.1.0
