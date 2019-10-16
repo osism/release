@@ -1,5 +1,6 @@
 ---
 ansible_version: '>=2.7,<2.8'
+manager_version: 2019.4.0
 repository_version: 2019.4.0
 
 osism_projects:
