@@ -40,3 +40,20 @@ Push a snapshot of the new image with ``IMAGES=name_of_the_new_image OSISM_VERSI
      global:
        - OSISM_VERSION=2019.1.0
    ```
+
+## Scripts
+
+### ansible-roles-latest-tag.py
+
+This script displays the last tag of all Ansible roles. This allows you to check whether all
+the necessary tags are available when you create a release.
+
+```
+$ GH_ACCESS_TOKEN=abc.. python src/ansible-roles-latest-tag.py
+osism/ansible-common                     v2019.4.0
+osism/ansible-docker                     v2019.4.0
+osism/ansible-proxy                      v2019.4.0
+osism/ansible-manager                    v2019.4.0
+osism/ansible-configuration              v2019.4.0
+[...]
+```
