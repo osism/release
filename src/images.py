@@ -43,8 +43,8 @@ def process(version):
                 logging.info("skipping %s" % image)
                 continue
 
-            # FIXME: also handle cobbler + aptly
-            if image in ['ara_server', 'ara_web'] and repository_version == 'latest':
+            # FIXME: also handle cobbler
+            if image in ['aptly', 'ara_server', 'ara_web'] and repository_version == 'latest':
                 logging.info("skipping %s" % image)
                 continue
 
