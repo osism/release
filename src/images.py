@@ -49,17 +49,17 @@ def process(version):
     for docker_images in all_docker_images:
         for image in docker_images:
             if IMAGES and image not in IMAGES:
-                logging.info("skipping %s" % image)
+                logging.info("skipping - %s" % image)
                 continue
 
-            logging.info("checking %s" % image)
+            logging.info("checking - %s" % image)
 
             if image in SKIP_IMAGES:
-                logging.info("skipping %s" % image)
+                logging.info("skipping - %s" % image)
                 continue
 
             if image in SKIP_LATEST_IMAGES and repository_version == 'latest':
-                logging.info("skipping %s" % image)
+                logging.info("skipping - %s" % image)
                 continue
 
             if not images[image][:5] == 'osism':
