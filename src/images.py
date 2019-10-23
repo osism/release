@@ -28,8 +28,8 @@ IMAGES = os.environ.get("IMAGES", None)
 if IMAGES:
     IMAGES = IMAGES.split(",")
 
-def process(version):
 
+def process(version):
     logging.info("processing version %s" % version)
 
     with open("etc/images.yml", "rb") as fp:
