@@ -9,6 +9,21 @@ import yaml
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 
+SKIP_IMAGES = [
+    'ceph-ansible',
+    'installer',
+    'kolla-ansible',
+    'osism-ansible',
+    'rally'
+]
+
+# FIXME: add cobbler
+SKIP_LATEST_IMAGES = [
+    'aptly',
+    'ara_server',
+    'ara_web'
+]
+
 DOCKER_CLIENT = docker.APIClient(base_url='unix:///var/run/docker.sock')
 
 IMAGES = os.environ.get("IMAGES", None)
@@ -39,12 +54,11 @@ def process(version):
 
             logging.info("checking %s" % image)
 
-            if image in ['rally', 'kolla-ansible', 'ceph-ansible', 'osism-ansible', 'installer']:
+            if image in SKIP_IMAGES:
                 logging.info("skipping %s" % image)
                 continue
 
-            # FIXME: also handle cobbler
-            if image in ['aptly', 'ara_server', 'ara_web'] and repository_version == 'latest':
+            if image in SKIP_LATEST_IMAGES and repository_version == 'latest':
                 logging.info("skipping %s" % image)
                 continue
 
