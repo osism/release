@@ -61,7 +61,7 @@ openstack_projects:
 
 ceilometer_base_plugins:
   panko: stable-queens
-  
+
 horizon_plugins:
   cloudkitty-dashboard: stable-queens
   designate-dashboard: stable-queens

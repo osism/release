@@ -18,7 +18,8 @@ install:
   - pip install -r test-requirements.txt
 
 before_script:
-  - flake8 --ignore E501 src/*
+  - flake8 --ignore E501 src/*.py
+  - yamllint latest/*.yml
 
 script:
   - 'if [[ "$TRAVIS_EVENT_TYPE" == "cron" || $FORCE_UPDATE_IMAGES == "true" ]]; then bash scripts/update-images.sh; fi'
