@@ -1,10 +1,8 @@
 import glob
 import logging
 import os
-import sys
 
 import docker
-import json
 import yaml
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
