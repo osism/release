@@ -96,7 +96,7 @@ def process(version):
             logging.info("pulling - %s:%s" % (source, source_tag))
             DOCKER_CLIENT.pull(source, source_tag)
             docker_image = DOCKER_CLIENT.inspect_image("%s:%s" % (source, source_tag))
-            result.append([source, source_tag, docker_image["Id"]])
+            result.append([source, source_tag, docker_image["Id"], docker_image["Created"]])
 
             logging.info("tagging - %s:%s" % (target, target_tag))
             DOCKER_CLIENT.tag("%s:%s" % (source, source_tag), target, target_tag)
@@ -115,4 +115,4 @@ def process(version):
 
 result = process(OSISM_VERSION)
 
-print(tabulate(result, headers=["Image", "Tag", "Hash"]))
+print(tabulate(result, headers=["Image", "Tag", "Hash", "Created"]))
