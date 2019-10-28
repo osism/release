@@ -1,7 +1,8 @@
 PyGitHub
 PyYAML
 dictdiffer
-docker
+docker>=4.0.0
 gitpython
 requests
 ruamel.yaml
+tabulate

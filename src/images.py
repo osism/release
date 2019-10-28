@@ -3,6 +3,7 @@ import logging
 import os
 
 import docker
+from tabulate import tabulate
 import yaml
 
 logging.basicConfig(
@@ -32,6 +33,8 @@ IMAGES = os.environ.get("IMAGES", None)
 if IMAGES:
     IMAGES = IMAGES.split(",")
 
+OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
+
 
 def process(version):
     logging.info("processing version %s" % version)
@@ -39,6 +42,7 @@ def process(version):
     with open("etc/images.yml", "rb") as fp:
         images = yaml.load(fp, Loader=yaml.SafeLoader)
 
+    result = []
     all_docker_images = []
     repository_version = version
     for filename in glob.glob("%s/*.yml" % version):
@@ -91,6 +95,8 @@ def process(version):
 
             logging.info("pulling - %s:%s" % (source, source_tag))
             DOCKER_CLIENT.pull(source, source_tag)
+            docker_image = DOCKER_CLIENT.inspect_image("%s:%s" % (source, source_tag))
+            result.append([source, source_tag, docker_image["Id"]])
 
             logging.info("tagging - %s:%s" % (target, target_tag))
             DOCKER_CLIENT.tag("%s:%s" % (source, source_tag), target, target_tag)
@@ -104,6 +110,9 @@ def process(version):
             logging.info("removing - %s:%s" % (target, target_tag))
             DOCKER_CLIENT.remove_image("%s:%s" % (target, target_tag))
 
+    return result
 
-OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
-process(OSISM_VERSION)
+
+result = process(OSISM_VERSION)
+
+print(tabulate(result, headers=["Image", "Tag", "Hash"]))
