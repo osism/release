@@ -20,11 +20,11 @@ SKIP_IMAGES = [
     'rally'
 ]
 
-# FIXME: add cobbler
 SKIP_LATEST_IMAGES = [
     'aptly',
     'ara_server',
-    'ara_web'
+    'ara_web',
+    'cobbler'
 ]
 
 OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
