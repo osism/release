@@ -27,13 +27,15 @@ SKIP_LATEST_IMAGES = [
     'ara_web'
 ]
 
-DOCKER_CLIENT = docker.APIClient(base_url='unix:///var/run/docker.sock')
+OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
+DRY_RUN = os.environ.get("DRY_RUN", False) == "True"
+
+if not DRY_RUN:
+    DOCKER_CLIENT = docker.APIClient(base_url='unix:///var/run/docker.sock')
 
 IMAGES = os.environ.get("IMAGES", None)
 if IMAGES:
     IMAGES = IMAGES.split(",")
-
-OSISM_VERSION = os.environ.get("OSISM_VERSION", "latest")
 
 
 def process(version):
@@ -94,25 +96,36 @@ def process(version):
                 source_tag = "%s-centos-7-x86_64" % source_tag
 
             logging.info("pulling - %s:%s" % (source, source_tag))
-            DOCKER_CLIENT.pull(source, source_tag)
-            docker_image = DOCKER_CLIENT.inspect_image("%s:%s" % (source, source_tag))
-            result.append([source, source_tag, docker_image["Id"], docker_image["Created"]])
+
+            if not DRY_RUN:
+                DOCKER_CLIENT.pull(source, source_tag)
+                docker_image = DOCKER_CLIENT.inspect_image("%s:%s" % (source, source_tag))
+                result.append([source, source_tag, docker_image["Id"], docker_image["Created"]])
 
             logging.info("tagging - %s:%s" % (target, target_tag))
-            DOCKER_CLIENT.tag("%s:%s" % (source, source_tag), target, target_tag)
+
+            if not DRY_RUN:
+                DOCKER_CLIENT.tag("%s:%s" % (source, source_tag), target, target_tag)
 
             logging.info("pushing - %s:%s" % (target, target_tag))
-            DOCKER_CLIENT.push(target, target_tag)
+
+            if not DRY_RUN:
+                DOCKER_CLIENT.push(target, target_tag)
 
             logging.info("removing - %s:%s" % (source, source_tag))
-            DOCKER_CLIENT.remove_image("%s:%s" % (source, source_tag))
+
+            if not DRY_RUN:
+                DOCKER_CLIENT.remove_image("%s:%s" % (source, source_tag))
 
             logging.info("removing - %s:%s" % (target, target_tag))
-            DOCKER_CLIENT.remove_image("%s:%s" % (target, target_tag))
+
+            if not DRY_RUN:
+                DOCKER_CLIENT.remove_image("%s:%s" % (target, target_tag))
 
     return result
 
 
 result = process(OSISM_VERSION)
 
-print(tabulate(result, headers=["Image", "Tag", "Hash", "Created"]))
+if not DRY_RUN:
+    print(tabulate(result, headers=["Image", "Tag", "Hash", "Created"]))
