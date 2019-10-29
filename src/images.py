@@ -70,6 +70,10 @@ def process(version):
                 logging.info("skipping - %s" % image)
                 continue
 
+            if image not in images:
+                logging.error("skipping - definiton of %s is missing in etc/images.yml" % image)
+                continue
+
             if not images[image][:5] == 'osism':
                 if image == 'ceph':
                     target = 'osism/ceph-daemon'
