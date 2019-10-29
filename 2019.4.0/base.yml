@@ -24,11 +24,11 @@ docker_images:
   memcached_exporter: v0.5.0
   mysqld_exporter: v0.11.0
   nexus: 3.19.0
-  nginx: 1.17
+  nginx: 1.17-alpine
   node_exporter: v0.17.0
   phpmyadmin: 4.9
   prometheus: v2.5.0
-  redis: 5.0
+  redis: 5.0-alpine
   registry: 2.7
 
 ansible_roles:
