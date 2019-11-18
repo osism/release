@@ -39,6 +39,7 @@ ansible_roles:
   osism.manager: master
   osism.mirror: master
   osism.monitoring: master
+  osism.netdata: master
   osism.network-interfaces: master
   osism.operator: master
   osism.prometheus-exporter: master

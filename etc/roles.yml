@@ -15,6 +15,7 @@ osism.hosts: osism/ansible-hosts
 osism.manager: osism/ansible-manager
 osism.mirror: osism/ansible-mirror
 osism.monitoring: osism/ansible-monitoring
+osism.netdata: osism/ansible-netdata
 osism.network-interfaces: osism/ansible-network-interfaces
 osism.operator: osism/ansible-operator
 osism.prometheus-exporter: osism/ansible-prometheus-exporter
