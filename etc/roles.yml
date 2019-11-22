@@ -18,6 +18,7 @@ osism.monitoring: osism/ansible-monitoring
 osism.netdata: osism/ansible-netdata
 osism.network-interfaces: osism/ansible-network-interfaces
 osism.operator: osism/ansible-operator
+osism.osquery: osism/ansible-osquery
 osism.prometheus-exporter: osism/ansible-prometheus-exporter
 osism.prometheus: osism/ansible-prometheus
 osism.proxy: osism/ansible-proxy

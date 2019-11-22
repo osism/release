@@ -42,6 +42,7 @@ ansible_roles:
   osism.netdata: master
   osism.network-interfaces: master
   osism.operator: master
+  osism.osquery: master
   osism.prometheus-exporter: master
   osism.prometheus: master
   osism.proxy: master
