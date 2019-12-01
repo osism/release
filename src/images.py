@@ -99,6 +99,14 @@ def process(version):
                 source = 'osism/ceph-daemon'
                 source_tag = "%s-centos-7-x86_64" % source_tag
 
+            if image == 'ceph' and 'latest' in source_tag:
+                logging.info("skipping - %s (latest)" % image)
+                continue
+
+            if image == 'cephclient' and 'latest' in source_tag:
+                logging.info("skipping - %s (latest)" % image)
+                continue
+
             logging.info("pulling - %s:%s" % (source, source_tag))
 
             if not DRY_RUN:
