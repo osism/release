@@ -107,6 +107,10 @@ def process(version):
                 logging.info("skipping - %s (latest)" % image)
                 continue
 
+            if image == 'openstackclient' and 'latest' in source_tag:
+                logging.info("skipping - %s (latest)" % image)
+                continue
+
             logging.info("pulling - %s:%s" % (source, source_tag))
 
             if not DRY_RUN:

@@ -1,0 +1,103 @@
+---
+ansible_version: ">=2.8,<2.9"
+openstack_version: ussuri
+
+docker_images:
+  openstackclient: latest
+  rally: latest
+
+infrastructure_projects:
+  chrony:
+  collectd:
+  cron:
+  dnsmasq:
+  elasticsearch: 6.6.2
+  etcd:
+  fluentd:
+  grafana:
+  haproxy:
+  iscsid:
+  kafka:
+  keepalived:
+  kibana: 6.6.2
+  kolla-toolbox:
+  mariadb:
+  memcached:
+  mongodb:
+  multipathd:
+  openstack-base:
+  openvswitch:
+  ovsdpdk:
+  rabbitmq:
+  redis:
+  skydive:
+  tgtd:
+  xtrabackup:
+  zookeeper:
+
+openstack_projects:
+  aodh: master
+  barbican: master
+  ceilometer: master
+  cinder: master
+  cloudkitty: master
+  designate: master
+  glance: master
+  gnocchi: 4.3.4
+  heat: master
+  horizon: master
+  keystone: master
+  magnum: master
+  manila: master
+  mistral: master
+  neutron-lbaas-agent: master
+  neutron-vpnaas-agent: master
+  neutron: master
+  nova: master
+  novajoin: master
+  octavia: master
+  panko: master
+  placement: master
+  searchlight: master
+  senlin: master
+  swift: master
+  trove: master
+  watcher: master
+
+ceilometer_base_plugins:
+  panko: master
+
+horizon_plugins:
+  cloudkitty-dashboard: master
+  designate-dashboard: master
+  fwaas-dashboard: master
+  heat-dashboard: master
+  magnum-ui: master
+  manila-ui: master
+  mistral-dashboard: master
+  neutron-lbaas-dashboard: master
+  neutron-vpnaas-dashboard: master
+  octavia-dashboard: master
+  searchlight-ui: master
+  senlin-dashboard: master
+  trove-dashboard: master
+  watcher-dashboard: master
+
+neutron_base_plugins:
+  networking-ansible: master
+  networking-baremetal: master
+  networking-generic-switch: master
+  networking-sfc: master
+  neutron-fwaas: master
+  vmware-nsx: master
+  vpnaas-agent: master
+
+neutron_server_plugins:
+  networking-infoblox: stable-rocky
+  neutron-dynamic-routing: master
+  neutron-lbaas: master
+  ovn-plugin-networking-ovn: master
+  vmware-nsxlib: master
+
+integrated_projects:
+  logtrail: 0.1.31
