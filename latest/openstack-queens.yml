@@ -56,7 +56,6 @@ openstack_projects:
   novajoin: 1.0.22
   octavia: stable-queens
   panko: stable-queens
-  searchlight: stable-queens
   watcher: stable-queens
 
 ceilometer_base_plugins:
@@ -73,7 +72,6 @@ horizon_plugins:
   neutron-lbaas-dashboard: stable-queens
   neutron-vpnaas-dashboard: stable-queens
   octavia-dashboard: stable-queens
-  searchlight-ui: stable-queens
   watcher-dashboard: stable-queens
 
 neutron_base_plugins:

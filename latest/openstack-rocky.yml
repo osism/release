@@ -56,7 +56,6 @@ openstack_projects:
   novajoin: 1.0.22
   octavia: stable-rocky
   panko: stable-rocky
-  searchlight: stable-queens
   senlin: stable-rocky
   swift: stable-rocky
   trove: stable-rocky
@@ -76,7 +75,6 @@ horizon_plugins:
   neutron-lbaas-dashboard: stable-rocky
   neutron-vpnaas-dashboard: stable-rocky
   octavia-dashboard: stable-rocky
-  searchlight-ui: stable-queens
   senlin-dashboard: stable-rocky
   trove-dashboard: stable-rocky
   watcher-dashboard: stable-rocky

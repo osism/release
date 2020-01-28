@@ -58,7 +58,6 @@ openstack_projects:
   octavia: stable-stein
   panko: stable-stein
   placement: stable-stein
-  searchlight: stable-stein
   senlin: stable-stein
   swift: stable-stein
   trove: stable-stein
@@ -78,7 +77,6 @@ horizon_plugins:
   neutron-lbaas-dashboard: stable-stein
   neutron-vpnaas-dashboard: stable-stein
   octavia-dashboard: stable-stein
-  searchlight-ui: stable-stein
   senlin-dashboard: stable-stein
   trove-dashboard: stable-stein
   watcher-dashboard: stable-stein

@@ -58,7 +58,6 @@ openstack_projects:
   octavia: master
   panko: master
   placement: master
-  searchlight: master
   senlin: master
   swift: master
   trove: master
@@ -78,7 +77,6 @@ horizon_plugins:
   neutron-lbaas-dashboard: master
   neutron-vpnaas-dashboard: master
   octavia-dashboard: master
-  searchlight-ui: master
   senlin-dashboard: master
   trove-dashboard: master
   watcher-dashboard: master
