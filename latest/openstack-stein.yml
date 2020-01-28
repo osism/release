@@ -30,7 +30,7 @@ infrastructure_projects:
   ovsdpdk:
   rabbitmq:
   redis:
-  skydive: 0.25.0
+  skydive: 0.26.0
   tgtd:
   xtrabackup:
   zookeeper:
