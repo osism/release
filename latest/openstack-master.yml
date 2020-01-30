@@ -28,6 +28,7 @@ infrastructure_projects:
   openstack-base:
   openvswitch:
   ovsdpdk:
+  prometheus:
   rabbitmq:
   redis:
   skydive:
