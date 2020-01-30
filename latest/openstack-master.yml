@@ -1,5 +1,5 @@
 ---
-ansible_version: ">=2.8,<2.9"
+ansible_version: ">=2.9,<2.10"
 openstack_version: ussuri
 
 docker_images:
@@ -11,7 +11,7 @@ infrastructure_projects:
   collectd:
   cron:
   dnsmasq:
-  elasticsearch: 6.6.2
+  elasticsearch: 6.8.6
   etcd:
   fluentd:
   grafana:
@@ -19,7 +19,7 @@ infrastructure_projects:
   iscsid:
   kafka:
   keepalived:
-  kibana: 6.6.2
+  kibana: 6.8.6
   kolla-toolbox:
   mariadb:
   memcached:
@@ -74,7 +74,6 @@ horizon_plugins:
   magnum-ui: master
   manila-ui: master
   mistral-dashboard: master
-  neutron-lbaas-dashboard: master
   neutron-vpnaas-dashboard: master
   octavia-dashboard: master
   senlin-dashboard: master
@@ -85,17 +84,16 @@ neutron_base_plugins:
   networking-ansible: master
   networking-baremetal: master
   networking-generic-switch: master
+  networking-mlnx: master
+  networking-ovn: master
   networking-sfc: master
   neutron-fwaas: master
   vmware-nsx: master
   vpnaas-agent: master
 
 neutron_server_plugins:
-  networking-infoblox: stable-rocky
   neutron-dynamic-routing: master
-  neutron-lbaas: master
   ovn-plugin-networking-ovn: master
   vmware-nsxlib: master
 
-integrated_projects:
-  logtrail: 0.1.31
+integrated_projects: {}
