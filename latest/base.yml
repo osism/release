@@ -38,14 +38,11 @@ ansible_roles:
   osism.hosts: master
   osism.manager: master
   osism.mirror: master
-  osism.monitoring: master
   osism.netdata: master
   osism.network-interfaces: master
   osism.operator: master
   osism.osquery: master
   osism.podman: master
-  osism.prometheus-exporter: master
-  osism.prometheus: master
   osism.proxy: master
   osism.repository: master
   osism.resolvconf: master
