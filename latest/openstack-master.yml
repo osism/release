@@ -27,6 +27,7 @@ infrastructure_projects:
   multipathd:
   openstack-base:
   openvswitch:
+  ovn:
   ovsdpdk:
   prometheus:
   rabbitmq:
