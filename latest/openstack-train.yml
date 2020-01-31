@@ -32,7 +32,6 @@ infrastructure_projects:
   redis:
   skydive: 0.26.0
   tgtd:
-  xtrabackup:
   zookeeper:
 
 openstack_projects:
