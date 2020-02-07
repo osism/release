@@ -2,10 +2,6 @@
 dist: bionic
 language: python
 
-cache:
-  directories:
-    - $HOME/.cache/pip
-
 before_install:
   - scripts/travis.sh
 
