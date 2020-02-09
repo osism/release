@@ -26,7 +26,7 @@ ansible_roles:
   ANXS.apt: f602ba7e88abfbb3af6679a8ca47207dc3e9d9c4
   ANXS.timezone: 9a77595bf89fc2c255c7c36c18a9cb113911144d
   ANXS.utilities: 8ec75691a6021aa0ba18214bdcba22242c2c5c10
-  hardening: 3b95e7fc03310ac127be6a7542eb62c7c9e58777
+  hardening: 2093f503a64f213f58f9cab97a10a6f915a02ce9
   osism.cobbler: master
   osism.cockpit: master
   osism.common: master
