@@ -63,6 +63,7 @@ openstack_projects:
   swift: master
   trove: master
   watcher: master
+  zun: master
 
 ceilometer_base_plugins:
   panko: master
@@ -80,6 +81,7 @@ horizon_plugins:
   senlin-dashboard: master
   trove-dashboard: master
   watcher-dashboard: master
+  zun-ui: master
 
 neutron_base_plugins:
   networking-ansible: master
