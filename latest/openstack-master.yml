@@ -48,6 +48,7 @@ openstack_projects:
   heat: master
   horizon: master
   keystone: master
+  kuryr: master
   magnum: master
   manila: master
   mistral: master
