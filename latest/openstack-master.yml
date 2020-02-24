@@ -52,7 +52,6 @@ openstack_projects:
   magnum: master
   manila: master
   mistral: master
-  neutron-lbaas-agent: master
   neutron-vpnaas-agent: master
   neutron: master
   nova: master

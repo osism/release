@@ -50,7 +50,6 @@ openstack_projects:
   magnum: stable-train
   manila: stable-train
   mistral: stable-train
-  neutron-lbaas-agent: stable-train
   neutron-vpnaas-agent: stable-train
   neutron: stable-train
   nova: stable-train
