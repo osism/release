@@ -1,0 +1,97 @@
+---
+ansible_version: ">=2.8,<2.9"
+openstack_version: train
+
+docker_images:
+  openstackclient: train
+  rally: train
+
+infrastructure_projects:
+  chrony:
+  collectd:
+  cron:
+  dnsmasq:
+  elasticsearch: 6.8.6
+  etcd:
+  fluentd:
+  grafana:
+  haproxy:
+  iscsid:
+  kafka:
+  keepalived:
+  kibana: 6.8.6
+  kolla-toolbox:
+  mariadb:
+  memcached:
+  mongodb:
+  multipathd:
+  openstack-base:
+  openvswitch:
+  ovsdpdk:
+  prometheus:
+  rabbitmq: 3.7.10
+  redis:
+  skydive: 0.26.0
+  tgtd:
+  zookeeper:
+
+openstack_projects:
+  aodh: stable-train
+  barbican: stable-train
+  ceilometer: stable-train
+  cinder: stable-train
+  cloudkitty: stable-train
+  designate: stable-train
+  glance: stable-train
+  gnocchi: 4.3.4
+  heat: stable-train
+  horizon: stable-train
+  keystone: stable-train
+  magnum: stable-train
+  manila: stable-train
+  mistral: stable-train
+  neutron-lbaas-agent: stable-train
+  neutron-vpnaas-agent: stable-train
+  neutron: stable-train
+  nova: stable-train
+  novajoin: 1.2.0
+  octavia: stable-train
+  panko: stable-train
+  placement: stable-train
+  senlin: stable-train
+  swift: stable-train
+  trove: stable-train
+  watcher: stable-train
+
+ceilometer_base_plugins:
+  panko: stable-train
+
+horizon_plugins:
+  cloudkitty-dashboard: stable-train
+  designate-dashboard: stable-train
+  fwaas-dashboard: stable-train
+  heat-dashboard: stable-train
+  magnum-ui: stable-train
+  manila-ui: stable-train
+  mistral-dashboard: stable-train
+  neutron-vpnaas-dashboard: stable-train
+  octavia-dashboard: stable-train
+  senlin-dashboard: stable-train
+  trove-dashboard: stable-train
+  watcher-dashboard: stable-train
+
+neutron_base_plugins:
+  networking-ansible: stable-train
+  networking-baremetal: stable-train
+  networking-generic-switch: stable-train
+  networking-sfc: stable-train
+  neutron-fwaas: stable-train
+  vmware-nsx: stable-train
+  vpnaas-agent: stable-train
+
+neutron_server_plugins:
+  neutron-dynamic-routing: stable-train
+  ovn-plugin-networking-ovn: stable-train
+  vmware-nsxlib: stable-train
+
+integrated_projects: {}
