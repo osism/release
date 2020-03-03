@@ -62,6 +62,7 @@ openstack_projects:
   senlin: master
   swift: master
   trove: master
+  vitrage: master
   watcher: master
   zun: master
 
@@ -80,6 +81,7 @@ horizon_plugins:
   octavia-dashboard: master
   senlin-dashboard: master
   trove-dashboard: master
+  vitrage-dashboard: master
   watcher-dashboard: master
   zun-ui: master
 
