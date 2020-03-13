@@ -47,6 +47,7 @@ openstack_projects:
   gnocchi: 4.3.4
   heat: master
   horizon: master
+  ironic: master
   keystone: master
   kuryr: master
   magnum: master
@@ -74,6 +75,7 @@ horizon_plugins:
   designate-dashboard: master
   fwaas-dashboard: master
   heat-dashboard: master
+  ironic-ui: master
   magnum-ui: master
   manila-ui: master
   mistral-dashboard: master
