@@ -99,6 +99,11 @@ def process(version):
                 source = 'osism/ceph-daemon'
                 source_tag = "%s-centos-7-x86_64" % source_tag
 
+            if image == 'ceph' and ('stable-5.0' in source_tag):
+                target_tag = "%s-%s" % (source_tag.split("-")[-1], target_tag)
+                source = 'osism/ceph-daemon'
+                source_tag = "%s-centos-8-x86_64" % source_tag
+
             if image == 'ceph' and 'latest' in source_tag:
                 logging.info("skipping - %s (latest)" % image)
                 continue
