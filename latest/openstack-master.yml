@@ -16,6 +16,7 @@ infrastructure_projects:
   fluentd:
   grafana:
   haproxy:
+  influxdb:
   iscsid:
   kafka:
   keepalived:
