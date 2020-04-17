@@ -16,6 +16,7 @@ infrastructure_projects:
   fluentd:
   grafana:
   haproxy:
+  influxdb:
   iscsid:
   kafka:
   keepalived:
@@ -29,7 +30,7 @@ infrastructure_projects:
   openvswitch:
   ovsdpdk:
   prometheus:
-  rabbitmq: 3.7.10
+  rabbitmq: 3.7.*
   redis:
   skydive: 0.26.0
   tgtd:

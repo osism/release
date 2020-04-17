@@ -1,0 +1,8 @@
+---
+ansible_version: ">=2.8,<2.9"
+ceph_ansible_version: stable-4.0
+ceph_container_version: stable-4.0
+ceph_version: nautilus
+docker_images:
+  ceph: v4.0.11-stable-4.0-nautilus
+  cephclient: nautilus
