@@ -27,22 +27,22 @@ ansible_roles:
   ANXS.timezone: 9a77595bf89fc2c255c7c36c18a9cb113911144d
   ANXS.utilities: 8ec75691a6021aa0ba18214bdcba22242c2c5c10
   hardening: 2093f503a64f213f58f9cab97a10a6f915a02ce9
-  osism.cobbler: master
-  osism.cockpit: master
-  osism.common: master
-  osism.chrony: master
-  osism.configuration: master
-  osism.docker: master
-  osism.helper: master
-  osism.hostname: master
-  osism.hosts: master
-  osism.manager: master
-  osism.mirror: master
-  osism.netdata: master
-  osism.network-interfaces: master
-  osism.operator: master
+  osism.cobbler: v2020.1.0
+  osism.cockpit: v2020.1.0
+  osism.common: v2020.1.0
+  osism.chrony: v2020.1.0
+  osism.configuration: v2020.1.0
+  osism.docker: v2020.1.0
+  osism.helper: v2020.1.0
+  osism.hostname: v2020.1.0
+  osism.hosts: v2020.1.0
+  osism.manager: v2020.1.0
+  osism.mirror: v2020.1.0
+  osism.netdata: v2020.1.0
+  osism.network-interfaces: v2020.1.0
+  osism.operator: v2020.1.0
   osism.osquery: master
   osism.podman: master
-  osism.proxy: master
-  osism.repository: master
-  osism.resolvconf: master
+  osism.proxy: v2020.1.0
+  osism.repository: v2020.1.0
+  osism.resolvconf: v2020.1.0
