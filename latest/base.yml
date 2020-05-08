@@ -16,7 +16,7 @@ docker_images:
   cobbler: 2.8
   installer: latest
   mariadb: 10.4
-  nexus: 3.19.0
+  nexus: 3.23.0
   nginx: 1.17-alpine
   phpmyadmin: 5.0
   redis: 6-alpine
