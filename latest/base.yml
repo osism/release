@@ -19,7 +19,7 @@ docker_images:
   nexus: 3.19.0
   nginx: 1.17-alpine
   phpmyadmin: 5.0
-  redis: 5.0-alpine
+  redis: 6-alpine
   registry: 2.7
 
 ansible_roles:
