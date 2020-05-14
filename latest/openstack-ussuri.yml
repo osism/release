@@ -1,0 +1,107 @@
+---
+ansible_version: ">=2.9,<2.10"
+openstack_version: ussuri
+
+docker_images:
+  openstackclient: ussuri
+  rally: ussuri
+
+infrastructure_projects:
+  chrony:
+  collectd:
+  cron:
+  dnsmasq:
+  elasticsearch: 6.8.6
+  etcd:
+  fluentd:
+  grafana:
+  haproxy:
+  influxdb:
+  iscsid:
+  kafka:
+  keepalived:
+  kibana: 6.8.6
+  kolla-toolbox:
+  mariadb:
+  memcached:
+  mongodb:
+  multipathd:
+  openstack-base:
+  openvswitch:
+  ovn:
+  ovsdpdk:
+  prometheus:
+  rabbitmq: 3.8.*
+  redis:
+  skydive:
+  tgtd:
+  zookeeper:
+
+openstack_projects:
+  aodh: ussuri
+  barbican: ussuri
+  ceilometer: ussuri
+  cinder: ussuri
+  cloudkitty: ussuri
+  designate: ussuri
+  glance: ussuri
+  gnocchi: 4.3.4
+  heat: ussuri
+  horizon: ussuri
+  ironic: ussuri
+  keystone: ussuri
+  kuryr: ussuri
+  magnum: ussuri
+  manila: ussuri
+  mistral: ussuri
+  neutron-vpnaas-agent: ussuri
+  neutron: ussuri
+  nova: ussuri
+  novajoin: ussuri
+  octavia: ussuri
+  panko: ussuri
+  placement: ussuri
+  senlin: ussuri
+  swift: ussuri
+  trove: ussuri
+  vitrage: ussuri
+  watcher: ussuri
+  zun: ussuri
+
+ceilometer_base_plugins:
+  panko: ussuri
+
+horizon_plugins:
+  cloudkitty-dashboard: ussuri
+  designate-dashboard: ussuri
+  fwaas-dashboard: ussuri
+  heat-dashboard: ussuri
+  ironic-ui: ussuri
+  magnum-ui: ussuri
+  manila-ui: ussuri
+  mistral-dashboard: ussuri
+  neutron-vpnaas-dashboard: ussuri
+  octavia-dashboard: ussuri
+  senlin-dashboard: ussuri
+  trove-dashboard: ussuri
+  vitrage-dashboard: ussuri
+  watcher-dashboard: ussuri
+  zun-ui: ussuri
+
+neutron_base_plugins:
+  networking-ansible: ussuri
+  networking-baremetal: ussuri
+  networking-generic-switch: ussuri
+  networking-mlnx: ussuri
+  networking-ovn: ussuri
+  networking-sfc: ussuri
+  neutron-fwaas: ussuri
+  vmware-nsx: ussuri
+  vpnaas-agent: ussuri
+
+neutron_server_plugins:
+  neutron-dynamic-routing: ussuri
+  ovn-plugin-networking-ovn: ussuri
+  vmware-nsxlib: ussuri
+
+integrated_projects: {}
