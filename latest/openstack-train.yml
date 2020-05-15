@@ -48,6 +48,7 @@ openstack_projects:
   heat: stable-train
   horizon: stable-train
   keystone: stable-train
+  kuryr: stable-train
   magnum: stable-train
   manila: stable-train
   mistral: stable-train
@@ -62,6 +63,7 @@ openstack_projects:
   swift: stable-train
   trove: stable-train
   watcher: stable-train
+  zun: stable-train
 
 ceilometer_base_plugins:
   panko: stable-train
@@ -79,6 +81,7 @@ horizon_plugins:
   senlin-dashboard: stable-train
   trove-dashboard: stable-train
   watcher-dashboard: stable-train
+  zun-ui: stable-train
 
 neutron_base_plugins:
   networking-ansible: stable-train
