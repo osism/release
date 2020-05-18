@@ -27,10 +27,10 @@ ansible_roles:
   ANXS.timezone: 9a77595bf89fc2c255c7c36c18a9cb113911144d
   ANXS.utilities: 8ec75691a6021aa0ba18214bdcba22242c2c5c10
   hardening: 2093f503a64f213f58f9cab97a10a6f915a02ce9
+  osism.chrony: master
   osism.cobbler: master
   osism.cockpit: master
   osism.common: master
-  osism.chrony: master
   osism.configuration: master
   osism.docker: master
   osism.helper: master
@@ -40,6 +40,7 @@ ansible_roles:
   osism.mirror: master
   osism.netdata: master
   osism.network-interfaces: master
+  osism.openstackclient: master
   osism.operator: master
   osism.osquery: master
   osism.podman: master
