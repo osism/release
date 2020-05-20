@@ -2,6 +2,7 @@
 ANXS.apt: ANXS/apt
 ANXS.timezone: ANXS/timezone
 ANXS.utilities: ANXS/utilities
+geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
 hardening: openstack/ansible-hardening
 osism.cephclient: osism/ansible-cephclient
 osism.chrony: osism/ansible-chrony
