@@ -10,6 +10,7 @@ osism.cockpit: https://github.com/osism/ansible-cockpit.git
 osism.common: https://github.com/osism/ansible-common.git
 osism.configuration: https://github.com/osism/ansible-configuration.git
 osism.docker: https://github.com/osism/ansible-docker.git
+osism.docker-compose: https://github.com/osism/ansible-docker-compose.git
 osism.hostname: https://github.com/osism/ansible-hostname.git
 osism.hosts: https://github.com/osism/ansible-hosts.git
 osism.manager: https://github.com/osism/ansible-manager.git

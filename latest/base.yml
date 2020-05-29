@@ -35,6 +35,7 @@ ansible_roles:
   osism.common: master
   osism.configuration: master
   osism.docker: master
+  osism.docker-compose: master
   osism.helper: master
   osism.hostname: master
   osism.hosts: master

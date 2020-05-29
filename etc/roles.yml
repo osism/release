@@ -11,6 +11,7 @@ osism.cockpit: osism/ansible-cockpit
 osism.common: osism/ansible-common
 osism.configuration: osism/ansible-configuration
 osism.docker: osism/ansible-docker
+osism.docker-compose: osism/ansible-docker-compose
 osism.helper: osism/ansible-helper
 osism.hostname: osism/ansible-hostname
 osism.hosts: osism/ansible-hosts
