@@ -68,40 +68,4 @@ openstack_projects:
   watcher: master
   zun: master
 
-ceilometer_base_plugins:
-  panko: master
-
-horizon_plugins:
-  cloudkitty-dashboard: master
-  designate-dashboard: master
-  fwaas-dashboard: master
-  heat-dashboard: master
-  ironic-ui: master
-  magnum-ui: master
-  manila-ui: master
-  mistral-dashboard: master
-  neutron-vpnaas-dashboard: master
-  octavia-dashboard: master
-  senlin-dashboard: master
-  trove-dashboard: master
-  vitrage-dashboard: master
-  watcher-dashboard: master
-  zun-ui: master
-
-neutron_base_plugins:
-  networking-ansible: master
-  networking-baremetal: master
-  networking-generic-switch: master
-  networking-mlnx: master
-  networking-ovn: master
-  networking-sfc: master
-  neutron-fwaas: master
-  vmware-nsx: master
-  vpnaas-agent: master
-
-neutron_server_plugins:
-  neutron-dynamic-routing: master
-  ovn-plugin-networking-ovn: master
-  vmware-nsxlib: master
-
 integrated_projects: {}
