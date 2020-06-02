@@ -50,3 +50,4 @@ ansible_roles:
   osism.proxy: master
   osism.repository: master
   osism.resolvconf: master
+  osism.zabbix-agent: master
