@@ -19,7 +19,7 @@ osism.manager: osism/ansible-manager
 osism.mirror: osism/ansible-mirror
 osism.monitoring: osism/ansible-monitoring
 osism.netdata: osism/ansible-netdata
-osism.network-interfaces: osism/ansible-network-interfaces
+osism.network: osism/ansible-network
 osism.openstackclient: osism/ansible-openstackclient
 osism.operator: osism/ansible-operator
 osism.osquery: osism/ansible-osquery

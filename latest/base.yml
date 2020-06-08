@@ -42,7 +42,7 @@ ansible_roles:
   osism.manager: master
   osism.mirror: master
   osism.netdata: master
-  osism.network-interfaces: master
+  osism.network: master
   osism.openstackclient: master
   osism.operator: master
   osism.osquery: master
