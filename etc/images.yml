@@ -1,16 +1,4 @@
 ---
-# prometheus
-
-alertmanager: prom/alertmanager
-blackbox-exporter: prom/blackbox-exporter
-cadvisor: google/cadvisor
-ceph_exporter: digitalocean/ceph_exporter
-haproxy_exporter: prom/haproxy-exporter
-memcached_exporter: prom/memcached-exporter
-mysqld_exporter: prom/mysqld-exporter
-node_exporter: prom/node-exporter
-prometheus: prom/prometheus
-
 # manager
 
 adminer: library/adminer
