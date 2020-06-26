@@ -29,3 +29,4 @@ osism.proxy: osism/ansible-proxy
 osism.repository: osism/ansible-repository
 osism.resolvconf: osism/ansible-resolvconf
 osism.zabbix-agent: osism/ansible-zabbix-agent
+stackhpc.luks: stackhpc/ansible-role-luks
