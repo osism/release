@@ -15,6 +15,7 @@ docker_images:
   ara_web: 1.0.0
   installer: latest
   mariadb: 10.4
+  netbox: v2.8
   nexus: 3.23.0
   nginx: 1.18-alpine
   phpmyadmin: 5.0

@@ -37,3 +37,7 @@ registry: library/registry
 
 ceph: ceph/daemon
 cephclient: osism/cephclient
+
+# infrastructure
+
+netbox: netboxcommunity/netbox
