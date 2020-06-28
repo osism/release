@@ -47,6 +47,7 @@ ansible_roles:
   osism.operator: master
   osism.osquery: master
   osism.patchman-client: master
+  osism.patchman: master
   osism.podman: master
   osism.proxy: master
   osism.repository: master

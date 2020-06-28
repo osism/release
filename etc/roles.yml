@@ -23,6 +23,7 @@ osism.openstackclient: osism/ansible-openstackclient
 osism.operator: osism/ansible-operator
 osism.osquery: osism/ansible-osquery
 osism.patchman-client: osism/ansible-patchman-client
+osism.patchman: osism/ansible-patchman
 osism.podman: osism/ansible-podman
 osism.prometheus-exporter: osism/ansible-prometheus-exporter
 osism.prometheus: osism/ansible-prometheus
