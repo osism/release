@@ -9,8 +9,8 @@ osism.chrony: osism/ansible-chrony
 osism.cockpit: osism/ansible-cockpit
 osism.common: osism/ansible-common
 osism.configuration: osism/ansible-configuration
-osism.docker: osism/ansible-docker
 osism.docker-compose: osism/ansible-docker-compose
+osism.docker: osism/ansible-docker
 osism.helper: osism/ansible-helper
 osism.hostname: osism/ansible-hostname
 osism.hosts: osism/ansible-hosts
@@ -22,6 +22,7 @@ osism.network: osism/ansible-network
 osism.openstackclient: osism/ansible-openstackclient
 osism.operator: osism/ansible-operator
 osism.osquery: osism/ansible-osquery
+osism.patchman-client: osism/ansible-patchman-client
 osism.podman: osism/ansible-podman
 osism.prometheus-exporter: osism/ansible-prometheus-exporter
 osism.prometheus: osism/ansible-prometheus

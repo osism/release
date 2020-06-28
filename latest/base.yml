@@ -34,8 +34,8 @@ ansible_roles:
   osism.cockpit: master
   osism.common: master
   osism.configuration: master
-  osism.docker: master
   osism.docker-compose: master
+  osism.docker: master
   osism.helper: master
   osism.hostname: master
   osism.hosts: master
@@ -46,6 +46,7 @@ ansible_roles:
   osism.openstackclient: master
   osism.operator: master
   osism.osquery: master
+  osism.patchman-client: master
   osism.podman: master
   osism.proxy: master
   osism.repository: master
