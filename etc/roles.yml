@@ -28,6 +28,7 @@ osism.podman: osism/ansible-podman
 osism.prometheus-exporter: osism/ansible-prometheus-exporter
 osism.prometheus: osism/ansible-prometheus
 osism.proxy: osism/ansible-proxy
+osism.pulp: osism/ansible-pulp
 osism.repository: osism/ansible-repository
 osism.resolvconf: osism/ansible-resolvconf
 osism.zabbix-agent: osism/ansible-zabbix-agent

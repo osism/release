@@ -50,6 +50,7 @@ ansible_roles:
   osism.patchman: master
   osism.podman: master
   osism.proxy: master
+  osism.pulp: master
   osism.repository: master
   osism.resolvconf: master
   osism.zabbix-agent: master
