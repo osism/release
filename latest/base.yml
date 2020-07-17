@@ -54,4 +54,5 @@ ansible_roles:
   osism.repository: master
   osism.resolvconf: master
   osism.zabbix-agent: master
+  osism.zabbix: master
   stackhpc.luks: master

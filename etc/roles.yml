@@ -32,4 +32,5 @@ osism.pulp: osism/ansible-pulp
 osism.repository: osism/ansible-repository
 osism.resolvconf: osism/ansible-resolvconf
 osism.zabbix-agent: osism/ansible-zabbix-agent
+osism.zabbix: osism/ansible-zabbix
 stackhpc.luks: stackhpc/ansible-role-luks
