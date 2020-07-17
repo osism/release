@@ -29,6 +29,7 @@ ansible_roles:
   ANXS.utilities: 8ec75691a6021aa0ba18214bdcba22242c2c5c10
   geerlingguy.dotfiles: master
   hardening: 2093f503a64f213f58f9cab97a10a6f915a02ce9
+  osism.auditd: master
   osism.cephclient: master
   osism.chrony: master
   osism.cockpit: master
