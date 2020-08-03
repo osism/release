@@ -19,7 +19,7 @@ docker_images:
   nexus: 3.23.0
   nginx: 1.18-alpine
   phpmyadmin: 5.0
-  postgres: 9.6-alpine
+  postgres: 12-alpine
   redis: 6-alpine
   registry: 2.7
 
