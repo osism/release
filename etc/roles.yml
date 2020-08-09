@@ -31,7 +31,6 @@ osism.proxy: osism/ansible-proxy
 osism.pulp: osism/ansible-pulp
 osism.repository: osism/ansible-repository
 osism.resolvconf: osism/ansible-resolvconf
-osism.rsyslog: osism/ansible-rsyslog
 osism.ucs: osism/ansible-ucs
 osism.zabbix-agent: osism/ansible-zabbix-agent
 osism.zabbix: osism/ansible-zabbix
