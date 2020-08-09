@@ -55,7 +55,6 @@ ansible_roles:
   osism.repository: master
   osism.resolvconf: master
   osism.rsyslog: master
-  osism.sysdig: master
   osism.ucs: master
   osism.zabbix-agent: master
   osism.zabbix: master
