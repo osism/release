@@ -31,7 +31,6 @@ ansible_roles:
   hardening: 2093f503a64f213f58f9cab97a10a6f915a02ce9
   osism.cephclient: master
   osism.chrony: master
-  osism.cockpit: master
   osism.common: master
   osism.configuration: master
   osism.docker-compose: master

@@ -6,7 +6,6 @@ geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
 hardening: openstack/ansible-hardening
 osism.cephclient: osism/ansible-cephclient
 osism.chrony: osism/ansible-chrony
-osism.cockpit: osism/ansible-cockpit
 osism.common: osism/ansible-common
 osism.configuration: osism/ansible-configuration
 osism.docker-compose: osism/ansible-docker-compose

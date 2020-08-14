@@ -4,7 +4,6 @@ ANXS.timezone: https://github.com/ANXS/timezone.git
 ANXS.utilities: https://github.com/ANXS/utilities.git
 geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
 osism.chrony: https://github.com/osism/ansible-chrony.git
-osism.cockpit: https://github.com/osism/ansible-cockpit.git
 osism.common: https://github.com/osism/ansible-common.git
 osism.configuration: https://github.com/osism/ansible-configuration.git
 osism.docker-compose: https://github.com/osism/ansible-docker-compose.git
