@@ -1,5 +1,5 @@
 ---
-ansible_version: ">=2.8,<2.9"
+ansible_version: ">=2.9,<2.10"
 ceph_ansible_version: master
 ceph_container_version: latest
 ceph_version: octopus
