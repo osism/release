@@ -44,14 +44,10 @@ ansible_roles:
   osism.network: master
   osism.openstackclient: master
   osism.operator: master
-  osism.patchman-client: master
-  osism.patchman: master
   osism.podman: master
   osism.proxy: master
   osism.pulp: master
   osism.repository: master
   osism.resolvconf: master
   osism.ucs: master
-  osism.zabbix-agent: master
-  osism.zabbix: master
   stackhpc.luks: master

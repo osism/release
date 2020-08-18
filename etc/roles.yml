@@ -20,8 +20,6 @@ osism.netdata: osism/ansible-netdata
 osism.network: osism/ansible-network
 osism.openstackclient: osism/ansible-openstackclient
 osism.operator: osism/ansible-operator
-osism.patchman-client: osism/ansible-patchman-client
-osism.patchman: osism/ansible-patchman
 osism.podman: osism/ansible-podman
 osism.prometheus-exporter: osism/ansible-prometheus-exporter
 osism.prometheus: osism/ansible-prometheus
@@ -30,6 +28,4 @@ osism.pulp: osism/ansible-pulp
 osism.repository: osism/ansible-repository
 osism.resolvconf: osism/ansible-resolvconf
 osism.ucs: osism/ansible-ucs
-osism.zabbix-agent: osism/ansible-zabbix-agent
-osism.zabbix: osism/ansible-zabbix
 stackhpc.luks: stackhpc/ansible-role-luks
