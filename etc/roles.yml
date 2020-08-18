@@ -4,8 +4,6 @@ ANXS.timezone: ANXS/timezone
 ANXS.utilities: ANXS/utilities
 geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
 hardening: openstack/ansible-hardening
-osism.cephclient: osism/ansible-cephclient
-osism.chrony: osism/ansible-chrony
 osism.common: osism/ansible-common
 osism.configuration: osism/ansible-configuration
 osism.docker-compose: osism/ansible-docker-compose
@@ -16,9 +14,7 @@ osism.hosts: osism/ansible-hosts
 osism.manager: osism/ansible-manager
 osism.mirror: osism/ansible-mirror
 osism.monitoring: osism/ansible-monitoring
-osism.netdata: osism/ansible-netdata
 osism.network: osism/ansible-network
-osism.openstackclient: osism/ansible-openstackclient
 osism.operator: osism/ansible-operator
 osism.podman: osism/ansible-podman
 osism.prometheus-exporter: osism/ansible-prometheus-exporter

@@ -29,8 +29,6 @@ ansible_roles:
   ANXS.utilities: 8ec75691a6021aa0ba18214bdcba22242c2c5c10
   geerlingguy.dotfiles: master
   hardening: 2093f503a64f213f58f9cab97a10a6f915a02ce9
-  osism.cephclient: master
-  osism.chrony: master
   osism.common: master
   osism.configuration: master
   osism.docker-compose: master
@@ -40,9 +38,7 @@ ansible_roles:
   osism.hosts: master
   osism.manager: master
   osism.mirror: master
-  osism.netdata: master
   osism.network: master
-  osism.openstackclient: master
   osism.operator: master
   osism.podman: master
   osism.proxy: master
