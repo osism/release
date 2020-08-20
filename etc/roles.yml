@@ -4,7 +4,6 @@ ANXS.timezone: ANXS/timezone
 ANXS.utilities: ANXS/utilities
 geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
 hardening: openstack/ansible-hardening
-osism.common: osism/ansible-common
 osism.configuration: osism/ansible-configuration
 osism.docker-compose: osism/ansible-docker-compose
 osism.docker: osism/ansible-docker
