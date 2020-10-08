@@ -4,5 +4,5 @@ ceph_ansible_version: stable-5.0
 ceph_container_version: stable-5.0
 ceph_version: octopus
 docker_images:
-  ceph: v5.0.0-stable-5.0-octopus
+  ceph: v5.0.3-stable-5.0-octopus
   cephclient: octopus
