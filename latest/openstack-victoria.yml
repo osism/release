@@ -1,0 +1,71 @@
+---
+ansible_version: ">=2.10,<2.11"
+openstack_version: victoria
+
+docker_images:
+  openstackclient: victoria
+  rally: victoria
+
+infrastructure_projects:
+  chrony:
+  collectd:
+  cron:
+  dnsmasq:
+  elasticsearch: 6.8.6
+  etcd:
+  fluentd:
+  grafana:
+  haproxy:
+  influxdb:
+  iscsid:
+  kafka:
+  keepalived:
+  kibana: 6.8.6
+  kolla-toolbox:
+  mariadb:
+  memcached:
+  mongodb:
+  multipathd:
+  openstack-base:
+  openvswitch:
+  ovn:
+  ovsdpdk:
+  prometheus:
+  rabbitmq: 3.8.*
+  redis:
+  skydive:
+  tgtd:
+  zookeeper:
+
+openstack_projects:
+  aodh: stable-victoria
+  barbican: stable-victoria
+  ceilometer: stable-victoria
+  cinder: stable-victoria
+  cloudkitty: stable-victoria
+  designate: stable-victoria
+  glance: stable-victoria
+  gnocchi: 4.3.4
+  heat: stable-victoria
+  horizon: stable-victoria
+  ironic: stable-victoria
+  keystone: stable-victoria
+  kuryr: stable-victoria
+  magnum: stable-victoria
+  manila: stable-victoria
+  mistral: stable-victoria
+  neutron-vpnaas-agent: stable-victoria
+  neutron: stable-victoria
+  nova: stable-victoria
+  novajoin: 1.3.0
+  octavia: stable-victoria
+  panko: stable-victoria
+  placement: stable-victoria
+  senlin: stable-victoria
+  swift: stable-victoria
+  trove: stable-victoria
+  vitrage: stable-victoria
+  watcher: stable-victoria
+  zun: stable-victoria
+
+integrated_projects: {}
