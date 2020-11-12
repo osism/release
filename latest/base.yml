@@ -5,7 +5,7 @@ repository_version: latest
 
 osism_projects:
   ara: 1.5.3
-  docker: 5:19.03.8
+  docker: 5:19.03.13
   mitogen: 0.2.9
 
 docker_images:
