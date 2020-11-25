@@ -40,6 +40,7 @@ infrastructure_projects:
 openstack_projects:
   aodh: stable-ussuri
   barbican: stable-ussuri
+  bifrost: stable-ussuri
   ceilometer: stable-ussuri
   cinder: stable-ussuri
   cloudkitty: stable-ussuri

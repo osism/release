@@ -40,6 +40,7 @@ infrastructure_projects:
 openstack_projects:
   aodh: stable-victoria
   barbican: stable-victoria
+  bifrost: stable-victoria
   ceilometer: stable-victoria
   cinder: stable-victoria
   cloudkitty: stable-victoria
