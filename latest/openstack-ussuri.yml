@@ -46,7 +46,7 @@ openstack_projects:
   cloudkitty: stable-ussuri
   designate: stable-ussuri
   glance: stable-ussuri
-  gnocchi: 4.3.4
+  gnocchi: 4.4.0
   heat: stable-ussuri
   horizon: stable-ussuri
   ironic: stable-ussuri

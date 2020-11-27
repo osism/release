@@ -46,7 +46,7 @@ openstack_projects:
   cloudkitty: stable-victoria
   designate: stable-victoria
   glance: stable-victoria
-  gnocchi: 4.3.4
+  gnocchi: 4.4.0
   heat: stable-victoria
   horizon: stable-victoria
   ironic: stable-victoria

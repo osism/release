@@ -46,7 +46,7 @@ openstack_projects:
   cloudkitty: master
   designate: master
   glance: master
-  gnocchi: 4.3.4
+  gnocchi: 4.4.0
   heat: master
   horizon: master
   ironic: master
