@@ -31,7 +31,7 @@ infrastructure_projects:
   ovn:
   ovsdpdk:
   prometheus:
-  rabbitmq: 3.8.*
+  rabbitmq:
   redis:
   skydive:
   tgtd:
