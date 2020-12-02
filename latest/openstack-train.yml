@@ -4,7 +4,6 @@ openstack_version: train
 
 docker_images:
   openstackclient: train
-  rally: train
 
 infrastructure_projects:
   chrony:

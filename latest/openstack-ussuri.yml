@@ -4,7 +4,6 @@ openstack_version: ussuri
 
 docker_images:
   openstackclient: ussuri
-  rally: ussuri
 
 infrastructure_projects:
   chrony:

@@ -4,7 +4,6 @@ openstack_version: victoria
 
 docker_images:
   openstackclient: victoria
-  rally: victoria
 
 infrastructure_projects:
   chrony:

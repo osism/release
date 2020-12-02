@@ -4,7 +4,6 @@ openstack_version: stein
 
 docker_images:
   openstackclient: stein
-  rally: stein
 
 infrastructure_projects:
   chrony:
