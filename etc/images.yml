@@ -6,6 +6,7 @@ ara_server: osism/ara-server
 ceph_ansible: osism/ceph-ansible
 installer: osism/installer
 kolla_ansible: osism/kolla-ansible
+manager: osism/manager
 mariadb: library/mariadb
 openstackclient: osism/openstackclient
 osism_ansible: osism/osism-ansible
@@ -22,7 +23,7 @@ registry: library/registry
 
 # ceph
 
-ceph: ceph/daemon
+ceph: osism/ceph-daemon
 cephclient: osism/cephclient
 
 # infrastructure
