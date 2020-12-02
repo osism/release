@@ -3,10 +3,10 @@
 
 adminer: library/adminer
 ara_server: osism/ara-server
+awx: osism/manager
 ceph_ansible: osism/ceph-ansible
 installer: osism/installer
 kolla_ansible: osism/kolla-ansible
-manager: osism/manager
 mariadb: library/mariadb
 openstackclient: osism/openstackclient
 osism_ansible: osism/osism-ansible
