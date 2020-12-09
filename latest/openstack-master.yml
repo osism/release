@@ -42,7 +42,6 @@ openstack_projects:
   bifrost: master
   ceilometer: master
   cinder: master
-  cloudkitty: master
   designate: master
   glance: master
   gnocchi: 4.4.0
@@ -63,7 +62,6 @@ openstack_projects:
   placement: master
   senlin: master
   swift: master
-  trove: master
   vitrage: master
   watcher: master
   zun: master

@@ -42,7 +42,6 @@ openstack_projects:
   bifrost: stable-victoria
   ceilometer: stable-victoria
   cinder: stable-victoria
-  cloudkitty: stable-victoria
   designate: stable-victoria
   glance: stable-victoria
   gnocchi: 4.4.0
@@ -63,7 +62,6 @@ openstack_projects:
   placement: stable-victoria
   senlin: stable-victoria
   swift: stable-victoria
-  trove: stable-victoria
   vitrage: stable-victoria
   watcher: stable-victoria
   zun: stable-victoria

@@ -38,7 +38,6 @@ openstack_projects:
   barbican: stable-rocky
   ceilometer: stable-rocky
   cinder: stable-rocky
-  cloudkitty: stable-rocky
   designate: stable-rocky
   glance: stable-rocky
   gnocchi: 4.3.2
@@ -57,14 +56,12 @@ openstack_projects:
   panko: stable-rocky
   senlin: stable-rocky
   swift: stable-rocky
-  trove: stable-rocky
   watcher: stable-rocky
 
 ceilometer_base_plugins:
   panko: stable-rocky
 
 horizon_plugins:
-  cloudkitty-dashboard: stable-rocky
   designate-dashboard: stable-rocky
   fwaas-dashboard: stable-rocky
   heat-dashboard: stable-rocky
@@ -75,7 +72,6 @@ horizon_plugins:
   neutron-vpnaas-dashboard: stable-rocky
   octavia-dashboard: stable-rocky
   senlin-dashboard: stable-rocky
-  trove-dashboard: stable-rocky
   watcher-dashboard: stable-rocky
 
 neutron_base_plugins:

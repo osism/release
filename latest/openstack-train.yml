@@ -40,7 +40,6 @@ openstack_projects:
   barbican: stable-train
   ceilometer: stable-train
   cinder: stable-train
-  cloudkitty: stable-train
   designate: stable-train
   glance: stable-train
   gnocchi: 4.3.4
@@ -60,7 +59,6 @@ openstack_projects:
   placement: stable-train
   senlin: stable-train
   swift: stable-train
-  trove: stable-train
   watcher: stable-train
   zun: stable-train
 
@@ -68,7 +66,6 @@ ceilometer_base_plugins:
   panko: stable-train
 
 horizon_plugins:
-  cloudkitty-dashboard: stable-train
   designate-dashboard: stable-train
   fwaas-dashboard: stable-train
   heat-dashboard: stable-train
@@ -78,7 +75,6 @@ horizon_plugins:
   neutron-vpnaas-dashboard: stable-train
   octavia-dashboard: stable-train
   senlin-dashboard: stable-train
-  trove-dashboard: stable-train
   watcher-dashboard: stable-train
   zun-ui: stable-train
 

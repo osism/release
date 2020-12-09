@@ -42,7 +42,6 @@ openstack_projects:
   bifrost: stable-ussuri
   ceilometer: stable-ussuri
   cinder: stable-ussuri
-  cloudkitty: stable-ussuri
   designate: stable-ussuri
   glance: stable-ussuri
   gnocchi: 4.4.0
@@ -63,7 +62,6 @@ openstack_projects:
   placement: stable-ussuri
   senlin: stable-ussuri
   swift: stable-ussuri
-  trove: stable-ussuri
   vitrage: stable-ussuri
   watcher: stable-ussuri
   zun: stable-ussuri
