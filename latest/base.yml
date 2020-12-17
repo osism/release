@@ -10,7 +10,6 @@ osism_projects:
 docker_images:
   adminer: 4.7
   ara_server: 1.5.3
-  installer: latest
   mariadb: 10.5
   netbox: v2.8
   nexus: 3.28.1
