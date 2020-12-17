@@ -9,7 +9,6 @@ osism_projects:
 
 docker_images:
   adminer: 4.7
-  aptly: 1.4.0
   ara_server: 1.5.3
   installer: latest
   mariadb: 10.5
