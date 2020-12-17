@@ -16,7 +16,6 @@ redis: library/redis
 
 # mirror
 
-aptly: osism/aptly
 nexus: sonatype/nexus3
 nginx: library/nginx
 registry: library/registry
