@@ -1,6 +1,5 @@
 ---
 ANXS.apt: ANXS/apt
-ANXS.timezone: ANXS/timezone
 ANXS.utilities: ANXS/utilities
 geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
 hardening: openstack/ansible-hardening
