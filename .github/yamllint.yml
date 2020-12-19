@@ -3,3 +3,6 @@ extends: default
 
 rules:
   comments: enable
+
+ignore: |
+  archive/
