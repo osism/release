@@ -1,6 +1,5 @@
 ---
 ANXS.apt: ANXS/apt
-ANXS.utilities: ANXS/utilities
 geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
 hardening: openstack/ansible-hardening
 stackhpc.luks: stackhpc/ansible-role-luks
