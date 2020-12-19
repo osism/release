@@ -11,7 +11,7 @@ docker_images:
   adminer: 4.7
   ara_server: 1.5.3
   mariadb: 10.5
-  netbox: v2.8
+  netbox: v2.10
   nexus: 3.28.1
   nginx: 1.19-alpine
   phpmyadmin: 5.0
