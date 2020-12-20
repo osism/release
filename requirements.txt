@@ -1,8 +1,8 @@
-PyGitHub
-PyYAML
-dictdiffer
-docker>=4.0.0
-gitpython
-requests
-ruamel.yaml
-tabulate
+GitPython=3.1.11
+PyGithub==1.54
+PyYAML==5.3.1
+dictdiffer==0.8.1
+docker==4.4.0
+requests==2.25.1
+ruamel.yaml==0.16.12
+tabulate==0.8.7
