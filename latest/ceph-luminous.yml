@@ -1,5 +1,5 @@
 ---
-ansible_version: ">=2.6,<2.7"
+ansible_version: ">=2.7,<2.8"
 ceph_ansible_version: stable-3.2
 ceph_container_version: stable-3.2
 ceph_version: luminous
