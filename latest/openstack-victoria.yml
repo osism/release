@@ -53,6 +53,7 @@ openstack_projects:
   magnum: stable-victoria
   manila: stable-victoria
   mistral: stable-victoria
+  monasca: stable-victoria
   neutron-vpnaas-agent: stable-victoria
   neutron: stable-victoria
   nova: stable-victoria

@@ -30,7 +30,7 @@ infrastructure_projects:
   ovn:
   ovsdpdk:
   prometheus:
-  rabbitmq: 3.8.*
+  rabbitmq:
   redis:
   skydive:
   tgtd:
@@ -53,6 +53,7 @@ openstack_projects:
   magnum: master
   manila: master
   mistral: master
+  monasca: master
   neutron-vpnaas-agent: master
   neutron: master
   nova: master
