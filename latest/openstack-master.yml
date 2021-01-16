@@ -1,6 +1,6 @@
 ---
 ansible_version: ">=2.10,<2.11"
-openstack_version: wallaby
+openstack_version: master
 
 docker_images:
   openstackclient: latest
@@ -37,34 +37,34 @@ infrastructure_projects:
   zookeeper:
 
 openstack_projects:
-  aodh: master
-  barbican: master
-  bifrost: master
-  ceilometer: master
-  cinder: master
-  designate: master
-  glance: master
+  aodh:
+  barbican:
+  bifrost:
+  ceilometer:
+  cinder:
+  designate:
+  glance:
   gnocchi: 4.4.0
-  heat: master
-  horizon: master
-  ironic: master
-  keystone: master
-  kuryr: master
-  magnum: master
-  manila: master
-  mistral: master
-  monasca: master
-  neutron-vpnaas-agent: master
-  neutron: master
-  nova: master
-  novajoin: master
-  octavia: master
-  panko: master
-  placement: master
-  senlin: master
-  swift: master
-  vitrage: master
-  watcher: master
-  zun: master
+  heat:
+  horizon:
+  ironic:
+  keystone:
+  kuryr:
+  magnum:
+  manila:
+  mistral:
+  monasca:
+  neutron-vpnaas-agent:
+  neutron:
+  nova:
+  novajoin:
+  octavia:
+  panko:
+  placement:
+  senlin:
+  swift:
+  vitrage:
+  watcher:
+  zun:
 
 integrated_projects: {}
