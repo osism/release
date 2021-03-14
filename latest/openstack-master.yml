@@ -61,10 +61,6 @@ openstack_projects:
   octavia:
   panko:
   placement:
-  senlin:
   swift:
-  vitrage:
-  watcher:
-  zun:
 
 integrated_projects: {}
