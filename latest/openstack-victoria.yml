@@ -23,7 +23,6 @@ infrastructure_projects:
   kolla-toolbox:
   mariadb:
   memcached:
-  mongodb:
   multipathd:
   openstack-base:
   openvswitch:
