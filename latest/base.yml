@@ -15,7 +15,7 @@ docker_images:
   netbox: v2.10
   nexus: 3.30.0
   nginx: 1.19-alpine
-  phpmyadmin: 5.0
+  phpmyadmin: 5.1
   postgres: 13-alpine
   redis: 6-alpine
   registry: 2.7
