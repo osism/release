@@ -61,5 +61,3 @@ openstack_projects:
   panko:
   placement:
   swift:
-
-integrated_projects: {}
