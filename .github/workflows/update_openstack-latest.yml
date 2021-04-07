@@ -1,0 +1,18 @@
+---
+name: Update openstack-latest.yml
+
+"on":
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  update-openstack-latest:
+    name: Run update_openstack-latest.yml.py script
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - run: pip3 install pyyaml
+      - run: python3 .github/workflows/update_openstack-latest.yml.py
