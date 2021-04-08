@@ -26,7 +26,6 @@ infrastructure_projects:
   multipathd:
   openstack-base:
   openvswitch:
-  ovsdpdk:
   rabbitmq: 3.6.16
   redis:
   skydive: 0.22.0
