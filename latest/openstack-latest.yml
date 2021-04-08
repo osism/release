@@ -32,7 +32,6 @@ infrastructure_projects:
   prometheus:
   rabbitmq:
   redis:
-  skydive:
   tgtd:
   zookeeper:
 
