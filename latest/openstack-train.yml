@@ -27,7 +27,6 @@ infrastructure_projects:
   multipathd:
   openstack-base:
   openvswitch:
-  ovsdpdk:
   prometheus:
   rabbitmq: 3.7.*
   redis:
