@@ -217,32 +217,39 @@ def set_base(
             print(exc)
 
     # modify
-    if loaded['osism_projects']['ara'] != "":
+    if loaded['osism_projects']['ara'] is not None:
         loaded['osism_projects']['ara'] = latest_ara_version
-    if loaded['osism_projects']['docker'] != "":
+    if loaded['osism_projects']['docker'] is not None:
         loaded['osism_projects']['docker'] = latest_docker_version
-    if loaded['docker_images']['adminer'] != "":
+    if loaded['docker_images']['adminer'] is not None:
         loaded['docker_images']['adminer'] = latest_adminer_verison
-    if loaded['docker_images']['ara_server'] != "":
+    if loaded['docker_images']['ara_server'] is not None:
         loaded['docker_images']['ara_server'] = latest_ara_server_version
-    if loaded['docker_images']['awxclient'] != "":
+    if loaded['docker_images']['awxclient'] is not None:
         loaded['docker_images']['awxclient'] = latest_awxclient_version
-    if loaded['docker_images']['mariadb'] != "":
+    if loaded['docker_images']['mariadb'] is not None:
         loaded['docker_images']['mariadb'] = latest_mariadb_version
-    if loaded['docker_images']['netbox'] != "":
+    if loaded['docker_images']['netbox'] is not None:
         loaded['docker_images']['netbox'] = latest_netbox_version
-    if loaded['docker_images']['nexus'] != "":
+    if loaded['docker_images']['nexus'] is not None:
         loaded['docker_images']['nexus'] = latest_nexus_version
-    if loaded['docker_images']['nginx'] != "":
+    if loaded['docker_images']['nginx'] is not None:
         loaded['docker_images']['nginx'] = latest_nginx_version
-    if loaded['docker_images']['phpmyadmin'] != "":
+    if loaded['docker_images']['phpmyadmin'] is not None:
         loaded['docker_images']['phpmyadmin'] = latest_phpmyadmin_version
-    if loaded['docker_images']['postgres'] != "":
+    if loaded['docker_images']['postgres'] is not None:
         loaded['docker_images']['postgres'] = latest_postgres_version
-    if loaded['docker_images']['redis'] != "":
+    if loaded['docker_images']['redis'] is not None:
         loaded['docker_images']['redis'] = latest_redis_version
-    if loaded['docker_images']['registry'] != "":
+    if loaded['docker_images']['registry'] is not None:
         loaded['docker_images']['registry'] = latest_registry_version
+
+    # replace null with empty strings:
+    for i in loaded:
+        if isinstance(loaded[i], dict):
+            for j in loaded[i]:
+                if loaded[i][j] is None:
+                    loaded[i][j] = ""
 
     # save
     with open("latest/base.yml", 'w') as stream:
