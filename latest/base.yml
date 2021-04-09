@@ -10,7 +10,7 @@ osism_projects:
 docker_images:
   adminer: 4.7
   ara_server: 1.5.5
-  awxclient: 16.0.0
+  awxclient: 19.0.0
   mariadb: 10.5
   netbox: v2.10
   nexus: 3.30.0
