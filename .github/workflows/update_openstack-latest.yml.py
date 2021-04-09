@@ -44,10 +44,17 @@ def edit_openstack_latest(latest_elasticsearch_version, latest_gnocchi_version):
             print(exc)
 
     # modify
-    if loaded['infrastructure_projects']['elasticsearch'] != "":
+    if loaded['infrastructure_projects']['elasticsearch'] is not None:
         loaded['infrastructure_projects']['elasticsearch'] = latest_elasticsearch_version
-    if loaded['openstack_projects']['gnocchi'] != "":
+    if loaded['openstack_projects']['gnocchi'] is not None:
         loaded['openstack_projects']['gnocchi'] = latest_gnocchi_version
+
+    # replace null with empty strings:
+    for i in loaded:
+        if isinstance(loaded[i], dict):
+            for j in loaded[i]:
+                if loaded[i][j] is None:
+                    loaded[i][j] = ""
 
     # save
     with open("latest/openstack-latest.yml", 'w') as stream:
