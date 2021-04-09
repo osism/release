@@ -1,62 +1,59 @@
 ---
-ansible_version: ">=2.10,<2.11"
-openstack_version: master
-
+ansible_version: '>=2.10,<2.11'
 docker_images:
   openstackclient: latest
-
 infrastructure_projects:
-  chrony:
-  collectd:
-  cron:
-  dnsmasq:
-  elasticsearch:
-  etcd:
-  fluentd:
-  grafana:
-  haproxy:
-  influxdb:
-  iscsid:
-  kafka:
-  keepalived:
-  kibana:
-  kolla-toolbox:
-  logstash:
-  mariadb:
-  memcached:
-  multipathd:
-  openstack-base:
-  openvswitch:
-  ovn:
-  prometheus:
-  rabbitmq:
-  redis:
-  tgtd:
-  zookeeper:
-
+  chrony: null
+  collectd: null
+  cron: null
+  dnsmasq: null
+  elasticsearch: 6.8.15
+  etcd: null
+  fluentd: null
+  grafana: null
+  haproxy: null
+  influxdb: null
+  iscsid: null
+  kafka: null
+  keepalived: null
+  kibana: null
+  kolla-toolbox: null
+  logstash: null
+  mariadb: null
+  memcached: null
+  multipathd: null
+  openstack-base: null
+  openvswitch: null
+  ovn: null
+  prometheus: null
+  rabbitmq: null
+  redis: null
+  tgtd: null
+  zookeeper: null
 openstack_projects:
-  aodh:
-  barbican:
-  bifrost:
-  ceilometer:
-  cinder:
-  designate:
-  glance:
+  aodh: null
+  barbican: null
+  bifrost: null
+  ceilometer: null
+  cinder: null
+  designate: null
+  glance: null
   gnocchi: 4.4.0
-  heat:
-  horizon:
-  ironic:
-  keystone:
-  kuryr:
-  magnum:
-  manila:
-  mistral:
-  monasca:
-  neutron-vpnaas-agent:
-  neutron:
-  nova:
-  novajoin:
-  octavia:
-  panko:
-  placement:
-  swift:
+  heat: null
+  horizon: null
+  ironic: null
+  keystone: null
+  kuryr: null
+  magnum: null
+  manila: null
+  mistral: null
+  monasca: null
+  neutron: null
+  neutron-vpnaas-agent: null
+  nova: null
+  novajoin: null
+  octavia: null
+  panko: null
+  placement: null
+  swift: null
+openstack_version: master
