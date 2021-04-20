@@ -25,7 +25,7 @@ jobs:
         uses: technote-space/create-pr-action@v2
         with:
           EXECUTE_COMMANDS: |
-            python3 .github/workflows/update_base.yml.py
+            python3 src/update-base.py
           COMMIT_EMAIL: 'bot@betacloud-solutions.de'
           COMMIT_MESSAGE: |
             chore: update latest/base.yml

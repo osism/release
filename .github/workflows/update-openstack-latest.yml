@@ -25,7 +25,7 @@ jobs:
         uses: technote-space/create-pr-action@v2
         with:
           EXECUTE_COMMANDS: |
-            python3 .github/workflows/update_openstack-latest.yml.py
+            python3 src/update-openstack-latest.py
           COMMIT_EMAIL: 'bot@betacloud-solutions.de'
           COMMIT_MESSAGE: |
             chore: update latest/openstack-latest.yml
