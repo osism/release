@@ -59,4 +59,5 @@ openstack_projects:
   octavia:
   panko:
   placement:
+  senlin:
   swift:
