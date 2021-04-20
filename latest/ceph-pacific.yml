@@ -4,5 +4,5 @@ ceph_ansible_version: stable-6.0
 ceph_container_version: stable-6.0
 ceph_version: pacific
 docker_images:
-  ceph: pacfici
+  ceph: pacific
   cephclient: pacific
