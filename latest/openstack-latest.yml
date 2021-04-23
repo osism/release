@@ -52,6 +52,7 @@ openstack_projects:
   manila:
   mistral:
   monasca:
+  monasca:
   neutron-vpnaas-agent:
   neutron:
   nova:
