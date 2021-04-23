@@ -22,6 +22,7 @@ infrastructure_projects:
   kibana:
   kolla-toolbox:
   logstash:
+  logstash:
   mariadb:
   memcached:
   multipathd:

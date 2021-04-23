@@ -21,6 +21,7 @@ infrastructure_projects:
   keepalived:
   kibana: 6.8.14
   kolla-toolbox:
+  logstash:
   mariadb:
   memcached:
   multipathd:
