@@ -40,7 +40,6 @@ def get_elasticsearch_latest_tag():
 
 def edit_openstack_latest(latest_elasticsearch_version, latest_gnocchi_version):
     # load
-    with open("latest/openstack-latest.yml") as stream:
     with open(file) as stream:
         try:
             loaded = OrderedDict()
