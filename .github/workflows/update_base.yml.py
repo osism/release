@@ -14,7 +14,6 @@ from collections import OrderedDict
 ###################################################################################################
 # Variables
 ###################################################################################################
-
 github_api = "https://api.github.com/repos/"
 docker_api = "https://registry.hub.docker.com/api/content/v1/repositories/public/"
 quay_api = "https://quay.io/api/v1/repository/"
@@ -124,43 +123,33 @@ def get_api_quay_latest_tag(owner, repo, schema):
 def get_ara_latest_tag():
     return get_api_github_latest_tag("ansible-community", "ara", "NUMBER.NUMBER.NUMBER")
 
-
 def get_docker_latest_tag():
     result = get_api_docker_latest_tag("library", "docker", "NUMBER.NUMBER.NUMBER")
     return "5:" + result
 
-
 def get_adminer_latest_tag():
     return get_api_docker_latest_tag("library", "adminer", "NUMBER.NUMBER.NUMBER")
-
 
 def get_ara_server_latest_tag():
     return get_api_github_latest_tag("ansible-community", "ara", "NUMBER.NUMBER.NUMBER")
 
-
 def get_awxclient_latest_tag():
     return get_api_quay_latest_tag("ansible", "awx", "NUMBER.NUMBER.NUMBER")
-
 
 def get_mariadb_latest_tag():
     return get_api_docker_latest_tag("library", "mariadb", "NUMBER.NUMBER")
 
-
 def get_netbox_latest_tag():
     return get_api_docker_latest_tag("netboxcommunity", "netbox", "vNUMBER.NUMBER")
-
 
 def get_nexus_latest_tag():
     return get_api_docker_latest_tag("sonatype", "nexus3", "NUMBER.NUMBER.NUMBER")
 
-
 def get_nginx_latest_tag():
     return get_api_docker_latest_tag("library", "nginx", "NUMBER.NUMBER-alpine")
 
-
 def get_phpmyadmin_latest_tag():
     return get_api_docker_latest_tag("library", "phpmyadmin", "NUMBER.NUMBER.NUMBER")
-
 
 def get_postgres_latest_tag():
     # postgres is stupid. They release new 9.X versions along with 10.X, 11.X etc. Therefore direct calling
@@ -190,10 +179,8 @@ def get_postgres_latest_tag():
 def get_redis_latest_tag():
     return get_api_docker_latest_tag("library", "redis", "NUMBER-alpine")
 
-
 def get_registry_latest_tag():
     return get_api_docker_latest_tag("library", "registry", "NUMBER.NUMBER")
-
 
 def set_base(
         latest_ara_version,
@@ -285,7 +272,6 @@ def restyle_openstack_latest():
 ###################################################################################################
 # Main
 ###################################################################################################
-
 set_base(get_ara_latest_tag(),
          get_docker_latest_tag(),
          get_adminer_latest_tag(),
