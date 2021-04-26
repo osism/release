@@ -9,15 +9,12 @@ import json
 import yaml
 import urllib.request
 import urllib.parse
-from collections import OrderedDict
-
 
 ###################################################################################################
 # Variables
 ###################################################################################################
 
 api = "https://api.github.com/repos/"
-file = "latest/openstack-latest.yml"
 
 
 ###################################################################################################
@@ -40,9 +37,8 @@ def get_elasticsearch_latest_tag():
 
 def edit_openstack_latest(latest_elasticsearch_version, latest_gnocchi_version):
     # load
-    with open(file) as stream:
+    with open("latest/openstack-latest.yml") as stream:
         try:
-            loaded = OrderedDict()
             loaded = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
@@ -61,36 +57,15 @@ def edit_openstack_latest(latest_elasticsearch_version, latest_gnocchi_version):
                     loaded[i][j] = ""
 
     # save
-    with open(file, 'w') as stream:
+    with open("latest/openstack-latest.yml", 'w') as stream:
         try:
-            yaml.dump(loaded, stream, default_flow_style=False, explicit_start=True, sort_keys=False)
+            yaml.dump(loaded, stream, default_flow_style=False, explicit_start=True)
         except yaml.YAMLError as exc:
             print(exc)
-
-
-def restyle_openstack_latest():
-    # replace <dummy: ''> with only <dummy:> for better readability
-
-    with open(file, "r") as stream:
-        buf = stream.read().replace(" ''", "")
-    with open(file, "w") as stream:
-        stream.write(buf)
-
-    # insert blank lines for better readability
-    with open(file, "r") as stream:
-        buf = stream.readlines()
-    with open(file, "w") as stream:
-        for line in buf:
-            if (line == "docker_images:\n" or
-                    line == "infrastructure_projects:\n" or
-                    line == "openstack_projects:\n"):
-                line = "\n" + line
-            stream.write(line)
 
 
 ###################################################################################################
 # Main
 ###################################################################################################
 
-# edit_openstack_latest(get_elasticsearch_latest_tag(), get_gnocchi_latest_tag())
-restyle_openstack_latest()
+edit_openstack_latest(get_elasticsearch_latest_tag(), get_gnocchi_latest_tag())
