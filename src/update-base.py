@@ -9,6 +9,7 @@ import json
 import yaml
 import urllib.request
 import urllib.parse
+from collections import OrderedDict
 
 ###################################################################################################
 # Variables
@@ -17,6 +18,7 @@ import urllib.parse
 github_api = "https://api.github.com/repos/"
 docker_api = "https://registry.hub.docker.com/api/content/v1/repositories/public/"
 quay_api = "https://quay.io/api/v1/repository/"
+file = "latest/base.yml"
 
 
 ###################################################################################################
@@ -210,8 +212,9 @@ def set_base(
     print(locals().values())
 
     # load
-    with open("latest/base.yml") as stream:
+    with open(file) as stream:
         try:
+            loaded = OrderedDict()
             loaded = yaml.safe_load(stream)
         except yaml.YAMLError as exc:
             print(exc)
@@ -252,11 +255,31 @@ def set_base(
                     loaded[i][j] = ""
 
     # save
-    with open("latest/base.yml", 'w') as stream:
+    with open(file, 'w') as stream:
         try:
-            yaml.dump(loaded, stream, default_flow_style=False, explicit_start=True)
+            yaml.dump(loaded, stream, default_flow_style=False, explicit_start=True, sort_keys=False)
         except yaml.YAMLError as exc:
             print(exc)
+
+
+def restyle_openstack_latest():
+    # replace <dummy: ''> with only <dummy:> for better readability
+
+    with open(file, "r") as stream:
+        buf = stream.read().replace(" ''", "")
+    with open(file, "w") as stream:
+        stream.write(buf)
+
+    # insert blank lines for better readability
+    with open(file, "r") as stream:
+        buf = stream.readlines()
+    with open(file, "w") as stream:
+        for line in buf:
+            if (line == "osism_projects:\n" or
+                    line == "docker_images:\n" or
+                    line == "ansible_roles:\n"):
+                line = "\n" + line
+            stream.write(line)
 
 
 ###################################################################################################
@@ -276,3 +299,4 @@ set_base(get_ara_latest_tag(),
          get_postgres_latest_tag(),
          get_redis_latest_tag(),
          get_registry_latest_tag())
+restyle_openstack_latest()
