@@ -62,3 +62,4 @@ openstack_projects:
   placement:
   senlin:
   swift:
+  trove:
