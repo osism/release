@@ -1,65 +1,62 @@
 ---
-ansible_version: ">=2.10,<2.11"
-openstack_version: master
-
+ansible_version: '>=2.10,<2.11'
 docker_images:
   openstackclient: latest
-
 infrastructure_projects:
-  chrony:
-  collectd:
-  cron:
-  dnsmasq:
-  elasticsearch:
-  etcd:
-  fluentd:
-  grafana:
-  haproxy:
-  influxdb:
-  iscsid:
-  kafka:
-  keepalived:
-  kibana:
-  kolla-toolbox:
-  logstash:
-  mariadb:
-  memcached:
-  multipathd:
-  openstack-base:
-  openvswitch:
-  ovn:
-  prometheus:
-  rabbitmq:
-  redis:
-  storm:
-  tgtd:
-  zookeeper:
-
+  chrony: ''
+  collectd: ''
+  cron: ''
+  dnsmasq: ''
+  elasticsearch: ''
+  etcd: ''
+  fluentd: ''
+  grafana: ''
+  haproxy: ''
+  influxdb: ''
+  iscsid: ''
+  kafka: ''
+  keepalived: ''
+  kibana: ''
+  kolla-toolbox: ''
+  logstash: ''
+  mariadb: ''
+  memcached: ''
+  multipathd: ''
+  openstack-base: ''
+  openvswitch: ''
+  ovn: ''
+  prometheus: ''
+  rabbitmq: ''
+  redis: ''
+  storm: ''
+  tgtd: ''
+  zookeeper: ''
 openstack_projects:
-  aodh:
-  barbican:
-  bifrost:
-  ceilometer:
-  cinder:
-  designate:
-  glance:
+  aodh: ''
+  barbican: ''
+  bifrost: ''
+  ceilometer: ''
+  cinder: ''
+  designate: ''
+  glance: ''
   gnocchi: 4.4.0
-  heat:
-  horizon:
-  ironic:
-  keystone:
-  kuryr:
-  magnum:
-  manila:
-  mistral:
-  monasca:
-  neutron-vpnaas-agent:
-  neutron:
-  nova:
-  novajoin:
-  octavia:
-  panko:
-  placement:
-  senlin:
-  swift:
-  trove:
+  heat: ''
+  horizon: ''
+  ironic: ''
+  keystone: ''
+  kuryr: ''
+  magnum: ''
+  manila: ''
+  mistral: ''
+  monasca: ''
+  neutron: ''
+  neutron-vpnaas-agent: ''
+  nova: ''
+  novajoin: ''
+  octavia: ''
+  panko: ''
+  placement: ''
+  senlin: ''
+  swift: ''
+  trove: ''
+openstack_version: master
