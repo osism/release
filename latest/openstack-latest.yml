@@ -7,7 +7,7 @@ infrastructure_projects:
   collectd: ''
   cron: ''
   dnsmasq: ''
-  elasticsearch: ''
+  elasticsearch: 6.8.15
   etcd: ''
   fluentd: ''
   grafana: ''
