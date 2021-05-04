@@ -25,3 +25,4 @@ ansible_roles:
   geerlingguy.dotfiles: master
   hardening: e4b55822cf1bf12f205d3b7d08dcdb634c2f505f
   stackhpc.luks: master
+  stackhpc.systemd_networkd: master
