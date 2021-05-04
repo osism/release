@@ -2,6 +2,8 @@
 ANXS.apt: ANXS/apt
 geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
 hardening: openstack/ansible-hardening
+stackhpc.libvirt_vm: https://github.com/stackhpc/ansible-role-libvirt-vm
+stackhpc.libvirt_host: https://github.com/stackhpc/ansible-role-libvirt-host
 stackhpc.luks: stackhpc/ansible-role-luks
 # yamllint disable-line rule:line-length
 stackhpc.systemd_networkd: https://github.com/stackhpc/ansible-role-systemd-networkd
