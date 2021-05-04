@@ -33,13 +33,14 @@ jobs:
             python3 src/update-openstack-versions.py
           COMMIT_EMAIL: 'bot@osism.io'
           COMMIT_MESSAGE: |
-            chore: update versions in latest/openstack-*.yml
+            chore: update versions in latest/openstack-${{ matrix.version }}.yml
 
             Signed-off-by: OSISM Bot <bot@osism.io>
           COMMIT_NAME: 'OSISM Bot'
           ONLY_DEFAULT_BRANCH: true
-          PR_BRANCH_NAME: 'update-openstack-versions'
+          PR_BRANCH_NAME: 'update-openstack-versions-${{ matrix.version }}'
           PR_BRANCH_PREFIX: 'chore/'
-          PR_TITLE: 'chore: update versions in latest/openstack-*.yml'
+          # yamllint disable-line rule:line-length
+          PR_TITLE: 'chore: update versions in latest/openstack-${{ matrix.version }}.yml'
         env:
           VERSION: ${{ matrix.version }}
