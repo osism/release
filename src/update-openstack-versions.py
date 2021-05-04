@@ -1,15 +1,18 @@
 #!/usr/bin/python3
 #
-# CI-Script to update latest/openstack-latest.yml with the latest Versions for:
+# CI-Script to update latest/openstack-*.yml with the latest Versions for:
 #   - elasticsearch
 #   - gnocchi
+#   - kibana
 #
 ###################################################################################################
-import json
-import yaml
-import urllib.request
-import urllib.parse
 from collections import OrderedDict
+import json
+import os
+import urllib.parse
+import urllib.request
+
+import yaml
 
 
 ###################################################################################################
@@ -17,7 +20,7 @@ from collections import OrderedDict
 ###################################################################################################
 
 api = "https://api.github.com/repos/"
-file = "latest/openstack-latest.yml"
+file = "latest/openstack-%s.yml" % os.environ.get("VERSION", "latest")
 
 
 ###################################################################################################
@@ -38,7 +41,15 @@ def get_elasticsearch_latest_tag():
                 return release['name'][1:]
 
 
-def edit_openstack_latest(latest_elasticsearch_version, latest_gnocchi_version):
+def get_kibana_latest_tag():
+    with urllib.request.urlopen(api + "elastic/kibana/tags?per_page=100", ) as url:
+        data = json.loads(url.read().decode())
+        for release in data:
+            if release['name'].startswith("v6"):
+                return release['name'][1:]
+
+
+def edit_openstack_latest(latest_elasticsearch_version, latest_gnocchi_version, latest_kibana_version):
     # load
     with open(file) as stream:
         try:
@@ -52,6 +63,8 @@ def edit_openstack_latest(latest_elasticsearch_version, latest_gnocchi_version):
         loaded['infrastructure_projects']['elasticsearch'] = latest_elasticsearch_version
     if loaded['openstack_projects']['gnocchi'] is not None:
         loaded['openstack_projects']['gnocchi'] = latest_gnocchi_version
+    if loaded['infrastructure_projects']['kibana'] is not None:
+        loaded['infrastructure_projects']['kibana'] = latest_kibana_version
 
     # replace null with empty strings:
     for i in loaded:
@@ -92,5 +105,5 @@ def restyle_openstack_latest():
 # Main
 ###################################################################################################
 
-edit_openstack_latest(get_elasticsearch_latest_tag(), get_gnocchi_latest_tag())
+edit_openstack_latest(get_elasticsearch_latest_tag(), get_gnocchi_latest_tag(), get_kibana_latest_tag())
 restyle_openstack_latest()

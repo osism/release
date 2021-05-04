@@ -1,0 +1,44 @@
+---
+name: Update openstack versions
+
+"on":
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  update-openstack-versions:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version:
+          - victoria
+          - latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Setup python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install PyYAML
+        run: pip3 install PyYAML
+
+      - name: Create PR
+        uses: technote-space/create-pr-action@v2
+        with:
+          EXECUTE_COMMANDS: |
+            python3 src/update-openstack-versions.py
+          COMMIT_EMAIL: 'bot@osism.io'
+          COMMIT_MESSAGE: |
+            chore: update versions in latest/openstack-*.yml
+
+            Signed-off-by: OSISM Bot <bot@osism.io>
+          COMMIT_NAME: 'OSISM Bot'
+          ONLY_DEFAULT_BRANCH: true
+          PR_BRANCH_NAME: 'update-openstack-versions'
+          PR_BRANCH_PREFIX: 'chore/'
+          PR_TITLE: 'chore: update versions in latest/openstack-*.yml'
+        env:
+          VERSION: ${{ matrix.version }}
