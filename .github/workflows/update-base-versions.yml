@@ -1,5 +1,5 @@
 ---
-name: Update base.yml with new versions
+name: Update base versions
 
 "on":
   schedule:
@@ -7,7 +7,6 @@ name: Update base.yml with new versions
 
 jobs:
   update-base:
-    name: Run update_base.yml.py script and create PR
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -18,23 +17,24 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install pyyaml
-        run: pip3 install pyyaml
+      - name: Install ruaeml.yaml
+        run: pip3 install ruamel.yaml
 
-      - name: Update latest/base.yml file and create pull request
+      - name: Update versions
         uses: technote-space/create-pr-action@v2
         with:
           EXECUTE_COMMANDS: |
-            python3 src/update-base.py
-          COMMIT_EMAIL: 'bot@betacloud-solutions.de'
+            python3 src/update-base-versions.py
+          COMMIT_EMAIL: 'bot@osism.io'
           COMMIT_MESSAGE: |
-            chore: update latest/base.yml
-            Signed-off-by: Betacloud Solutions Bot <bot@betacloud-solutions.de>
-          COMMIT_NAME: 'Betacloud Solutions Bot'
+            chore: update versions in latest/base.yml
+
+            Signed-off-by: OSISM Bot <bot@osism.io>
+          COMMIT_NAME: 'OSISM Bot'
           ONLY_DEFAULT_BRANCH: true
-          PR_BRANCH_NAME: 'update-latest-base'
+          PR_BRANCH_NAME: 'update-base-versions'
           PR_BRANCH_PREFIX: 'chore/'
           PR_TITLE: 'chore: update versions in latest/base.yml'
 
-      - name: Output the new yml file
+      - name: Output base.yml
         run: cat latest/base.yml

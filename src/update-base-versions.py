@@ -1,15 +1,11 @@
 #!/usr/bin/python3
-#
-# CI-Script to update latest/openstack-latest.yml with the latest Versions for:
-#   - elasticsearch
-#   - gnocchi
-#
+
 ###################################################################################################
-import json
-import yaml
-import urllib.request
-import urllib.parse
 from collections import OrderedDict
+import json
+from ruamel import yaml
+import urllib.parse
+import urllib.request
 
 ###################################################################################################
 # Variables
@@ -53,6 +49,8 @@ def get_schema_is_valid(tag_name, schema):
         try:
             helper1 = tag_name.split(".")
             helper2 = helper1[1].split("-")
+        except IndexError:
+            return False
         except ValueError:
             return False
 
@@ -256,7 +254,7 @@ def set_base(
     # save
     with open(file, 'w') as stream:
         try:
-            yaml.dump(loaded, stream, default_flow_style=False, explicit_start=True, sort_keys=False)
+            yaml.dump(loaded, stream, default_flow_style=False, explicit_start=True, Dumper=yaml.RoundTripDumper)
         except yaml.YAMLError as exc:
             print(exc)
 
@@ -297,4 +295,5 @@ set_base(get_ara_latest_tag(),
          get_postgres_latest_tag(),
          get_redis_latest_tag(),
          get_registry_latest_tag())
+
 restyle_openstack_latest()
