@@ -6,6 +6,7 @@ ara_server: osism/ara-server
 awx: osism/manager
 awxclient: osism/awxclient
 ceph_ansible: osism/ceph-ansible
+inventory_reconciler: osism/inventory-reconciler
 kolla_ansible: osism/kolla-ansible
 mariadb: library/mariadb
 openstackclient: osism/openstackclient
