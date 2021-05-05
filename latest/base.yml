@@ -4,21 +4,21 @@ manager_version: latest
 repository_version: latest
 
 osism_projects:
-  ara: 1.5.5
-  docker: 5:20.10.5
+  ara: 1.5.6
+  docker: 5:20.10.6
 
 docker_images:
-  adminer: 4.7
-  ara_server: 1.5.5
-  awxclient: 19.0.0
-  mariadb: 10.5
-  netbox: v2.10
-  nexus: 3.30.0
-  nginx: 1.19-alpine
-  phpmyadmin: 5.1
+  adminer: 4.8.0
+  ara_server: 1.5.6
+  awxclient: 19.1.0
+  mariadb: '10.6'
+  netbox: v2.11
+  nexus: 3.30.1
+  nginx: 1.20-alpine
+  phpmyadmin: 5.1.0
   postgres: 13-alpine
   redis: 6-alpine
-  registry: 2.7
+  registry: '2.7'
 
 ansible_roles:
   ANXS.apt: f602ba7e88abfbb3af6679a8ca47207dc3e9d9c4
