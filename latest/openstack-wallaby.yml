@@ -1,9 +1,9 @@
 ---
 ansible_version: '>=2.10,<2.11'
-openstack_version: master
+openstack_version: wallaby
 
 docker_images:
-  openstackclient: latest
+  openstackclient: wallaby
 
 infrastructure_projects:
   chrony:
