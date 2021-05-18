@@ -1,3 +1,2 @@
 ---
-ANXS.apt: https://github.com/ANXS/apt.git
 geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
