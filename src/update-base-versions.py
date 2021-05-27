@@ -163,19 +163,19 @@ def get_postgres_latest_tag():
     # postgres is stupid. They release new 9.X versions along with 10.X, 11.X etc. Therefore direct calling
     current_version = ""
     # Getting the latest version from postgresql website. This is plain HTML code, so we need a lot of formatting ...
-    with urllib.request.urlopen('https://www.postgresql.org/ftp/source/') as url:
+    with urllib.request.urlopen('https://www.postgresql.org/ftp/') as url:
         webdata = url.read().decode().splitlines()
     for line in webdata:
-        if 'href="v' in line:
-            #   <tr><td><a href="v13.2/"><img src="/media/img/ftp/folder.png" alt="v13.2" /></a>&nbsp;<a hr ...
+        if 'latest' in line:
+            #   <tr><td><a href="source/v13.3/"><img src="/media/img/ftp/symlink.png" alt="latest -&gt; source/ ...
             current_version = line.split("/")
-            # ['  <tr><td><a href="v13.2', '"><img src="', 'media', 'img', 'ftp', 'folder.png" alt="v13.2" ...
-            current_version = current_version[0].split('"')
-            # ['  <tr><td><a href=', 'v13.2']
-            current_version = current_version[1][1:]
-            # 13.2
-            current_version = current_version.split(".")[0]
-            # 13
+            # ['  <tr><td><a href="source', 'v13.3', '"><img src="', 'media', 'img', 'ftp', 'symlink.png" alt=" ...
+            current_version = current_version[1]
+            # 'v13.3'
+            current_version = current_version[1:]
+            # '13.3'
+            # current_version = current_version.split(".")[0]
+            # '13'
             break
 
     result = get_api_generic_latest_tag(docker_api, "library", "postgres", "tags?page_size=100")
