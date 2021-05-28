@@ -41,6 +41,7 @@ openstack_projects:
   bifrost:
   ceilometer:
   cinder:
+  cloudkitty:
   designate:
   glance:
   gnocchi: 4.4.0
