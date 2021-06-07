@@ -175,8 +175,12 @@ def get_postgres_latest_tag():
             current_version = current_version[1:]
             # '13.3'
             # current_version = current_version.split(".")[0]
-            # '13'
-            break
+            # It might be nessecary to strip out beta stuff
+            if 'beta' in current_version:
+                pass
+            else:
+                # '13'
+                break
 
     result = get_api_generic_latest_tag(docker_api, "library", "postgres", "tags?page_size=100")
     for entry in result['results']:
