@@ -167,16 +167,29 @@ def get_postgres_latest_tag():
         webdata = url.read().decode().splitlines()
     for line in webdata:
         if 'href="v' in line:
+            # You start with something like this:
             #   <tr><td><a href="v13.2/"><img src="/media/img/ftp/folder.png" alt="v13.2" /></a>&nbsp;<a hr ...
-            current_version = line.split("/")
+            
+            # And turn it into this
             # ['  <tr><td><a href="v13.2', '"><img src="', 'media', 'img', 'ftp', 'folder.png" alt="v13.2" ...
-            current_version = current_version[0].split('"')
+            current_version = line.split("/")
+            
+            # Than to this
             # ['  <tr><td><a href=', 'v13.2']
-            current_version = current_version[1][1:]
+            current_version = current_version[0].split('"')
+
+            # To this
             # 13.2
-            current_version = current_version.split(".")[0]
-            # 13
-            break
+            current_version = current_version[1][1:]
+            
+            # It might be nessecary to strip out beta stuff
+            if 'beta' in current_version:
+                pass
+            else:
+                # To finally achive this
+                # 13
+                current_version = current_version.split(".")[0]
+                break
 
     result = get_api_generic_latest_tag(docker_api, "library", "postgres", "tags?page_size=100")
     for entry in result['results']:
