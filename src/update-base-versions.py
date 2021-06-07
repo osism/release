@@ -54,7 +54,7 @@ def get_schema_is_valid(tag_name, schema):
         except ValueError:
             return False
 
-        # Some versions look like this: 1.19.9-alpine. This filters them away
+        # NOTE: some versions look like this: 1.19.9-alpine. This filters them away
         if len(helper1) != 2 or len(helper2) != 2:
             return False
 
@@ -160,11 +160,14 @@ def get_phpmyadmin_latest_tag():
 
 
 def get_postgres_latest_tag():
-    # postgres is stupid. They release new 9.X versions along with 10.X, 11.X etc. Therefore direct calling
+    # NOTE: postgres releases new 9.X versions along with 10.X, 11.X etc. Therefore direct calling
     current_version = ""
-    # Getting the latest version from postgresql website. This is plain HTML code, so we need a lot of formatting ...
+
+    # NOTE: getting the latest version from Postgres website. This is plain HTML code,
+    #       so we need a lot of formatting ...
     with urllib.request.urlopen('https://www.postgresql.org/ftp/') as url:
         webdata = url.read().decode().splitlines()
+
     for line in webdata:
         if 'latest' in line:
             #   <tr><td><a href="source/v13.3/"><img src="/media/img/ftp/symlink.png" alt="latest -&gt; source/ ...
@@ -182,10 +185,7 @@ def get_postgres_latest_tag():
                 # '13'
                 break
 
-    result = get_api_generic_latest_tag(docker_api, "library", "postgres", "tags?page_size=100")
-    for entry in result['results']:
-        if get_schema_is_valid(entry['name'], "NUMBER-alpine") and entry['name'].startswith(current_version):
-            return entry['name']
+    return("%s-alpine" % current_version)
 
 
 def get_redis_latest_tag():
