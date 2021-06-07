@@ -6,18 +6,18 @@ repository_version: latest
 
 osism_projects:
   ara: 1.5.6
-  docker: 5:20.10.6
+  docker: 5:20.10.7
 
 docker_images:
-  adminer: 4.8.0
+  adminer: 4.8.1
   ara_server: 1.5.6
-  awxclient: 19.1.0
+  awxclient: 19.2.0
   mariadb: '10.6'
   netbox: v2.11
   nexus: 3.30.1
   nginx: 1.20-alpine
-  phpmyadmin: 5.1.0
-  postgres: 13-alpine
+  phpmyadmin: 5.1.1
+  postgres: 13.3-alpine
   redis: 6-alpine
   registry: '2.7'
 
