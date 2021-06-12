@@ -1,4 +1,5 @@
 ---
+geerlingguy.certbot: geerlingguy/ansible-role-certbot
 geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
 hardening: openstack/ansible-hardening
 stackhpc.libvirt_host: stackhpc/ansible-role-libvirt-host
