@@ -14,8 +14,8 @@ docker_images:
   awxclient: 19.2.0
   mariadb: '10.6'
   netbox: v2.11
-  nexus: 3.30.1
-  nginx: 1.20-alpine
+  nexus: 3.31.0
+  nginx: 1.21-alpine
   phpmyadmin: 5.1.1
   postgres: 13.3-alpine
   redis: 6-alpine
