@@ -8,7 +8,6 @@
 ###################################################################################################
 from collections import OrderedDict
 import json
-import os
 import urllib.parse
 import urllib.request
 
@@ -20,7 +19,6 @@ import yaml
 ###################################################################################################
 
 api = "https://api.github.com/repos/"
-file = "latest/openstack-%s.yml" % os.environ.get("VERSION", "latest")
 
 
 ###################################################################################################
@@ -105,5 +103,14 @@ def restyle_openstack_latest():
 # Main
 ###################################################################################################
 
+file = "latest/openstack-latest.yml"
+edit_openstack_latest(get_elasticsearch_latest_tag(), get_gnocchi_latest_tag(), get_kibana_latest_tag())
+restyle_openstack_latest()
+
+file = "latest/openstack-victoria.yml"
+edit_openstack_latest(get_elasticsearch_latest_tag(), get_gnocchi_latest_tag(), get_kibana_latest_tag())
+restyle_openstack_latest()
+
+file = "latest/openstack-wallaby.yml"
 edit_openstack_latest(get_elasticsearch_latest_tag(), get_gnocchi_latest_tag(), get_kibana_latest_tag())
 restyle_openstack_latest()
