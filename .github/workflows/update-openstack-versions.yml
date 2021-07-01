@@ -31,11 +31,11 @@ jobs:
         with:
           EXECUTE_COMMANDS: |
             python3 src/update-openstack-versions.py
-          COMMIT_EMAIL: 'bot@osism.io'
+          COMMIT_EMAIL: 'bot@osism.tech'
           COMMIT_MESSAGE: |
             chore: update versions in latest/openstack-${{ matrix.version }}.yml
 
-            Signed-off-by: OSISM Bot <bot@osism.io>
+            Signed-off-by: OSISM Bot <bot@osism.tech>
           COMMIT_NAME: 'OSISM Bot'
           ONLY_DEFAULT_BRANCH: true
           PR_BRANCH_NAME: 'update-openstack-versions-${{ matrix.version }}'
