@@ -2,7 +2,7 @@
 ansible.netcommon:
 ansible.posix: ansible-collections/ansible.posix
 arista.cvp:
-arista.eos: ansible-collections/arista.eos
+arista.eos:
 awx.awx:
 community.general: ansible-collections/community.general
 community.network: ansible-collections/community.network

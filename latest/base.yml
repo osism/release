@@ -34,7 +34,7 @@ ansible_collections:
   ansible.netcommon: 2.2.0
   ansible.posix: main
   arista.cvp: 3.0.0
-  arista.eos: main
+  arista.eos: 2.2.0
   awx.awx: 19.2.2
   community.general: main
   community.network: main
