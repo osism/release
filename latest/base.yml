@@ -35,7 +35,7 @@ ansible_collections:
   ansible.posix: main
   arista.cvp: devel
   arista.eos: devel
-  awx.awx:
+  awx.awx: 19.2.2
   community.general: main
   community.network: main
   community.zabbix: main
