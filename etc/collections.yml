@@ -1,5 +1,5 @@
 ---
-ansible.netcommon: ansible-collections/ansible.netcommon
+ansible.netcommon:
 ansible.posix: ansible-collections/ansible.posix
 arista.cvp:
 arista.eos: ansible-collections/arista.eos
