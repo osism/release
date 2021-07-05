@@ -44,5 +44,5 @@ ansible_collections:
   openstack.cloud: master
   osism.commons: master
   osism.services: master
-  osism.validations: master
+  osism.validations: main
   stackhpc.cephadm: master
