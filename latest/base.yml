@@ -31,7 +31,7 @@ ansible_roles:
   stackhpc.systemd_networkd: master
 
 ansible_collections:
-  ansible.netcommon: main
+  ansible.netcommon: 2.2.0
   ansible.posix: main
   arista.cvp: 3.0.0
   arista.eos: devel
