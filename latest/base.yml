@@ -33,13 +33,13 @@ ansible_roles:
 ansible_collections:
   ansible.netcommon: main
   ansible.posix: main
-  arista.cvp: devel
+  arista.cvp: 3.0.0
   arista.eos: devel
   awx.awx: 19.2.2
   community.general: main
   community.network: main
   community.zabbix: main
-  debops.debops: master
+  debops.debops: 2.3.1
   netbox.netbox: devel
   openstack.cloud: master
   osism.commons: master

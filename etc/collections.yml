@@ -1,13 +1,13 @@
 ---
 ansible.netcommon: ansible-collections/ansible.netcommon
 ansible.posix: ansible-collections/ansible.posix
-arista.cvp: aristanetworks/ansible-cvp
-arista.eos: aristanetworks/ansible-eos
+arista.cvp:
+arista.eos: ansible-collections/arista.eos
 awx.awx:
 community.general: ansible-collections/community.general
 community.network: ansible-collections/community.network
 community.zabbix: ansible-collections/community.zabbix
-debops.debops: debops/debops
+debops.debops:
 netbox.netbox: netbox-community/ansible_modules
 openstack.cloud: openstack/ansible-collections-openstack
 osism.commons: osism/ansible-collection-commons
