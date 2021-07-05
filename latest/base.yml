@@ -29,3 +29,20 @@ ansible_roles:
   stackhpc.libvirt_vm: master
   stackhpc.luks: master
   stackhpc.systemd_networkd: master
+
+ansible_collections:
+  ansible.netcommon: main
+  ansible.posix: main
+  arista.cvp: devel
+  arista.eos: devel
+  awx.awx:
+  community.general: main
+  community.network: main
+  community.zabbix: main
+  debops.debops: master
+  netbox.netbox: devel
+  openstack.cloud: master
+  osism.commons: master
+  osism.services: master
+  osism.validations: master
+  stackhpc.cephadm: master
