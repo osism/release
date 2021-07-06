@@ -29,7 +29,6 @@ ansible_roles:
   stackhpc.libvirt_vm: master
   stackhpc.luks: master
   stackhpc.systemd_networkd: master
-
 ansible_collections:
   ansible.netcommon: 2.2.0
   ansible.posix: main
