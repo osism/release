@@ -1,3 +1,4 @@
 ---
 defaults: osism/ansible-defaults
 generics: osism/cfg-generics
+playbooks: osism/ansible-playbooks

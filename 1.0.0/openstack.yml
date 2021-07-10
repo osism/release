@@ -1,19 +1,18 @@
 ---
 ansible_version: '>=2.10,<2.11'
-defaults_version: main
-generics_version: master
-openstack_version: victoria
-playbooks_version: master
+defaults_version: c1b707ff380c1fe718f0370e991285afcde43e61
+generics_version: 24850cc39ac9e76cb93909877a969c88b64840c7
+openstack_version: wallaby
 
 docker_images:
-  openstackclient: victoria
+  openstackclient: wallaby
 
 infrastructure_projects:
   chrony:
   collectd:
   cron:
   dnsmasq:
-  elasticsearch: 6.8.17
+  elasticsearch:
   etcd:
   fluentd:
   grafana:
@@ -22,7 +21,7 @@ infrastructure_projects:
   iscsid:
   kafka:
   keepalived:
-  kibana: 6.8.17
+  kibana:
   kolla-toolbox:
   logstash:
   mariadb:
@@ -34,7 +33,6 @@ infrastructure_projects:
   prometheus:
   rabbitmq:
   redis:
-  skydive:
   storm:
   tgtd:
   zookeeper:
@@ -61,7 +59,6 @@ openstack_projects:
   neutron-vpnaas-agent:
   neutron:
   nova:
-  novajoin: 1.3.0
   octavia:
   panko:
   placement:

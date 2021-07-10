@@ -276,9 +276,7 @@ def restyle_openstack_latest():
         buf = stream.readlines()
     with open(file, "w") as stream:
         for line in buf:
-            if (line == "osism_projects:\n" or
-                    line == "docker_images:\n" or
-                    line == "ansible_roles:\n"):
+            if line in ["osism_projects:\n", "docker_images:\n", "ansible_roles:\n"]:
                 line = "\n" + line
             stream.write(line)
 
