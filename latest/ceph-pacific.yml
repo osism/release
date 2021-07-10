@@ -3,6 +3,8 @@ ansible_version: ">=2.9,<2.10"
 ceph_ansible_version: stable-6.0
 ceph_container_version: stable-6.0
 ceph_version: pacific
+generics_version: master
+
 docker_images:
   ceph: pacific
   cephclient: pacific
