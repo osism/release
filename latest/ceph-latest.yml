@@ -3,6 +3,7 @@ ansible_version: ">=2.9,<2.10"
 ceph_ansible_version: master
 ceph_container_version: latest
 ceph_version: octopus
+defaults_version: main
 generics_version: master
 
 docker_images:
