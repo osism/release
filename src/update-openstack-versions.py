@@ -92,9 +92,7 @@ def restyle_openstack_latest():
         buf = stream.readlines()
     with open(file, "w") as stream:
         for line in buf:
-            if (line == "docker_images:\n" or
-                    line == "infrastructure_projects:\n" or
-                    line == "openstack_projects:\n"):
+            if line in ["docker_images:\n", "infrastructure_projects:\n", "openstack_projects:\n"]:
                 line = "\n" + line
             stream.write(line)
 
