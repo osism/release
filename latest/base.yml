@@ -1,6 +1,7 @@
 ---
-ansible_version: '>=3.0.0,<4.0.0'
 ansible_base_version: '>=2.10.0,<2.11.0'
+ansible_version: '>=3.0.0,<4.0.0'
+generics_version: master
 manager_version: latest
 repository_version: latest
 
