@@ -1,0 +1,3 @@
+---
+defaults: osism/ansible-defaults
+generics: osism/cfg-generics
