@@ -5,7 +5,7 @@ generics_version: 24850cc39ac9e76cb93909877a969c88b64840c7
 openstack_version: wallaby
 
 docker_images:
-  openstackclient: wallaby
+  openstackclient: 5.5.0
 
 infrastructure_projects:
   chrony:
