@@ -89,7 +89,6 @@ for collection in data["ansible_collections"]:
 
 # base: other
 
-data["repository_version"] = release
 data["manager_version"] = release
 
 # save base
