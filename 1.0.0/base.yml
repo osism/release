@@ -5,7 +5,6 @@ defaults_version: c1b707ff380c1fe718f0370e991285afcde43e61
 generics_version: 24850cc39ac9e76cb93909877a969c88b64840c7
 manager_version: 1.0.0
 playbooks_version: bcab7bca8241b1ec2a3ba2fa497f14991241e705
-repository_version: 1.0.0
 
 osism_projects:
   ara: 1.5.6

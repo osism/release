@@ -5,7 +5,6 @@ defaults_version: main
 generics_version: master
 manager_version: latest
 playbooks_version: master
-repository_version: latest
 
 osism_projects:
   ara: 1.5.6
