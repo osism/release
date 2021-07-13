@@ -3,6 +3,6 @@ PyGithub==1.55
 PyYAML==5.4.1
 dictdiffer==0.8.1
 docker==5.0.0
-requests==2.25.1
+requests==2.26.0
 ruamel.yaml==0.17.10
 tabulate==0.8.9
