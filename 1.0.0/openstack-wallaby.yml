@@ -1,7 +1,7 @@
 ---
 ansible_version: '>=2.10,<2.11'
-defaults_version: c1b707ff380c1fe718f0370e991285afcde43e61
-generics_version: 24850cc39ac9e76cb93909877a969c88b64840c7
+defaults_version: 825db1fa789fb0fbcffd0ab32c9121cf62440b22
+generics_version: 4e4429f06ee02c165d31178c2a730b7ed070ebf0
 openstack_version: wallaby
 
 docker_images:
