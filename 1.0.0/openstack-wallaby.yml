@@ -1,6 +1,6 @@
 ---
 ansible_version: '>=2.10,<2.11'
-defaults_version: 825db1fa789fb0fbcffd0ab32c9121cf62440b22
+defaults_version: 4ec2f31e426951fb1cbba5bac4fc53a2b5d9848e
 generics_version: 4e4429f06ee02c165d31178c2a730b7ed070ebf0
 openstack_version: wallaby
 
