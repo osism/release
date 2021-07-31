@@ -17,7 +17,7 @@ docker_images:
   mariadb: '10.6'
   netbox: v2.11
   nexus: 3.32.0
-  nginx: 1.21-alpine
+  nginx: 1.20-alpine
   phpmyadmin: 5.1.1
   postgres: 13.3-alpine
   redis: 6-alpine
