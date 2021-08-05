@@ -8,7 +8,7 @@ playbooks_version: master
 
 osism_projects:
   ara: 1.5.7
-  docker: 5:20.10.7
+  docker: 5:20.10.8
 
 docker_images:
   adminer: 4.8.1
@@ -16,7 +16,7 @@ docker_images:
   awxclient: 19.2.2
   mariadb: '10.6'
   netbox: v2.11
-  nexus: 3.32.0
+  nexus: 3.33.0
   nginx: 1.21-alpine
   phpmyadmin: 5.1.1
   postgres: 13.3-alpine
