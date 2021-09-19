@@ -234,7 +234,7 @@ def set_base(
     if loaded['docker_images']['mariadb'] is not None:
         loaded['docker_images']['mariadb'] = latest_mariadb_version
     if loaded['docker_images']['netbox'] is not None:
-        loaded['docker_images']['netbox'] = latest_netbox_version
+        loaded['docker_images']['netbox'] = latest_netbox_version + "-ldap"
     if loaded['docker_images']['nexus'] is not None:
         loaded['docker_images']['nexus'] = latest_nexus_version
     if loaded['docker_images']['nginx'] is not None:
