@@ -32,7 +32,5 @@ jobs:
 
             Signed-off-by: OSISM Bot <bot@osism.tech>
           COMMIT_NAME: 'OSISM Bot'
-          ONLY_DEFAULT_BRANCH: true
-          PR_BRANCH_NAME: 'update-openstack-versions-${{ matrix.version }}'
-          PR_BRANCH_PREFIX: 'chore/'
+          PR_BRANCH_NAME: 'update-openstack-versions-${PR_ID}'
           PR_TITLE: 'chore: update openstack versions'
