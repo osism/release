@@ -1,5 +1,5 @@
 ---
-name: Update openstack versions
+name: Update base versions
 
 "on":
   workflow_dispatch:
@@ -7,7 +7,7 @@ name: Update openstack versions
     - cron: '0 0 * * *'
 
 jobs:
-  update-openstack-versions:
+  update-base:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
@@ -18,19 +18,20 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install PyYAML
-        run: pip3 install PyYAML
+      - name: Install ruaeml.yaml
+        run: pip3 install ruamel.yaml
 
-      - name: Create PR
+      - name: Update versions
         uses: technote-space/create-pr-action@v2
         with:
           EXECUTE_COMMANDS: |
+            python3 src/update-base-versions.py
             python3 src/update-openstack-versions.py
           COMMIT_EMAIL: 'bot@osism.tech'
           COMMIT_MESSAGE: |
-            chore: update openstack versions
+            chore: update versions in latest
 
             Signed-off-by: OSISM Bot <bot@osism.tech>
           COMMIT_NAME: 'OSISM Bot'
-          PR_BRANCH_NAME: 'update-openstack-versions-${PR_ID}'
-          PR_TITLE: 'chore: update openstack versions'
+          PR_BRANCH_NAME: 'update-versions-${PR_ID}'
+          PR_TITLE: 'chore: update versions in latest'
