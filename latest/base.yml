@@ -1,7 +1,6 @@
 ---
 ansible_base_version: '>=2.10.0,<2.11.0'
 ansible_version: '>=3.0.0,<4.0.0'
-
 defaults_version: main
 generics_version: master
 manager_version: latest
@@ -9,20 +8,20 @@ operations_version: main
 playbooks_version: master
 
 osism_projects:
-  ara: 1.5.6
-  docker: 5:20.10.7
+  ara: 1.5.7
+  docker: 5:20.10.8
 
 docker_images:
   adminer: 4.8.1
-  ara_server: 1.5.6
-  awxclient: 19.2.2
-  mariadb: '10.6'
-  netbox: v3.0.2-ldap
-  nexus: 3.32.0
+  ara_server: 1.5.7
+  awxclient: 19.3.0
+  mariadb: '10.5'
+  netbox: v3.0-ldap
+  nexus: 3.34.1
   nginx: 1.21-alpine
   phpmyadmin: 5.1.1
-  postgres: 13.3-alpine
-  redis: 6.2.4-alpine
+  postgres: 13.4-alpine
+  redis: 6-alpine
   registry: '2.7'
   keycloak: 14.0.0
 
