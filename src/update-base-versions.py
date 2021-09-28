@@ -61,6 +61,28 @@ def get_schema_is_valid(tag_name, schema):
         if helper1[0].isdigit() and helper2[0].isdigit() and helper2[1] == "alpine":
             return True
 
+    if schema == "NUMBER.NUMBER.NUMBER-alpine":
+        try:
+            helper1 = tag_name.split("-")
+            helper2 = helper1[0].split(".")
+        except IndexError:
+            return False
+        except ValueError:
+            return False
+
+        # NOTE: ignore alpine-perl tags
+        if len(helper1) != 2:
+            return False
+
+        if len(helper2) != 3:
+            return False
+
+        try:
+            if helper2[0].isdigit() and helper2[1].isdigit() and helper2[2].isdigit() and helper1[1] == "alpine":
+                return True
+        except IndexError:
+            return False
+
     if schema == "NUMBER-alpine":
         try:
             helper = tag_name.split("-")
@@ -73,7 +95,7 @@ def get_schema_is_valid(tag_name, schema):
         if helper[0].isdigit() and helper[1] == "alpine":
             return True
 
-    if schema == "vNUMBER.NUMBER":
+    if schema == "vNUMBER.NUMBER.NUMBER":
         if tag_name.startswith("v"):
             try:
                 helper1 = tag_name[1:]
@@ -81,10 +103,10 @@ def get_schema_is_valid(tag_name, schema):
             except ValueError:
                 return False
 
-            if len(helper2) != 2:
+            if len(helper2) != 3:
                 return False
 
-            if helper2[0].isdigit() and helper2[1].isdigit():
+            if helper2[0].isdigit() and helper2[1].isdigit() and helper2[2].isdigit():
                 return True
 
     return False
@@ -105,6 +127,10 @@ def get_api_github_latest_tag(owner, repo, schema):
 def get_api_docker_latest_tag(owner, repo, schema):
     result = get_api_generic_latest_tag(docker_api, owner, repo, "tags?page_size=100")
     for entry in result['results']:
+        # NOTE: This is a really weird workaround to get rid of all old versions < 10.6.
+        if repo == "mariadb" and not entry['name'].startswith('10.6'):
+            continue
+
         if get_schema_is_valid(entry['name'], schema):
             return entry['name']
 
@@ -140,11 +166,11 @@ def get_awxclient_latest_tag():
 
 
 def get_mariadb_latest_tag():
-    return get_api_docker_latest_tag("library", "mariadb", "NUMBER.NUMBER")
+    return get_api_docker_latest_tag("library", "mariadb", "NUMBER.NUMBER.NUMBER")
 
 
 def get_netbox_latest_tag():
-    return get_api_docker_latest_tag("netboxcommunity", "netbox", "vNUMBER.NUMBER")
+    return get_api_docker_latest_tag("netboxcommunity", "netbox", "vNUMBER.NUMBER.NUMBER")
 
 
 def get_nexus_latest_tag():
@@ -152,7 +178,7 @@ def get_nexus_latest_tag():
 
 
 def get_nginx_latest_tag():
-    return get_api_docker_latest_tag("library", "nginx", "NUMBER.NUMBER-alpine")
+    return get_api_docker_latest_tag("library", "nginx", "NUMBER.NUMBER.NUMBER-alpine")
 
 
 def get_phpmyadmin_latest_tag():
@@ -189,7 +215,7 @@ def get_postgres_latest_tag():
 
 
 def get_redis_latest_tag():
-    return get_api_docker_latest_tag("library", "redis", "NUMBER-alpine")
+    return get_api_docker_latest_tag("library", "redis", "NUMBER.NUMBER.NUMBER-alpine")
 
 
 def get_registry_latest_tag():
