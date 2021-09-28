@@ -23,7 +23,7 @@ docker_images:
   postgres: 13.4-alpine
   redis: 6.2.5-alpine
   registry: '2.7'
-  keycloak: 14.0.0
+  keycloak: 15.0.2
 
 ansible_roles:
   geerlingguy.certbot: master
