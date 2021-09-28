@@ -21,6 +21,9 @@ jobs:
       - name: Install ruaeml.yaml
         run: pip3 install ruamel.yaml
 
+      - name: Install PyYAML
+        run: pip3 install PyYAML
+
       - name: Update versions
         uses: technote-space/create-pr-action@v2
         with:
