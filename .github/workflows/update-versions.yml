@@ -1,5 +1,5 @@
 ---
-name: Update base versions
+name: Update versions
 
 "on":
   workflow_dispatch:
@@ -7,7 +7,7 @@ name: Update base versions
     - cron: '0 0 * * *'
 
 jobs:
-  update-base:
+  update-versions:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
