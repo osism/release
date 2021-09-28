@@ -165,6 +165,10 @@ def get_awxclient_latest_tag():
     return get_api_quay_latest_tag("ansible", "awx", "NUMBER.NUMBER.NUMBER")
 
 
+def get_keycloak_latest_tag():
+    return get_api_quay_latest_tag("keycloak", "keycloak", "NUMBER.NUMBER.NUMBER")
+
+
 def get_mariadb_latest_tag():
     return get_api_docker_latest_tag("library", "mariadb", "NUMBER.NUMBER.NUMBER")
 
@@ -228,6 +232,7 @@ def set_base(
         latest_adminer_verison,
         latest_ara_server_version,
         latest_awxclient_version,
+        latest_keycloak_version,
         latest_mariadb_version,
         latest_netbox_version,
         latest_nexus_version,
@@ -257,6 +262,8 @@ def set_base(
         loaded['docker_images']['ara_server'] = latest_ara_server_version
     if loaded['docker_images']['awxclient'] is not None:
         loaded['docker_images']['awxclient'] = latest_awxclient_version
+    if loaded['docker_images']['keycloak'] is not None:
+        loaded['docker_images']['keycloak'] = latest_keycloak_version
     if loaded['docker_images']['mariadb'] is not None:
         loaded['docker_images']['mariadb'] = latest_mariadb_version
     if loaded['docker_images']['netbox'] is not None:
@@ -315,6 +322,7 @@ set_base(get_ara_latest_tag(),
          get_adminer_latest_tag(),
          get_ara_server_latest_tag(),
          get_awxclient_latest_tag(),
+         get_keycloak_latest_tag(),
          get_mariadb_latest_tag(),
          get_netbox_latest_tag(),
          get_nexus_latest_tag(),
