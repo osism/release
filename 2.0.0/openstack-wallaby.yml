@@ -6,7 +6,7 @@ openstack_version: wallaby
 playbooks_version: 94f5c9c3268aa83a94111fee0b2cb80dd9f974b3
 
 docker_images:
-  openstackclient: wallaby
+  openstackclient: 5.5.1
 
 infrastructure_projects:
   chrony:

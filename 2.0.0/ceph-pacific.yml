@@ -7,5 +7,5 @@ defaults_version: ef77053f5b7b79625e5fb5df49d172fd9b557977
 generics_version: f75eceac6c46bf46820b90dd4d089ffbe8829228
 
 docker_images:
-  ceph: pacific
-  cephclient: pacific
+  ceph: 6.0.5
+  cephclient: 16.2.5
