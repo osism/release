@@ -1,0 +1,11 @@
+---
+ansible_version: '>=2.9,<2.10'
+ceph_ansible_version: stable-6.0
+ceph_container_version: stable-6.0
+ceph_version: pacific
+defaults_version: ef77053f5b7b79625e5fb5df49d172fd9b557977
+generics_version: f75eceac6c46bf46820b90dd4d089ffbe8829228
+
+docker_images:
+  ceph: pacific
+  cephclient: pacific
