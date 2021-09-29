@@ -1,0 +1,51 @@
+---
+ansible_base_version: '>=2.10.0,<2.11.0'
+ansible_version: '>=3.0.0,<4.0.0'
+defaults_version: ef77053f5b7b79625e5fb5df49d172fd9b557977
+generics_version: f75eceac6c46bf46820b90dd4d089ffbe8829228
+manager_version: 2.0.0
+operations_version: 79cd14dbb5ae2301c987f01c574e7f894e4e3184
+playbooks_version: 94f5c9c3268aa83a94111fee0b2cb80dd9f974b3
+
+osism_projects:
+  ara: 1.5.7
+  docker: 5:20.10.8
+
+docker_images:
+  adminer: 4.8.1
+  ara_server: 1.5.7
+  awxclient: 19.3.0
+  mariadb: 10.6.4
+  netbox: v3.0.3-ldap
+  nexus: 3.34.1
+  nginx: 1.21.3-alpine
+  phpmyadmin: 5.1.1
+  postgres: 13.4-alpine
+  redis: 6.2.5-alpine
+  registry: '2.7'
+  keycloak: 15.0.2
+
+ansible_roles:
+  geerlingguy.certbot: d1d517c5a4843860a214f90a1c69ab410d9ee2de
+  geerlingguy.dotfiles: dc70a3014be2be771bbb12f70e3df0ab9f07b204
+  hardening: b75f5d30d5cda8a7dc3caebf42849d18caddcb7f
+  stackhpc.libvirt_host: 9aa5874603938393bbd48b4a4243e66c4108e00b
+  stackhpc.libvirt_vm: 3578dd4e0921dc90b9bba6412ef7fc323861413e
+  stackhpc.luks: 8c4b5f472ab0aef3d2a776d4fcd37ca17c6eac05
+  stackhpc.systemd_networkd: d753f616849a19c034983cf3cea9200e1cda438f
+ansible_collections:
+  ansible.netcommon: 2.2.0
+  ansible.posix: aaa96c2011e9353b5a109930e74707d655a07d1d
+  arista.cvp: 3.0.0
+  arista.eos: 2.2.0
+  awx.awx: 19.2.2
+  community.general: 3fee872d580565b9c635a2e7fd7dc190eaa46f14
+  community.network: 5592297b75de74d173d9e52e1a6ea1a1cc420fcb
+  community.zabbix: d2157974ff508974b0e3ee4e7c226183c7dfe488
+  debops.debops: 2.3.1
+  netbox.netbox: 3c1c4584d854750b9160eb92890a784f96543174
+  openstack.cloud: 011515de2db1b4d153954061912ad34fe10df206
+  osism.commons: e44816607d5599ef12099d27a0fa7cf85d476824
+  osism.services: a06ff300d36f10cd3825908832b7ee8fe6d75912
+  osism.validations: f704c793a2f3827d4db5bc0397f75a19446e914b
+  stackhpc.cephadm: 26fbf13928c9b33512e91ed563803f6a253901de

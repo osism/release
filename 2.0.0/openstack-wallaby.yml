@@ -1,0 +1,68 @@
+---
+ansible_version: '>=2.10,<2.11'
+defaults_version: ef77053f5b7b79625e5fb5df49d172fd9b557977
+generics_version: f75eceac6c46bf46820b90dd4d089ffbe8829228
+openstack_version: wallaby
+playbooks_version: 94f5c9c3268aa83a94111fee0b2cb80dd9f974b3
+
+docker_images:
+  openstackclient: wallaby
+
+infrastructure_projects:
+  chrony:
+  collectd:
+  cron:
+  dnsmasq:
+  elasticsearch:
+  etcd:
+  fluentd:
+  grafana:
+  haproxy:
+  influxdb:
+  iscsid:
+  kafka:
+  keepalived:
+  kibana:
+  kolla-toolbox:
+  logstash:
+  mariadb:
+  memcached:
+  multipathd:
+  openstack-base:
+  openvswitch:
+  ovn:
+  prometheus:
+  rabbitmq:
+  redis:
+  storm:
+  tgtd:
+  zookeeper:
+
+openstack_projects:
+  aodh:
+  barbican:
+  bifrost:
+  ceilometer:
+  cinder:
+  cloudkitty:
+  designate:
+  glance:
+  gnocchi: 4.4.1
+  heat:
+  horizon:
+  ironic:
+  keystone:
+  kuryr:
+  magnum:
+  manila:
+  mistral:
+  monasca:
+  neutron-vpnaas-agent:
+  neutron:
+  nova:
+  octavia:
+  panko:
+  placement:
+  senlin:
+  swift:
+  trove:

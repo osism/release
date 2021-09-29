@@ -32,6 +32,15 @@ for mapping in mapping_files:
 with open(f"{release}/base.yml", "r") as fp:
     data = yaml.load(fp)
 
+# base: operations
+
+repository = gh.get_repo(mappings["operations"])
+try:
+    branch = repository.get_branch(data["operations_version"])
+    data["operations_version"] = branch.commit.sha
+except:
+    print("branch %s for repository %s not found" % (data["operations_version"], mappings["operations"]))
+
 # base: defaults
 
 repository = gh.get_repo(mappings["defaults"])
@@ -118,6 +127,15 @@ try:
     data["generics_version"] = branch.commit.sha
 except:
     print("branch %s for repository %s not found" % (data["generics_version"], mappings["generics"]))
+
+# openstack: playbooks
+
+repository = gh.get_repo(mappings["playbooks"])
+try:
+    branch = repository.get_branch(data["playbooks_version"])
+    data["playbooks_version"] = branch.commit.sha
+except:
+    print("branch %s for repository %s not found" % (data["playbooks_version"], mappings["playbooks"]))
 
 # save openstack
 
