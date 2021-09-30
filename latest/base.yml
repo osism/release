@@ -16,7 +16,7 @@ docker_images:
   ara_server: 1.5.7
   awxclient: 19.3.0
   mariadb: 10.6.4
-  netbox: v3.0.3-ldap
+  netbox: v3.0.4-ldap
   nexus: 3.34.1
   nginx: 1.21.3-alpine
   phpmyadmin: 5.1.1
