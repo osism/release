@@ -226,23 +226,7 @@ def get_registry_latest_tag():
     return get_api_docker_latest_tag("library", "registry", "NUMBER.NUMBER")
 
 
-def set_base(
-        latest_ara_version,
-        latest_docker_version,
-        latest_adminer_verison,
-        latest_ara_server_version,
-        latest_awxclient_version,
-        latest_keycloak_version,
-        latest_mariadb_version,
-        latest_netbox_version,
-        latest_nexus_version,
-        latest_nginx_version,
-        latest_phpmyadmin_version,
-        latest_postgres_version,
-        latest_redis_version,
-        latest_registry_version):
-    print(locals().values())
-
+def set_base_versions():
     # load
     with open(file) as stream:
         try:
@@ -253,33 +237,33 @@ def set_base(
 
     # modify
     if loaded['osism_projects']['ara'] is not None:
-        loaded['osism_projects']['ara'] = latest_ara_version
+        loaded['osism_projects']['ara'] = get_ara_latest_tag()
     if loaded['osism_projects']['docker'] is not None:
-        loaded['osism_projects']['docker'] = latest_docker_version
+        loaded['osism_projects']['docker'] = get_docker_latest_tag()
     if loaded['docker_images']['adminer'] is not None:
-        loaded['docker_images']['adminer'] = latest_adminer_verison
+        loaded['docker_images']['adminer'] = get_adminer_latest_tag()
     if loaded['docker_images']['ara_server'] is not None:
-        loaded['docker_images']['ara_server'] = latest_ara_server_version
+        loaded['docker_images']['ara_server'] = get_ara_server_latest_tag()
     if loaded['docker_images']['awxclient'] is not None:
-        loaded['docker_images']['awxclient'] = latest_awxclient_version
+        loaded['docker_images']['awxclient'] = get_awxclient_latest_tag()
     if loaded['docker_images']['keycloak'] is not None:
-        loaded['docker_images']['keycloak'] = latest_keycloak_version
+        loaded['docker_images']['keycloak'] = get_keycloak_latest_tag()
     if loaded['docker_images']['mariadb'] is not None:
-        loaded['docker_images']['mariadb'] = latest_mariadb_version
+        loaded['docker_images']['mariadb'] = get_mariadb_latest_tag()
     if loaded['docker_images']['netbox'] is not None:
-        loaded['docker_images']['netbox'] = latest_netbox_version + "-ldap"
+        loaded['docker_images']['netbox'] = get_netbox_latest_tag() + "-ldap"
     if loaded['docker_images']['nexus'] is not None:
-        loaded['docker_images']['nexus'] = latest_nexus_version
+        loaded['docker_images']['nexus'] = get_nexus_latest_tag()
     if loaded['docker_images']['nginx'] is not None:
-        loaded['docker_images']['nginx'] = latest_nginx_version
+        loaded['docker_images']['nginx'] = get_nginx_latest_tag()
     if loaded['docker_images']['phpmyadmin'] is not None:
-        loaded['docker_images']['phpmyadmin'] = latest_phpmyadmin_version
+        loaded['docker_images']['phpmyadmin'] = get_phpmyadmin_latest_tag()
     if loaded['docker_images']['postgres'] is not None:
-        loaded['docker_images']['postgres'] = latest_postgres_version
+        loaded['docker_images']['postgres'] = get_postgres_latest_tag()
     if loaded['docker_images']['redis'] is not None:
-        loaded['docker_images']['redis'] = latest_redis_version
+        loaded['docker_images']['redis'] = get_redis_latest_tag()
     if loaded['docker_images']['registry'] is not None:
-        loaded['docker_images']['registry'] = latest_registry_version
+        loaded['docker_images']['registry'] = get_registry_latest_tag()
 
     # replace null with empty strings:
     for i in loaded:
@@ -317,19 +301,5 @@ def restyle_openstack_latest():
 ###################################################################################################
 # Main
 ###################################################################################################
-set_base(get_ara_latest_tag(),
-         get_docker_latest_tag(),
-         get_adminer_latest_tag(),
-         get_ara_server_latest_tag(),
-         get_awxclient_latest_tag(),
-         get_keycloak_latest_tag(),
-         get_mariadb_latest_tag(),
-         get_netbox_latest_tag(),
-         get_nexus_latest_tag(),
-         get_nginx_latest_tag(),
-         get_phpmyadmin_latest_tag(),
-         get_postgres_latest_tag(),
-         get_redis_latest_tag(),
-         get_registry_latest_tag())
-
+set_base_versions()
 restyle_openstack_latest()
