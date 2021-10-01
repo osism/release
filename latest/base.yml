@@ -1,5 +1,4 @@
 ---
-ansible_base_version: 2.10.14
 ansible_version: 4.6.0
 defaults_version: main
 generics_version: master
