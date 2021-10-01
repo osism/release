@@ -20,7 +20,7 @@ docker_images:
   nexus: 3.34.1
   nginx: 1.21.3-alpine
   phpmyadmin: 5.1.1
-  postgres: 13.4-alpine
+  postgres: 14.0-alpine
   redis: 6.2.5-alpine
   registry: '2.7'
   keycloak: 15.0.2
