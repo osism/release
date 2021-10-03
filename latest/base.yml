@@ -13,13 +13,13 @@ osism_projects:
 docker_images:
   adminer: 4.8.1
   ara_server: 1.5.7
-  awxclient: 19.3.0
+  awxclient: 19.4.0
   mariadb: 10.6.4
   netbox: v3.0.4-ldap
   nexus: 3.34.1
   nginx: 1.21.3-alpine
   phpmyadmin: 5.1.1
-  postgres: 13.4-alpine
+  postgres: 14.0-alpine
   redis: 6.2.5-alpine
   registry: '2.7'
   keycloak: 15.0.2
