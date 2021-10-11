@@ -3,6 +3,7 @@
 ## Features
 
 * OpenStack client container image in version Yogi is available
+* Ansible >=2.11.0,<2.12.0 required by all Ansible collections
 
 ## Removals
 
