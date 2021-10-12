@@ -4,10 +4,12 @@
 
 * OpenStack client container image in version Yogi is available
 * Ansible >=2.11.0,<2.12.0 required by all Ansible collections
+* Homer is now available as an initial dashboard
 
 ## Removals
 
 * Support for Zabbix has been removed, Prometheus will be used as the only monitoring stack in the future
+* Heimdall as a service was removed, as an alternative Homer is now available
 
 ## Conformance
 
