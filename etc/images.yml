@@ -6,6 +6,7 @@ ara_server: osism/ara-server
 awx: osism/manager
 awxclient: osism/awxclient
 ceph_ansible: osism/ceph-ansible
+homer: osism/homer
 inventory_reconciler: osism/inventory-reconciler
 jenkins: bitnami/jenkins
 kolla_ansible: osism/kolla-ansible
