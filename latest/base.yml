@@ -1,10 +1,10 @@
 ---
 ansible_version: 4.6.0
 defaults_version: main
-generics_version: master
+generics_version: main
 manager_version: latest
 operations_version: main
-playbooks_version: master
+playbooks_version: main
 
 osism_projects:
   ara: 1.5.7
@@ -45,7 +45,7 @@ ansible_collections:
   debops.debops: 2.3.1
   netbox.netbox: devel
   openstack.cloud: master
-  osism.commons: master
-  osism.services: master
+  osism.commons: main
+  osism.services: main
   osism.validations: main
   stackhpc.cephadm: master

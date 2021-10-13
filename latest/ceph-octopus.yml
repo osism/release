@@ -4,8 +4,8 @@ ceph_ansible_version: stable-5.0
 ceph_container_version: stable-5.0
 ceph_version: octopus
 defaults_version: main
-generics_version: master
-playbooks_version: master
+generics_version: main
+playbooks_version: main
 
 docker_images:
   ceph: octopus

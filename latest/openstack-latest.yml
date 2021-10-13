@@ -1,9 +1,9 @@
 ---
 ansible_version: '>=2.10,<2.11'
 defaults_version: main
-generics_version: master
+generics_version: main
 openstack_version: master
-playbooks_version: master
+playbooks_version: main
 
 docker_images:
   openstackclient: latest

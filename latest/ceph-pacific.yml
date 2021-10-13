@@ -4,7 +4,7 @@ ceph_ansible_version: stable-6.0
 ceph_container_version: stable-6.0
 ceph_version: pacific
 defaults_version: main
-generics_version: master
+generics_version: main
 
 docker_images:
   ceph: pacific
