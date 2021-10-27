@@ -30,3 +30,8 @@
 
 * In the inventory reconciler the import into the Netbox was fixed
 * The image of patchman was changed to Ubuntu to fix problems when using libapt
+
+## Infrastructure
+
+* An Elasticsearch service is now available for integration into the CI
+* A Kibana service is now available for the evaluation of the logs from the CI
