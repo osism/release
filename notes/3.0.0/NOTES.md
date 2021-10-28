@@ -10,6 +10,7 @@
 * OpenStack images for Kubernetes Cluster API (CAPI) version 1.22 are available
 * Tailscale (https://tailscale.com) is available as an alternative for Wireguard on the testbed
 * For Nova, SPICE is now supported as a console in addition to NoVNC
+* A prepared machine image for the installation of the manager node is available
 
 ## Removals
 
@@ -35,3 +36,5 @@
 
 * An Elasticsearch service is now available for integration into the CI
 * A Kibana service is now available for the evaluation of the logs from the CI
+* A new Minio service is available for binary artifacts like machine images
+* Plusserver provides resources on the Pluscloudopen for daily deployments
