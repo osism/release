@@ -38,3 +38,5 @@
 * A Kibana service is now available for the evaluation of the logs from the CI
 * A new Minio service is available for binary artifacts like machine images
 * Plusserver provides resources on the Pluscloudopen for daily deployments
+* It is now possible to set the permissions of all repositories in the osism
+  organisation via the github-permissions repository
