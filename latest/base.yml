@@ -18,7 +18,7 @@ docker_images:
   keycloak: 15.0.2
   mariadb: 10.6.4
   netbox: v3.0.8-ldap
-  nexus: 3.35.0
+  nexus: 3.36.0
   nginx: 1.21.3-alpine
   phpmyadmin: 5.1.1
   postgres: 14.0-alpine
