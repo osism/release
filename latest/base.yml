@@ -14,6 +14,7 @@ docker_images:
   adminer: 4.8.1
   ara_server: 1.5.7
   awxclient: 19.4.0
+  boundary: 0.6.2
   homer: 21.09.2
   keycloak: 15.0.2
   mariadb: 10.6.4
