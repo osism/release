@@ -31,5 +31,5 @@ cephclient: osism/cephclient
 
 # infrastructure
 
-netbox: netboxcommunity/netbox
+netbox: osism/netbox
 keycloak: keycloak/keycloak
