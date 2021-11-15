@@ -17,7 +17,7 @@ osism_ansible: osism/osism-ansible
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
 redis: library/redis
-scheduler: osism/scheduler
+osism: osism/osism
 
 # mirror
 
