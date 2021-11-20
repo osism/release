@@ -13,11 +13,12 @@ jenkins: bitnami/jenkins
 kolla_ansible: osism/kolla-ansible
 mariadb: library/mariadb
 openstackclient: osism/openstackclient
+osism: osism/osism
 osism_ansible: osism/osism-ansible
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
 redis: library/redis
-osism: osism/osism
+vault: hashicorp/vault
 
 # mirror
 
