@@ -21,6 +21,8 @@
   into Grafana
 * The docker-compose CLI plugin for the Docker CLI was introduced as a
   replacement for the standalone docker-compose CLI
+* The configuration of the testbed was minimized and the deployment was made
+  more production-oriented
 
 ## Removals
 
