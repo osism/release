@@ -51,6 +51,10 @@
 * In the inventory reconciler the import into the NetBox was fixed
 * The image of patchman was changed to Ubuntu to fix problems when using libapt
 * In Patchman, Ubuntu 20.04 was added as a distribution
+* For Wallaby a missing backport for Fluentd has been added which now also adds
+  the possibility to enable the watch timer for Wallaby. This solves issues with
+  delivering logs from local Fluentd process to Elasticsearch. The Watch Timer is
+  activated by default. This is not the case in the upstream of kolla-ansible.
 
 ## Infrastructure
 
