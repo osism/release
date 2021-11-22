@@ -17,6 +17,8 @@
 * Use of own NetBox image with pre-installed plugins
 * Flower, a dashboard for Celery, was added as a service on the manager
 * In the testbed, all hostnames were changed to publicly resolvable entries (``testbed.osism.xyz``)
+* Grafana dashboards from osism/kolla-operations are now automatically imported
+  into Grafana
 
 ## Removals
 
