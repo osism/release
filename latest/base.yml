@@ -12,6 +12,7 @@ osism_projects:
 
 docker_images:
   adminer: 4.8.1
+  alerta: 8.6.2
   ara_server: 1.5.7
   awx: 19.4.0
   awxclient: 19.4.0
