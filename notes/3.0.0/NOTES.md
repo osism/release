@@ -23,7 +23,8 @@
   replacement for the standalone docker-compose CLI
 * The configuration of the testbed was minimized and the deployment was made
   more production-oriented
-* Nexus OSS is available as a service
+* Nexus OSS (https://github.com/sonatype/nexus-public) is available as a service
+* tang (https://github.com/latchset/tang) is available as a service
 
 ## Removals
 
