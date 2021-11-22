@@ -25,6 +25,8 @@
   more production-oriented
 * Nexus OSS (https://github.com/sonatype/nexus-public) is available as a service
 * tang (https://github.com/latchset/tang) is available as a service
+* A virtual BMC for controlling virtual machines using IPMI commands on the
+  testbed is now usable
 
 ## Removals
 
