@@ -19,6 +19,8 @@
 * In the testbed, all hostnames were changed to publicly resolvable entries (``testbed.osism.xyz``)
 * Grafana dashboards from osism/kolla-operations are now automatically imported
   into Grafana
+* The docker-compose CLI plugin for the Docker CLI was introduced as a
+  replacement for the standalone docker-compose CLI
 
 ## Removals
 
