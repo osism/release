@@ -23,6 +23,7 @@
   replacement for the standalone docker-compose CLI
 * The configuration of the testbed was minimized and the deployment was made
   more production-oriented
+* Nexus OSS is available as a service
 
 ## Removals
 
