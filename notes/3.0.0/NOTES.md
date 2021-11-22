@@ -60,6 +60,8 @@
 * Plusserver provides resources on the Pluscloudopen for daily deployments
 * It is now possible to set the permissions of all repositories in the osism
   organisation via the github-permissions repository
+* Most of the container images have been consolidated in the central
+  ``container-images`` repository
 
 ## To be considered for upgrades
 
