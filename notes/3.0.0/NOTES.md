@@ -27,6 +27,8 @@
 * tang (https://github.com/latchset/tang) is available as a service
 * A virtual BMC for controlling virtual machines using IPMI commands on the
   testbed is now usable
+* An enhanced Nexus OSS image has been introduced to enable automation via the
+  ``osism.services.nexus`` role.
 
 ## Removals
 

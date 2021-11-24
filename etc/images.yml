@@ -22,7 +22,7 @@ vault: hashicorp/vault
 
 # mirror
 
-nexus: sonatype/nexus3
+nexus: osism/nexus
 nginx: library/nginx
 registry: library/registry
 
