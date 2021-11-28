@@ -29,6 +29,9 @@
   testbed is now usable
 * An enhanced Nexus OSS image has been introduced to enable automation via the
   ``osism.services.nexus`` role.
+* Vault is now usable as a service in the testbed
+* Various plugins are now activated by default in the NetBox
+* The network configuration of the testbed was minified
 
 ## Removals
 
