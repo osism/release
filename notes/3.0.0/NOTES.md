@@ -60,6 +60,7 @@
   the possibility to enable the watch timer for Wallaby. This solves issues with
   delivering logs from local Fluentd process to Elasticsearch. The Watch Timer is
   activated by default. This is not the case in the upstream of kolla-ansible.
+* The resources provided by Cadvisor were limited to solve high load problems
 
 ## Infrastructure
 
