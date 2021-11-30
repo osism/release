@@ -32,6 +32,8 @@
 * Vault is now usable as a service in the testbed
 * Various plugins are now activated by default in the NetBox
 * The network configuration of the testbed was minified
+* The Neutron Port Forwarding extension, required by the Kubernetes Cluster API,
+  is now enabled by default
 
 ## Removals
 
