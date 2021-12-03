@@ -66,3 +66,4 @@ openstack_projects:
   senlin:
   swift:
   trove:
+  zun:
