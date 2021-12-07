@@ -18,6 +18,7 @@ osism_ansible: osism/osism-ansible
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
 redis: library/redis
+traefik: library/traefik
 vault: hashicorp/vault
 
 # mirror
