@@ -13,7 +13,7 @@ infrastructure_projects:
   collectd:
   cron:
   dnsmasq:
-  elasticsearch: 6.8.20
+  elasticsearch: 6.8.21
   etcd:
   fluentd:
   grafana:
@@ -22,7 +22,7 @@ infrastructure_projects:
   iscsid:
   kafka:
   keepalived:
-  kibana: 6.8.20
+  kibana: 6.8.21
   kolla-toolbox:
   logstash:
   mariadb:
