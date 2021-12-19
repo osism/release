@@ -18,7 +18,7 @@ docker_images:
   awxclient: 19.5.0
   boundary: 0.6.2
   homer: 21.09.2
-  keycloak: 15.1.0
+  keycloak: 16.0.0
   mariadb: 10.6.5
   netbox: v3.1.1-ldap
   nexus: 3.37.1
