@@ -75,6 +75,10 @@
 * Most of the container images have been consolidated in the central
   ``container-images`` repository
 
+## Security
+
+* Log4j 2.x mitigation implemented in Ansible defaults for Elasticsearch
+
 ## To be considered for upgrades
 
 * Playbook ``generic-configuration.yml`` was deprecated. From now on, please
