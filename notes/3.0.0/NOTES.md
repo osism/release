@@ -34,6 +34,7 @@
 * The network configuration of the testbed was minified
 * The Neutron Port Forwarding extension, required by the Kubernetes Cluster API,
   is now enabled by default
+* Rolling upgrades of Glance enabled by default
 
 ## Removals
 
