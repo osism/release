@@ -78,6 +78,8 @@
   organisation via the github-permissions repository
 * Most of the container images have been consolidated in the central
   ``container-images`` repository
+* An so-called overlord service (``osism/github-actions-overlord``) is now
+  available that can trigger defined reactions to commits on various repositories
 
 ## Security
 
