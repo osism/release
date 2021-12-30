@@ -35,6 +35,9 @@
 * The Neutron Port Forwarding extension, required by the Kubernetes Cluster API,
   is now enabled by default
 * Rolling upgrades of Glance enabled by default
+* Traefik is available as a new service on the manager
+* Bootstrap from Nexus was fully automated
+* Various integrations of manager services for Traefik: Nexus, Nexbox, Phpmyadmin
 
 ## Removals
 
