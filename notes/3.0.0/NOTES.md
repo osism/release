@@ -80,6 +80,8 @@
   ``container-images`` repository
 * An so-called overlord service (``osism/github-actions-overlord``) is now
   available that can trigger defined reactions to commits on various repositories
+* The Harbor service has moved to a much larger storage system so that Docker
+  images of PRs etc. can be built in the future.
 
 ## Security
 
