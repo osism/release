@@ -35,5 +35,6 @@ cephclient: osism/cephclient
 # infrastructure
 
 alerta: alerta/alerta-web
+atlantis: runatlantis/atlantis
 keycloak: keycloak/keycloak
 netbox: osism/netbox
