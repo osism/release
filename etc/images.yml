@@ -36,5 +36,6 @@ cephclient: osism/cephclient
 
 alerta: alerta/alerta-web
 atlantis: runatlantis/atlantis
+dnsdist: osism/dnsdist
 keycloak: keycloak/keycloak
 netbox: osism/netbox
