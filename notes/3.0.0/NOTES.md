@@ -39,6 +39,7 @@
 * Bootstrap from Nexus was fully automated
 * Various integrations of manager services for Traefik: Nexus, Nexbox, Phpmyadmin
 * Clamav is available as a new service
+* Dnsdist is available as a new service
 
 ## Removals
 
