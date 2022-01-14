@@ -18,6 +18,7 @@ docker_images:
   awx: 19.4.0
   awxclient: 19.5.0
   boundary: 0.6.2
+  dnsdist: 1.6.1
   homer: 21.09.2
   keycloak: 16.1.0
   mariadb: 10.6.5
