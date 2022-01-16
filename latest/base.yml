@@ -40,18 +40,19 @@ ansible_roles:
   stackhpc.luks: master
   stackhpc.systemd_networkd: master
 ansible_collections:
-  ansible.netcommon: 2.2.0
+  ansible.netcommon: 2.5.0
   ansible.posix: main
-  arista.cvp: 3.0.0
-  arista.eos: 2.2.0
+  arista.cvp: 3.2.0
+  arista.eos: 4.0.0
   awx.awx: 19.4.0
   community.general: main
   community.network: main
   community.zabbix: main
-  debops.debops: 2.3.1
+  debops.debops: 2.3.3
   netbox.netbox: devel
   openstack.cloud: master
   osism.commons: main
   osism.services: main
   osism.validations: main
   stackhpc.cephadm: master
+  juniper.device: 1.0.1
