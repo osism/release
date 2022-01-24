@@ -39,3 +39,11 @@ atlantis: runatlantis/atlantis
 dnsdist: osism/dnsdist
 keycloak: keycloak/keycloak
 netbox: osism/netbox
+
+# zuul
+
+zookeeper: library/zookeeper
+zuul_executor: zuul/zuul-executor
+zuul_nodepool_launcher: zuul/nodepool-launcher
+zuul_scheduler: zuul/zuul-scheduler
+zuul_web: zuul/zuul-web
