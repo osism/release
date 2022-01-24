@@ -230,6 +230,10 @@ def get_traefik_latest_tag():
     return get_api_docker_latest_tag("library", "traefik", "vNUMBER.NUMBER.NUMBER")
 
 
+def get_vault_latest_tag():
+    return get_api_docker_latest_tag("library", "vault", "NUMBER.NUMBER.NUMBER")
+
+
 def set_base_versions():
     # load
     with open(file) as stream:
@@ -270,6 +274,8 @@ def set_base_versions():
         loaded['docker_images']['registry'] = get_registry_latest_tag()
     if loaded['docker_images']['traefik'] is not None:
         loaded['docker_images']['traefik'] = get_traefik_latest_tag()
+    if loaded['docker_images']['vault'] is not None:
+        loaded['docker_images']['vault'] = get_vault_latest_tag()
 
     # replace null with empty strings:
     for i in loaded:
