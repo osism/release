@@ -20,11 +20,11 @@ docker_images:
   boundary: 0.7.4
   dnsdist: 1.6.1
   homer: 21.09.2
-  keycloak: 16.1.0
+  keycloak: 16.1.1
   mariadb: 10.6.5
   netbox: v3.1.6-ldap
   nexus: 3.37.3
-  nginx: 1.21.5-alpine
+  nginx: 1.21.6-alpine
   phpmyadmin: 5.1.1
   postgres: 14.1-alpine
   redis: 6.2.6-alpine
