@@ -38,6 +38,7 @@ alerta: alerta/alerta-web
 atlantis: runatlantis/atlantis
 dnsdist: osism/dnsdist
 keycloak: keycloak/keycloak
+keycloak_for_traefik: osism/keycloak
 netbox: osism/netbox
 
 # zuul
