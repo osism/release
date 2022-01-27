@@ -36,6 +36,7 @@ cephclient: osism/cephclient
 
 alerta: alerta/alerta-web
 atlantis: runatlantis/atlantis
+cgit: clearlinux/cgit
 dnsdist: osism/dnsdist
 keycloak: keycloak/keycloak
 keycloak_for_traefik: osism/keycloak
