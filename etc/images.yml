@@ -39,6 +39,7 @@ atlantis: runatlantis/atlantis
 dnsdist: osism/dnsdist
 keycloak: keycloak/keycloak
 keycloak_for_traefik: osism/keycloak
+klaus: osism/klaus
 netbox: osism/netbox
 
 # zuul
