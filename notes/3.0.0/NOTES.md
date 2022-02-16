@@ -41,6 +41,7 @@
 * Clamav is available as a new service
 * Dnsdist is available as a new service
 * Cgit is available as a new service
+* FRRouting is availalbe as a new service
 
 ## Removals
 
@@ -53,6 +54,11 @@
 * Cockpit is deprecated in favor of Boundary by HashiCorp
 * Playbook ``generic-configuration.yml`` (``osism-generic configuration``) was
   deprecated
+* ceph-ansible is deprecated in preparation for cephadm
+* All osism- scripts on the manager are deprecated and will be replaced by
+  the new OSISM CLI. The scripts will be removed in the next release.
+* The following services are currently not used and are deprecated and scheduled
+  for removal as of now: Rundeck, Falco, Jenkins, Rundeck, Lynis, Trivy
 
 ## Conformance
 
