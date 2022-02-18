@@ -17,7 +17,7 @@ docker_images:
   atlantis: v0.18.0
   awx: 19.4.0
   awxclient: 20.0.0
-  boundary: 0.7.4
+  boundary: 0.7.5
   cgit: latest
   dnsdist: 1.6.1
   homer: 21.09.2
