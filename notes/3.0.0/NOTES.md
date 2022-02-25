@@ -48,6 +48,9 @@
 * Support for Zabbix has been removed, Prometheus will be used as the only
   monitoring stack in the future
 * Heimdall as a service was removed, as an alternative Homer is now available
+* AWX was introduced as a technical preview and possible API layer for Ansible.
+  In the meantime, python-osism is used for this purpose. Accordingly, AWX is
+  no longer needed. All components of the technical preview have been removed.
 
 ## Deprecations
 
