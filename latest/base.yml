@@ -15,8 +15,6 @@ docker_images:
   alerta: 8.6.2
   ara_server: 1.5.7
   atlantis: v0.18.0
-  awx: 19.4.0
-  awxclient: 19.5.1
   boundary: 0.7.4
   cgit: latest
   dnsdist: 1.6.1
@@ -51,7 +49,6 @@ ansible_collections:
   ansible.posix: main
   arista.cvp: 3.2.0
   arista.eos: 4.0.0
-  awx.awx: 19.4.0
   community.general: main
   community.network: main
   community.zabbix: main
