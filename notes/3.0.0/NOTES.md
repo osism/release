@@ -62,6 +62,9 @@
   the new OSISM CLI. The scripts will be removed in the next release.
 * The following services are currently not used and are deprecated and scheduled
   for removal as of now: Rundeck, Falco, Jenkins, Rundeck, Lynis, Trivy
+* Following the Kolla upstream, the haproxy group is deprecated as of now and will
+  be removed in the future. The loadbalancer group is to be used for this
+  purpose in the future.
 
 ## Conformance
 
