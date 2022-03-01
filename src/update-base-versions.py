@@ -161,10 +161,6 @@ def get_ara_server_latest_tag():
     return get_api_github_latest_tag("ansible-community", "ara", "NUMBER.NUMBER.NUMBER")
 
 
-def get_awxclient_latest_tag():
-    return get_api_quay_latest_tag("ansible", "awx", "NUMBER.NUMBER.NUMBER")
-
-
 def get_keycloak_latest_tag():
     return get_api_quay_latest_tag("keycloak", "keycloak", "NUMBER.NUMBER.NUMBER")
 
@@ -256,8 +252,6 @@ def set_base_versions():
         loaded['docker_images']['adminer'] = get_adminer_latest_tag()
     if loaded['docker_images']['ara_server'] is not None:
         loaded['docker_images']['ara_server'] = get_ara_server_latest_tag()
-    if loaded['docker_images']['awxclient'] is not None:
-        loaded['docker_images']['awxclient'] = get_awxclient_latest_tag()
     if loaded['docker_images']['keycloak'] is not None:
         loaded['docker_images']['keycloak'] = get_keycloak_latest_tag()
     if loaded['docker_images']['mariadb'] is not None:
