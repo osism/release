@@ -1,5 +1,5 @@
 ---
-ansible_version: '>=2.12,<2.13'
+ansible_version: '>=2.11,<2.12'
 defaults_version: main
 generics_version: main
 openstack_version: master
