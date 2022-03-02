@@ -1,5 +1,5 @@
 ---
-ansible_version: '>=2.11,<2.12'
+ansible_version: '>=4.0.0,<5.0.0'
 defaults_version: main
 generics_version: main
 openstack_version: xena
