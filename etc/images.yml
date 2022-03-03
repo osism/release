@@ -3,8 +3,6 @@
 
 adminer: library/adminer
 ara_server: osism/ara-server
-awx: ansible/awx
-awxclient: osism/awxclient
 boundary: hashicorp/boundary
 ceph_ansible: osism/ceph-ansible
 homer: osism/homer
