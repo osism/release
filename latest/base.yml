@@ -29,7 +29,7 @@ docker_images:
   redis: 6.2.6-alpine
   registry: '2.8'
   traefik: v2.6.1
-  vault: 1.9.3
+  vault: 1.9.4
   zookeeper: 3.7.0
   zuul_executor: 4.11.0
   zuul_nodepool_launcher: 4.4.0
