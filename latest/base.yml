@@ -21,7 +21,7 @@ docker_images:
   homer: 21.09.2
   keycloak: 16.1.1
   mariadb: 10.6.5
-  netbox: v3.1.7-ldap
+  netbox: v3.1.8-ldap
   nexus: 3.37.3
   nginx: 1.21.6-alpine
   phpmyadmin: 5.1.1
