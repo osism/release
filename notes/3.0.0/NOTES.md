@@ -42,6 +42,7 @@
 * Dnsdist is available as a new service
 * Cgit is available as a new service
 * FRRouting is availalbe as a new service
+* OpenStack Xena is available and the new default release of OpenStack
 
 ## Removals
 
