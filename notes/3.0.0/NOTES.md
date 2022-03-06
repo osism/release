@@ -37,7 +37,7 @@
 * Rolling upgrades of Glance enabled by default
 * Traefik is available as a new service on the manager
 * Bootstrap from Nexus was fully automated
-* Various integrations of manager services for Traefik: Nexus, Nexbox, Phpmyadmin
+* Various integrations of manager services for Traefik: Nexus, Nexbox, Phpmyadmin, Homer
 * Clamav is available as a new service
 * Dnsdist is available as a new service
 * Cgit is available as a new service
