@@ -3,7 +3,6 @@
 
 adminer: library/adminer
 ara_server: osism/ara-server
-boundary: hashicorp/boundary
 ceph_ansible: osism/ceph-ansible
 homer: osism/homer
 inventory_reconciler: osism/inventory-reconciler
@@ -33,7 +32,6 @@ cephclient: osism/cephclient
 # infrastructure
 
 alerta: alerta/alerta-web
-atlantis: runatlantis/atlantis
 cgit: clearlinux/cgit
 dnsdist: osism/dnsdist
 keycloak: keycloak/keycloak
