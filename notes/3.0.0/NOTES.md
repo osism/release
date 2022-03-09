@@ -9,8 +9,6 @@
   backend
 * Zuul is now available as a new service for future deployment management
 * OpenStack images for Kubernetes Cluster API (CAPI) version 1.22 are available
-* Tailscale (https://tailscale.com) is available as an alternative for Wireguard
-  on the testbed
 * For Nova, SPICE is now supported as a console in addition to NoVNC
 * A prepared machine image for the installation of the manager node is available
 * Workers were switched to Celery with Redis as broker and backend
