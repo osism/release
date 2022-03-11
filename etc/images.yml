@@ -35,7 +35,6 @@ alerta: alerta/alerta-web
 cgit: clearlinux/cgit
 dnsdist: osism/dnsdist
 keycloak: keycloak/keycloak
-keycloak_for_traefik: osism/keycloak
 netbox: osism/netbox
 
 # zuul
