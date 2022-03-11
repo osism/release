@@ -51,6 +51,7 @@
 * AWX was introduced as a technical preview and possible API layer for Ansible.
   In the meantime, python-osism is used for this purpose. Accordingly, AWX is
   no longer needed. All components of the technical preview have been removed.
+* Following the Kolla upstream, the panko service was removed.
 
 ## Deprecations
 
