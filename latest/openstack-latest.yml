@@ -62,7 +62,6 @@ openstack_projects:
   neutron:
   nova:
   octavia:
-  panko:
   placement:
   senlin:
   skyline:

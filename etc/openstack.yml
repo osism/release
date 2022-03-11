@@ -21,7 +21,6 @@ neutron-vpnaas-agent: openstack/neutron-vpnaas
 neutron: openstack/neutron
 nova: openstack/nova
 octavia: openstack/octavia
-panko: openstack/panko
 placement: openstack/placement
 senlin: openstack/senlin
 swift: openstack/swift
