@@ -41,6 +41,7 @@
 * Cgit is available as a new service
 * FRRouting is availalbe as a new service
 * OpenStack Xena is available and the new default release of OpenStack
+* mod_oauth2 can be used as another plugin in the Keystone image
 
 ## Removals
 
