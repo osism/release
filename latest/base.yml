@@ -8,7 +8,7 @@ playbooks_version: main
 
 osism_projects:
   ara: 1.5.7
-  docker: 5:20.10.12
+  docker: 5:20.10.13
 
 docker_images:
   adminer: 4.8.1
@@ -17,9 +17,9 @@ docker_images:
   cgit: latest
   dnsdist: 1.6.1
   homer: 21.09.2
-  keycloak: 16.1.1
+  keycloak: 17.0.0
   mariadb: 10.6.7
-  netbox: v3.1.8-ldap
+  netbox: v3.1.9-ldap
   nexus: 3.38.0
   nginx: 1.21.6-alpine
   phpmyadmin: 5.1.3
