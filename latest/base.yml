@@ -43,7 +43,7 @@ ansible_roles:
   stackhpc.luks: master
   stackhpc.systemd_networkd: master
 ansible_collections:
-  ansible.netcommon: '2.5.0'
+  ansible.netcommon: '2.6.1'
   ansible.posix: main
   arista.cvp: '3.2.0'
   arista.eos: '4.0.0'
