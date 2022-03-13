@@ -1,5 +1,16 @@
 {
   "extends": [
     "github>osism/renovate-config"
+  ],
+  "regexManagers":[
+    {
+      "fileMatch":[
+        "^latest\\/base.yml$"
+      ],
+      "matchStrings":[
+        "(?<depName>ansible)_version: '(?<currentValue>.*?)'"
+      ],
+      "datasourceTemplate":"pypi"
+    }
   ]
 }
