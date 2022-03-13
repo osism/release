@@ -2,13 +2,14 @@
 
 ## Features
 
+* Ceph client container image in version Quincy is available
 * OpenStack client container image in version Yoga is available
-* Ansible >=2.10.0,<2.11.0 required by all Ansible collections
 * Homer is now available as an initial dashboard
 * For Keycloak the available MariaDB Galera cluster can now be used as database
   backend
 * Zuul is now available as a new service for future deployment management
 * OpenStack images for Kubernetes Cluster API (CAPI) version 1.22 are available
+* OpenStack images for Kubernetes Cluster API (CAPI) version 1.23 are available
 * For Nova, SPICE is now supported as a console in addition to NoVNC
 * A prepared machine image for the installation of the manager node is available
 * Workers were switched to Celery with Redis as broker and backend
@@ -27,7 +28,6 @@
   testbed is now usable
 * An enhanced Nexus OSS image has been introduced to enable automation via the
   ``osism.services.nexus`` role.
-* Vault is now usable as a service in the testbed
 * Various plugins are now activated by default in the NetBox
 * The network configuration of the testbed was minified
 * The Neutron Port Forwarding extension, required by the Kubernetes Cluster API,
@@ -35,13 +35,22 @@
 * Rolling upgrades of Glance enabled by default
 * Traefik is available as a new service on the manager
 * Bootstrap from Nexus was fully automated
-* Various integrations of manager services for Traefik: Nexus, Nexbox, Phpmyadmin, Homer
+* Various integrations of manager services for Traefik: Nexus, Nexbox, Phpmyadmin,
+  Homer, Flower, ARA, Cgit
 * Clamav is available as a new service
 * Dnsdist is available as a new service
 * Cgit is available as a new service
 * FRRouting is availalbe as a new service
 * OpenStack Xena is available and the new default release of OpenStack
 * mod_oauth2 can be used as another plugin in the Keystone image
+* Renovate is now used in most places to keep the versions up to date.
+* Ansible Core 2.12 as well as Ansible Base 5.4.0 is now used for all OSISM Ansible
+  collections
+* Docker 20.10.13 is now used by default
+* An appliance is available for the initial installation of a manager
+* Bifrost can be used for intial provisioning of the Control Plane
+* Ironic can be used for the provisioning of the Data Plane
+* The testbed now works with TLS by default
 
 ## Removals
 
@@ -98,6 +107,8 @@
   available that can trigger defined reactions to commits on various repositories
 * The Harbor service has moved to a much larger storage system so that Docker
   images of PRs etc. can be built in the future.
+* Improve Renovate Configuration by introducing a central configuration in
+  ``renovate-config``
 
 ## Security
 
