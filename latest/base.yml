@@ -48,7 +48,7 @@ ansible_collections:
   arista.cvp: '3.3.0'
   arista.eos: '4.1.1'
   community.general: '4.5.0'
-  community.network: '3.0.0'
+  community.network: '3.1.0'
   community.zabbix: '1.5.1'
   debops.debops: '3.0.1'
   netbox.netbox: '3.4.0'
