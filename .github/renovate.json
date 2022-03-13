@@ -11,6 +11,51 @@
         "(?<depName>ansible)_version: '(?<currentValue>.*?)'"
       ],
       "datasourceTemplate":"pypi"
+    },
+    {
+      "fileMatch":[
+        "^latest\\/base.yml$"
+      ],
+      "matchStrings":[
+        "(?<depName>ansible.netcommon): '(?<currentValue>.*?)'"
+      ],
+      "datasourceTemplate":"galaxy-collection"
+    },
+    {
+      "fileMatch":[
+        "^latest\\/base.yml$"
+      ],
+      "matchStrings":[
+        "(?<depName>arista.cvp): '(?<currentValue>.*?)'"
+      ],
+      "datasourceTemplate":"galaxy-collection"
+    },
+    {
+      "fileMatch":[
+        "^latest\\/base.yml$"
+      ],
+      "matchStrings":[
+        "(?<depName>arista.eos): '(?<currentValue>.*?)'"
+      ],
+      "datasourceTemplate":"galaxy-collection"
+    },
+    {
+      "fileMatch":[
+        "^latest\\/base.yml$"
+      ],
+      "matchStrings":[
+        "(?<depName>debops.debops): '(?<currentValue>.*?)'"
+      ],
+      "datasourceTemplate":"galaxy-collection"
+    },
+    {
+      "fileMatch":[
+        "^latest\\/base.yml$"
+      ],
+      "matchStrings":[
+        "(?<depName>juniper.device): '(?<currentValue>.*?)'"
+      ],
+      "datasourceTemplate":"galaxy-collection"
     }
   ]
 }
