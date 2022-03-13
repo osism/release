@@ -50,7 +50,7 @@ ansible_collections:
   community.general: main
   community.network: main
   community.zabbix: main
-  debops.debops: '2.3.3'
+  debops.debops: '3.0.1'
   netbox.netbox: devel
   openstack.cloud: master
   osism.commons: main
