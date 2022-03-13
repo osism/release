@@ -52,7 +52,7 @@ ansible_collections:
   community.zabbix: '1.5.1'
   debops.debops: '3.0.1'
   netbox.netbox: '3.4.0'
-  openstack.cloud: '1.5.3'
+  openstack.cloud: '1.7.2'
   osism.commons: main
   osism.services: main
   osism.validations: main
