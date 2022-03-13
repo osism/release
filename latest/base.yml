@@ -46,7 +46,7 @@ ansible_collections:
   ansible.netcommon: '2.6.1'
   ansible.posix: main
   arista.cvp: '3.3.0'
-  arista.eos: '4.0.0'
+  arista.eos: '4.1.1'
   community.general: main
   community.network: main
   community.zabbix: main
