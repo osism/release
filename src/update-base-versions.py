@@ -253,7 +253,7 @@ def set_base_versions():
     if loaded['docker_images']['ara_server'] is not None:
         loaded['docker_images']['ara_server'] = get_ara_server_latest_tag()
     if loaded['docker_images']['keycloak'] is not None:
-        loaded['docker_images']['keycloak'] = get_keycloak_latest_tag()
+        loaded['docker_images']['keycloak'] = "%s-legacy" % get_keycloak_latest_tag()
     if loaded['docker_images']['mariadb'] is not None:
         loaded['docker_images']['mariadb'] = get_mariadb_latest_tag()
     if loaded['docker_images']['netbox'] is not None:
