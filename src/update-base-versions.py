@@ -144,10 +144,6 @@ def get_api_quay_latest_tag(owner, repo, schema):
 
 ###################################################################################################
 
-def get_ara_latest_tag():
-    return get_api_github_latest_tag("ansible-community", "ara", "NUMBER.NUMBER.NUMBER")
-
-
 def get_docker_latest_tag():
     result = get_api_docker_latest_tag("library", "docker", "NUMBER.NUMBER.NUMBER")
     return "5:" + result
@@ -155,10 +151,6 @@ def get_docker_latest_tag():
 
 def get_adminer_latest_tag():
     return get_api_docker_latest_tag("library", "adminer", "NUMBER.NUMBER.NUMBER")
-
-
-def get_ara_server_latest_tag():
-    return get_api_github_latest_tag("ansible-community", "ara", "NUMBER.NUMBER.NUMBER")
 
 
 def get_keycloak_latest_tag():
@@ -244,14 +236,10 @@ def set_base_versions():
             print(exc)
 
     # modify
-    if loaded['osism_projects']['ara'] is not None:
-        loaded['osism_projects']['ara'] = get_ara_latest_tag()
     if loaded['osism_projects']['docker'] is not None:
         loaded['osism_projects']['docker'] = get_docker_latest_tag()
     if loaded['docker_images']['adminer'] is not None:
         loaded['docker_images']['adminer'] = get_adminer_latest_tag()
-    if loaded['docker_images']['ara_server'] is not None:
-        loaded['docker_images']['ara_server'] = get_ara_server_latest_tag()
     if loaded['docker_images']['keycloak'] is not None:
         loaded['docker_images']['keycloak'] = "%s-legacy" % get_keycloak_latest_tag()
     if loaded['docker_images']['mariadb'] is not None:
