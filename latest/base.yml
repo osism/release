@@ -49,7 +49,7 @@ docker_images:
   # renovate: datasource=docker depName=zookeeper
   zookeeper: '3.7.0'
   # renovate: datasource=docker depName=zuul/zuul-executor
-  zuul_executor: '4.11.0'
+  zuul_executor: '4.12.0'
   # renovate: datasource=docker depName=zuul/nodepool-launcher
   zuul_nodepool_launcher: '4.4.0'
   # renovate: datasource=docker depName=zuul/zuul-scheduler
