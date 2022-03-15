@@ -55,7 +55,7 @@ docker_images:
   # renovate: datasource=docker depName=zuul/zuul-scheduler
   zuul_scheduler: '4.11.0'
   # renovate: datasource=docker depName=zuul/zuul-web
-  zuul_web: '4.11.0'
+  zuul_web: '5.0.0'
 
 ansible_roles:
   geerlingguy.certbot: master
