@@ -42,6 +42,7 @@
 * Cgit is available as a new service
 * FRRouting is availalbe as a new service
 * OpenStack Xena is available and the new default release of OpenStack
+* Images for Victoria (Kolla, Kolla-Ansible) are no longer built
 * mod_oauth2 can be used as another plugin in the Keystone image
 * Renovate is now used in most places to keep the versions up to date.
 * Ansible Core 2.12 as well as Ansible Base 5.4.0 is now used for all OSISM Ansible
@@ -51,6 +52,8 @@
 * Bifrost can be used for intial provisioning of the Control Plane
 * Ironic can be used for the provisioning of the Data Plane
 * The testbed now works with TLS by default
+* In the testbed, Keycloak is integrated with Keystone via OIDC, this serves
+  as preparation for the inclusion of the future Gaia-X Federation Services
 
 ## Removals
 
@@ -75,6 +78,7 @@
 * Following the Kolla upstream, the haproxy group is deprecated as of now and will
   be removed in the future. The loadbalancer group is to be used for this
   purpose in the future.
+* Heat will no longer be offered by default in the testbed in the future
 
 ## Conformance
 
