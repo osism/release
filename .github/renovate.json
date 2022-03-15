@@ -2,6 +2,12 @@
   "extends": [
     "github>osism/renovate-config"
   ],
+  "packageRules": [
+    {
+      "packageNames": ["moby"],
+      "extractVersion": "^(?<version>v\\d+\\.\\d+)"
+    }
+  ],
   "regexManagers":[
     {
       "fileMatch":[
@@ -110,6 +116,24 @@
         "(?<depName>juniper.device): '(?<currentValue>.*?)'"
       ],
       "datasourceTemplate":"galaxy-collection"
+    },
+    {
+      "fileMatch":[
+        "^latest\\/base.yml$"
+      ],
+      "matchStrings":[
+        "(?<depName>ara): '(?<currentValue>.*?)'",
+        "(?<depName>ara)_server: '(?<currentValue>.*?)'"
+      ],
+      "datasourceTemplate":"pypi"
+    },
+    {
+      "fileMatch":[
+        "^latest\\/base.yml$"
+      ],
+      "matchStrings":[
+        "# renovate: datasource=(?<datasource>.*?) depName=(?<depName>.*?)\n.*?: '5:(?<currentValue>.*?)'"
+     ]
     }
   ]
 }
