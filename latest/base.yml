@@ -60,11 +60,12 @@ docker_images:
 ansible_roles:
   geerlingguy.certbot: master
   geerlingguy.dotfiles: master
-  hardening: e4b55822cf1bf12f205d3b7d08dcdb634c2f505f
+  hardening: abef57cf7c3da03f25f942e6ddb7f25afd7fda5f
   stackhpc.libvirt_host: master
   stackhpc.libvirt_vm: master
   stackhpc.luks: master
   stackhpc.systemd_networkd: master
+
 ansible_collections:
   ansible.netcommon: '2.6.1'
   ansible.posix: '1.3.0'
