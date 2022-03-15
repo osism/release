@@ -53,7 +53,7 @@ docker_images:
   # renovate: datasource=docker depName=zuul/nodepool-launcher
   zuul_nodepool_launcher: '4.4.0'
   # renovate: datasource=docker depName=zuul/zuul-scheduler
-  zuul_scheduler: '4.11.0'
+  zuul_scheduler: '5.0.0'
   # renovate: datasource=docker depName=zuul/zuul-web
   zuul_web: '4.11.0'
 
