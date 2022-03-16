@@ -42,7 +42,6 @@
 * Cgit is available as a new service
 * FRRouting is availalbe as a new service
 * OpenStack Xena is available and the new default release of OpenStack
-* Images for Victoria (Kolla, Kolla-Ansible) are no longer built
 * mod_oauth2 can be used as another plugin in the Keystone image
 * Renovate is now used in most places to keep the versions up to date.
 * Ansible Core 2.12 as well as Ansible Base 5.4.0 is now used for all OSISM Ansible
@@ -64,6 +63,7 @@
   In the meantime, python-osism is used for this purpose. Accordingly, AWX is
   no longer needed. All components of the technical preview have been removed.
 * Following the Kolla upstream, the panko service was removed.
+* Images for Victoria (Kolla, Kolla-Ansible) are no longer built
 
 ## Deprecations
 
