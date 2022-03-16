@@ -64,8 +64,12 @@
   no longer needed. All components of the technical preview have been removed.
 * Following the Kolla upstream, the panko service was removed.
 * Images for Victoria (Kolla, Kolla-Ansible) are no longer built
-* Images for Adjutant were available as Technial Preview and are no longer
+* Images for Adjutant were available as technial preview and are no longer
   built
+* Images for Monasca were available as technial preview and are no longer
+  built for the moment (will be officially added in the next release)
+* Images for Skyline and Venus were already listed, but have not been implemented
+  in the Kolla upstream yet
 
 ## Deprecations
 
