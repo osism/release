@@ -113,6 +113,7 @@
   images of PRs etc. can be built in the future.
 * Improve Renovate Configuration by introducing a central configuration in
   ``renovate-config``
+* A dedicated baremetal testbed is now available for testing Bifrost and Ironic
 
 ## Security
 
