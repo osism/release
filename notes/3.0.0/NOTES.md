@@ -64,6 +64,8 @@
   no longer needed. All components of the technical preview have been removed.
 * Following the Kolla upstream, the panko service was removed.
 * Images for Victoria (Kolla, Kolla-Ansible) are no longer built
+* Images for Adjutant were available as Technial Preview and are no longer
+  built
 
 ## Deprecations
 

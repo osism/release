@@ -39,7 +39,6 @@ infrastructure_projects:
   zookeeper:
 
 openstack_projects:
-  adjutant:
   aodh:
   barbican:
   bifrost:
