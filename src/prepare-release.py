@@ -8,6 +8,7 @@ from ruamel.yaml import YAML
 yaml = YAML(typ="rt")
 yaml.default_flow_style = False
 yaml.explicit_start = True
+yaml.preserve_quotes = True
 
 gh = github.Github(os.environ.get("GITHUB_TOKEN"))
 release = os.environ.get("RELEASE")
@@ -16,7 +17,6 @@ release = os.environ.get("RELEASE")
 
 mapping_files = [
     "collections",
-    "openstack",
     "other",
     "roles"
 ]

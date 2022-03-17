@@ -1,14 +1,4 @@
 ---
-ansible.netcommon:
-ansible.posix:
-arista.cvp:
-arista.eos:
-community.general:
-community.network:
-community.zabbix:
-debops.debops:
-netbox.netbox:
-openstack.cloud:
 osism.commons: osism/ansible-collection-commons
 osism.services: osism/ansible-collection-services
 osism.validations: osism/ansible-collection-validations
