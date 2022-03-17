@@ -40,7 +40,9 @@ netbox: osism/netbox
 # zuul
 
 zookeeper: library/zookeeper
+zuul_client: zuul/zuul-client
 zuul_executor: zuul/zuul-executor
+zuul_nodepool_builder: zuul/nodepool-builder
 zuul_nodepool_launcher: zuul/nodepool-launcher
 zuul_scheduler: zuul/zuul-scheduler
 zuul_web: zuul/zuul-web

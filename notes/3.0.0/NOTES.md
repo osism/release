@@ -63,7 +63,8 @@
   In the meantime, python-osism is used for this purpose. Accordingly, AWX is
   no longer needed. All components of the technical preview have been removed.
 * Following the Kolla upstream, the panko service was removed.
-* Images for Victoria (Kolla, Kolla-Ansible) are no longer built
+* Images for OpenStack Victoria (Kolla, Kolla-Ansible) are no longer built
+* Images for Ceph Nautilus (Ceph-Ansible) are no longer built
 * Images for Adjutant were available as technial preview and are no longer
   built
 * Images for Monasca were available as technial preview and are no longer
