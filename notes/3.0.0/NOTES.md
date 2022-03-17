@@ -86,6 +86,9 @@
   be removed in the future. The loadbalancer group is to be used for this
   purpose in the future.
 * Heat will no longer be offered by default in the testbed in the future
+* The docker-compose CLI will be removed and replaced by the new compose plugin
+  for Docker. docker-compose is then no longer available and docker compose must
+  be used instead
 
 ## Conformance
 
