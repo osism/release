@@ -81,8 +81,8 @@ ansible_collections:
   debops.debops: 3.0.1
   netbox.netbox: 3.6.0
   openstack.cloud: 1.7.2
-  osism.commons: 137413ab8b8e8b9e3c069e2a4e42f4a2daf3e278
-  osism.services: 9f075559139a626f24da71ee5bb1ddd22864baaa
-  osism.validations: 82a9c69587a0c941120b16f68ab276d4e6a471de
+  osism.commons: 0.7.0
+  osism.services: 0.8.0
+  osism.validations: 0.1.0
   stackhpc.cephadm: 1e746e11cd3810dd62eb915c9c513291b38bc912
   juniper.device: 1.0.1
