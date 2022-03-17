@@ -14,6 +14,7 @@
 * A prepared machine image for the installation of the manager node is available
 * Workers were switched to Celery with Redis as broker and backend
 * Use of own NetBox image with pre-installed plugins
+* NetBox can now be integrated with an existing LDAP
 * Flower, a dashboard for Celery, was added as a service on the manager
 * In the testbed, all hostnames were changed to publicly resolvable entries (``testbed.osism.xyz``)
 * Grafana dashboards from osism/kolla-operations are now automatically imported
