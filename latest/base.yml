@@ -34,6 +34,7 @@ docker_images:
   nexus: '3.38.0'
   # renovate: datasource=docker depName=nginx
   nginx: '1.21.6-alpine'
+  osism: 'latest'
   # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
   phpmyadmin: '5.1.3'
   # renovate: datasource=docker depName=postgres
