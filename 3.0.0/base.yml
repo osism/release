@@ -1,7 +1,7 @@
 ---
 ansible_version: 5.5.0
-defaults_version: 9909982d250c52284b6f6f8b772130ad64780543
-generics_version: 38a2a18764d54a926d9c5a2444348b54ee321dff
+defaults_version: f08b1ccf196b9956a3aaf7a0d77a09f923dafb57
+generics_version: 4cc73a476d4566bc153a58af4a4fa6ed304997c8
 manager_version: 3.0.0
 operations_version: 1cc3699edeb00ac2e0b7c3eaf0de800b8e02fb0f
 playbooks_version: 1c1a5bca72c7f6040db68013394ef816a8cee7eb
