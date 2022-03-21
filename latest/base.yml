@@ -49,7 +49,7 @@ docker_images:
   # renovate: datasource=docker depName=hashicorp/vault
   vault: '1.9.4'
   # renovate: datasource=docker depName=zookeeper
-  zookeeper: '3.7.0'
+  zookeeper: '3.8.0'
   # renovate: datasource=docker depName=zuul/zuul-client
   zuul_client: '5.0.0'
   # renovate: datasource=docker depName=zuul/zuul-executor
