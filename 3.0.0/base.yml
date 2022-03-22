@@ -84,7 +84,7 @@ ansible_collections:
   netbox.netbox: 3.6.0
   openstack.cloud: 1.7.2
   osism.commons: 0.7.0
-  osism.services: 0.8.0
+  osism.services: 0.9.0
   osism.validations: 0.1.0
   stackhpc.cephadm: 1e746e11cd3810dd62eb915c9c513291b38bc912
   juniper.device: 1.0.1
