@@ -12,6 +12,7 @@ mariadb: library/mariadb
 openstackclient: osism/openstackclient
 osism: osism/osism
 osism_ansible: osism/osism-ansible
+osism_netbox: osism/osism-netbox
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
 redis: library/redis
