@@ -47,7 +47,7 @@ docker_images:
   # renovate: datasource=docker depName=traefik
   traefik: 'v2.6.2'
   # renovate: datasource=docker depName=hashicorp/vault
-  vault: '1.9.4'
+  vault: '1.10.0'
   # renovate: datasource=docker depName=zookeeper
   zookeeper: '3.7.0'
   # renovate: datasource=docker depName=zuul/zuul-client
