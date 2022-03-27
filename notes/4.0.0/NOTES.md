@@ -4,6 +4,7 @@
 
 * Renovate is now used to keep the versions in the defaults of the Ansible
   collections and within the container images up to date.
+* OpenStack client container image in version Zed is available
 
 ## Deprecations
 
