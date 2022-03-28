@@ -37,6 +37,7 @@ cgit: clearlinux/cgit
 dnsdist: osism/dnsdist
 keycloak: keycloak/keycloak
 netbox: osism/netbox
+patchman: osism/patchman
 
 # zuul
 
