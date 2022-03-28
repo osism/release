@@ -11,3 +11,7 @@
 * The ``cleanup-elasticsearch`` playbook is deprecated. In the future,
   the ``elasticsearch-curator`` service (part of Kolla) has to be used
   for Elasticsearch cleanup.
+
+## Infrastructure
+
+* It is available as of now https://release.osism.tech as an overview.

@@ -1,8 +1,13 @@
 GitPython==3.1.27
 PyGithub==1.55
 PyYAML==6.0
+Sphinx==4.4.0
 dictdiffer==0.9.0
 docker==5.0.3
 requests==2.27.1
 ruamel.yaml==0.17.21
+sphinx-rtd-theme==1.0.0
+sphinx_fontawesome==0.0.6
+sphinxcontrib-blockdiag==3.0.0
+sphinxcontrib-nwdiag==2.0.0
 tabulate==0.8.9

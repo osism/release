@@ -1,0 +1,40 @@
+---
+name: Build documentation
+
+"on":
+  workflow_dispatch:
+  push:
+    paths:
+      - 'source/**'
+      - '.github/workflows/build-documentation.yml'
+    branches:
+      - main
+  pull_request:
+    paths:
+      - 'source/**'
+      - '.github/workflows/build-documentation.yml'
+
+jobs:
+  default:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+      - run: pip3 install -r requirements.txt
+      - run: sphinx-build -b html source build/html
+      - uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        with:
+          local-dir: build/html/
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          security: strict
+          server-dir: /
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+        if: |
+          github.repository == 'osism/release' &&
+          github.ref == 'refs/heads/main'
