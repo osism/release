@@ -55,7 +55,7 @@ docker_images:
   # renovate: datasource=docker depName=zuul/zuul-client
   zuul_client: '5.0.0'
   # renovate: datasource=docker depName=zuul/zuul-executor
-  zuul_executor: '5.0.0'
+  zuul_executor: '5.2.0'
   # renovate: datasource=docker depName=zuul/nodepool-builder
   zuul_nodepool_builder: '5.0.0'
   # renovate: datasource=docker depName=zuul/nodepool-launcher
