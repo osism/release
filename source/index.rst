@@ -62,5 +62,17 @@ Questions & Answers
 What all is included in the osism/release repository?
 -----------------------------------------------------
 
+The osism/release repository (this repository) contains one directory per release. In this
+directory files are available for the individual environments in which the versions or
+hashes of all used components are located.
+
 Why is there an osism/sbom repository?
 --------------------------------------
+
+The osism/sbom repository contains a file for each available environment for each release.
+These files contain the versions of the components in each image that was published.
+
+At the moment, only the versions of the OpenStack environment are covered there.
+
+The format of the files is currently still YAML. In the future SPDX files will be provided
+there.
