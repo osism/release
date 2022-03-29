@@ -48,3 +48,7 @@ zuul_nodepool_builder: zuul/nodepool-builder
 zuul_nodepool_launcher: zuul/nodepool-launcher
 zuul_scheduler: zuul/zuul-scheduler
 zuul_web: zuul/zuul-web
+
+# other
+
+openpolicyagent: openpolicyagent/opa-docker-authz-v2
