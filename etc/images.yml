@@ -51,4 +51,4 @@ zuul_web: zuul/zuul-web
 
 # other
 
-openpolicyagent: openpolicyagent/opa-docker-authz-v2
+docker_openpolicyagent: openpolicyagent/opa-docker-authz-v2
