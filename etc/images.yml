@@ -33,7 +33,7 @@ cephclient: osism/cephclient
 # infrastructure
 
 alerta: alerta/alerta-web
-cgit: clearlinux/cgit
+cgit: osism/cgit
 dnsdist: osism/dnsdist
 keycloak: keycloak/keycloak
 memcached: memcached
