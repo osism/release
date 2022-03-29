@@ -36,6 +36,7 @@ alerta: alerta/alerta-web
 cgit: clearlinux/cgit
 dnsdist: osism/dnsdist
 keycloak: keycloak/keycloak
+memcached: memcached
 netbox: osism/netbox
 patchman: osism/patchman
 
