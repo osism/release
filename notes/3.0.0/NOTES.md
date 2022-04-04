@@ -138,3 +138,5 @@
   to ``environments/manager/configuration.yml``.
 * In kolla-ansible the haproxy role was renamed to loadbalancer. Accordingly,
   loadbalancer must now be used for the deployment of Haproxy
+* Set ``libvirt_enable_sasl: "no"`` in ``environments/kolla/configuration.yml`` for the moment
+  (the new support for Libvirt SASL will be fixed in one of the next minor releases)
