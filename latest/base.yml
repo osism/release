@@ -58,17 +58,17 @@ docker_images:
   vault: '1.10.0'
   # renovate: datasource=docker depName=zookeeper
   zookeeper: '3.8.0'
-  # renovate: datasource=docker depName=zuul/zuul-client
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
   zuul_client: '5.0.0'
-  # renovate: datasource=docker depName=zuul/zuul-executor
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
   zuul_executor: '5.0.0'
-  # renovate: datasource=docker depName=zuul/nodepool-builder
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
   zuul_nodepool_builder: '5.0.0'
-  # renovate: datasource=docker depName=zuul/nodepool-launcher
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
   zuul_nodepool_launcher: '5.0.0'
-  # renovate: datasource=docker depName=zuul/zuul-scheduler
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
   zuul_scheduler: '5.0.0'
-  # renovate: datasource=docker depName=zuul/zuul-web
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
   zuul_web: '5.0.0'
 
 ansible_roles:

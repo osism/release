@@ -127,7 +127,15 @@
       ],
       "matchStrings":[
         "# renovate: datasource=(?<datasource>github-releases) depName=(?<depName>.*?)\n.*?docker: '5:(?<currentValue>.*?)'"
-     ]
+      ]
+    },
+    {
+      "fileMatch":[
+        "^latest\\/base.yml$"
+      ],
+      "matchStrings":[
+        "# renovate: datasource=(?<datasource>git-tags) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
+      ]
     },
     {
       "fileMatch":[
@@ -135,7 +143,7 @@
       ],
       "matchStrings":[
         "# renovate: datasource=(?<datasource>docker) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
-     ]
+      ]
     }
   ]
 }
