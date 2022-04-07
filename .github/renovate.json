@@ -127,7 +127,9 @@
       ],
       "matchStrings":[
         "# renovate: datasource=(?<datasource>github-releases) depName=(?<depName>.*?)\n.*?docker: '5:(?<currentValue>.*?)'"
-      ]
+      ],
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
     },
     {
       "fileMatch":[
