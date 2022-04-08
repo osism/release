@@ -130,7 +130,6 @@
       ],
       "extractVersionTemplate": "^v(?<version>.*)$"
     },
-    },
     {
       "fileMatch":[
         "^latest\\/base.yml$"
