@@ -30,7 +30,7 @@ docker_images:
   # renovate: datasource=docker depName=mariadb
   mariadb: '10.8.2'
   # renovate: datasource=docker depName=memcached
-  memcached: '1.6.14-alpine'
+  memcached: '1.6.15-alpine'
   # renovate: datasource=docker depName=quay.io/osism/netbox
   netbox: 'v3.1.9-ldap'
   # renovate: datasource=docker depName=quay.io/osism/nexus
