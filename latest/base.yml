@@ -59,17 +59,17 @@ docker_images:
   # renovate: datasource=docker depName=zookeeper
   zookeeper: '3.8.0'
   # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
-  zuul_client: '5.0.0'
+  zuul_client: '5.2.2'
   # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
-  zuul_executor: '5.0.0'
+  zuul_executor: '5.2.2'
   # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
-  zuul_nodepool_builder: '5.0.0'
+  zuul_nodepool_builder: '5.2.2'
   # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
-  zuul_nodepool_launcher: '5.0.0'
+  zuul_nodepool_launcher: '5.2.2'
   # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
-  zuul_scheduler: '5.0.0'
+  zuul_scheduler: '5.2.2'
   # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
-  zuul_web: '5.0.0'
+  zuul_web: '5.2.2'
 
 ansible_roles:
   geerlingguy.certbot: master
