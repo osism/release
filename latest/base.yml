@@ -7,7 +7,7 @@ operations_version: main
 playbooks_version: main
 
 osism_projects:
-  ara: '1.5.7'
+  ara: '1.5.8'
   # renovate: datasource=github-releases depName=moby/moby
   docker: '5:20.10.13'
 
