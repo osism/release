@@ -22,6 +22,10 @@
   the ``elasticsearch-curator`` service (part of Kolla) has to be used
   for Elasticsearch cleanup.
 
+## Removals
+
+* The service ``cockpit`` was removed.
+
 ## Infrastructure
 
 * It is available as of now https://release.osism.tech as an overview.
