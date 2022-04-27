@@ -15,6 +15,7 @@
   (osism.manager @ https://github.com/osism/ansible-playbooks-manager)
 * ARA is now available in version 1.5.8 (latest image is now also available)
 * Where possible, the Python version used was updated to 3.10
+* LUKS encryption is now documented and enabled in the testbed by default
 
 ## Deprecations
 
