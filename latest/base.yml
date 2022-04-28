@@ -49,7 +49,7 @@ docker_images:
   # renovate: datasource=docker depName=postgres
   postgres: '14.2-alpine'
   # renovate: datasource=docker depName=redis
-  redis: '6.2.6-alpine'
+  redis: '6.2.7-alpine'
   # renovate: datasource=docker depName=registry
   registry: '2.8'
   # renovate: datasource=docker depName=traefik
