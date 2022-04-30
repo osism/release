@@ -55,7 +55,7 @@ docker_images:
   # renovate: datasource=docker depName=traefik
   traefik: 'v2.6.3'
   # renovate: datasource=docker depName=hashicorp/vault
-  vault: '1.10.1'
+  vault: '1.10.2'
   # renovate: datasource=docker depName=zookeeper
   zookeeper: '3.8.0'
   # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
