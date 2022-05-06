@@ -9,7 +9,7 @@ playbooks_version: main
 osism_projects:
   ara: '1.5.8'
   # renovate: datasource=github-releases depName=moby/moby
-  docker: '5:20.10.14'
+  docker: '5:20.10.15'
 
 docker_images:
   # renovate: datasource=docker depName=adminer
