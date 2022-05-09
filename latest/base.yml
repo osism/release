@@ -1,5 +1,5 @@
 ---
-ansible_version: '5.7.0'
+ansible_version: '5.7.1'
 defaults_version: main
 generics_version: main
 manager_version: latest
