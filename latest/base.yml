@@ -32,7 +32,7 @@ docker_images:
   # renovate: datasource=docker depName=memcached
   memcached: '1.6.15-alpine'
   # renovate: datasource=docker depName=quay.io/osism/netbox
-  netbox: 'v3.2.1-ldap'
+  netbox: 'v3.2.3-ldap'
   # renovate: datasource=docker depName=quay.io/osism/nexus
   nexus: '3.38.0'
   # renovate: datasource=docker depName=nginx
