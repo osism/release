@@ -29,7 +29,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/keycloak/keycloak
   keycloak: '18.0.0-legacy'
   # renovate: datasource=docker depName=mariadb
-  mariadb: '10.8.2'
+  mariadb: '10.8.3'
   # renovate: datasource=docker depName=memcached
   memcached: '1.6.15-alpine'
   # renovate: datasource=docker depName=quay.io/osism/netbox
