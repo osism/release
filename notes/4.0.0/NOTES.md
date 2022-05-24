@@ -16,6 +16,7 @@
 * ARA is now available in version 1.5.8 (latest image is now also available)
 * Where possible, the Python version used was updated to 3.10
 * LUKS encryption is now documented and enabled in the testbed by default
+* Network bound disk encryption (NBDE) is now usable
 
 ## Deprecations
 
