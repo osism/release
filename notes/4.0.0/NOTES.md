@@ -20,6 +20,9 @@
 * Wireguard VPN added. Makes it possible to access the Control Plane from the
   Manager through a secured connection. It is also enabled in the testbed by
   default.
+* Sosreport is now available and enabled by default in the testbed. This tool 
+  collects configuration and diagnostic informations from Linux based
+  distributions.
 
 ## Deprecations
 
