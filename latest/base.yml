@@ -54,7 +54,7 @@ docker_images:
   # renovate: datasource=docker depName=registry
   registry: '2.8'
   # renovate: datasource=docker depName=traefik
-  traefik: 'v2.7.1'
+  traefik: 'v2.7.2'
   # renovate: datasource=docker depName=hashicorp/vault
   vault: '1.11.0'
   # renovate: datasource=docker depName=zookeeper
