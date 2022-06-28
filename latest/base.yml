@@ -27,7 +27,7 @@ docker_images:
   homer: '22.02.2'
   inventory_reconciler: 'latest'
   # renovate: datasource=docker depName=quay.io/keycloak/keycloak
-  keycloak: '18.0.1-legacy'
+  keycloak: '18.0.2-legacy'
   # renovate: datasource=docker depName=mariadb
   mariadb: '10.8.3'
   # renovate: datasource=docker depName=memcached
