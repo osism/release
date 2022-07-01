@@ -1,6 +1,6 @@
 ---
 ansible_version: '>=4.0.0,<5.0.0'
-defaults_version: 1558ef400a1acc951260d2094c64a9f630817beb
+defaults_version: ce9dd9a48508d87f48dce22978c94a1114627094
 generics_version: d5738692218e0e19ae1d81d53be6a65f3f31c165
 openstack_version: xena
 playbooks_version: b7137de343b8ceeb0e91793db7ada79537d778ea
