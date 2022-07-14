@@ -23,6 +23,8 @@
 * Sosreport is now available and enabled by default in the testbed. This tool 
   collects configuration and diagnostic informations from Linux based
   distributions.
+* Squid proxy is now available. Allows other services to access only allowed
+  addresses. Therefore security get's improved.
 
 ## Deprecations
 
