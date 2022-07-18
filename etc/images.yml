@@ -39,6 +39,7 @@ keycloak: keycloak/keycloak
 memcached: memcached
 netbox: osism/netbox
 patchman: osism/patchman
+squid: ubuntu/squid
 
 # zuul
 

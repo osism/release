@@ -54,6 +54,8 @@ docker_images:
   redis: '7.0.3-alpine'
   # renovate: datasource=docker depName=registry
   registry: '2.8'
+  # renovate: datasource=docker depName=ubuntu/squid
+  squid: '5.2-22.04_beta'
   # renovate: datasource=docker depName=traefik
   traefik: 'v2.8.1'
   # renovate: datasource=docker depName=hashicorp/vault
