@@ -38,7 +38,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/osism/nexus
   nexus: '3.40.1'
   # renovate: datasource=docker depName=nginx
-  nginx: '1.23.0-alpine'
+  nginx: '1.23.1-alpine'
   docker_openpolicyagent: '0.8'
   # yamllint disable-line rule:line-length
   # renovate: datasource=docker depName=quay.io/sovereigncloudstack/openstack-health-monitor
