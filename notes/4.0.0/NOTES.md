@@ -25,6 +25,8 @@
   distributions.
 * Squid proxy is now available. Allows other services to access only allowed
   addresses. Therefore security get's improved.
+* All Ansible roles, collections and playbooks are now checked with Ansible
+  Lint
 
 ## Deprecations
 
