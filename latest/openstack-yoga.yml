@@ -54,7 +54,7 @@ openstack_projects:
   horizon: 22.1.0
   ironic: 20.1.0
   keystone: 21.0.0
-  kuryr: 2.4.0 xx
+  kuryr: 2.5.0
   magnum: 14.0.0
   manila: 14.0.0
   mistral: 14.0.0
