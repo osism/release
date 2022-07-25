@@ -2,6 +2,7 @@
 ansible_version: '>=2.10,<2.11'
 
 openstack_version: wallaby
+openstack_previous_version: victoria
 
 defaults_version: main
 generics_version: main

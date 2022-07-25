@@ -2,6 +2,7 @@
 ansible_version: '>=5.0.0,<6.0.0'
 
 openstack_version: yoga
+openstack_previous_version: xena
 
 defaults_version: main
 generics_version: main
