@@ -33,7 +33,7 @@ these parameters are removed when using a stable release
      osism apply configuration
      osism-update-manager
 
-With Release 3.0.0, a manual update of the environment is required afterwards. A
+With Release 3.0.0, a manual update of the environment is required afterwards. As
 of Release 4.0.0, this will no longer be necessary.
 
 How do we release?
