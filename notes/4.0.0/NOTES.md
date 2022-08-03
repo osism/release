@@ -27,6 +27,8 @@
   addresses. Therefore security get's improved.
 * All Ansible roles, collections and playbooks are now checked with Ansible
   Lint
+* The Elasticsearch Curator is now enabled by default (soft retention period: 5 days,
+  hard retention period: 7 days)
 
 ## Deprecations
 
