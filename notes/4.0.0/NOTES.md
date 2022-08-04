@@ -26,9 +26,13 @@
 * Squid proxy is now available. Allows other services to access only allowed
   addresses. Therefore security get's improved.
 * All Ansible roles, collections and playbooks are now checked with Ansible
-  Lint
+  Lint and Yaml Lint
 * The Elasticsearch Curator is now enabled by default (soft retention period: 5 days,
   hard retention period: 7 days)
+* Ansible v6 is now used for all playbooks and collections maintained by OSISM.
+* Ansible playbooks and collections maintained by OSISM are additionally tested
+  on Ubuntu 22.04.
+* OpenStack Yoga is available and the new default release of OpenStack
 
 ## Deprecations
 
