@@ -43,6 +43,8 @@
 ## Removals
 
 * The service ``cockpit`` was removed.
+* In favor of ``ansible.builtin.service_facts`` the Ansible plugin
+  ``scan_services`` was removed.
 
 ## Infrastructure
 
