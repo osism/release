@@ -33,6 +33,8 @@
 * Ansible playbooks and collections maintained by OSISM are additionally tested
   on Ubuntu 22.04.
 * OpenStack Yoga is available and the new default release of OpenStack
+* Documentation is available for all roles within the Ansible Collections maintained
+  by OSISM
 
 ## Deprecations
 
