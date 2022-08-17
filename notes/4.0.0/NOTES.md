@@ -51,3 +51,26 @@
 ## Infrastructure
 
 * It is available as of now https://release.osism.tech as an overview.
+
+## References
+
+### OpenStack Yoga releae notes
+
+* Overview: https://releases.openstack.org/yoga/index.html
+* Aodh: https://docs.openstack.org/releasenotes/aodh/yoga.html
+* Barbican: https://docs.openstack.org/releasenotes/barbican/yoga.html
+* Ceilometer: https://docs.openstack.org/releasenotes/ceilometer/yoga.html
+* Cinder: https://docs.openstack.org/releasenotes/cinder/yoga.html
+* Cloudkitty: https://docs.openstack.org/releasenotes/cloudkitty/yoga.html
+* Designate: https://docs.openstack.org/releasenotes/designate/yoga.html
+* Glance: https://docs.openstack.org/releasenotes/glance/yoga.html
+* Heat: https://docs.openstack.org/releasenotes/heat/yoga.html
+* Horizon: https://docs.openstack.org/releasenotes/horizon/yoga.html
+* Ironic: https://docs.openstack.org/releasenotes/ironic/yoga.html
+* Keystone: https://docs.openstack.org/releasenotes/keystone/yoga.html
+* Manila: https://docs.openstack.org/releasenotes/manila/yoga.html
+* Neutron: https://docs.openstack.org/releasenotes/neutron/yoga.html
+* Nova: https://docs.openstack.org/releasenotes/nova/yoga.html
+* Octavia: https://docs.openstack.org/releasenotes/octavia/yoga.html
+* Placement: https://docs.openstack.org/releasenotes/placement/yoga.html
+* Senlin: https://docs.openstack.org/releasenotes/senlin/yoga.html
