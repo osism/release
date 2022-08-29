@@ -55,7 +55,7 @@
 
 ## References
 
-### OpenStack Yoga releae notes
+### OpenStack Yoga release notes
 
 * Overview: https://releases.openstack.org/yoga/index.html
 * Aodh: https://docs.openstack.org/releasenotes/aodh/yoga.html
