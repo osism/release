@@ -24,7 +24,7 @@
   collects configuration and diagnostic informations from Linux based
   distributions.
 * Squid proxy is now available. Allows other services to access only allowed
-  addresses. Therefore security get's improved.
+  addresses. Therefore security is improved.
 * All Ansible roles, collections and playbooks are now checked with Ansible
   Lint and Yaml Lint
 * The Elasticsearch Curator is now enabled by default (soft retention period: 5 days,
