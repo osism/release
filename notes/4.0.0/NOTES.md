@@ -42,12 +42,18 @@
 * The ``cleanup-elasticsearch`` playbook is deprecated. In the future,
   the ``elasticsearch-curator`` service (part of Kolla) has to be used
   for Elasticsearch cleanup.
+* Linux bridge support has been discontinued by kolla-ansible
 
 ## Removals
 
 * The service ``cockpit`` was removed.
 * In favor of ``ansible.builtin.service_facts`` the Ansible plugin
   ``scan_services`` was removed.
+
+## Notes
+
+* Distributed Virtual Routing (DVR) is not officially supported by us,
+  not tested and not recommended
 
 ## Infrastructure
 
