@@ -59,6 +59,19 @@
 
 * It is available as of now https://release.osism.tech as an overview.
 
+## To be considered for upgrades
+
+* In ``environments/kolla/secrets.yml`` the parameter ``neutron_ssh_key`` must be
+  added.
+
+  ```
+  neutron_ssh_key:
+    private_key:
+    public_key:
+  ```
+
+  The ssh key can be generated as follows: ``ssh-keygen -t rsa -b 4096 -N "" -f id_rsa.neutron -C "" -m PEM``
+
 ## References
 
 ### OpenStack Yoga release notes
