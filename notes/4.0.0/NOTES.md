@@ -33,6 +33,7 @@
 * Ansible playbooks and collections maintained by OSISM are additionally tested
   on Ubuntu 22.04.
 * OpenStack Yoga is available and the new default release of OpenStack
+* Ceph Quincy is available, the default release of Ceph is still Pacific
 * Documentation is available for all roles within the Ansible Collections
   maintained by OSISM
 * The SBOM now lists SHA256 checksums for the container images
