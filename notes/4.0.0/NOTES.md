@@ -43,6 +43,8 @@
   the ``elasticsearch-curator`` service (part of Kolla) has to be used
   for Elasticsearch cleanup.
 * Linux bridge support has been discontinued by kolla-ansible
+* Debian dropped ``hddtemp`` (https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1002484),
+  therefore we will remove hddtemp in the future and replace it with drivetemp
 
 ## Removals
 
