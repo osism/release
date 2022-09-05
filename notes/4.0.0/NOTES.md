@@ -56,6 +56,8 @@
 
 * Distributed Virtual Routing (DVR) is not officially supported by us,
   not tested and not recommended
+* Even though Ubuntu 22.04 is already being tested, it is not yet
+  officially supported with this release
 
 ## Infrastructure
 
