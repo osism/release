@@ -5,13 +5,13 @@ name: Build documentation
   workflow_dispatch:
   push:
     paths:
-      - 'source/**'
+      - 'doc/source/**'
       - '.github/workflows/build-documentation.yml'
     branches:
       - main
   pull_request:
     paths:
-      - 'source/**'
+      - 'doc/source/**'
       - '.github/workflows/build-documentation.yml'
 
 jobs:
@@ -25,10 +25,10 @@ jobs:
         with:
           python-version: '3.x'
       - run: pip3 install -r requirements.txt
-      - run: sphinx-build -b html source build/html
+      - run: sphinx-build -b html doc/source doc/build/html
       - uses: SamKirkland/FTP-Deploy-Action@4.3.2
         with:
-          local-dir: build/html/
+          local-dir: doc/build/html/
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           security: strict
