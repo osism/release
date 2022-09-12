@@ -10,7 +10,7 @@ yaml.default_flow_style = False
 yaml.explicit_start = True
 yaml.preserve_quotes = True
 
-gh = github.Github(os.environ.get("GITHUB_TOKEN"))
+gh = github.Github()
 release = os.environ.get("RELEASE")
 
 # required mapping files
@@ -35,43 +35,17 @@ with open(f"{release}/base.yml", "r") as fp:
 # base: operations
 
 repository = gh.get_repo(mappings["operations"])
-try:
-    branch = repository.get_branch(data["operations_version"])
-    data["operations_version"] = branch.commit.sha
-except:
-    print("branch %s for repository %s not found" % (data["operations_version"], mappings["operations"]))
-
-# base: defaults
-
-repository = gh.get_repo(mappings["defaults"])
-try:
-    branch = repository.get_branch(data["defaults_version"])
-    data["defaults_version"] = branch.commit.sha
-except:
-    print("branch %s for repository %s not found" % (data["defaults_version"], mappings["defaults"]))
-
-# base: generics
-
-repository = gh.get_repo(mappings["generics"])
-try:
-    branch = repository.get_branch(data["generics_version"])
-    data["generics_version"] = branch.commit.sha
-except:
-    print("branch %s for repository %s not found" % (data["generics_version"], mappings["generics"]))
-
-# base: playbooks
-
-repository = gh.get_repo(mappings["playbooks"])
-try:
-    branch = repository.get_branch(data["playbooks_version"])
-    data["playbooks_version"] = branch.commit.sha
-except:
-    print("branch %s for repository %s not found" % (data["playbooks_version"], mappings["playbooks"]))
+if data["operations_version"] in ["main", "master"]:
+    try:
+        branch = repository.get_branch(data["operations_version"])
+        data["operations_version"] = branch.commit.sha
+    except:
+        print("branch %s for repository %s not found" % (data["operations_version"], mappings["operations"]))
 
 # base: prepare roles
 
 for role in data["ansible_roles"]:
-    if role not in mappings or not mappings[role]:
+    if role not in mappings or not mappings[role] or data["ansible_roles"][role] not in ["main", "master"]:
         continue
 
     repository = gh.get_repo(mappings[role])
@@ -85,7 +59,7 @@ for role in data["ansible_roles"]:
 # base: prepare collections
 
 for collection in data["ansible_collections"]:
-    if collection not in mappings or not mappings[collection]:
+    if collection not in mappings or not mappings[collection] or data["ansible_collections"][collection] not in ["main", "master"]:
         continue
 
     repository = gh.get_repo(mappings[collection])
@@ -103,69 +77,4 @@ data["manager_version"] = release
 # save base
 
 with open(f"{release}/base.yml", "w") as fp:
-    yaml.dump(data, fp)
-
-# prepare openstack
-
-with open(f"{release}/openstack.yml", "r") as fp:
-    data = yaml.load(fp)
-
-# openstack: defaults
-
-repository = gh.get_repo(mappings["defaults"])
-try:
-    branch = repository.get_branch(data["defaults_version"])
-    data["defaults_version"] = branch.commit.sha
-except:
-    print("branch %s for repository %s not found" % (data["defaults_version"], mappings["defaults"]))
-
-# openstack: generics
-
-repository = gh.get_repo(mappings["generics"])
-try:
-    branch = repository.get_branch(data["generics_version"])
-    data["generics_version"] = branch.commit.sha
-except:
-    print("branch %s for repository %s not found" % (data["generics_version"], mappings["generics"]))
-
-# openstack: playbooks
-
-repository = gh.get_repo(mappings["playbooks"])
-try:
-    branch = repository.get_branch(data["playbooks_version"])
-    data["playbooks_version"] = branch.commit.sha
-except:
-    print("branch %s for repository %s not found" % (data["playbooks_version"], mappings["playbooks"]))
-
-# save openstack
-
-with open(f"{release}/openstack.yml", "w") as fp:
-    yaml.dump(data, fp)
-
-# prepare ceph
-
-with open(f"{release}/ceph.yml", "r") as fp:
-    data = yaml.load(fp)
-
-# ceph: defaults
-
-repository = gh.get_repo(mappings["defaults"])
-try:
-    branch = repository.get_branch(data["defaults_version"])
-    data["defaults_version"] = branch.commit.sha
-except:
-    print("branch %s for repository %s not found" % (data["defaults_version"], mappings["defaults"]))
-
-# ceph: generics
-
-repository = gh.get_repo(mappings["generics"])
-try:
-    branch = repository.get_branch(data["generics_version"])
-    data["generics_version"] = branch.commit.sha
-except:
-    print("branch %s for repository %s not found" % (data["generics_version"], mappings["generics"]))
-
-# save ceph
-
-with open(f"{release}/ceph.yml", "w") as fp:
     yaml.dump(data, fp)
