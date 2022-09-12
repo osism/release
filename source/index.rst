@@ -6,6 +6,8 @@ The latest available release is 3.2.0.
 
 Release 4.0.0 is currently under development.
 
+The latest available pre-release is 4.0.0a.
+
 Use of a specific release in the configuration repository
 =========================================================
 
