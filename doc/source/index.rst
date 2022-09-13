@@ -35,6 +35,20 @@ these parameters are removed when using a stable release
      osism apply configuration
      osism-update-manager
 
+* synchronise the reconciler
+
+  .. code-block:: console
+
+     osism reconciler sync
+
+* refresh the facts
+
+  .. code-block:: console
+
+     osism apply facts
+     osism-generic facts  # old way
+
+
 With Release 3.0.0, a manual update of the environment is required afterwards. As
 of Release 4.0.0, this will no longer be necessary.
 
