@@ -91,6 +91,7 @@ Ceph Pacific:
 
 OpenStack Yoga:
 
+* Press announcement: https://www.openstack.org/software/yoga/
 * Overview: https://releases.openstack.org/yoga/index.html
 * Aodh: https://docs.openstack.org/releasenotes/aodh/yoga.html
 * Barbican: https://docs.openstack.org/releasenotes/barbican/yoga.html
