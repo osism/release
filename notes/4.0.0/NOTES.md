@@ -79,7 +79,13 @@
 
 ## References
 
-### OpenStack Yoga release notes
+### Release notes
+
+Ceph Pacific:
+
+* Overview: https://docs.ceph.com/en/latest/releases/pacific/
+
+OpenStack Yoga:
 
 * Overview: https://releases.openstack.org/yoga/index.html
 * Aodh: https://docs.openstack.org/releasenotes/aodh/yoga.html
