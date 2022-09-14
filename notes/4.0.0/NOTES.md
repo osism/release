@@ -59,6 +59,10 @@
   not tested and not recommended
 * Even though Ubuntu 22.04 is already being tested, it is not yet
   officially supported with this release
+* Regular rebuilds of kolla-ansible and kolla images for OpenStack Wallaby
+  have been disabled.
+* Regular rebuilds of ceph-ansible and ceph images for Ceph Octopus
+  have been disabled.
 
 ## Infrastructure
 
