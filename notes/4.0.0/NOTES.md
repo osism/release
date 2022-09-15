@@ -85,6 +85,30 @@
 
   The ssh key can be generated as follows: ``ssh-keygen -t rsa -b 4096 -N "" -f id_rsa.neutron -C "" -m PEM``
 
+* In ``environments/configuration.yml`` all the ``docker_registry`` parameters must be
+  removed. The following are examples of parameters that need to be removed. There can
+  also be more or less of them.
+
+  ```
+  ceph_docker_registry: quay.io
+  docker_registry: index.docker.io
+  docker_registry_ansible: quay.io
+  docker_registry_service: index.docker.io
+  ```
+
+* In ``environments/manager/configuration.yml`` the following ``docker_registry``
+  parameters must be added. When using your own non-public registry, use it instead of
+  ``index.docker.io`` and ``quay.io``.
+
+  ```
+  ##########################
+  # docker registries
+
+  docker_registry: index.docker.io
+  docker_registry_ansible: quay.io
+  docker_registry_service: index.docker.io
+  ```
+
 ## References
 
 ### Release notes
