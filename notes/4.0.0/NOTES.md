@@ -37,6 +37,8 @@
 * Documentation is available for all roles within the Ansible Collections
   maintained by OSISM
 * The SBOM now lists SHA256 checksums for the container images
+* Instead of the standalone Docker Compose CLI, the Compose v2 plugin for Docker
+  is now used by default
 
 ## Deprecations
 
@@ -46,6 +48,8 @@
 * Linux bridge support has been discontinued by kolla-ansible
 * Debian dropped ``hddtemp`` (https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1002484),
   therefore we will remove hddtemp in the future and replace it with drivetemp
+* The use of the Docker Compose CLI is deprecated and will no longer be supported in
+  the future
 
 ## Removals
 
