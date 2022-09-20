@@ -1,0 +1,102 @@
+---
+ansible_version: '6.3.0'
+
+defaults_version: v0.1.1
+generics_version: v0.2.0
+manager_version: 4.0.0
+operations_version: v0.1.0
+playbooks_version: v0.5.0
+
+osism_projects:
+  # renovate: datasource=docker depName=quay.io/osism/ara-server
+  ara: '1.5.8'
+  # renovate: datasource=github-releases depName=moby/moby
+  docker: '5:20.10.17'
+
+docker_images:
+  # renovate: datasource=docker depName=adminer
+  adminer: '4.8.1'
+  # renovate: datasource=docker depName=alerta/alerta-web
+  alerta: '8.7.0'
+  # renovate: datasource=docker depName=quay.io/osism/ara-server
+  ara_server: '1.5.8'
+  # renovate: datasource=docker depName=quay.io/osism/cgit
+  cgit: '1.2.3'
+  # renovate: datasource=docker depName=quay.io/osism/dnsdist
+  dnsdist: '1.6.1'
+  # renovate: datasource=docker depName=quay.io/osism/homer
+  homer: 'v22.08.1'
+  inventory_reconciler: '4.0.0'
+  # renovate: datasource=docker depName=quay.io/keycloak/keycloak
+  keycloak: '19.0.1-legacy'
+  # renovate: datasource=docker depName=mariadb
+  mariadb: '10.9.2'
+  # renovate: datasource=docker depName=memcached
+  memcached: '1.6.17-alpine'
+  # renovate: datasource=docker depName=quay.io/osism/netbox
+  netbox: 'v3.2.5-ldap'
+  # renovate: datasource=docker depName=quay.io/osism/nexus
+  nexus: '3.41.1'
+  # renovate: datasource=docker depName=nginx
+  nginx: '1.23.1-alpine'
+  docker_openpolicyagent: '0.8'
+  # yamllint disable-line rule:line-length
+  # renovate: datasource=docker depName=quay.io/sovereigncloudstack/openstack-health-monitor
+  openstack_health_monitor: 'v3.0.0'
+  osism: '0.5.0'
+  # renovate: datasource=docker depName=quay.io/osism/patchman
+  patchman: '2.0.3'
+  # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
+  phpmyadmin: '5.2.0'
+  # renovate: datasource=docker depName=postgres
+  postgres: '14.5-alpine'
+  # renovate: datasource=docker depName=redis
+  redis: '7.0.4-alpine'
+  # renovate: datasource=docker depName=registry
+  registry: '2.8'
+  # renovate: datasource=docker depName=ubuntu/squid
+  squid: '5.2-22.04_beta'
+  # renovate: datasource=docker depName=traefik
+  traefik: 'v2.8.4'
+  # renovate: datasource=docker depName=hashicorp/vault
+  vault: '1.11.3'
+  # renovate: datasource=docker depName=zookeeper
+  zookeeper: '3.8.0'
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
+  zuul_client: '6.0.0'
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
+  zuul_executor: '6.0.0'
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
+  zuul_nodepool_builder: '6.0.0'
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
+  zuul_nodepool_launcher: '6.0.0'
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
+  zuul_scheduler: '6.0.0'
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
+  zuul_web: '6.0.0'
+
+ansible_roles:
+  geerlingguy.certbot: c6297ddebb59c281e3a048c6ae77946e2caec13a
+  geerlingguy.dotfiles: a6bef39e795cdefebd0bde58c1eb10688a6f5b9e
+  hardening: abef57cf7c3da03f25f942e6ddb7f25afd7fda5f
+  stackhpc.libvirt_host: 9edce18da8b2d022e4c504c1d7738e2bef70c2d7
+  stackhpc.libvirt_vm: fc3687773232a211a57c4cc49c39c46b86c353de
+  stackhpc.luks: 8ef3fad657062eb88ec61b0d6da093da0aa71872
+  stackhpc.systemd_networkd: 2b89668768997253dac6805c51d1affa0364217c
+
+ansible_collections:
+  ansible.netcommon: '3.1.1'
+  ansible.posix: '1.4.0'
+  arista.cvp: '3.4.0'
+  arista.eos: '5.0.1'
+  community.general: '5.5.0'
+  community.network: '4.0.1'
+  community.zabbix: '1.8.0'
+  debops.debops: '3.0.3'
+  netbox.netbox: '3.7.1'
+  openstack.cloud: '1.9.1'
+  osism.commons: '0.10.0'
+  osism.services: '0.10.0'
+  osism.validations: '0.3.0'
+  stackhpc.cephadm: 597fbb6aad1f416afad0a9e09917f65f1007d5a5
+  juniper.device: '1.0.1'
