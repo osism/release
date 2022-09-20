@@ -52,6 +52,7 @@ these parameters are removed when using a stable release
 With Release 3.0.0, a manual update of the environment is required afterwards. As
 of Release 4.0.0, this will no longer be necessary.
 
+
 How do we release?
 ==================
 
@@ -71,6 +72,64 @@ during a major release (e.g. OpenStack Xena -> OpenStack Yoga).
 It is possible to jump from the previous major version to the next major version. It may
 be that manual intervention is necessary. For example, configuration parameters may need
 to be added or services that no longer exist may need to be removed.
+
+
+How do you do a release?
+========================
+
+Pre-release
+-----------
+
+Stable release
+--------------
+
+* Copy the directory of the last pre-release or the previous stable release.
+  The release to be created is used as the new name.
+
+  .. code-block:: none
+
+     4.0.0b -> 4.0.0
+     4.0.0  -> 4.1.0
+
+* Change all necessary versions in the YAML files within the new directory.
+  In any case, the version of the pre-release or the version of the stable
+  release must be replaced by the release to be created.
+
+* The release to be created is submitted as a pull request as usual and then
+  merged.
+
+* In repository ``osism/container-images/kolla``, the release submodule must
+  be updated. To do this run action ``Update release submodule`` manually and
+  then merge the created pull request.
+
+* Add a tag with the name of the new release to the listed repositories.
+
+  .. code-block:: none
+
+     osism/container-image-ceph-ansible
+     osism/container-image-inventory-reconciler
+     osism/container-image-osism-ansible
+     osism/container-images-kolla
+
+* After completing the creation of the images in repository ``container-images-kolla``,
+  the file ``images.yml`` must be added to repository ``osism/sbom`` as
+  ``4.0.0/openstack.yml`` (instead of ``4.0.0``, the corresponding release is used).
+  The file is available as a build artefact of the ``Build container images`` action
+  on the created tag.
+
+* If ``4.0.0/openstack.yml`` is present in ``osism/sbom``, repository
+  ``osism/container-image-kolla-ansible`` can be tagged like the other
+  repositories before.
+
+* Add the created SPDX files from the listed repositories to the ``osism/sbom`` repository.
+  The file are available as build artefacts of the ``Build container image`` action
+  on the created tags.
+
+  .. code-block:: none
+
+     osism/container-image-ceph-ansible
+     osism/container-image-kolla-ansible
+     osism/container-image-osism-ansible
 
 Questions & Answers
 ===================
