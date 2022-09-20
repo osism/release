@@ -117,6 +117,13 @@ Stable release
   The file is available as a build artefact of the ``Build container images`` action
   on the created tag.
 
+  Before the file is added, it is enhanced with the checksums of the images. The script
+  is available in the ``osism/sbom`` repository.
+
+  .. code-block:: none
+
+     VERSION=4.0.0 python3 scripts/add-image-checksum.py
+
 * If ``4.0.0/openstack.yml`` is present in ``osism/sbom``, repository
   ``osism/container-image-kolla-ansible`` can be tagged like the other
   repositories before.
