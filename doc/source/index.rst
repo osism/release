@@ -106,6 +106,7 @@ Stable release
 
   .. code-block:: none
 
+     osism/cfg-cookiecutter
      osism/container-image-ceph-ansible
      osism/container-image-inventory-reconciler
      osism/container-image-osism-ansible
