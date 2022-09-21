@@ -5,7 +5,7 @@ ceph_ansible_version: stable-6.0
 ceph_container_version: stable-6.0
 ceph_version: pacific
 
-defaults_version: v0.1.0
+defaults_version: v0.1.1
 generics_version: v0.2.0
 playbooks_version: v0.5.0
 
