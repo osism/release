@@ -8,6 +8,14 @@ Release 5.0.0 is currently under development.
 
 The next available pre-release will be 5.0.0a.
 
+Release notes
+=============
+
+.. toctree::
+   :maxdepth: 1
+
+   notes/4.0.0
+
 Use of a specific release in the configuration repository
 =========================================================
 

@@ -27,7 +27,7 @@ html_context = {
     'github_user': 'osism',
     'github_repo': 'release',
     'github_version': 'main',
-    'conf_py_path': '/source/'
+    'conf_py_path': '/doc/source/'
 }
 html_logo = 'images/logo.png'
 html_static_path = [
