@@ -89,7 +89,7 @@ ansible_collections:
   ansible.posix: '1.4.0'
   arista.cvp: '3.4.0'
   arista.eos: '5.0.1'
-  community.general: '5.6.0'
+  community.general: '5.7.0'
   community.network: '4.0.1'
   community.zabbix: '1.8.0'
   debops.debops: '3.0.3'
