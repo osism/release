@@ -13,4 +13,10 @@
 Features
 ========
 
-* openstack-image-manager now published at PyPI: https://pypi.org/project/openstack-image-manager/
+* `OpenStack Services Action <https://github.com/marketplace/actions/openstack-services-action>`_ now
+  uses OpenStack Zed as the default OpenStack release
+
+OpenStack image manager
+-----------------------
+
+* `OpenStack image manager <https://github.com/osism/openstack-image-manager>`_ now published at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
