@@ -15,6 +15,7 @@ Features
 
 * `OpenStack Services Action <https://github.com/marketplace/actions/openstack-services-action>`_ now
   uses OpenStack Zed as the default OpenStack release
+* OpenStack client container image in version Antelope is available
 
 OpenStack image manager
 -----------------------
