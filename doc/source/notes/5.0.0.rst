@@ -20,3 +20,4 @@ OpenStack image manager
 -----------------------
 
 * `OpenStack image manager <https://github.com/osism/openstack-image-manager>`_ now published at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
+* A container image ``harbor.services.osism.tech/osism/openstack-image-manager:latest`` is now available which also contains the default image definitions in ``/etc/openstack-image-manager``
