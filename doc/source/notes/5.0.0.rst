@@ -1,0 +1,16 @@
+=====
+5.0.0
+=====
+
+.. warning::
+
+   Release 5.0.0 is currently under development. It is not available at the moment.
+
+.. contents::
+   :depth: 1
+   :local:
+
+Features
+========
+
+* openstack-image-manager now published at PyPI: https://pypi.org/project/openstack-image-manager/

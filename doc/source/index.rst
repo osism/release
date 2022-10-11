@@ -15,6 +15,7 @@ Release notes
    :maxdepth: 1
 
    notes/4.0.0
+   notes/5.0.0
 
 Use of a specific release in the configuration repository
 =========================================================
