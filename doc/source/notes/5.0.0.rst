@@ -15,9 +15,22 @@ Features
 
 * `OpenStack Services Action <https://github.com/marketplace/actions/openstack-services-action>`_ now
   uses OpenStack Zed as the default OpenStack release
+* `Mitogen <https://mitogen.networkgenomics.com/ansible_detailed.html>`_ is installed
+  in all Ansible containers and can be used
+
+   The use of the Mitogen strategy plugin for Ansible can be enabled via ``ansible.cfg``
+   in the ``environments`` directory
+
+   .. code-block:: ini
+
+      [defaults]
+      strategy_plugins = /usr/share/ansible/plugins/mitogen/ansible_mitogen/plugins/strategy
+      strategy = mitogen_linear
 
 OpenStack image manager
 -----------------------
 
-* `OpenStack image manager <https://github.com/osism/openstack-image-manager>`_ now published at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
-* A container image ``harbor.services.osism.tech/osism/openstack-image-manager:latest`` is now available which also contains the default image definitions in ``/etc/openstack-image-manager``
+* `OpenStack image manager <https://github.com/osism/openstack-image-manager>`_ now published
+  at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
+* A container image ``harbor.services.osism.tech/osism/openstack-image-manager:latest`` is
+  now available which also contains the default image definitions in ``/etc/openstack-image-manager``
