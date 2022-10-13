@@ -34,3 +34,28 @@ OpenStack image manager
   at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
 * A container image ``harbor.services.osism.tech/osism/openstack-image-manager:latest`` is
   now available which also contains the default image definitions in ``/etc/openstack-image-manager``
+
+References
+==========
+
+OpenStack Zed release notes:
+
+* Aodh: https://docs.openstack.org/releasenotes/aodh/zed.html
+* Barbican: https://docs.openstack.org/releasenotes/barbican/zed.html
+* Ceilometer: https://docs.openstack.org/releasenotes/ceilometer/zed.html
+* Cinder: https://docs.openstack.org/releasenotes/cinder/zed.html
+* Cloudkitty: https://docs.openstack.org/releasenotes/cloudkitty/zed.html
+* Designate: https://docs.openstack.org/releasenotes/designate/zed.html
+* Glance: https://docs.openstack.org/releasenotes/glance/zed.html
+* Heat: https://docs.openstack.org/releasenotes/heat/zed.html
+* Horizon: https://docs.openstack.org/releasenotes/horizon/zed.html
+* Ironic: https://docs.openstack.org/releasenotes/ironic/zed.html
+* Keystone: https://docs.openstack.org/releasenotes/keystone/zed.html
+* Manila: https://docs.openstack.org/releasenotes/manila/zed.html
+* Neutron: https://docs.openstack.org/releasenotes/neutron/zed.html
+* Nova: https://docs.openstack.org/releasenotes/nova/zed.html
+* Octavia: https://docs.openstack.org/releasenotes/octavia/zed.html
+* Overview: https://releases.openstack.org/zed/index.html
+* Placement: https://docs.openstack.org/releasenotes/placement/zed.html
+* Press announcement: https://www.openstack.org/software/zed/
+* Senlin: https://docs.openstack.org/releasenotes/senlin/zed.html
