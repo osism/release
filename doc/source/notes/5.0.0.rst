@@ -30,9 +30,24 @@ OpenStack image manager
   at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
 * A container image ``harbor.services.osism.tech/osism/openstack-image-manager:latest`` is
   now available which also contains the default image definitions in ``/etc/openstack-image-manager``
+* It is possible to define meta-information to individual versions of an image
+
+  .. code-block:: yaml
+
+     - name: Sample image
+       [...]
+       meta:
+         architecture: x86_64
+       versions:
+         - version: '1.0'
+           [...]
+           meta:
+             image_build_date: YYYY-MM-DD
 
 References
 ==========
+
+OpenStack Zed press announcement: https://www.openstack.org/software/zed/
 
 OpenStack Zed release notes:
 
@@ -53,5 +68,4 @@ OpenStack Zed release notes:
 * Octavia: https://docs.openstack.org/releasenotes/octavia/zed.html
 * Overview: https://releases.openstack.org/zed/index.html
 * Placement: https://docs.openstack.org/releasenotes/placement/zed.html
-* Press announcement: https://www.openstack.org/software/zed/
 * Senlin: https://docs.openstack.org/releasenotes/senlin/zed.html
