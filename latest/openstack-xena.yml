@@ -37,9 +37,7 @@ infrastructure_projects:
   prometheus:
   rabbitmq:
   redis:
-  storm:
   tgtd:
-  zookeeper:
 
 openstack_projects:
   aodh: 13.0.0
