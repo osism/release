@@ -49,9 +49,9 @@ Removals
 
 * Monasca was deprecated in Kolla. In preparation for the introduction of Monasca in OSISM
   (which will no longer happen after deprecation), two infrastructure services required only
-  by Monasca have already been built as images: Storm + Zookeeper. These images were removed
-  without prior deprecation as they were only available for the planned Monasca integration
-  and are not yet in use anywhere.
+  by Monasca have already been built as images: Kafka, Storm, and Zookeeper. These images were
+  removed without prior deprecation as they were only available for the planned Monasca
+  integration and are not yet in use anywhere.
 
 References
 ==========

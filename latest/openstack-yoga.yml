@@ -23,7 +23,6 @@ infrastructure_projects:
   haproxy:
   influxdb:
   iscsid:
-  kafka:
   keepalived:
   kibana:
   kolla-toolbox:
