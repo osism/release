@@ -44,6 +44,14 @@ OpenStack image manager
            meta:
              image_build_date: YYYY-MM-DD
 
+OSISM manager
+-------------
+
+* Support for routeros, which could be used to control Mikrotik devices, has been removed.
+  Mikrotik devices were only used by the OSISM project itself in a baremetal testbed. Due
+  to the change of the network hardware used by the OSISM project, only SONiC will be
+  supported as NOS in the future.
+
 Removals
 ========
 
