@@ -23,6 +23,9 @@ Features
      strategy_plugins = /usr/share/ansible/plugins/mitogen/ansible_mitogen/plugins/strategy
      strategy = mitogen_linear
 
+* The testbed has been significantly simplified for new operators and developers and a Quick Start
+  guide has been added
+
 OpenStack image manager
 -----------------------
 
