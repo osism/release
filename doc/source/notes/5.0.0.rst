@@ -28,6 +28,8 @@ OpenStack image manager
 
 * `OpenStack image manager <https://github.com/osism/openstack-image-manager>`_ now published
   at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
+* `Netbox plugin OSISM <https://github.com/osism/netbox-plugin-osism>`_ now published
+  at `PyPI <https://pypi.org/project/netbox-plugin-osism/>`_
 * A container image ``harbor.services.osism.tech/osism/openstack-image-manager:latest`` is
   now available which also contains the default image definitions in ``/etc/openstack-image-manager``
 * It is possible to define meta-information to individual versions of an image
