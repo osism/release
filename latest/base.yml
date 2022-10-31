@@ -25,7 +25,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/osism/dnsdist
   dnsdist: '1.6.1'
   # renovate: datasource=docker depName=quay.io/osism/homer
-  homer: 'v22.10.1'
+  homer: 'v22.10.2'
   inventory_reconciler: 'latest'
   # renovate: datasource=docker depName=quay.io/keycloak/keycloak
   keycloak: '19.0.3-legacy'
