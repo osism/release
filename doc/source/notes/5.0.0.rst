@@ -23,6 +23,12 @@ Features
      strategy_plugins = /usr/share/ansible/plugins/mitogen/ansible_mitogen/plugins/strategy
      strategy = mitogen_linear
 
+* In order to avoid having to install the manager and, if necessary, the control nodes
+  manually when setting up a new OSISM environment, an ISO image is now available.
+  `osism/node-image <https://github.com/osism/node-image>`_ automatically installs a new
+  node with Ubuntu 22.04 on a software RAID 1 and prepares everything to be able to start
+  directly.
+
 OpenStack image manager
 -----------------------
 
