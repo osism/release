@@ -57,6 +57,10 @@ OSISM manager
   Mikrotik devices were only used by the OSISM project itself in a baremetal testbed. Due
   to the change of the network hardware used by the OSISM project, only SONiC will be
   supported as NOS in the future.
+* If `osism <https://pypi.org/project/osism/>`_ is installed via PyPI, Ansible is no longer
+  installed as a dependency. This ensures that the services can also be used with older
+  Ansible versions. If Ansible is to be installed as well, this can be done via an extra
+  requirement using ``osism[ansible]``.
 
 Removals
 ========
