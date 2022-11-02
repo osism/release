@@ -61,6 +61,9 @@ OSISM manager
   installed as a dependency. This ensures that the services can also be used with older
   Ansible versions. If Ansible is to be installed as well, this can be done via an extra
   requirement using ``osism[ansible]``.
+* Since only SONiC will be supported in the future, the following Ansible collections,
+  which were previously available as technical previews, have been removed: ``arista.cvp``,
+  ``arista.eos``, ``juniper.device``.
 
 Removals
 ========
