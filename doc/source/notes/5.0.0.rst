@@ -52,6 +52,10 @@ OpenStack image manager
            meta:
              image_build_date: YYYY-MM-DD
 
+* With the command ``validate`` it is possible to validate the metadata of images
+  on an OpenStack environment against the
+  `SCS Image Metadata Standard <https://github.com/SovereignCloudStack/Docs/blob/main/Design-Docs/Image-Properties-Spec.md>`_.
+
 OSISM manager
 -------------
 
