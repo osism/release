@@ -28,6 +28,10 @@ Features
   `osism/node-image <https://github.com/osism/node-image>`_ automatically installs a new
   node with Ubuntu 22.04 on a software RAID 1 and prepares everything to be able to start
   directly.
+* With the playbook ``ceph-purge-storage-node`` it is possible to remove all Ceph services
+  on a Ceph storage node and remove all Ceph related data and configuration files.
+* With the playbook ``ceph-purge-cluster`` it is possible to remove all Ceph services
+  on all Ceph nodes and remove all Ceph related data and configuration files.
 
 OpenStack image manager
 -----------------------
