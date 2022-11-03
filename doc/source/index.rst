@@ -2,7 +2,7 @@
 OSISM releases
 ==============
 
-The latest available stable release is 4.0.0.
+The latest available stable release is 4.1.0.
 
 Release 5.0.0 is currently under development.
 
@@ -15,6 +15,7 @@ Release notes
    :maxdepth: 1
 
    notes/4.0.0
+   notes/4.1.0
    notes/5.0.0
 
 Use of a specific release in the configuration repository
