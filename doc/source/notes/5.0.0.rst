@@ -67,6 +67,12 @@ OSISM manager
   which were previously available as technical previews, have been removed: ``arista.cvp``,
   ``arista.eos``, ``juniper.device``.
 
+Deprecations
+============
+
+* The role ``osism.services.bird`` is deprecated. In future, FRRouting (``osism.services.frr``)
+  will be used.
+
 Removals
 ========
 
