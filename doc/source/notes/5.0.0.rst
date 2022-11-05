@@ -70,6 +70,10 @@ OSISM manager
 * Since only SONiC will be supported in the future, the following Ansible collections,
   which were previously available as technical previews, have been removed: ``arista.cvp``,
   ``arista.eos``, ``juniper.device``.
+* The new Ansible collection `osism.sonic <https://github.com/osism/ansible-collection-sonic>`_,
+  a downstream of
+  `dellemc.enterprise_sonic <https://github.com/ansible-collections/dellemc.enterprise_sonic>`_,
+  is used to manage SONiC.
 
 Deprecations
 ============
