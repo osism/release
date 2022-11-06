@@ -38,6 +38,8 @@ Features
 OpenStack image manager
 -----------------------
 
+* Some of the images (Almalinux, Rockylinux, Ubuntu) defined in ``etc/images`` are now
+  automatically updated once a week
 * `OpenStack image manager <https://github.com/osism/openstack-image-manager>`_ now published
   at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
 * A container image ``harbor.services.osism.tech/osism/openstack-image-manager:latest`` is
