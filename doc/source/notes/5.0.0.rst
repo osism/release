@@ -25,10 +25,23 @@ Features
 
 * The testbed has been significantly simplified for new operators and developers and a Quick Start
   guide has been added
+* In order to avoid having to install the manager and, if necessary, the control nodes
+  manually when setting up a new OSISM environment, an ISO image is now available.
+  `osism/node-image <https://github.com/osism/node-image>`_ automatically installs a new
+  node with Ubuntu 22.04 on a software RAID 1 and prepares everything to be able to start
+  directly.
+* With the playbook ``ceph-purge-storage-node`` it is possible to remove all Ceph services
+  on a Ceph storage node and remove all Ceph related data and configuration files.
+* With the playbook ``ceph-purge-cluster`` it is possible to remove all Ceph services
+  on all Ceph nodes and remove all Ceph related data and configuration files.
+* `Netbox plugin OSISM <https://github.com/osism/netbox-plugin-osism>`_ now published
+  at `PyPI <https://pypi.org/project/netbox-plugin-osism/>`_
 
 OpenStack image manager
 -----------------------
 
+* Some of the images (Almalinux, Rockylinux, Ubuntu) defined in ``etc/images`` are now
+  automatically updated once a week
 * `OpenStack image manager <https://github.com/osism/openstack-image-manager>`_ now published
   at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
 * A container image ``harbor.services.osism.tech/osism/openstack-image-manager:latest`` is
@@ -46,6 +59,31 @@ OpenStack image manager
            [...]
            meta:
              image_build_date: YYYY-MM-DD
+
+OSISM manager
+-------------
+
+* Support for routeros, which could be used to control Mikrotik devices, has been removed.
+  Mikrotik devices were only used by the OSISM project itself in a baremetal testbed. Due
+  to the change of the network hardware used by the OSISM project, only SONiC will be
+  supported as NOS in the future.
+* If `osism <https://pypi.org/project/osism/>`_ is installed via PyPI, Ansible is no longer
+  installed as a dependency. This ensures that the services can also be used with older
+  Ansible versions. If Ansible is to be installed as well, this can be done via an extra
+  requirement using ``osism[ansible]``.
+* Since only SONiC will be supported in the future, the following Ansible collections,
+  which were previously available as technical previews, have been removed: ``arista.cvp``,
+  ``arista.eos``, ``juniper.device``.
+* The new Ansible collection `osism.sonic <https://github.com/osism-sonic/ansible-collection-sonic>`_,
+  a downstream of
+  `dellemc.enterprise_sonic <https://github.com/ansible-collections/dellemc.enterprise_sonic>`_,
+  is used to manage SONiC.
+
+Deprecations
+============
+
+* The role ``osism.services.bird`` is deprecated. In future, FRRouting (``osism.services.frr``)
+  will be used.
 
 Removals
 ========
