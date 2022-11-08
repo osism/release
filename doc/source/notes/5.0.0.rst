@@ -60,6 +60,14 @@ OpenStack image manager
            meta:
              image_build_date: YYYY-MM-DD
 
+* With the ``--validate`` parameter, it is possible to check the images available on an
+  OpenStack environment for conformity with the Sovereign Cloud Stack (SCS) image standard.
+* With the parameter ``--filter`` it is possible to filter the list of images to be processed
+  by their names with regular expressions. E.g. ``--filter "Ubuntu 2\d.\d\d"`` can be used
+  to process all Ubuntu images with a version >= 20.04.
+* The ``--images`` parameter can now be passed a single file in addition to a directory with
+  YAML files with included image definitions
+
 OSISM manager
 -------------
 
