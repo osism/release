@@ -245,6 +245,13 @@ Deprecations
 * Skydive (currently available as Technical Preview) will be removed in the future, the
   project is not maintained anymore, last commit is 8th Jan 2022
   (https://review.opendev.org/c/openstack/kolla/+/869191)
+* The role ``osism.services.keycloak`` is deprecated and will be removed in the future
+  (exact removal date is not yet known, the role will not be removed until the new
+  Kubernetes management plane is usable and an IDM service is deployable there).
+  The role was temporarily added to OSISM to provide a way to integrate against Gaia-X
+  Federation Services. In the meantime, Lot 8 has been assigned in the SCS project, which
+  is now taking care of the implementation of this layer. Therefore, OSISM will in future
+  integrate against these layers provided by the SCS project.
 
 Removals
 ========
