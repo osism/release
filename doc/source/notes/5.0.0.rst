@@ -96,19 +96,6 @@ Deprecations
 
 * The role ``osism.services.bird`` is deprecated. In future, FRRouting (``osism.services.frr``)
   will be used.
-
-Removals
-========
-
-* Monasca was deprecated in Kolla. In preparation for the introduction of Monasca in OSISM
-  (which will no longer happen after deprecation), two infrastructure services required only
-  by Monasca have already been built as images: Kafka, Storm, and Zookeeper. These images were
-  removed without prior deprecation as they were only available for the planned Monasca
-  integration and are not yet in use anywhere.
-
-Deprecations
-============
-
 * Heat is deprecated in favor of more generic Infrastructure as Code tools like Terraform
   as of now and will be removed in the future (exact removal date is not yet known)
 * Magnum (currently available as Technical Preview) will be removed in favor of Gardener and
@@ -117,6 +104,15 @@ Deprecations
 * Swift (currently available as Technical Preview) will be removed in favor of Ceph RGW
 * Trove (currently available as Technical Preview) will be removed in favor of Kubernetes
   database operators
+
+Removals
+========
+
+* Monasca was deprecated in Kolla. In preparation for the introduction of Monasca in OSISM
+  (which will no longer happen after deprecation), three infrastructure services required only
+  by Monasca have already been built as images: Kafka, Storm, and Zookeeper. These images were
+  removed without prior deprecation as they were only available for the planned Monasca
+  integration and are not yet in use anywhere.
 
 References
 ==========
