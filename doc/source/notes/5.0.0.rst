@@ -90,6 +90,8 @@ OSISM manager
   a downstream of
   `dellemc.enterprise_sonic <https://github.com/ansible-collections/dellemc.enterprise_sonic>`_,
   is used to manage SONiC.
+* With ``enable_auditd`` it is possible to disable the ``osism.services.auditd`` role
+  in the bootstrap and maintenance playbooks
 
 Deprecations
 ============
