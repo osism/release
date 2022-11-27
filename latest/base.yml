@@ -89,7 +89,7 @@ ansible_collections:
   ansible.posix: '1.4.0'
   community.general: '5.8.1'
   community.network: '4.0.2'
-  community.zabbix: '1.8.0'
+  community.zabbix: '1.9.0'
   debops.debops: '3.0.3'
   netbox.netbox: '3.9.0'
   openstack.cloud: '1.10.0'
