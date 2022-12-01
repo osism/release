@@ -35,6 +35,7 @@ cephclient: osism/cephclient
 alerta: alerta/alerta-web
 cgit: osism/cgit
 dnsdist: osism/dnsdist
+fleet: fleetdm/fleet
 keycloak: keycloak/keycloak
 memcached: memcached
 netbox: osism/netbox
