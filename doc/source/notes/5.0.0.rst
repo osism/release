@@ -118,6 +118,13 @@ Removals
   removed without prior deprecation as they were only available for the planned Monasca
   integration and are not yet in use anywhere.
 
+Housekeeping
+============
+
+* In all ``docker-compose.yml`` files the declaration of the version was removed. This is no
+  longer necessary in the latest
+  `Compose specification <https://docs.docker.com/compose/compose-file/>`_.
+
 References
 ==========
 
