@@ -36,6 +36,10 @@ Features
   on all Ceph nodes and remove all Ceph related data and configuration files.
 * `Netbox plugin OSISM <https://github.com/osism/netbox-plugin-osism>`_ now published
   at `PyPI <https://pypi.org/project/netbox-plugin-osism/>`_
+* With the Ansible role ``osism.services.osquery`` `osquery <https://www.osquery.io>`_
+  can be deployed. osquery uses basic SQL commands to leverage a relational data-model to
+  describe a device. It will be used in OSISM in the future to obtain facts about system
+  states.
 
 OpenStack image manager
 -----------------------
