@@ -16,7 +16,6 @@ infrastructure_projects:
   collectd:
   cron:
   dnsmasq:
-  elasticsearch:
   etcd:
   fluentd:
   grafana:
@@ -24,12 +23,12 @@ infrastructure_projects:
   influxdb:
   iscsid:
   keepalived:
-  kibana:
   kolla-toolbox:
   logstash:
   mariadb:
   memcached:
   multipathd:
+  opensearch:
   openstack-base:
   openvswitch:
   ovn:
