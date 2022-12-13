@@ -9,7 +9,7 @@ playbooks_version: main
 
 osism_projects:
   # renovate: datasource=docker depName=quay.io/osism/ara-server
-  ara: '1.6.0'
+  ara: '1.6.1'
   # renovate: datasource=github-releases depName=moby/moby
   docker: '5:20.10.21'
 
