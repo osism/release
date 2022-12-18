@@ -93,7 +93,7 @@ ansible_collections:
   community.network: '4.0.2'
   community.zabbix: '1.9.0'
   debops.debops: '3.0.3'
-  netbox.netbox: '3.9.0'
+  netbox.netbox: '3.10.0'
   openstack.cloud: '1.10.0'
   osism.commons: main
   osism.services: main
