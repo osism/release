@@ -1,4 +1,4 @@
-GitPython==3.1.29
+GitPython==3.1.30
 PyGithub==1.57
 PyYAML==6.0
 Sphinx==5.3.0
