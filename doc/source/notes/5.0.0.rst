@@ -169,6 +169,22 @@ OSISM manager
      INFO:__main__:Copying service configuration files
      [...]
 
+* With the ``validate`` command, it is possible to run validators, e.g. for Ceph. If you call the
+  ``validate`` command without further parameters, all available validators will be displayed.
+
+  The validators used are available in the Ansible collection
+  `osism.validations <https://github.com/osism/ansible-collection-validations>`_.
+
+  .. code-block:: console
+
+     $ osism validate ulimits
+
+     PLAY [Run ulimits validator] ***************************************************
+
+     TASK [osism.validations.ulimits : Get nofiles limit] ***************************
+     ok: [mgr003]
+     [...]
+
 Deprecations
 ============
 
