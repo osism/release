@@ -217,6 +217,14 @@ Housekeeping
   longer necessary in the latest
   `Compose specification <https://docs.docker.com/compose/compose-file/>`_.
 
+Upgrade notes
+=============
+
+* The ARA library has been updated to version ``1.6.x`` in all Ansible containers. If
+  the version of the ARA server on the manager is lower than ``1.6.x`` problems may occur.
+  When updating the Ansible container, the ARA server should also be updated to version
+  ``1.6.x`` accordingly.
+
 References
 ==========
 
