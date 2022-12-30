@@ -96,6 +96,34 @@ OSISM manager
   is used to manage SONiC.
 * With ``enable_auditd`` it is possible to disable the ``osism.services.auditd`` role
   in the bootstrap and maintenance playbooks
+* With the ``dump facts`` command, it is possible to output the facts of Ansible for
+  specific systems.
+
+  .. code-block:: console
+
+     $ osism dump facts mgr003
+     +--------+---------------------------------------------+----------------------------------------------------------------+
+     | Host   | Fact                                        | Value                                                          |
+     +========+=============================================+================================================================+
+     | mgr003 | _ansible_facts_gathered                     | True                                                           |
+     +--------+---------------------------------------------+----------------------------------------------------------------+
+     | mgr003 | ansible_all_ipv4_addresses                  | ['10.20.3.3', '10.15.0.112']                                   |
+     +--------+---------------------------------------------+----------------------------------------------------------------+
+     [...]
+
+  .. code-block:: console
+
+     $ osism dump facts mgr003 ansible_memory_mb
+     +--------+-------------------+------------------------------------------------------------+
+     | Host   | Fact              | Value                                                      |
+     +========+===================+============================================================+
+     | mgr003 | ansible_memory_mb | { 'nocache': {'free': 127134, 'used': 1551},               |
+     |        |                   |   'real': {'free': 122304, 'total': 128685, 'used': 6381}, |
+     |        |                   |   'swap': { 'cached': 0,                                   |
+     |        |                   |             'free': 8191,                                  |
+     |        |                   |             'total': 8191,                                 |
+     |        |                   |             'used': 0}}                                    |
+     +--------+-------------------+------------------------------------------------------------+
 
 Deprecations
 ============
