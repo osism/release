@@ -125,6 +125,38 @@ OSISM manager
      |        |                   |             'used': 0}}                                    |
      +--------+-------------------+------------------------------------------------------------+
 
+* With the ``log ansible`` command, it is possible to use the shell of `ARA <https://ara.readthedocs.io/en/latest/index.html>`_.
+
+  .. code-block:: console
+
+     $ osism log ansible
+     (ara) help
+
+     Documented commands (use 'help -v' for verbose/'help <topic>' for details):
+     ===========================================================================
+     alias  exit  history  quit          run_script  shell
+     edit   help  macro    run_pyscript  set         shortcuts
+
+     Application commands (type help <topic>):
+     =========================================
+     complete     host metrics  playbook delete   record delete  result show
+     expire       host show     playbook list     record list    task delete
+     help         play delete   playbook metrics  record show    task list
+     host delete  play list     playbook prune    result delete  task metrics
+     host list    play show     playbook show     result list    task show
+
+  .. code-block:: console
+
+     $ osism log ansible playbook list
+     +------+-----------+-------------------------------+--------+-----------------+----------------------------+-------+---------+-------+-----------------------------+-----------------+
+     |   id | status    | controller                    | user   | ansible_version | path                       | tasks | results | hosts | started                     | duration        |
+     +------+-----------+-------------------------------+--------+-----------------+----------------------------+-------+---------+-------+-----------------------------+-----------------+
+     | 2322 | completed | osism-ansible.manager_default | dragon | 2.13.7          | /ansible/generic/facts.yml |     3 |      18 |     6 | 2022-12-30T09:19:30.587307Z | 00:00:15.500605 |
+     | 2321 | completed | osism-ansible.manager_default | dragon | 2.13.7          | /ansible/generic/facts.yml |     3 |      17 |     6 | 2022-12-30T09:09:30.589686Z | 00:00:15.680527 |
+     | 2320 | completed | osism-ansible.manager_default | dragon | 2.13.7          | /ansible/generic/facts.yml |     3 |      17 |     6 | 2022-12-30T08:59:30.577125Z | 00:00:15.524505 |
+     | 2319 | completed | osism-ansible.manager_default | dragon | 2.13.7          | /ansible/generic/facts.yml |     3 |      18 |     6 | 2022-12-30T08:49:30.608174Z | 00:00:15.567697 |
+     +------+-----------+-------------------------------+--------+-----------------+----------------------------+-------+---------+-------+-----------------------------+-----------------+
+
 Deprecations
 ============
 
