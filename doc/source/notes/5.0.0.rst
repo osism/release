@@ -185,6 +185,8 @@ OSISM manager
      ok: [mgr003]
      [...]
 
+* ``ansible.utils`` and ``kubernetes.core`` Ansible collections are now usable.
+
 Deprecations
 ============
 
