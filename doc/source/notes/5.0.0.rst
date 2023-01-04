@@ -202,6 +202,9 @@ Deprecations
 * Swift (currently available as Technical Preview) will be removed in favor of Ceph RGW
 * Trove (currently available as Technical Preview) will be removed in favor of Kubernetes
   database operators
+* Skydive currently available as Technical Preview) will be removed in the future, the
+  project is not maintained anymore, last commit is 8th Jan 2022
+  (https://review.opendev.org/c/openstack/kolla/+/869191)
 
 Removals
 ========
