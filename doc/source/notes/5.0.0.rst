@@ -214,9 +214,9 @@ Removals
   by Monasca have already been built as images: Kafka, Storm, and Zookeeper. These images were
   removed without prior deprecation as they were only available for the planned Monasca
   integration and are not yet in use anywhere.
-* The ``ospurge`` wrapper script has been removed from the ``osism.services.openstackclient role``.
+* The ``ospurge`` wrapper script has been removed from the ``osism.services.openstackclient`` role.
   The ospurge project is no longer compatible with the current OpenStack SDK. The command
-  ``openstack project purge`` can be used as a alternative.
+  ``openstack project purge`` can be used as an alternative.
 
 Housekeeping
 ============
