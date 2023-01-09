@@ -92,7 +92,6 @@ ansible_collections:
   ansible.utils: '2.8.0'
   community.general: '5.8.3'
   community.network: '4.0.2'
-  community.zabbix: '1.9.0'
   debops.debops: '3.0.3'
   kubernetes.core: '2.3.2'
   netbox.netbox: '3.10.0'
