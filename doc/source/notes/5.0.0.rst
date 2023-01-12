@@ -187,6 +187,21 @@ OSISM manager
 
 * ``ansible.utils`` and ``kubernetes.core`` Ansible collections are now usable.
 
+* The ``console`` command now allows shortcuts to select specific console types
+
+  .. code-block:: console
+
+     $ osism console ctl003  # SSH
+     dragon@ctl003:~$
+
+     $ osism console .ctl003  # Ansible
+     Welcome to the ansible console. Type help or ? to list commands.
+
+     dragon@ctl003 (1)[f:5]$
+
+     $ osism console ctl003/rabbitmq  # Container
+     (rabbitmq)[rabbitmq@ctl003 /]$
+
 Deprecations
 ============
 
