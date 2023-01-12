@@ -202,6 +202,27 @@ OSISM manager
      $ osism console ctl003/rabbitmq  # Container
      (rabbitmq)[rabbitmq@ctl003 /]$
 
+* The ``container`` command now allows the use of a prompt
+
+  .. code-block:: console
+
+     $ osism container ctl003
+     ctl003>>> images
+     REPOSITORY                    TAG       IMAGE ID       CREATED        SIZE
+     quay.io/osism/fluentd         zed       d30381217d55   21 hours ago   522MB
+     quay.io/osism/cron            zed       62d87cfb1f53   21 hours ago   254MB
+     quay.io/osism/kolla-toolbox   zed       5d1afcf2ac05   21 hours ago   826MB
+     quay.io/osism/rabbitmq        zed       5e36e8a4205a   21 hours ago   308MB
+     ctl003>>> info
+     Client:
+      Context:    default
+      Debug Mode: false
+      Plugins:
+       app: Docker App (Docker Inc., v0.9.1-beta3)
+       buildx: Docker Buildx (Docker Inc., v0.9.1-docker)
+       scan: Docker Scan (Docker Inc., v0.23.0)
+     [...]
+
 Deprecations
 ============
 
