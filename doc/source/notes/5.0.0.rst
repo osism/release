@@ -223,6 +223,10 @@ OSISM manager
        scan: Docker Scan (Docker Inc., v0.23.0)
      [...]
 
+* So far, the facts have been updated every 10 minutes. This is not necessary. Through
+  the standard use of Redis as a cache backend, the facts are kept 24 hours. The facts
+  are now only updated every 12 hours.
+
 Deprecations
 ============
 
