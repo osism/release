@@ -90,7 +90,7 @@ ansible_collections:
   ansible.netcommon: '3.1.3'
   ansible.posix: '1.4.0'
   ansible.utils: '2.8.0'
-  community.general: '5.8.3'
+  community.general: '5.8.4'
   community.network: '4.0.2'
   debops.debops: '3.0.3'
   kubernetes.core: '2.3.2'
