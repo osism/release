@@ -80,7 +80,7 @@ docker_images:
 ansible_roles:
   geerlingguy.certbot: master
   geerlingguy.dotfiles: master
-  hardening: abef57cf7c3da03f25f942e6ddb7f25afd7fda5f
+  hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
   stackhpc.libvirt_host: master
   stackhpc.libvirt_vm: master
   stackhpc.luks: master
