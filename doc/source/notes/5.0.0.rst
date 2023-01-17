@@ -187,21 +187,6 @@ OSISM manager
 
 * ``ansible.utils`` and ``kubernetes.core`` Ansible collections are now usable.
 
-* The ``console`` command now allows shortcuts to select specific console types
-
-  .. code-block:: console
-
-     $ osism console ctl003  # SSH
-     dragon@ctl003:~$
-
-     $ osism console .ctl003  # Ansible
-     Welcome to the ansible console. Type help or ? to list commands.
-
-     dragon@ctl003 (1)[f:5]$
-
-     $ osism console ctl003/rabbitmq  # Container
-     (rabbitmq)[rabbitmq@ctl003 /]$
-
 * The ``container`` command now allows the use of a prompt
 
   .. code-block:: console
@@ -222,6 +207,25 @@ OSISM manager
        buildx: Docker Buildx (Docker Inc., v0.9.1-docker)
        scan: Docker Scan (Docker Inc., v0.23.0)
      [...]
+
+
+* The ``console`` command now allows shortcuts to select specific console types
+
+  .. code-block:: console
+
+     $ osism console ctl003  # SSH
+     dragon@ctl003:~$
+
+     $ osism console .ctl003  # Ansible
+     Welcome to the ansible console. Type help or ? to list commands.
+
+     dragon@ctl003 (1)[f:5]$
+
+     $ osism console ctl003/rabbitmq  # Container
+     (rabbitmq)[rabbitmq@ctl003 /]$
+
+     $ osism console ctl003/  # Container prompt
+     ctl003>>>
 
 * So far, the facts have been updated every 10 minutes. This is not necessary. Through
   the standard use of Redis as a cache backend, the facts are kept 24 hours. The facts
