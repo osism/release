@@ -240,6 +240,23 @@ OSISM manager
   image definitions provided by the OpenStack Image Manager can be used. The option to
   use your own image definitions will be added in the future.
 
+* If ``osism apply`` is executed without a role to be executed, a table with all available
+  roles will now be displayed.
+
+  .. code-block:: console
+
+     $ osism apply
+     2023-01-17 19:19:04.339 | INFO     | osism.commands.apply:take_action:159 - No playbook
+     given for execution. The playbooks listed in the table can be used.
+     +------------------------------------------------------------------+----------------+
+     | Role                                                             | Environment    |
+     |------------------------------------------------------------------+----------------|
+     | netdata                                                          | monitoring     |
+     | remove-netdata                                                   | monitoring     |
+     | remove-zabbix-agent                                              | monitoring     |
+     | openstack-health-monitor                                         | monitoring     |
+     | auditd                                                           | generic        |
+
 Deprecations
 ============
 
