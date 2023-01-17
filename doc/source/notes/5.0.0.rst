@@ -234,6 +234,12 @@ OSISM manager
 * With ``osism validate ceph-config`` you can now check whether the configuration for
   Ceph is OK (https://docs.ceph.com/projects/ceph-ansible/en/latest/index.html#configuration-validation).
 
+* The use of the OpenStack Image Manager has been integrated. For this purpose, the new
+  command ``manage`` was added. With ``osism manage images``, the images on an OpenStack
+  environment can now be managed using the OpenStack Image Manager. Currently, only the
+  image definitions provided by the OpenStack Image Manager can be used. The option to
+  use your own image definitions will be added in the future.
+
 Deprecations
 ============
 
