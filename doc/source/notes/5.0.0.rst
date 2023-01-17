@@ -227,6 +227,9 @@ OSISM manager
   the standard use of Redis as a cache backend, the facts are kept 24 hours. The facts
   are now only updated every 12 hours.
 
+* With ``osism validate ceph-config`` you can now check whether the configuration for
+  Ceph is OK (https://docs.ceph.com/projects/ceph-ansible/en/latest/index.html#configuration-validation).
+
 Deprecations
 ============
 
