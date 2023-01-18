@@ -47,7 +47,7 @@ docker_images:
   openstack_health_monitor: 'v3.0.0'
   osism: 'latest'
   # renovate: datasource=docker depName=quay.io/osism/patchman
-  patchman: '2.0.6'
+  patchman: '2.0.7'
   # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
   phpmyadmin: '5.2.0'
   # renovate: datasource=docker depName=postgres
