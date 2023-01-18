@@ -289,6 +289,10 @@ Removals
   ``openstack project purge`` can be used as an alternative.
 * Support for Zabbix was already removed in OSISM 3.0.0. The Ansible collection
   ``community.zabbix`` was still present as a leftover.
+* The ``docker-compose`` package is uninstalled by the ``osism.commons.docker_compose`` role.
+  The Compose v2 plugin for Docker is now used instead of the old standalone ``docker-compose`` CLI.
+  A dummy script has been added to ``/usr/local/bin`` which displays a corresponding message when
+  using ``docker-compose``.
 
 Housekeeping
 ============
