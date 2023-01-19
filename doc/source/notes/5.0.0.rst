@@ -276,6 +276,9 @@ OSISM manager
      Working with nodes: ctl[001-003]
      clush>
 
+* With the role ``osism.commons.docker_login`` it is possible to perform a login to a registry
+  independently of ``osism.services.docker``.
+
 Deprecations
 ============
 
@@ -294,6 +297,8 @@ Deprecations
 * Skydive (currently available as Technical Preview) will be removed in the future, the
   project is not maintained anymore, last commit is 8th Jan 2022
   (https://review.opendev.org/c/openstack/kolla/+/869191)
+* The login to a registry with the ``osism.services.docker`` role is deprecated in favor
+  of the new ``osism.commons.docker_login`` role.
 
 Removals
 ========
