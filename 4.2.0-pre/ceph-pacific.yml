@@ -1,0 +1,14 @@
+---
+ansible_version: ">=2.10,<2.11"
+
+ceph_ansible_version: stable-6.0
+ceph_container_version: stable-6.0
+ceph_version: pacific
+
+defaults_version: v0.1.1
+generics_version: v0.2.0
+playbooks_version: v0.6.0
+
+docker_images:
+  ceph: 16.2.9
+  cephclient: 16.2.10
