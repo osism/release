@@ -227,6 +227,11 @@ OSISM manager
      $ osism console ctl003/  # Container prompt
      ctl003>>>
 
+     $ osism console :ctl00[1-3]  # clush
+     Enter 'quit' to leave this interactive mode
+     Working with nodes: ctl[001-003]
+     clush>
+
 * So far, the facts have been updated every 10 minutes. This is not necessary. Through
   the standard use of Redis as a cache backend, the facts are kept 24 hours. The facts
   are now only updated every 12 hours.
@@ -256,6 +261,16 @@ OSISM manager
      | remove-zabbix-agent                                              | monitoring     |
      | openstack-health-monitor                                         | monitoring     |
      | auditd                                                           | generic        |
+
+* The ``osism console`` command now supports the clustershell and can be used to operate a
+  set group of systems at the same time.
+
+  .. code-block:: console
+
+     $ osism console :ctl00[1-3]
+     Enter 'quit' to leave this interactive mode
+     Working with nodes: ctl[001-003]
+     clush>
 
 Deprecations
 ============
