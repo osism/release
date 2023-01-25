@@ -109,10 +109,6 @@ Stable release
 * The release to be created is submitted as a pull request as usual and then
   merged.
 
-* In repository ``osism/container-images/kolla``, the release submodule must
-  be updated. To do this run action ``Update release submodule`` manually and
-  then merge the created pull request.
-
 * Add a tag with the name of the new release to the listed repositories.
 
   .. code-block:: none
