@@ -27,14 +27,14 @@ Use of a specific release in the configuration repository
 
   .. code-block:: console
 
-     MANAGER_VERSION=4.0.0 gilt overlay  # you have to do this 2x
-     MANAGER_VERSION=4.0.0 gilt overlay
+     MANAGER_VERSION=4.2.0 gilt overlay  # you have to do this 2x
+     MANAGER_VERSION=4.2.0 gilt overlay
 
 * set the new manager version in the configuration repository
 
   .. code-block:: console
 
-     yq -i '.manager_version = "4.0.0"' environments/manager/configuration.yml
+     yq -i '.manager_version = "4.2.0"' environments/manager/configuration.yml
 
 If ``openstack_version`` or ``ceph_version`` are set in ``environments/manager/configuration.yml``:
 these parameters are removed when using a stable release
@@ -58,11 +58,6 @@ these parameters are removed when using a stable release
 
      osism apply facts
      osism-generic facts  # old way
-
-
-With Release 3.0.0, a manual update of the environment is required afterwards. As
-of Release 4.0.0, this will no longer be necessary.
-
 
 How do we release?
 ==================
