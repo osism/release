@@ -40,7 +40,7 @@ infrastructure_projects:
 
 openstack_projects:
   aodh: 14.0.0
-  barbican: 14.0.0
+  barbican: 14.0.2
   bifrost: 14.0.0
   ceilometer: 18.0.0
   cinder: 20.0.1
@@ -50,13 +50,13 @@ openstack_projects:
   gnocchi: 4.4.2
   heat: 18.0.0
   horizon: 22.1.0
-  ironic: 20.1.0
+  ironic: 20.1.1
   keystone: 21.0.0
   kuryr: 2.5.0
-  magnum: 14.0.0
-  manila: 14.0.0
+  magnum: 14.1.0
+  manila: 14.0.1
   mistral: 14.0.0
-  neutron-vpnaas-agent: 20.0.0
+  neutron-vpnaas-agent: 20.0.1
   neutron: 20.2.0
   nova: 25.0.1
   octavia: 10.0.0
