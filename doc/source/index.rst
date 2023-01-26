@@ -36,8 +36,8 @@ Use of a specific release in the configuration repository
 
      yq -i '.manager_version = "4.2.0"' environments/manager/configuration.yml
 
-If ``openstack_version`` or ``ceph_version`` are set in ``environments/manager/configuration.yml``:
-these parameters are removed when using a stable release
+* if ``openstack_version`` or ``ceph_version`` are set in ``environments/manager/configuration.yml``,
+  they must be removed when using a stable release
 
 * update the manager services on the manager
 
