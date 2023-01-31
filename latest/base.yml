@@ -12,7 +12,7 @@ osism_projects:
   # renovate: datasource=docker depName=quay.io/osism/ara-server
   ara: '1.6.1'
   # renovate: datasource=github-releases depName=moby/moby
-  docker: '5:20.10.22'
+  docker: '5:20.10.23'
 
 docker_images:
   # renovate: datasource=docker depName=adminer
