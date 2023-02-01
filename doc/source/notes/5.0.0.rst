@@ -169,7 +169,7 @@ OSISM manager
      INFO:__main__:Copying service configuration files
      [...]
 
-* With the ``validate`` command, it is possible to run validators, e.g. for Ceph. If you call the
+* With the ``validate`` command, it is possible to run validators. If you call the
   ``validate`` command without further parameters, all available validators will be displayed.
 
   The validators used are available in the Ansible collection
@@ -184,6 +184,10 @@ OSISM manager
      TASK [osism.validations.ulimits : Get nofiles limit] ***************************
      ok: [mgr003]
      [...]
+
+* For Ceph, special playbooks were added to validate the deployment status of the OSD,
+  MON and MGR services. The commands for use are ``osism validate ceph-osds``,
+  ``osism validate ceph-mons``, and ``osism validate ceph-mgrs``.
 
 * ``ansible.utils`` and ``kubernetes.core`` Ansible collections are now usable.
 
