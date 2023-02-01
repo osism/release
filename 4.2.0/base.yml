@@ -22,7 +22,7 @@ docker_images:
   keycloak: '19.0.3-legacy'
   mariadb: '10.9.3'
   memcached: '1.6.17-alpine'
-  netbox: 'v3.2.5-ldap'
+  netbox: 'v3.4.2'
   nexus: '3.42.1'
   nginx: '1.23.2-alpine'
   docker_openpolicyagent: '0.8'
