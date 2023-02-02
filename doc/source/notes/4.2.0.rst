@@ -16,6 +16,13 @@ in the next minor release.
 In the meantime please add ``om_enable_rabbitmq_high_availability: false``
 to your ``environments/kolla/configuration.yml`` file.
 
+At the moment ``external_ceph_always_copy_cinder_keyring`` is missing in the
+Ansible defaults for ``4.2.0``. We will add the missing default value
+in the next minor release.
+
+In the meantime please add ``external_ceph_always_copy_cinder_keyring: "no"``
+to your ``environments/kolla/configuration.yml`` file.
+
 Changed versions
 ================
 
