@@ -287,7 +287,6 @@ Deprecations
   as of now and will be removed in the future (exact removal date is not yet known)
 * Magnum (currently available as Technical Preview) will be removed in favor of Gardener and
   Cluster API
-* Mistral (currently available as Technical Preview) will be removed
 * Swift (currently available as Technical Preview) will be removed in favor of Ceph RGW
 * Trove (currently available as Technical Preview) will be removed in favor of Kubernetes
   database operators
