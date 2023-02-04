@@ -61,5 +61,6 @@ openstack_projects:
   octavia: 11.0.0
   placement: 8.0.0
   senlin: 14.0.0
+  skyline: 1.0.0
   swift: 2.30.0
   trove: 18.0.0
