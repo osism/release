@@ -326,6 +326,17 @@ Upgrade notes
   the version of the ARA server on the manager is lower than ``1.6.x`` problems may occur.
   When updating the Ansible container, the ARA server should also be updated to version
   ``1.6.x`` accordingly.
+* Kolla-Ansible now only supports OpenSearch instead of ElasticSearch + Kibana. 
+  If you are currently deploying ElasticSearch with Kolla Ansible, you should backup
+  the data before starting the upgrade. The contents of the ElasticSearch data volume
+  will be automatically moved to the OpenSearch volume. The ElasticSearch, ElasticSearch
+  Curator and Kibana containers will be removed automatically. The inventory must be
+  updated so that the elasticsearch group is renamed to opensearch, and the kibana group
+  is renamed to opensearch-dashboards. A new secret ``opensearch_dashboards_password`` has
+  to be added to the ``secrets.yml`` file.
+* The ``ovn`` role has been split into ``ovn-controller`` and ``ovn-db`` roles, therefore users
+  that have ``ovn_extra_volumes`` configured need to adapt their config to use 
+  ``ovn_db_extra_volumes`` or ``ovn_controller_extra_volumes``.
 
 References
 ==========
