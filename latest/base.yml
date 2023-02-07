@@ -26,7 +26,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/osism/dnsdist
   dnsdist: '1.6.1'
   # renovate: datasource=docker depName=quay.io/osism/homer
-  homer: 'v22.11.2'
+  homer: 'v23.02.1'
   inventory_reconciler: 'latest'
   # renovate: datasource=docker depName=fleetdm/fleet
   fleet: 'v4.27.0'
