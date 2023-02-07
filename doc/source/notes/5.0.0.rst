@@ -279,6 +279,9 @@ OSISM manager
 * With the role ``osism.commons.docker_login`` it is possible to perform a login to a registry
   independently of ``osism.services.docker``.
 
+* By switching from ``ansible`` to ``ansible-core``, the size of the Ansible manager images
+  has been significantly reduced (appr. 400 MByte / image)
+
 Deprecations
 ============
 
