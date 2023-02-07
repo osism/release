@@ -141,6 +141,11 @@ Stable release
      osism/container-image-kolla-ansible
      osism/container-image-osism-ansible
 
+* Test. Test. Test.
+
+* After all known issues are documented, a corresponding tag, e.g. ``v4.2.0``, is set on the
+  release repository.
+
 Questions & Answers
 ===================
 
