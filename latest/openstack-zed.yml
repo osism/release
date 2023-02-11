@@ -1,6 +1,6 @@
 ---
-ansible_version: '>=5.0.0,<6.0.0'
-ansible_core_version: "2.12.10"
+ansible_version: '>=6.0.0,<7.0.0'
+ansible_core_version: "2.13.7"
 
 openstack_version: zed
 openstack_previous_version: yoga
