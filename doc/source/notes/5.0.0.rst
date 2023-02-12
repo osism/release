@@ -282,6 +282,10 @@ OSISM manager
 * By switching from ``ansible`` to ``ansible-core``, the size of the Ansible manager images
   has been significantly reduced (appr. 400 MByte / image)
 
+* With the parameters ``mariadb_datadir_volume`` and ``rabbitmq_datadir_volume`` it is possible
+  to configure dedicated data volumes for the MariaDB and RabbitmQ services. This allows, for
+  example, dedicated NVMes to be used for these services.
+
 Deprecations
 ============
 
