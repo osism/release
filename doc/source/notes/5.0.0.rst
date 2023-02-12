@@ -345,6 +345,19 @@ Upgrade notes
 * The ``ovn`` role has been split into ``ovn-controller`` and ``ovn-db`` roles, therefore users
   that have ``ovn_extra_volumes`` configured need to adapt their config to use 
   ``ovn_db_extra_volumes`` or ``ovn_controller_extra_volumes``.
+* The ``ironic_dnsmasq_dhcp_range`` and ``ironic_dnsmasq_default_gateway`` parameters were
+  replaced with ``ironic_dnsmasq_dhcp_ranges``.
+
+  .. code-block:: yaml
+
+     # Old way
+     ironic_dnsmasq_dhcp_range: "192.168.112.50,192.168.112.60"
+     ironic_dnsmasq_default_gateway: "192.168.112.1"
+
+     # New way
+     ironic_dnsmasq_dhcp_ranges:
+       - range: "192.168.112.50,192.168.112.60"
+         routers: "192.168.112.1"
 
 References
 ==========
