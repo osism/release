@@ -290,6 +290,11 @@ OSISM manager
   to configure dedicated data volumes for the MariaDB and RabbitmQ services. This allows, for
   example, dedicated NVMes to be used for these services.
 
+Other
+=====
+
+* The Kubernetes CAPI images have been upgraded from Ubuntu 20.04 to Ubuntu 22.04.
+
 Deprecations
 ============
 
