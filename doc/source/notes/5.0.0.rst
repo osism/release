@@ -369,6 +369,8 @@ Upgrade notes
      ironic_dnsmasq_dhcp_ranges:
        - range: "192.168.112.50,192.168.112.60"
          routers: "192.168.112.1"
+* The ``zuul_tag`` parameter for the ``osism.services.zuul`` role has been renamed to
+  ``zuul_zuul_tag`` for consistency with the other container tag variables.
 
 References
 ==========
