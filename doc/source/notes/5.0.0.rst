@@ -79,6 +79,8 @@ OpenStack image manager
   YAML files with included image definitions
 * All parameters marked as mandatory by the Sovereign Cloud Stack (SCS) image standard are
   now set or requested accordingly if they are not set.
+* A dedicated crawler service to update the image definitions was sponsored by Plusserver
+  and integration into the code base was started.
 
 OSISM manager
 -------------
