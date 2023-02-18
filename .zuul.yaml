@@ -3,7 +3,9 @@
     merge-mode: squash-merge
     check:
       jobs:
-        - tox-linters
+        - flake8
+        - yamllint
     gate:
       jobs:
-        - tox-linters
+        - flake8
+        - yamllint
