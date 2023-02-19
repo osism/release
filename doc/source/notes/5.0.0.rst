@@ -292,6 +292,10 @@ OSISM manager
   to configure dedicated data volumes for the MariaDB and RabbitmQ services. This allows, for
   example, dedicated NVMes to be used for these services.
 
+* Skyline is available as technical preview. Skyline is an OpenStack dashboard optimized by UI
+  and UE, support OpenStack Train+. It has a modern technology stack and ecology, is easier
+  for developers to maintain and operate by users, and has higher concurrency performance.
+
 Other
 =====
 
@@ -399,3 +403,4 @@ OpenStack Zed release notes:
 * Overview: https://releases.openstack.org/zed/index.html
 * Placement: https://docs.openstack.org/releasenotes/placement/zed.html
 * Senlin: https://docs.openstack.org/releasenotes/senlin/zed.html
+* Skyline: https://docs.openstack.org/releasenotes/skyline-apiserver/zed.html, https://docs.openstack.org/releasenotes/skyline-console/zed.html
