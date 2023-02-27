@@ -29,6 +29,9 @@ Features
 
 * The testbed has been significantly simplified for new operators and developers and a Quick Start
   guide has been added
+* The testbed has now an integrated proxy which is used by all docker daemons to pull their images
+  only from allowed domains. The proxy (in this case squid) is a container itself and needs to be
+  pulled from the internet currently.
 * In order to avoid having to install the manager and, if necessary, the control nodes
   manually when setting up a new OSISM environment, an ISO image is now available.
   `osism/node-image <https://github.com/osism/node-image>`_ automatically installs a new

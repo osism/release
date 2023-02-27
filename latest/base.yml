@@ -10,61 +10,61 @@ operations_version: main
 playbooks_version: main
 
 osism_projects:
-  # renovate: datasource=docker depName=quay.io/osism/ara-server
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/osism/ara-server
   ara: '1.6.1'
-  # renovate: datasource=github-releases depName=moby/moby
+  # renovate: datasource=github-releases depName=registry.airgap.services.osism.tech/moby/moby
   docker: '5:20.10.23'
 
 docker_images:
-  # renovate: datasource=docker depName=adminer
+  # renovate: datasource=docker depName=registry.airgap.services.osism.techadminer
   adminer: '4.8.1'
-  # renovate: datasource=docker depName=alerta/alerta-web
+  # renovate: datasource=docker depName=registry.airgap.services.osism.techalerta/alerta-web
   alerta: '8.7.0'
-  # renovate: datasource=docker depName=quay.io/osism/ara-server
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/osism/ara-server
   ara_server: '1.6.1'
-  # renovate: datasource=docker depName=quay.io/osism/cgit
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/osism/cgit
   cgit: '1.2.3'
-  # renovate: datasource=docker depName=quay.io/osism/dnsdist
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/osism/dnsdist
   dnsdist: '1.6.1'
-  # renovate: datasource=docker depName=quay.io/osism/homer
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/osism/homer
   homer: 'v23.02.2'
   inventory_reconciler: 'latest'
-  # renovate: datasource=docker depName=fleetdm/fleet
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/fleetdm/fleet
   fleet: 'v4.28.1'
-  # renovate: datasource=docker depName=quay.io/keycloak/keycloak
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/keycloak/keycloak
   keycloak: '19.0.3-legacy'
-  # renovate: datasource=docker depName=mariadb
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/mariadb
   mariadb: '10.11.2'
-  # renovate: datasource=docker depName=memcached
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/memcached
   memcached: '1.6.19-alpine'
-  # renovate: datasource=docker depName=quay.io/osism/netbox
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/osism/netbox
   netbox: 'v3.4.6'
-  # renovate: datasource=docker depName=quay.io/osism/nexus
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/osism/nexus
   nexus: '3.49.0'
-  # renovate: datasource=docker depName=nginx
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/nginx
   nginx: '1.23.3-alpine'
   docker_openpolicyagent: '0.8'
   # yamllint disable-line rule:line-length
-  # renovate: datasource=docker depName=quay.io/sovereigncloudstack/openstack-health-monitor
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/sovereigncloudstack/openstack-health-monitor
   openstack_health_monitor: 'v3.0.0'
   osism: 'latest'
-  # renovate: datasource=docker depName=quay.io/osism/patchman
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/osism/patchman
   patchman: '2.0.13'
-  # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/phpmyadmin/phpmyadmin
   phpmyadmin: '5.2.1'
-  # renovate: datasource=docker depName=postgres
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/postgres
   postgres: '15.2-alpine'
-  # renovate: datasource=docker depName=redis
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/redis
   redis: '7.0.9-alpine'
-  # renovate: datasource=docker depName=registry
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/registry
   registry: '2.8'
-  # renovate: datasource=docker depName=ubuntu/squid
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/ubuntu/squid
   squid: '5.2-22.04_beta'
-  # renovate: datasource=docker depName=traefik
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/traefik
   traefik: 'v2.9.8'
-  # renovate: datasource=docker depName=hashicorp/vault
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/hashicorp/vault
   vault: '1.13.0'
-  # renovate: datasource=docker depName=zookeeper
+  # renovate: datasource=docker depName=registry.airgap.services.osism.tech/zookeeper
   zookeeper: '3.8.1'
   # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
   zuul_client: '8.2.0'
