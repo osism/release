@@ -47,7 +47,7 @@ openstack_projects:
   cloudkitty: 17.0.0
   designate: 15.0.0
   glance: 25.1.0
-  gnocchi: 4.4.2
+  gnocchi: 4.5.0
   heat: 19.0.0
   horizon: 23.0.0
   ironic: 21.1.0
