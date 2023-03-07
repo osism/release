@@ -146,7 +146,7 @@ Stable release
 5. After completing the creation of the images in repository ``container-images-kolla``,
    the file ``images.yml`` must be added to repository ``osism/sbom`` as
    ``5.0.0/openstack.yml`` (instead of ``5.0.0``, the corresponding release is used).
-   The file is available as a build artefact of the ``Build container images`` action
+   The file is available as a build artefact of the ``Release container images`` action
    on the created tag.
 
    Before the file is added, it is enhanced with the checksums of the images. The script
