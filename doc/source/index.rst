@@ -173,8 +173,8 @@ Stable release
 8. Test. Test. Test.
 
 9. Prepare a PR to change the stable version to the new stable version in the Zuul job
-  .``testbed-deploy-stable`` in the ``osism/testbed`` repository. All tests there must
-  .pass successfully before the tag is set on this repository in the next step.
+   ``testbed-deploy-stable`` in the ``osism/testbed`` repository. All tests there must
+   pass successfully before the tag is set on this repository in the next step.
 
 10. After all known issues are documented, a corresponding tag, e.g. ``v5.0.0``, is set on the
     release repository.
