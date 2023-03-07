@@ -86,72 +86,101 @@ How do you do a release?
 Pre-release
 -----------
 
+1. Copy the ``latest`` directory. The release to be created is used as the new name.
+
+   .. code-block:: none
+
+      latest -> 5.0.0a
+ 
+2. Remove all ``# renovate`` lines from the ``base.yml`` file.
+  
+3. Remove all Ceph and OpenStack releases that should not be part of the pre-release.
+   There is only one OpenStack version and one Ceph version per (pre-)release.
+
+4. Ensure that the symlinks ``openstack.yml`` and ``ceph.yml`` point to the releases
+   to be used in this pre-release.
+
+   .. code-block:: none
+
+      base.yml
+      ceph-pacific.yml
+      ceph.yml -> ceph-pacific.yml
+      openstack-zed.yml
+      openstack.yml -> openstack-zed.yml
+
+5. Run ``src/prepare-release.py``.
+
+   .. code-block:: none
+
+      RELEASE=5.0.0a python3 src/prepare-release.py
+
+6. Do the steps from the ``Stable release`` starting from the 4th step.
+
 Stable release
 --------------
 
-* Copy the directory of the last pre-release or the previous stable release.
-  The release to be created is used as the new name.
+1. Copy the directory of the last pre-release or the previous stable release.
+   The release to be created is used as the new name.
 
-  .. code-block:: none
+   .. code-block:: none
 
-     4.0.0b -> 4.0.0
-     4.0.0  -> 4.1.0
+      5.0.0a -> 5.0.0
 
-* Change all necessary versions in the YAML files within the new directory.
-  In any case, the version of the pre-release or the version of the stable
-  release must be replaced by the release to be created.
+2. Change all necessary versions in the YAML files within the new directory.
+   In any case, the version of the pre-release or the version of the stable
+   release must be replaced by the release to be created.
 
-* The release to be created is submitted as a pull request as usual and then
-  merged.
+3. The release to be created is submitted as a pull request as usual and then
+   merged.
 
-* Add a tag with the name of the new release to the listed repositories.
+4. Add a tag with the name of the new release to the listed repositories.
 
-  .. code-block:: none
+   .. code-block:: none
 
-     osism/cfg-cookiecutter
-     osism/container-image-ceph-ansible
-     osism/container-image-inventory-reconciler
-     osism/container-image-osism-ansible
-     osism/container-images-kolla
+      osism/cfg-cookiecutter
+      osism/container-image-ceph-ansible
+      osism/container-image-inventory-reconciler
+      osism/container-image-osism-ansible
+      osism/container-images-kolla
 
-* After completing the creation of the images in repository ``container-images-kolla``,
-  the file ``images.yml`` must be added to repository ``osism/sbom`` as
-  ``4.0.0/openstack.yml`` (instead of ``4.0.0``, the corresponding release is used).
-  The file is available as a build artefact of the ``Build container images`` action
-  on the created tag.
+5. After completing the creation of the images in repository ``container-images-kolla``,
+   the file ``images.yml`` must be added to repository ``osism/sbom`` as
+   ``5.0.0/openstack.yml`` (instead of ``5.0.0``, the corresponding release is used).
+   The file is available as a build artefact of the ``Build container images`` action
+   on the created tag.
 
-  Before the file is added, it is enhanced with the checksums of the images. The script
-  is available in the ``osism/sbom`` repository.
+   Before the file is added, it is enhanced with the checksums of the images. The script
+   is available in the ``osism/sbom`` repository.
 
-  .. code-block:: none
+   .. code-block:: none
 
-     VERSION=4.0.0 python3 scripts/add-image-checksum.py
+      VERSION=5.0.0 python3 scripts/add-image-checksum.py
 
-* If ``4.0.0/openstack.yml`` is present in ``osism/sbom``, repository
-  ``osism/container-image-kolla-ansible`` can be tagged like the other
-  repositories before.
+6. If ``5.0.0/openstack.yml`` is present in ``osism/sbom``, repository
+   ``osism/container-image-kolla-ansible`` can be tagged like the other
+   repositories before.
 
-* Add the created SPDX files from the listed repositories to the ``osism/sbom`` repository.
-  The file are available as build artefacts of the ``Build container image`` action
-  on the created tags.
+7. Add the created SPDX files from the listed repositories to the ``osism/sbom`` repository.
+   The file are available as build artefacts of the ``Build container image`` action
+   on the created tags.
 
-  .. code-block:: none
+   .. code-block:: none
 
-     osism/container-image-ceph-ansible
-     osism/container-image-kolla-ansible
-     osism/container-image-osism-ansible
+      osism/container-image-ceph-ansible
+      osism/container-image-kolla-ansible
+      osism/container-image-osism-ansible
 
-* Test. Test. Test.
+8. Test. Test. Test.
 
-* Prepare a PR to change the stable version to the new stable version in the Zuul job
-  ``testbed-deploy-stable`` in the ``osism/testbed`` repository. All tests there must
-  pass successfully before the tag is set on this repository in the next step.
+9. Prepare a PR to change the stable version to the new stable version in the Zuul job
+  .``testbed-deploy-stable`` in the ``osism/testbed`` repository. All tests there must
+  .pass successfully before the tag is set on this repository in the next step.
 
-* After all known issues are documented, a corresponding tag, e.g. ``v4.2.0``, is set on the
-  release repository.
+10. After all known issues are documented, a corresponding tag, e.g. ``v5.0.0``, is set on the
+    release repository.
 
-* As the last of the release process, the previously prepared PR is merged on the
-  ``osism/testbed`` repository to change the stable version.
+11. As the last of the release process, the previously prepared PR is merged on the
+    ``osism/testbed`` repository to change the stable version.
 
 Questions & Answers
 ===================

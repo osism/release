@@ -5,9 +5,9 @@ ceph_ansible_version: stable-6.0
 ceph_container_version: stable-6.0
 ceph_version: pacific
 
-defaults_version: main
-generics_version: main
-playbooks_version: main
+defaults_version: c550925f8b9d9e86ca546d4411d4d740b3416fa8
+generics_version: 0652cc3493260bcf5b4d6ac30dbae85cd4d2177e
+playbooks_version: c60ce45af1eda5e58a4619b7fd35c5ad238d67a4
 
 docker_images:
   ceph: pacific

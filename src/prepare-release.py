@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 
@@ -28,18 +28,53 @@ for mapping in mapping_files:
 with open(f"{release}/base.yml", "r") as fp:
     data = yaml.load(fp)
 
-# base: operations
+with open(f"{release}/ceph.yml", "r") as fp:
+    data_ceph = yaml.load(fp)
 
-repository = gh.get_repo(mappings["operations"])
-if data["operations_version"] in ["main", "master"]:
-    try:
-        branch = repository.get_branch(data["operations_version"])
-        data["operations_version"] = branch.commit.sha
-    except:
-        print(
-            "branch %s for repository %s not found"
-            % (data["operations_version"], mappings["operations"])
-        )
+with open(f"{release}/openstack.yml", "r") as fp:
+    data_openstack = yaml.load(fp)
+
+# ceph: defaults, generics, ...
+
+for name in ["defaults", "generics", "playbooks"]:
+    repository = gh.get_repo(mappings[name])
+    if data_ceph[f"{name}_version"] in ["main", "master"]:
+        try:
+            branch = repository.get_branch(data_ceph[f"{name}_version"])
+            data_ceph[f"{name}_version"] = branch.commit.sha
+        except:
+            print(
+                "branch %s for repository %s not found"
+                % (data_ceph[f"{name}_version"], mappings[name])
+            )
+
+# openstack: defaults, generics, ...
+
+for name in ["defaults", "generics", "playbooks"]:
+    repository = gh.get_repo(mappings[name])
+    if data_openstack[f"{name}_version"] in ["main", "master"]:
+        try:
+            branch = repository.get_branch(data_openstack[f"{name}_version"])
+            data_openstack[f"{name}_version"] = branch.commit.sha
+        except:
+            print(
+                "branch %s for repository %s not found"
+                % (data_openstack[f"{name}_version"], mappings[name])
+            )
+
+# base: operations, defaults, ...
+
+for name in ["defaults", "generics", "operations", "playbooks"]:
+    repository = gh.get_repo(mappings[name])
+    if data[f"{name}_version"] in ["main", "master"]:
+        try:
+            branch = repository.get_branch(data[f"{name}_version"])
+            data[f"{name}_version"] = branch.commit.sha
+        except:
+            print(
+                "branch %s for repository %s not found"
+                % (data[f"{name}_version"], mappings[name])
+            )
 
 # base: prepare roles
 
@@ -87,7 +122,13 @@ for collection in data["ansible_collections"]:
 
 data["manager_version"] = release
 
-# save base
+# save files
 
 with open(f"{release}/base.yml", "w") as fp:
     yaml.dump(data, fp)
+
+with open(f"{release}/ceph.yml", "w") as fp:
+    yaml.dump(data_ceph, fp)
+
+with open(f"{release}/openstack.yml", "w") as fp:
+    yaml.dump(data_openstack, fp)
