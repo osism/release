@@ -105,7 +105,7 @@ ansible_collections:
   debops.debops: '3.0.3'
   kubernetes.core: '2.3.2'
   netbox.netbox: '3.11.0'
-  openstack.cloud: '1.10.0'
+  openstack.cloud: '2.0.0'
   osism.commons: main
   osism.services: main
   osism.sonic: main
