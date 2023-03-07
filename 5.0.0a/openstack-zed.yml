@@ -5,9 +5,9 @@ ansible_core_version: "2.13.7"
 openstack_version: zed
 openstack_previous_version: yoga
 
-defaults_version: main
-generics_version: main
-playbooks_version: main
+defaults_version: c550925f8b9d9e86ca546d4411d4d740b3416fa8
+generics_version: 0652cc3493260bcf5b4d6ac30dbae85cd4d2177e
+playbooks_version: c60ce45af1eda5e58a4619b7fd35c5ad238d67a4
 
 docker_images:
   openstackclient: zed
@@ -33,36 +33,37 @@ infrastructure_projects:
   openstack-base:
   openvswitch:
   ovn:
+  ovsdpdk:
   prometheus:
   rabbitmq:
   redis:
   tgtd:
 
 openstack_projects:
-  aodh: 15.0.0
-  barbican: 15.0.1
-  bifrost: 15.0.0
-  ceilometer: 19.0.0
-  cinder: 21.1.0
-  cloudkitty: 17.0.0
-  designate: 15.0.0
-  glance: 25.1.0
-  gnocchi: 4.4.2
-  heat: 19.0.0
-  horizon: 23.0.0
-  ironic: 21.1.0
-  keystone: 22.0.0
-  kuryr: 2.6.0
-  magnum: 15.0.1
-  manila: 15.1.0
-  mistral: 15.0.0
-  neutron-vpnaas: 21.0.0
-  neutron: 21.0.0
-  nova: 26.1.0
-  octavia: 11.0.0
-  placement: 8.0.0
-  senlin: 14.0.0
-  skyline-apiserver: 1.0.0
-  skyline-console: 1.0.0
-  swift: 2.30.1
-  trove: 18.0.0
+  aodh: stable-zed
+  barbican: stable-zed
+  bifrost: stable-zed
+  ceilometer: stable-zed
+  cinder: stable-zed
+  cloudkitty: stable-zed
+  designate: stable-zed
+  glance: stable-zed
+  gnocchi: 4.5.0
+  heat: stable-zed
+  horizon: stable-zed
+  ironic: stable-zed
+  keystone: stable-zed
+  kuryr: stable-zed
+  magnum: stable-zed
+  manila: stable-zed
+  mistral: stable-zed
+  neutron-vpnaas: stable-zed
+  neutron: stable-zed
+  nova: stable-zed
+  octavia: stable-zed
+  placement: stable-zed
+  senlin: stable-zed
+  skyline-apiserver: stable-zed
+  skyline-console: stable-zed
+  swift: stable-zed
+  trove: stable-zed
