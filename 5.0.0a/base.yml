@@ -19,7 +19,7 @@ docker_images:
   cgit: '1.2.3'
   dnsdist: '1.6.1'
   homer: 'v23.02.2'
-  inventory_reconciler: 'latest'
+  inventory_reconciler: '5.0.0a'
   fleet: 'v4.28.0'
   keycloak: '19.0.3-legacy'
   mariadb: '10.11.2'
@@ -48,13 +48,13 @@ docker_images:
   zuul_web: '8.2.0'
 
 ansible_roles:
-  geerlingguy.certbot: 3d55be0a54dc56d18ef70a7254a2afbc51b463ca
-  geerlingguy.dotfiles: 8963afc862e452589502a9abe0ce01a2ffce4326
-  hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
-  stackhpc.libvirt_host: 27144f846d2c088d9de0d633f2ad26060bd8e5e7
-  stackhpc.libvirt_vm: fc3687773232a211a57c4cc49c39c46b86c353de
-  stackhpc.luks: 8ef3fad657062eb88ec61b0d6da093da0aa71872
-  stackhpc.systemd_networkd: 2b89668768997253dac6805c51d1affa0364217c
+  geerlingguy.certbot: '3d55be0a54dc56d18ef70a7254a2afbc51b463ca'
+  geerlingguy.dotfiles: '8963afc862e452589502a9abe0ce01a2ffce4326'
+  hardening: 'e77c311442cb1d1ef8caa7df9d9c00471afa75e7'
+  stackhpc.libvirt_host: '27144f846d2c088d9de0d633f2ad26060bd8e5e7'
+  stackhpc.libvirt_vm: 'fc3687773232a211a57c4cc49c39c46b86c353de'
+  stackhpc.luks: '8ef3fad657062eb88ec61b0d6da093da0aa71872'
+  stackhpc.systemd_networkd: '2b89668768997253dac6805c51d1affa0364217c'
 
 ansible_collections:
   ansible.netcommon: '5.0.0'
@@ -74,8 +74,7 @@ ansible_collections:
   kubernetes.core: '2.3.2'
   netbox.netbox: '3.11.0'
   openstack.cloud: '1.10.0'
-  osism.commons: 082792979d27aa1bc227f4117e185019a5bfa260
-  osism.services: f290601e8514628e5441e2a0c5d670c6dcf4d758
-  osism.sonic: 7198538cc9d91f08f9a1a065e0dff056dcfccda8
-  osism.validations: 64cbf2b38e4bcd6b61e9edea088327ec119a0802
-  stackhpc.cephadm: 825c64e9c3d09b09a7856008b4dd644580b74fd6
+  osism.commons: '0.12.0'
+  osism.services: '0.12.0'
+  osism.validations: '0.6.0'
+  stackhpc.cephadm: '1.13.0'
