@@ -28,8 +28,7 @@ docker_images:
   nexus: '3.49.0'
   nginx: '1.23.3-alpine'
   docker_openpolicyagent: '0.8'
-  # yamllint disable-line rule:line-length
-  openstack_health_monitor: 'v3.0.0'
+  openstack_health_monitor: 'v5.0.pre2'
   osism: '0.11.1'
   patchman: '2.0.13'
   phpmyadmin: '5.2.1'
