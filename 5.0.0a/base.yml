@@ -2,11 +2,11 @@
 ansible_version: '7.3.0'
 ansible_core_version: '2.14.3'
 
-defaults_version: c550925f8b9d9e86ca546d4411d4d740b3416fa8
-generics_version: 0652cc3493260bcf5b4d6ac30dbae85cd4d2177e
+defaults_version: 'v0.20230308.0'
+generics_version: 'v0.20230308.0'
 manager_version: 5.0.0a
-operations_version: 1d48b143f675cc4a1ce699011a8143076420b777
-playbooks_version: c60ce45af1eda5e58a4619b7fd35c5ad238d67a4
+operations_version: 'v0.20230308.0'
+playbooks_version: 'v0.20230308.0'
 
 osism_projects:
   ara: '1.6.1'
@@ -73,7 +73,7 @@ ansible_collections:
   kubernetes.core: '2.3.2'
   netbox.netbox: '3.11.0'
   openstack.cloud: '2.0.0'
-  osism.commons: '0.12.0'
-  osism.services: '0.12.0'
-  osism.validations: '0.20230308.0'
+  osism.commons: '0.20230308.0'
+  osism.services: '0.20230308.0'
+  osism.validations: '0.20230308.1'
   stackhpc.cephadm: '1.13.0'
