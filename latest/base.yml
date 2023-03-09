@@ -102,7 +102,7 @@ ansible_collections:
   community.network: '5.0.0'
   community.rabbitmq: '1.2.3'
   containers.podman: '1.10.1'
-  debops.debops: '3.0.3'
+  debops.debops: '3.0.4'
   kubernetes.core: '2.3.2'
   netbox.netbox: '3.11.0'
   openstack.cloud: '2.0.0'
