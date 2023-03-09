@@ -10,5 +10,5 @@ generics_version: 'v0.20230308.0'
 playbooks_version: 'v0.20230308.0'
 
 docker_images:
-  ceph: 16.2.10
+  ceph: 16.2.11
   cephclient: 16.2.11
