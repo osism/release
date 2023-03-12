@@ -6,7 +6,7 @@ The latest available stable release is 4.2.0.
 
 Release 5.0.0 is currently under development.
 
-The next available pre-release will be 5.0.0a.
+The latest available pre-release is 5.0.0b.
 
 Release notes
 =============
@@ -89,13 +89,16 @@ Pre-release
 1. On all repositories that are used, check that the versions to be used have an
    appropriate version tag (e.g. ``v0.20230308.0``).
 
-   * osism/ansible-collection-commons
-   * osism/ansible-collection-services
-   * osism/ansible-collection-validations
-   * osism/ansible-defaults
-   * osism/ansible-playbooks
-   * osism/cf-generics
-   * osism/kolla-operations
+   .. code-block:: none
+
+      osism/ansible-collection-commons
+      osism/ansible-collection-services
+      osism/ansible-collection-validations
+      osism/ansible-defaults
+      osism/ansible-playbooks
+      osism/cf-generics
+      osism/kolla-operations
+      osism/python-osism
 
 2. Copy the ``latest`` directory. The release to be created is used as the new name.
 
