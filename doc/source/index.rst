@@ -86,18 +86,29 @@ How do you do a release?
 Pre-release
 -----------
 
-1. Copy the ``latest`` directory. The release to be created is used as the new name.
+1. On all repositories that are used, check that the versions to be used have an
+   appropriate version tag (e.g. ``v0.20230308.0``).
+
+   * osism/ansible-collection-commons
+   * osism/ansible-collection-services
+   * osism/ansible-collection-validations
+   * osism/ansible-defaults
+   * osism/ansible-playbooks
+   * osism/cf-generics
+   * osism/kolla-operations
+
+2. Copy the ``latest`` directory. The release to be created is used as the new name.
 
    .. code-block:: none
 
       latest -> 5.0.0a
  
-2. Remove all ``# renovate`` lines from the ``base.yml`` file.
+3. Remove all ``# renovate`` lines from the ``base.yml`` file.
   
-3. Remove all Ceph and OpenStack releases that should not be part of the pre-release.
+4. Remove all Ceph and OpenStack releases that should not be part of the pre-release.
    There is only one OpenStack version and one Ceph version per (pre-)release.
 
-4. Ensure that the symlinks ``openstack.yml`` and ``ceph.yml`` point to the releases
+5. Ensure that the symlinks ``openstack.yml`` and ``ceph.yml`` point to the releases
    to be used in this pre-release.
 
    .. code-block:: none
@@ -108,13 +119,13 @@ Pre-release
       openstack-zed.yml
       openstack.yml -> openstack-zed.yml
 
-5. Run ``src/prepare-release.py``.
+6. Run ``src/prepare-release.py``.
 
    .. code-block:: none
 
       RELEASE=5.0.0a python3 src/prepare-release.py
 
-6. Do the steps from the ``Stable release`` starting from the 4th step.
+7. Do the steps from the ``Stable release`` starting from the 4th step.
 
 Stable release
 --------------
