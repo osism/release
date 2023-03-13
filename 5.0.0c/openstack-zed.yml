@@ -1,0 +1,69 @@
+---
+ansible_version: '>=6.0.0,<7.0.0'
+ansible_core_version: '2.13.8'
+
+openstack_version: zed
+openstack_previous_version: yoga
+
+defaults_version: 'v0.20230312.0'
+generics_version: 'v0.20230312.0'
+playbooks_version: 'v0.20230313.0'
+
+docker_images:
+  openstackclient: '6.1.0'
+
+infrastructure_projects:
+  chrony:
+  collectd:
+  cron:
+  dnsmasq:
+  etcd:
+  fluentd:
+  grafana:
+  haproxy:
+  influxdb:
+  iscsid:
+  keepalived:
+  kolla-toolbox:
+  logstash:
+  mariadb:
+  memcached:
+  multipathd:
+  opensearch:
+  openstack-base:
+  openvswitch:
+  ovn:
+  ovsdpdk:
+  prometheus:
+  rabbitmq:
+  redis:
+  tgtd:
+
+openstack_projects:
+  aodh: stable-zed
+  barbican: stable-zed
+  bifrost: stable-zed
+  ceilometer: stable-zed
+  cinder: stable-zed
+  cloudkitty: stable-zed
+  designate: stable-zed
+  glance: stable-zed
+  gnocchi: 4.5.0
+  heat: stable-zed
+  horizon: stable-zed
+  ironic: stable-zed
+  keystone: stable-zed
+  kuryr: stable-zed
+  magnum: stable-zed
+  manila: stable-zed
+  mistral: stable-zed
+  neutron-vpnaas: stable-zed
+  neutron: stable-zed
+  nova: stable-zed
+  octavia: stable-zed
+  placement: stable-zed
+  senlin: stable-zed
+  skyline-apiserver: stable-zed
+  skyline-console: stable-zed
+  swift: stable-zed
+  trove: stable-zed

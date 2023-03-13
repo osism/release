@@ -6,7 +6,7 @@ The latest available stable release is 4.2.0.
 
 Release 5.0.0 is currently under development.
 
-The latest available pre-release is 5.0.0b.
+The latest available pre-release is 5.0.0c.
 
 Release notes
 =============
