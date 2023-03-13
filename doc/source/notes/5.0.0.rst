@@ -8,7 +8,7 @@
 
    **The release will be on 22.03.2023.**
 
-Current pre-release: 5.0.0b.
+Current pre-release: 5.0.0c.
 
 Features
 ========
