@@ -13,22 +13,6 @@ Current pre-release: 5.0.0c.
 Features
 ========
 
-* `OpenStack Services Action <https://github.com/marketplace/actions/openstack-services-action>`_ now
-  uses OpenStack Zed as the default OpenStack release
-* `Mitogen <https://mitogen.networkgenomics.com/ansible_detailed.html>`_ is installed
-  in all Ansible containers and can be used
-
-  The use of the Mitogen strategy plugin for Ansible can be enabled via ``ansible.cfg``
-  in the ``environments`` directory
-
-  .. code-block:: ini
-
-     [defaults]
-     strategy_plugins = /usr/share/ansible/plugins/mitogen/ansible_mitogen/plugins/strategy
-     strategy = mitogen_linear
-
-* The testbed has been significantly simplified for new operators and developers and a Quick Start
-  guide has been added
 * In order to avoid having to install the manager and, if necessary, the control nodes
   manually when setting up a new OSISM environment, an ISO image is now available.
   `osism/node-image <https://github.com/osism/node-image>`_ automatically installs a new
@@ -44,6 +28,30 @@ Features
   can be deployed. osquery uses basic SQL commands to leverage a relational data-model to
   describe a device. It will be used in OSISM in the future to obtain facts about system
   states.
+* `Mitogen <https://mitogen.networkgenomics.com/ansible_detailed.html>`_ is installed
+  in all Ansible containers and can be used
+
+  The use of the Mitogen strategy plugin for Ansible can be enabled via ``ansible.cfg``
+  in the ``environments`` directory
+
+  .. code-block:: ini
+
+     [defaults]
+     strategy_plugins = /usr/share/ansible/plugins/mitogen/ansible_mitogen/plugins/strategy
+     strategy = mitogen_linear
+
+  Unfortunately, the latest usable version of Mitogen (v0.3.3, Jun 12, 2022) is only
+  usable up to Ansible 2.13 and is not yet usable with Ansible 2.14. Therefore, the
+  Mitogen plugin can currently not be used with the osism-ansible container.
+  When a new version of Mitogen is released that is usable with Ansible 2.14, it will be
+  made available in a minor release of OSISM 5. Until then, the Mitogen plugin should not
+  be used.
+
+Testbed
+-------
+
+* The testbed has been significantly simplified for new operators and developers and a Quick Start
+  guide has been added
 
 OpenStack image manager
 -----------------------
@@ -336,6 +344,8 @@ Removals
   The Compose v2 plugin for Docker is now used instead of the old standalone ``docker-compose`` CLI.
   A dummy script has been added to ``/usr/local/bin`` which displays a corresponding message when
   using ``docker-compose``.
+* Due to the transition of our CI to Zuul, the Github action for deploying Devstack has been archived
+  and will not be maintained in the future.
 
 Housekeeping
 ============
@@ -377,17 +387,14 @@ Upgrade notes
          routers: "192.168.112.1"
 * The ``zuul_tag`` parameter for the ``osism.services.zuul`` role has been renamed to
   ``zuul_zuul_tag`` for consistency with the other container tag variables.
-* Unfortunately, the latest usable version of Mitogen (v0.3.3, Jun 12, 2022) is only
-  usable up to Ansible 2.13 and is not yet usable with Ansible 2.14. Therefore, the
-  Mitogen plugin can currently no longer be used with the osism-ansible container.
-  When a new version of Mitogen is released that is usable with Ansible 2.14, it will be
-  made available in a minor release of OSISM 5. Until then, the Mitogen plugin cannot be
-  used and should be disabled. By default it is not activated.
 * On Ubuntu 20.04, Ansible is only usable up to Ansible 6 (or Ansible Core 2.13). If a
   manager is still in use on Ubuntu 20.04 and needs to be updated to OSISM 5, either
   the Ansible version must be explicitly set when using osism-update-manager
   (``ANSIBLE_VERSION=6.7.0 osism-update-manager``) or Ansible must be installed via
   ``ppa:ansible/ansible``.
+* The ``osism.services.hddtemp`` role has been changed to ``lm_sensors``. This role now
+  removes the hddtemp service on Ubuntu 22.04. In the future, the role will be renamed
+  from hddtemp to lm_sensors.
 
 References
 ==========
