@@ -383,6 +383,11 @@ Upgrade notes
   When a new version of Mitogen is released that is usable with Ansible 2.14, it will be
   made available in a minor release of OSISM 5. Until then, the Mitogen plugin cannot be
   used and should be disabled. By default it is not activated.
+* On Ubuntu 20.04, Ansible is only usable up to Ansible 6 (or Ansible Core 2.13). If a
+  manager is still in use on Ubuntu 20.04 and needs to be updated to OSISM 5, either
+  the Ansible version must be explicitly set when using osism-update-manager
+  (``ANSIBLE_VERSION=6.7.0 osism-update-manager``) or Ansible must be installed via
+  ``ppa:ansible/ansible``.
 
 References
 ==========
