@@ -377,6 +377,12 @@ Upgrade notes
          routers: "192.168.112.1"
 * The ``zuul_tag`` parameter for the ``osism.services.zuul`` role has been renamed to
   ``zuul_zuul_tag`` for consistency with the other container tag variables.
+* Unfortunately, the latest usable version of Mitogen (v0.3.3, Jun 12, 2022) is only
+  usable up to Ansible 2.13 and is not yet usable with Ansible 2.14. Therefore, the
+  Mitogen plugin can currently no longer be used with the osism-ansible container.
+  When a new version of Mitogen is released that is usable with Ansible 2.14, it will be
+  made available in a minor release of OSISM 5. Until then, the Mitogen plugin cannot be
+  used and should be disabled. By default it is not activated.
 
 References
 ==========
