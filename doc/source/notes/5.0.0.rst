@@ -10,29 +10,9 @@
 
 Current pre-release: 5.0.0c.
 
-Features
-========
-
-* In order to avoid having to install the manager and, if necessary, the control nodes
-  manually when setting up a new OSISM environment, an ISO image is now available.
-  `osism/node-image <https://github.com/osism/node-image>`_ automatically installs a new
-  node with Ubuntu 22.04 on a software RAID 1 and prepares everything to be able to start
-  directly.
-* With the playbook ``ceph-purge-storage-node`` it is possible to remove all Ceph services
-  on a Ceph storage node and remove all Ceph related data and configuration files.
-* With the playbook ``ceph-purge-cluster`` it is possible to remove all Ceph services
-  on all Ceph nodes and remove all Ceph related data and configuration files.
-* `Netbox plugin OSISM <https://github.com/osism/netbox-plugin-osism>`_ now published
-  at `PyPI <https://pypi.org/project/netbox-plugin-osism/>`_
-* With the Ansible role ``osism.services.osquery`` `osquery <https://www.osquery.io>`_
-  can be deployed. osquery uses basic SQL commands to leverage a relational data-model to
-  describe a device. It will be used in OSISM in the future to obtain facts about system
-  states.
 * `Mitogen <https://mitogen.networkgenomics.com/ansible_detailed.html>`_ is installed
-  in all Ansible containers and can be used
-
-  The use of the Mitogen strategy plugin for Ansible can be enabled via ``ansible.cfg``
-  in the ``environments`` directory
+  in all Ansible containers. The use of the Mitogen strategy plugin for Ansible can be
+  enabled via ``ansible.cfg`` in the ``environments`` directory
 
   .. code-block:: ini
 
@@ -47,69 +27,28 @@ Features
   made available in a minor release of OSISM 5. Until then, the Mitogen plugin should not
   be used.
 
-Testbed
--------
-
-* The testbed has been significantly simplified for new operators and developers and a Quick Start
-  guide has been added
-
-OpenStack image manager
------------------------
-
-* Some of the images (Almalinux, Rockylinux, Ubuntu) defined in ``etc/images`` are now
-  automatically updated once a week
-* `OpenStack image manager <https://github.com/osism/openstack-image-manager>`_ now published
-  at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
-* A container image ``harbor.services.osism.tech/osism/openstack-image-manager:latest`` is
-  now available which also contains the default image definitions in ``/etc/openstack-image-manager``
-* It is possible to define meta-information to individual versions of an image
-
-  .. code-block:: yaml
-
-     - name: Sample image
-       [...]
-       meta:
-         architecture: x86_64
-       versions:
-         - version: '1.0'
-           [...]
-           meta:
-             image_build_date: YYYY-MM-DD
-
-* With the ``--validate`` parameter, it is possible to check the images available on an
-  OpenStack environment for conformity with the Sovereign Cloud Stack (SCS) image standard.
-* With the ``--check`` parameter, it is possible to check the correctness of local image
-  definitions.
-* With the parameter ``--filter`` it is possible to filter the list of images to be processed
-  by their names with regular expressions. E.g. ``--filter "Ubuntu 2\d.\d\d"`` can be used
-  to process all Ubuntu images with a version >= 20.04.
-* The ``--images`` parameter can now be passed a single file in addition to a directory with
-  YAML files with included image definitions
-* All parameters marked as mandatory by the Sovereign Cloud Stack (SCS) image standard are
-  now set or requested accordingly if they are not set.
-* A dedicated crawler service to update the image definitions was sponsored by Plusserver
-  and integration into the code base was started.
-
-OSISM manager
--------------
-
 * Support for routeros, which could be used to control Mikrotik devices, has been removed.
   Mikrotik devices were only used by the OSISM project itself in a baremetal testbed. Due
   to the change of the network hardware used by the OSISM project, only SONiC will be
   supported as NOS in the future.
+
 * If `osism <https://pypi.org/project/osism/>`_ is installed via PyPI, Ansible is no longer
   installed as a dependency. This ensures that the services can also be used with older
   Ansible versions. If Ansible is to be installed as well, this can be done via an extra
   requirement using ``osism[ansible]``.
+
 * Since only SONiC will be supported in the future, the following Ansible collections,
   which were previously available as technical previews, have been removed: ``arista.cvp``,
   ``arista.eos``, ``juniper.device``.
+
 * The new Ansible collection `osism.sonic <https://github.com/osism-sonic/ansible-collection-sonic>`_,
   a downstream of
   `dellemc.enterprise_sonic <https://github.com/ansible-collections/dellemc.enterprise_sonic>`_,
   is used to manage SONiC.
+
 * With ``enable_auditd`` it is possible to disable the ``osism.services.auditd`` role
   in the bootstrap and maintenance playbooks
+
 * With the ``dump facts`` command, it is possible to output the facts of Ansible for
   specific systems.
 
@@ -304,26 +243,119 @@ OSISM manager
   and UE, support OpenStack Train+. It has a modern technology stack and ecology, is easier
   for developers to maintain and operate by users, and has higher concurrency performance.
 
+* With the playbook ``ceph-purge-storage-node`` it is possible to remove all Ceph services
+  on a Ceph storage node and remove all Ceph related data and configuration files.
+
+* With the playbook ``ceph-purge-cluster`` it is possible to remove all Ceph services
+  on all Ceph nodes and remove all Ceph related data and configuration files.
+
+* With the Ansible role ``osism.services.osquery`` `osquery <https://www.osquery.io>`_
+  can be deployed. osquery uses basic SQL commands to leverage a relational data-model to
+  describe a device. It will be used in OSISM in the future to obtain facts about system
+  states.
+
+* In the Magnum service, the Cluster API plugin from Vexxhost is available as a technical
+  preview.
+
+* Use of Refstack can be prepared via the ``osism.validations.refstack`` role.
+
+Testbed
+=======
+
+* The testbed has been significantly simplified for new operators and developers and quick start
+  guide has been added.
+
+* Gnocchi, Ceilometer and Prometheus are deployed by default.
+
+* Refstack is run on stable-deploy jobs.
+
+* The documentation was changed to Docusaurus.
+
+OpenStack image manager
+=======================
+
+* Some of the images (Almalinux, Rockylinux, Ubuntu) defined in ``etc/images`` are now
+  automatically updated once a week
+
+* `OpenStack image manager <https://github.com/osism/openstack-image-manager>`_ now published
+  at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
+
+* A container image ``harbor.services.osism.tech/osism/openstack-image-manager:latest`` is
+  now available which also contains the default image definitions in ``/etc/openstack-image-manager``
+
+* It is possible to define meta-information to individual versions of an image
+
+  .. code-block:: yaml
+
+     - name: Sample image
+       [...]
+       meta:
+         architecture: x86_64
+       versions:
+         - version: '1.0'
+           [...]
+           meta:
+             image_build_date: YYYY-MM-DD
+
+* With the ``--validate`` parameter, it is possible to check the images available on an
+  OpenStack environment for conformity with the Sovereign Cloud Stack (SCS) image standard.
+
+* With the ``--check`` parameter, it is possible to check the correctness of local image
+  definitions.
+
+* With the parameter ``--filter`` it is possible to filter the list of images to be processed
+  by their names with regular expressions. E.g. ``--filter "Ubuntu 2\d.\d\d"`` can be used
+  to process all Ubuntu images with a version >= 20.04. The ``--name`` parameter was removed.
+
+* The ``--images`` parameter can now be passed a single file in addition to a directory with
+  YAML files with included image definitions
+
+* All parameters marked as mandatory by the Sovereign Cloud Stack (SCS) image standard are
+  now set or requested accordingly if they are not set.
+
+* A dedicated crawler service to update the image definitions was sponsored by Plusserver
+  and integration into the code base was started. The rework and further integration will
+  take place in the next release.
+
+* The documentation was changed to Docusaurus.
+
 Other
 =====
 
 * The Kubernetes CAPI images have been upgraded from Ubuntu 20.04 to Ubuntu 22.04.
+
+* Garden Linux image is available in version 934.6
+
+* In order to avoid having to install the manager and, if necessary, the control nodes
+  manually when setting up a new OSISM environment, an ISO image is now available.
+  `osism/node-image <https://github.com/osism/node-image>`_ automatically installs a new
+  node with Ubuntu 22.04 on a software RAID 1 and prepares everything to be able to start
+  directly.
+
+* `Netbox plugin OSISM <https://github.com/osism/netbox-plugin-osism>`_ now published
+  at `PyPI <https://pypi.org/project/netbox-plugin-osism/>`_
 
 Deprecations
 ============
 
 * The role ``osism.services.bird`` is deprecated. In future, FRRouting (``osism.services.frr``)
   will be used.
+
 * The role ``osism.services.minikube`` is deprecated. In future ``osism.services.k8s``
   will be used.
+
 * Heat is deprecated in favor of more generic Infrastructure as Code tools like Terraform
   as of now and will be removed in the future (exact removal date is not yet known)
+
 * Swift (currently available as Technical Preview) will be removed in favor of Ceph RGW
+
 * Trove (currently available as Technical Preview) will be removed in favor of Kubernetes
   database operators
+
 * Skydive (currently available as Technical Preview) will be removed in the future, the
   project is not maintained anymore, last commit is 8th Jan 2022
   (https://review.opendev.org/c/openstack/kolla/+/869191)
+
 * The login to a registry with the ``osism.services.docker`` role is deprecated in favor
   of the new ``osism.commons.docker_login`` role.
 
@@ -335,15 +367,19 @@ Removals
   by Monasca have already been built as images: Kafka, Storm, and Zookeeper. These images were
   removed without prior deprecation as they were only available for the planned Monasca
   integration and are not yet in use anywhere.
+
 * The ``ospurge`` wrapper script has been removed from the ``osism.services.openstackclient`` role.
   The ospurge project is no longer compatible with the current OpenStack SDK. The command
   ``openstack project purge`` can be used as an alternative.
+
 * Support for Zabbix was already removed in OSISM 3.0.0. The Ansible collection
   ``community.zabbix`` was still present as a leftover.
+
 * The ``docker-compose`` package is uninstalled by the ``osism.commons.docker_compose`` role.
   The Compose v2 plugin for Docker is now used instead of the old standalone ``docker-compose`` CLI.
   A dummy script has been added to ``/usr/local/bin`` which displays a corresponding message when
   using ``docker-compose``.
+
 * Due to the transition of our CI to Zuul, the Github action for deploying Devstack has been archived
   and will not be maintained in the future.
 
@@ -361,6 +397,7 @@ Upgrade notes
   the version of the ARA server on the manager is lower than ``1.6.x`` problems may occur.
   When updating the Ansible container, the ARA server should also be updated to version
   ``1.6.x`` accordingly.
+
 * Kolla-Ansible now only supports OpenSearch instead of ElasticSearch + Kibana. 
   If you are currently deploying ElasticSearch with Kolla Ansible, you should backup
   the data before starting the upgrade. The contents of the ElasticSearch data volume
@@ -369,9 +406,11 @@ Upgrade notes
   updated so that the elasticsearch group is renamed to opensearch, and the kibana group
   is renamed to opensearch-dashboards. A new secret ``opensearch_dashboards_password`` has
   to be added to the ``secrets.yml`` file.
+
 * The ``ovn`` role has been split into ``ovn-controller`` and ``ovn-db`` roles, therefore users
   that have ``ovn_extra_volumes`` configured need to adapt their config to use 
   ``ovn_db_extra_volumes`` or ``ovn_controller_extra_volumes``.
+
 * The ``ironic_dnsmasq_dhcp_range`` and ``ironic_dnsmasq_default_gateway`` parameters were
   replaced with ``ironic_dnsmasq_dhcp_ranges``.
 
@@ -385,16 +424,20 @@ Upgrade notes
      ironic_dnsmasq_dhcp_ranges:
        - range: "192.168.112.50,192.168.112.60"
          routers: "192.168.112.1"
+
 * The ``zuul_tag`` parameter for the ``osism.services.zuul`` role has been renamed to
   ``zuul_zuul_tag`` for consistency with the other container tag variables.
+
 * On Ubuntu 20.04, Ansible is only usable up to Ansible 6 (or Ansible Core 2.13). If a
   manager is still in use on Ubuntu 20.04 and needs to be updated to OSISM 5, either
   the Ansible version must be explicitly set when using osism-update-manager
   (``ANSIBLE_VERSION=6.7.0 osism-update-manager``) or Ansible must be installed via
   ``ppa:ansible/ansible``.
+
 * The ``osism.services.hddtemp`` role has been changed to ``lm_sensors``. This role now
   removes the hddtemp service on Ubuntu 22.04. In the future, the role will be renamed
   from hddtemp to lm_sensors.
+
 * The Celery integration of the manager is now activated by default, because in the future
   various features will be based on it. If the integration should not to be used,
   ``enable_celery: False`` must be set in ``environments/manager/configuration.yml``.
