@@ -395,6 +395,9 @@ Upgrade notes
 * The ``osism.services.hddtemp`` role has been changed to ``lm_sensors``. This role now
   removes the hddtemp service on Ubuntu 22.04. In the future, the role will be renamed
   from hddtemp to lm_sensors.
+* The Celery integration of the manager is now activated by default, because in the future
+  various features will be based on it. If the integration should not to be used,
+  ``enable_celery: False`` must be set in ``environments/manager/configuration.yml``.
 
 References
 ==========
