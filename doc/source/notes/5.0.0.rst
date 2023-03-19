@@ -279,7 +279,35 @@ Testbed
 
 * Refstack is run on stable-deploy jobs.
 
-* The documentation was changed to Docusaurus.
+* The documentation was changed to Docusaurus and is now published at
+  `docs.scs.community <https://docs.scs.community>`_.
+
+* With ``deploy-ceph`` there is a new target to do a standalone Ceph deployment.
+
+* The CI jobs for the testbed were changed from Ubuntu 20.04 to 22.04 shortly before the release.
+
+* Terragrunt is now used as a wrapper for Terraform to avoid API timeouts during deployment.
+
+* Authorization Code flow with PKCE in Keycloak OIDC federation is now used.
+
+* SCS v2 flavors are used for testing.
+
+* MariaDB is used as backend for ARA.
+
+* Keystone port 35357 is no longer used.
+
+* Various improvements in Neutron with OVN: availability zones, default DNS server.
+
+* Linting of all Yaml files and Ansible files.
+
+* Ceph validators are run after a deployment and upgrade.
+
+* OpenStack Image Manager is used for importing machine images.
+
+* Speed of CI deployments increased significantly (use of own registry, deactivation
+  of auditd, ..). Pure deployments are currently at under an hour.
+
+* QuickStart guide has been added.
 
 OpenStack image manager
 =======================
