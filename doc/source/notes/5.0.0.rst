@@ -243,6 +243,16 @@ Current pre-release: 5.0.0c.
   and UE, support OpenStack Train+. It has a modern technology stack and ecology, is easier
   for developers to maintain and operate by users, and has higher concurrency performance.
 
+  To be able tu use the Skyline service add ``enable_skyline: "yes"`` to
+  ``environments/kolla/configuration.yml`` and add some new secrets to
+  ``environments/kolla/secrets.yml``.
+
+  .. code-block:: yaml
+
+     skyline_database_password:
+     skyline_keystone_password:
+     skyline_secret_key:
+
 * With the playbook ``ceph-purge-storage-node`` it is possible to remove all Ceph services
   on a Ceph storage node and remove all Ceph related data and configuration files.
 
