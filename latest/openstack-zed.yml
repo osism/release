@@ -62,7 +62,7 @@ openstack_projects:
   octavia: stable-zed
   placement: stable-zed
   senlin: stable-zed
-  skyline-apiserver: stable-zed
-  skyline-console: stable-zed
+  skyline-apiserver: stable-2023.1
+  skyline-console: stable-2023.1
   swift: stable-zed
   trove: stable-zed
