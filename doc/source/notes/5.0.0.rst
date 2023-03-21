@@ -2,14 +2,6 @@
 5.0.0
 =====
 
-.. warning::
-
-   Release 5.0.0 is currently under development. It is not available at the moment.
-
-   **The release will be on 22.03.2023.**
-
-Current pre-release: 5.0.0c.
-
 * `Mitogen <https://mitogen.networkgenomics.com/ansible_detailed.html>`_ is installed
   in all Ansible containers. The use of the Mitogen strategy plugin for Ansible can be
   enabled via ``ansible.cfg`` in the ``environments`` directory
@@ -547,6 +539,8 @@ neutron                            21.1.1
 nova                               26.1.1
 nova_libvirt                       8.0.0
 octavia                            11.0.1
+opensearch                         2.3.0
+opensearch_dashboards              2.3.0
 openvswitch                        3.0.1
 ovn                                22.9.0
 placement                          8.0.0.0
@@ -564,9 +558,10 @@ prometheus_mysqld_exporter         0.14.0
 prometheus_node_exporter           1.4.0
 prometheus_openstack_exporter      5.0.0
 prometheus_ovn_exporter            1.0.4
-rabbitmq                           3.11.10
+rabbitmq                           3.11.11
 redis                              6.0.16
 senlin                             14.0.0.0
+skyline                            1.0.0.0
 swift                              2.30.1
 tgtd                               1.0.80
 trove                              18.0.1
