@@ -2,13 +2,8 @@
 5.0.0
 =====
 
-.. warning::
-
-   Release 5.0.0 is currently under development. It is not available at the moment.
-
-   **The release will be on 22.03.2023.**
-
-Current pre-release: 5.0.0c.
+General notes
+=============
 
 * `Mitogen <https://mitogen.networkgenomics.com/ansible_detailed.html>`_ is installed
   in all Ansible containers. The use of the Mitogen strategy plugin for Ansible can be
@@ -32,11 +27,6 @@ Current pre-release: 5.0.0c.
   to the change of the network hardware used by the OSISM project, only SONiC will be
   supported as NOS in the future.
 
-* If `osism <https://pypi.org/project/osism/>`_ is installed via PyPI, Ansible is no longer
-  installed as a dependency. This ensures that the services can also be used with older
-  Ansible versions. If Ansible is to be installed as well, this can be done via an extra
-  requirement using ``osism[ansible]``.
-
 * Since only SONiC will be supported in the future, the following Ansible collections,
   which were previously available as technical previews, have been removed: ``arista.cvp``,
   ``arista.eos``, ``juniper.device``.
@@ -46,8 +36,13 @@ Current pre-release: 5.0.0c.
   `dellemc.enterprise_sonic <https://github.com/ansible-collections/dellemc.enterprise_sonic>`_,
   is used to manage SONiC.
 
+* If `osism <https://pypi.org/project/osism/>`_ is installed via PyPI, Ansible is no longer
+  installed as a dependency. This ensures that the services can also be used with older
+  Ansible versions. If Ansible is to be installed as well, this can be done via an extra
+  requirement using ``osism[ansible]``.
+
 * With ``enable_auditd`` it is possible to disable the ``osism.services.auditd`` role
-  in the bootstrap and maintenance playbooks
+  in the bootstrap and maintenance playbooks.
 
 * With the ``dump facts`` command, it is possible to output the facts of Ansible for
   specific systems.
@@ -138,8 +133,11 @@ Current pre-release: 5.0.0c.
      ok: [mgr003]
      [...]
 
+* With ``osism validate ceph-config`` you can now check whether the configuration for
+  Ceph is OK (https://docs.ceph.com/projects/ceph-ansible/en/latest/index.html#configuration-validation).
+
 * For Ceph, special playbooks were added to validate the deployment status of the OSD,
-  MON and MGR services. The commands for use are ``osism validate ceph-osds``,
+  MON and MGR services. The commands to run these are ``osism validate ceph-osds``,
   ``osism validate ceph-mons``, and ``osism validate ceph-mgrs``.
 
 * ``ansible.utils`` and ``kubernetes.core`` Ansible collections are now usable.
@@ -165,8 +163,7 @@ Current pre-release: 5.0.0c.
        scan: Docker Scan (Docker Inc., v0.23.0)
      [...]
 
-
-* The ``console`` command now allows shortcuts to select specific console types
+* The ``console`` command now allows shortcuts to select specific console types.
 
   .. code-block:: console
 
@@ -192,9 +189,6 @@ Current pre-release: 5.0.0c.
 * So far, the facts have been updated every 10 minutes. This is not necessary. Through
   the standard use of Redis as a cache backend, the facts are kept 24 hours. The facts
   are now only updated every 12 hours.
-
-* With ``osism validate ceph-config`` you can now check whether the configuration for
-  Ceph is OK (https://docs.ceph.com/projects/ceph-ansible/en/latest/index.html#configuration-validation).
 
 * The use of the OpenStack Image Manager has been integrated. For this purpose, the new
   command ``manage`` was added. With ``osism manage images``, the images on an OpenStack
@@ -233,7 +227,7 @@ Current pre-release: 5.0.0c.
   independently of ``osism.services.docker``.
 
 * By switching from ``ansible`` to ``ansible-core``, the size of the Ansible manager images
-  has been significantly reduced (appr. 400 MByte / image)
+  has been significantly reduced (appr. 400 MByte / image).
 
 * With the parameters ``mariadb_datadir_volume`` and ``rabbitmq_datadir_volume`` it is possible
   to configure dedicated data volumes for the MariaDB and RabbitmQ services. This allows, for
@@ -280,7 +274,7 @@ Testbed
 * Refstack is run on stable-deploy jobs.
 
 * The documentation was changed to Docusaurus and is now published at
-  `docs.scs.community <https://docs.scs.community>`_.
+  `docs.scs.community <https://docs.scs.community/docs/category/osism-testbed>`_.
 
 * With ``deploy-ceph`` there is a new target to do a standalone Ceph deployment.
 
@@ -313,15 +307,15 @@ OpenStack image manager
 =======================
 
 * Some of the images (Almalinux, Rockylinux, Ubuntu) defined in ``etc/images`` are now
-  automatically updated once a week
+  automatically updated once a week.
 
-* `OpenStack image manager <https://github.com/osism/openstack-image-manager>`_ now published
-  at `PyPI <https://pypi.org/project/openstack-image-manager/>`_
+* `OpenStack image manager <https://github.com/osism/openstack-image-manager>`_ is now published
+  at `PyPI <https://pypi.org/project/openstack-image-manager/>`_.
 
 * A container image ``harbor.services.osism.tech/osism/openstack-image-manager:latest`` is
-  now available which also contains the default image definitions in ``/etc/openstack-image-manager``
+  now available which also contains the default image definitions in ``/etc/openstack-image-manager``.
 
-* It is possible to define meta-information to individual versions of an image
+* It is possible to add meta-information to individual versions of an image.
 
   .. code-block:: yaml
 
@@ -346,7 +340,7 @@ OpenStack image manager
   to process all Ubuntu images with a version >= 20.04. The ``--name`` parameter was removed.
 
 * The ``--images`` parameter can now be passed a single file in addition to a directory with
-  YAML files with included image definitions
+  YAML files with included image definitions.
 
 * All parameters marked as mandatory by the Sovereign Cloud Stack (SCS) image standard are
   now set or requested accordingly if they are not set.
@@ -362,7 +356,7 @@ Other
 
 * The Kubernetes CAPI images have been upgraded from Ubuntu 20.04 to Ubuntu 22.04.
 
-* Garden Linux image is available in version 934.6
+* Garden Linux image is available in version 934.6.
 
 * In order to avoid having to install the manager and, if necessary, the control nodes
   manually when setting up a new OSISM environment, an ISO image is now available.
@@ -370,29 +364,29 @@ Other
   node with Ubuntu 22.04 on a software RAID 1 and prepares everything to be able to start
   directly.
 
-* `Netbox plugin OSISM <https://github.com/osism/netbox-plugin-osism>`_ now published
-  at `PyPI <https://pypi.org/project/netbox-plugin-osism/>`_
+* The `Netbox plugin OSISM <https://github.com/osism/netbox-plugin-osism>`_ is now published
+  at `PyPI <https://pypi.org/project/netbox-plugin-osism/>`_.
 
 Deprecations
 ============
 
-* The role ``osism.services.bird`` is deprecated. In future, FRRouting (``osism.services.frr``)
+* The role ``osism.services.bird`` is deprecated. In the future FRRouting (``osism.services.frr``)
   will be used.
 
-* The role ``osism.services.minikube`` is deprecated. In future ``osism.services.k8s``
+* The role ``osism.services.minikube`` is deprecated. In the future ``osism.services.k8s``
   will be used.
 
 * Heat is deprecated in favor of more generic Infrastructure as Code tools like Terraform
-  as of now and will be removed in the future (exact removal date is not yet known)
+  as of now and will be removed in the future (exact removal date is not yet known).
 
-* Swift (currently available as Technical Preview) will be removed in favor of Ceph RGW
+* Swift (currently available as Technical Preview) will be removed in favor of Ceph RGW.
 
 * Trove (currently available as Technical Preview) will be removed in favor of Kubernetes
-  database operators
+  database operators.
 
 * Skydive (currently available as Technical Preview) will be removed in the future, the
   project is not maintained anymore, last commit is 8th Jan 2022
-  (https://review.opendev.org/c/openstack/kolla/+/869191)
+  (https://review.opendev.org/c/openstack/kolla/+/869191).
 
 * The login to a registry with the ``osism.services.docker`` role is deprecated in favor
   of the new ``osism.commons.docker_login`` role.
@@ -431,6 +425,12 @@ Housekeeping
 Upgrade notes
 =============
 
+* On Ubuntu 20.04, Ansible is only usable up to Ansible 6 (or Ansible Core 2.13). If a
+  manager is still in use on Ubuntu 20.04 and needs to be updated to OSISM 5, either
+  the Ansible version must be explicitly set when using osism-update-manager
+  (``ANSIBLE_VERSION=6.7.0 osism-update-manager``) or Ansible must be installed via
+  ``ppa:ansible/ansible``.
+
 * The ARA library has been updated to version ``1.6.x`` in all Ansible containers. If
   the version of the ARA server on the manager is lower than ``1.6.x`` problems may occur.
   When updating the Ansible container, the ARA server should also be updated to version
@@ -465,12 +465,6 @@ Upgrade notes
 
 * The ``zuul_tag`` parameter for the ``osism.services.zuul`` role has been renamed to
   ``zuul_zuul_tag`` for consistency with the other container tag variables.
-
-* On Ubuntu 20.04, Ansible is only usable up to Ansible 6 (or Ansible Core 2.13). If a
-  manager is still in use on Ubuntu 20.04 and needs to be updated to OSISM 5, either
-  the Ansible version must be explicitly set when using osism-update-manager
-  (``ANSIBLE_VERSION=6.7.0 osism-update-manager``) or Ansible must be installed via
-  ``ppa:ansible/ansible``.
 
 * The ``osism.services.hddtemp`` role has been changed to ``lm_sensors``. This role now
   removes the hddtemp service on Ubuntu 22.04. In the future, the role will be renamed
@@ -513,7 +507,7 @@ Versions
 =================================  =========
 service                            version
 =================================  =========
-aodh                               15.0.0.0
+aodh                               15.0.0
 barbican                           15.0.1
 ceilometer                         19.0.1
 cinder                             21.1.1
@@ -536,20 +530,20 @@ keepalived                         2.2.4
 keystone                           22.0.1
 kolla-toolbox                      15.1.1
 kolla_toolbox                      15.1.1
-kuryr                              10.0.0.0
+kuryr                              10.0.0
+libvirt                            8.0.0
 magnum                             15.0.2
 manila                             15.1.1
 mariadb                            10.6.12
 memcached                          1.6.14
-mistral                            15.0.0.0
+mistral                            15.0.0
 multipathd                         0.8.8
 neutron                            21.1.1
 nova                               26.1.1
-nova_libvirt                       8.0.0
 octavia                            11.0.1
 openvswitch                        3.0.1
 ovn                                22.9.0
-placement                          8.0.0.0
+placement                          8.0.0
 prometheus                         2.38.0
 prometheus_alertmanager            0.24.0
 prometheus_blackbox_exporter       0.22.0
@@ -566,7 +560,7 @@ prometheus_openstack_exporter      5.0.0
 prometheus_ovn_exporter            1.0.4
 rabbitmq                           3.11.10
 redis                              6.0.16
-senlin                             14.0.0.0
+senlin                             14.0.0
 swift                              2.30.1
 tgtd                               1.0.80
 trove                              18.0.1
