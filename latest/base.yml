@@ -61,7 +61,7 @@ docker_images:
   # renovate: datasource=docker depName=ubuntu/squid
   squid: '5.2-22.04_beta'
   # renovate: datasource=docker depName=traefik
-  traefik: 'v2.9.8'
+  traefik: 'v2.9.9'
   # renovate: datasource=docker depName=hashicorp/vault
   vault: '1.13.0'
   # renovate: datasource=docker depName=zookeeper
