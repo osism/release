@@ -2,6 +2,7 @@
 geerlingguy.certbot: geerlingguy/ansible-role-certbot
 geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
 hardening: openstack/ansible-hardening
+pdns_recursor: PowerDNS/pdns_recursor-ansible
 stackhpc.libvirt_host: stackhpc/ansible-role-libvirt-host
 stackhpc.libvirt_vm: stackhpc/ansible-role-libvirt-vm
 stackhpc.luks: stackhpc/ansible-role-luks
