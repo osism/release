@@ -83,7 +83,7 @@ ansible_roles:
   geerlingguy.certbot: master
   geerlingguy.dotfiles: master
   hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
-  pdns_recursor: '1.6.0'
+  pdns_recursor: 'v1.6.0'
   stackhpc.libvirt_host: master
   stackhpc.libvirt_vm: master
   stackhpc.luks: master
