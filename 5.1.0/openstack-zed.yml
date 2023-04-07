@@ -1,16 +1,16 @@
 ---
 ansible_version: '>=6.0.0,<7.0.0'
-ansible_core_version: "2.13.8"
+ansible_core_version: '2.13.8'
 
 openstack_version: zed
 openstack_previous_version: yoga
 
-defaults_version: main
-generics_version: main
-playbooks_version: main
+defaults_version: 'v0.20230407.0'
+generics_version: 'v0.20230407.0'
+playbooks_version: 'v0.20230407.0'
 
 docker_images:
-  openstackclient: zed
+  openstackclient: '6.2.0'
 
 infrastructure_projects:
   chrony:
@@ -33,6 +33,7 @@ infrastructure_projects:
   openstack-base:
   openvswitch:
   ovn:
+  ovsdpdk:
   prometheus:
   rabbitmq:
   redis:
@@ -62,7 +63,7 @@ openstack_projects:
   octavia: stable-zed
   placement: stable-zed
   senlin: stable-zed
-  skyline-apiserver: stable-2023.1
-  skyline-console: stable-2023.1
+  skyline-apiserver: stable-zed
+  skyline-console: stable-zed
   swift: stable-zed
   trove: stable-zed

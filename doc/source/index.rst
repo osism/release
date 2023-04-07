@@ -16,6 +16,7 @@ Release notes
    notes/4.1.0
    notes/4.2.0
    notes/5.0.0
+   notes/5.1.0
    notes/6.0.0
 
 Use of a specific release in the configuration repository
