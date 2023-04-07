@@ -29,7 +29,7 @@ docker_images:
   nginx: '1.23.3-alpine'
   docker_openpolicyagent: '0.8'
   openstack_health_monitor: 'v5.0'
-  osism: '0.20230313.0'
+  osism: '0.20230407.0'
   patchman: '2.0.13'
   phpmyadmin: '5.2.1'
   postgres: '15.2-alpine'
