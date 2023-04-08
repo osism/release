@@ -184,7 +184,7 @@ Stable release
       osism/container-image-kolla-ansible
       osism/container-image-osism-ansible
 
-8. Add and run a temporary CI jobs in ``osism/testbed`` that uses the pre-release.
+8. Add and run temporary CI jobs in ``osism/testbed`` that uses the pre-release.
 
    .. code-block:: yaml
 
@@ -211,17 +211,20 @@ Stable release
     set on this repository in the next step. The temporary CI jobs (step 8)  are removed again with
     this PR.
 
-   .. code-block:: none
+    .. code-block:: none
 
-      testbed-deploy-stable
-      testbed-update-stable
-      testbed-update-stable
-      testbed-upgrade-stable
+       testbed-deploy-stable
+       testbed-update-stable
+       testbed-update-stable
+       testbed-upgrade-stable
 
-11. After all known issues are documented, a corresponding tag, e.g. ``v5.0.0``, is set on the
+11. Add a new release notes file to ``doc/sorce/notes``. Generate the versions table with the
+    help of the ``release-table.py`` script in the ``osism/sbom`` repository.
+
+12. After all known issues are documented, a corresponding tag, e.g. ``v5.0.0``, is set on the
     release repository.
 
-12. As the last of the release process, the previously prepared PR is merged on the
+13. As the last of the release process, the previously prepared PR is merged on the
     ``osism/testbed`` repository to change the stable version.
 
 Questions & Answers
