@@ -184,8 +184,7 @@ Stable release
       osism/container-image-kolla-ansible
       osism/container-image-osism-ansible
 
-9. Add a temporary job ``testbed-deploy-stable-next`` in ``osism/testbed`` that deploys
-   the pre-release.
+8. Add and run a temporary CI jobs in ``osism/testbed`` that uses the pre-release.
 
    .. code-block:: yaml
 
@@ -197,17 +196,32 @@ Stable release
             refstack: true
           nodeset: testbed-orchestrator
 
+      - job:
+          name: testbed-upgrade-stable-next
+          parent: testbed-deploy
+          vars:
+            manager_version: "4.2.0"
+            manager_version_next: "5.0.0a"
+          nodeset: testbed-orchestrator
+
 9. Test. Test. Test.
 
-10. Prepare a PR to change the stable version to the new stable version in the Zuul job
-    ``testbed-deploy-stable`` and ``testbed-deploy-stable-refstack`` in the ``osism/testbed``
-    repository. All tests there must pass successfully before the tag is set on this repository
-    in the next step. The temporary job testbed-deploy-stable-next is removed again with this PR.
+10. Prepare a PR to change the stable version to the new stable version in the following Zuul jobs
+    in the ``osism/testbed`` repository. All tests there must pass successfully before the tag is
+    set on this repository in the next step. The temporary CI jobs (step 8)  are removed again with
+    this PR.
+
+   .. code-block:: none
+
+      testbed-deploy-stable
+      testbed-update-stable
+      testbed-update-stable
+      testbed-upgrade-stable
 
 11. After all known issues are documented, a corresponding tag, e.g. ``v5.0.0``, is set on the
     release repository.
 
-11. As the last of the release process, the previously prepared PR is merged on the
+12. As the last of the release process, the previously prepared PR is merged on the
     ``osism/testbed`` repository to change the stable version.
 
 Questions & Answers
