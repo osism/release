@@ -2,6 +2,46 @@
 5.1.0
 =====
 
+Release date: 7. April 2023
+
+In addition to regular updates, a
+`connection problem to FIPs using neutron_ovn_distributed_fip=true <https://github.com/osism/issues/issues/490>`_
+has been fixed in this release.
+
+Furthermore, the OVN as well as OVS components have been updated to the latest
+stable release from upstream and will be updated to the latest stable release
+at the time of a OSISM release in the future.
+
+As of OSISM 5.0.0, all OpenStack images switched to the use of stable branches
+instead of releases. All commits on the stable branches at the time of the
+OSISM release are included in the OpenStack images.
+
+Known issues
+============
+
+* If you have already upgraded to 5.0.0 and switched from Elasticsearch to
+  Opensearch, deploy the update for Opensearch using the ``deploy`` action
+  instead of the ``upgrade`` action. The ``upgrade`` action for Opensearch
+  contains a bug and always assumes that a migration from Elasticsearch to
+  Opensearch should be performed.
+
+* When using the Neutron Open vSwitch L2 agent with the Neutron iptables
+  firewall driver on Ubuntu 22.04, there is currently an
+  `issue <https://github.com/osism/issues/issues/428>`_ which prevents
+  traffic on flat/provider networks. The current workaround is to switch to the
+  `Open vSwitch Firewall Driver <https://docs.openstack.org/neutron/latest/contributor/internals/openvswitch_firewall.html>`_.
+
+  The driver is enabled by an entry in the ``environments/kolla/files/overlays/neutron/openvswitch_agent.ini``
+  configuration file.
+
+  .. code-block:: ini
+
+     [securitygroup]
+     firewall_driver = openvswitch
+
+  When making the switch, refer to the following section in the Neutron
+  documentation: `Upgrade path from iptables hybrid driver <https://docs.openstack.org/neutron/latest/contributor/internals/openvswitch_firewall.html#upgrade-path-from-iptables-hybrid-driver>`_
+
 Versions
 ========
 

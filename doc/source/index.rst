@@ -2,7 +2,7 @@
 OSISM releases
 ==============
 
-The latest available stable release is 5.0.0.
+The latest available stable release is 5.1.0.
 
 Release 6.0.0 is currently under development.
 
@@ -27,14 +27,14 @@ Use of a specific release in the configuration repository
 
   .. code-block:: console
 
-     MANAGER_VERSION=4.2.0 gilt overlay  # you have to do this 2x
-     MANAGER_VERSION=4.2.0 gilt overlay
+     MANAGER_VERSION=5.1.0 gilt overlay  # you have to do this 2x
+     MANAGER_VERSION=5.1.0 gilt overlay
 
 * set the new manager version in the configuration repository
 
   .. code-block:: console
 
-     yq -i '.manager_version = "4.2.0"' environments/manager/configuration.yml
+     yq -i '.manager_version = "5.1.0"' environments/manager/configuration.yml
 
 * if ``openstack_version`` or ``ceph_version`` are set in ``environments/manager/configuration.yml``,
   they must be removed when using a stable release
