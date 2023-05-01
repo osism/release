@@ -10,6 +10,7 @@ playbooks_version: v0.6.0
 osism_projects:
   ara: '1.5.8'
   docker: '5:20.10.17'
+  osism: '0.7.0'
 
 docker_images:
   adminer: '4.8.1'
