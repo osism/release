@@ -1,5 +1,6 @@
 ---
-ansible_version: ">=2.10,<2.11"
+ansible_version: ">=4.0.0,<5.0.0"
+ansible_core_version: '2.12.10'
 
 ceph_ansible_version: stable-6.0
 ceph_container_version: stable-6.0

@@ -1,5 +1,6 @@
 ---
 ansible_version: '>=5.0.0,<6.0.0'
+ansible_core_version: "2.12.10"
 
 openstack_version: yoga
 openstack_previous_version: xena

@@ -1,5 +1,6 @@
 ---
 ansible_version: '6.3.0'
+ansible_core_version: '2.13.9'
 
 defaults_version: v0.1.1
 generics_version: v0.2.0
