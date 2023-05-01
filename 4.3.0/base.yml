@@ -49,7 +49,7 @@ docker_images:
 ansible_roles:
   geerlingguy.certbot: c6297ddebb59c281e3a048c6ae77946e2caec13a
   geerlingguy.dotfiles: a6bef39e795cdefebd0bde58c1eb10688a6f5b9e
-  hardening: abef57cf7c3da03f25f942e6ddb7f25afd7fda5f
+  hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
   stackhpc.libvirt_host: 9edce18da8b2d022e4c504c1d7738e2bef70c2d7
   stackhpc.libvirt_vm: fc3687773232a211a57c4cc49c39c46b86c353de
   stackhpc.luks: 8ef3fad657062eb88ec61b0d6da093da0aa71872
