@@ -474,6 +474,10 @@ Upgrade notes
   various features will be based on it. If the integration should not to be used,
   ``enable_celery: False`` must be set in ``environments/manager/configuration.yml``.
 
+* When upgrading from Ubuntu 20.04 to Ubuntu 22.04, it is important to also change the
+  network configuration to Netplan. Details about it are there:
+  https://github.com/osism/issues/issues/495
+
 References
 ==========
 
