@@ -20,6 +20,15 @@ Release notes
    notes/5.1.0
    notes/6.0.0
 
+Atom Feeds
+==========
+
+There is the possibility to subscribe to the GitHub releases or Git tags for
+done releases via an Atom feed.
+
+* https://github.com/osism/release/releases.atom
+* https://github.com/osism/release/tags.atom
+
 Use of a specific release in the configuration repository
 =========================================================
 
