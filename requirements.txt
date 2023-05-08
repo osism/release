@@ -4,7 +4,7 @@ PyYAML==6.0
 Sphinx==7.0.0
 dictdiffer==0.9.0
 docker==6.1.1
-requests==2.29.0
+requests==2.30.0
 ruamel.yaml==0.17.24
 sphinx-material==0.0.35
 sphinx_fontawesome==0.0.6
