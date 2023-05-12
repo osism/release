@@ -4,6 +4,9 @@
 
 Release date: 1. May 2023
 
+Due to a bug in the kolla-ansible 4.3.0 image, which made it impossible to use
+the image itself, it was rebuilt on May 12 2023.
+
 Versions
 ========
 
