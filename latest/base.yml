@@ -61,6 +61,8 @@ docker_images:
   redis: '7.0.11-alpine'
   # renovate: datasource=docker depName=registry
   registry: '2.8'
+  # renovate: datasource=docker depName=hubblo/scaphandre
+  scaphandre: '0.5.0'
   # renovate: datasource=docker depName=ubuntu/squid
   squid: '5.2-22.04_beta'
   # renovate: datasource=docker depName=traefik
