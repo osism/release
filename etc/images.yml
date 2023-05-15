@@ -15,6 +15,7 @@ osism_ansible: osism/osism-ansible
 osism_netbox: osism/osism-netbox
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
+postgres_upgrade: tianon/postgres-upgrade
 redis: library/redis
 traefik: library/traefik
 vault: hashicorp/vault
