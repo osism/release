@@ -1,0 +1,68 @@
+---
+ansible_version: '>=6.0.0,<7.0.0'
+ansible_core_version: "2.13.8"
+
+openstack_version: "2023.1"
+openstack_previous_version: zed
+
+defaults_version: main
+generics_version: main
+playbooks_version: main
+
+docker_images:
+  openstackclient: "2023.1"
+
+infrastructure_projects:
+  chrony:
+  collectd:
+  cron:
+  dnsmasq:
+  etcd:
+  fluentd:
+  grafana:
+  haproxy:
+  influxdb:
+  iscsid:
+  keepalived:
+  kolla-toolbox:
+  logstash:
+  mariadb:
+  memcached:
+  multipathd:
+  opensearch:
+  openstack-base:
+  openvswitch:
+  ovn:
+  prometheus:
+  rabbitmq:
+  redis:
+  tgtd:
+
+openstack_projects:
+  aodh: stable-2023.1
+  barbican: stable-2023.1
+  bifrost: stable-2023.1
+  ceilometer: stable-2023.1
+  cinder: stable-2023.1
+  cloudkitty: stable-2023.1
+  designate: stable-2023.1
+  glance: stable-2023.1
+  gnocchi: 4.5.0
+  heat: stable-2023.1
+  horizon: stable-2023.1
+  ironic: stable-2023.1
+  keystone: stable-2023.1
+  kuryr: stable-2023.1
+  magnum: stable-2023.1
+  manila: stable-2023.1
+  mistral: stable-2023.1
+  neutron-vpnaas: stable-2023.1
+  neutron: stable-2023.1
+  nova: stable-2023.1
+  octavia: stable-2023.1
+  placement: stable-2023.1
+  senlin: stable-2023.1
+  skyline-apiserver: stable-2023.1
+  skyline-console: stable-2023.1
+  swift: stable-2023.1
+  trove: stable-2023.1
