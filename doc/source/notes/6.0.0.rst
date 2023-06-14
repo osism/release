@@ -5,3 +5,81 @@
 .. warning::
 
    Release 6.0.0 is currently under development. It is not available at the moment.
+
+Release date: ?. ????? 20XX
+
+* [Aptly](https://github.com/osism/helm-charts/tree/gh-pages/aptly) mirror setup (for deb packages) is now available to be deployed alongside OSISM installations. This requires additional infrastructure. Have a look at the [documentation](https://github.com/osism/docs/tree/main/docs/operations/external_services/aptly_external.md) for more details.
+
+Known issues
+============
+
+* ?
+
+Versions
+========
+
+=================================  =========
+service                            version
+=================================  =========
+aodh                               ???
+barbican                           ???
+ceilometer                         ???
+ceph                               ???
+cinder                             ???
+cloudkitty                         ???
+cron                               ???
+designate                          ???
+dnsmasq                            ???
+etcd                               ???
+fluentd                            ???
+glance                             ???
+gnocchi                            ???
+grafana                            ???
+haproxy                            ???
+heat                               ???
+horizon                            ???
+influxdb                           ???
+ironic                             ???
+ironic_inspector                   ???
+iscsid                             ???
+keepalived                         ???
+keystone                           ???
+kolla-toolbox                      ???
+kolla_toolbox                      ???
+kuryr                              ???
+libvirt                            ???
+magnum                             ???
+manila                             ???
+mariadb                            ???
+memcached                          ???
+mistral                            ???
+multipathd                         ???
+neutron                            ???
+nova                               ???
+octavia                            ???
+opensearch                         ???
+openvswitch                        ???
+ovn                                ???
+placement                          ???
+prometheus                         ???
+prometheus_alertmanager            ???
+prometheus_blackbox_exporter       ???
+prometheus_cadvisor                ???
+prometheus_elasticsearch_exporter  ???
+prometheus_haproxy_exporter        ???
+prometheus_libvirt_exporter        ???
+prometheus_memcached_exporter      ???
+prometheus_msteams                 ???
+prometheus_mtail                   ???
+prometheus_mysqld_exporter         ???
+prometheus_node_exporter           ???
+prometheus_openstack_exporter      ???
+prometheus_ovn_exporter            ???
+rabbitmq                           ???
+redis                              ???
+senlin                             ???
+skyline                            ???
+swift                              ???
+tgtd                               ???
+trove                              ???
+=================================  =========
