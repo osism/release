@@ -8,7 +8,6 @@ import tabulate
 
 # FIXME: Get from the YAML files.
 REPOSITORIES = {
-    "gnocchixyz/gnocchi": "4.5.0",
     "openstack/aodh": "origin/stable/zed",
     "openstack/barbican": "origin/stable/zed",
     "openstack/bifrost": "origin/stable/zed",
@@ -37,7 +36,7 @@ REPOSITORIES = {
     "openstack/trove": "origin/stable/zed",
 }
 SINCE = "2023-04-07"
-TABLEFMT = "github"
+TABLEFMT = "rst"
 
 since_dt = datetime.strptime(SINCE, "%Y-%m-%d")
 
@@ -73,13 +72,14 @@ with open(f"{SINCE}.md", "w+") as fp:
                 [
                     committer_date,
                     committer_title,
-                    f"[{committer_hash}](https://github.com/{repository}/commit/{committer_hash})",
+                    f"`{committer_hash} <https://github.com/{repository}/commit/{committer_hash}>`_",
                 ]
             )
             logger.debug(f"{committer_date}: {committer_title}")
 
         if data:
-            fp.write(f"## {repository}\n")
+            fp.write(f"{repository}\n")
+            fp.write("-" * len(repository) + "\n\n")
             result = tabulate.tabulate(
                 sorted(data), headers=["Date", "Title", "Commit"], tablefmt=TABLEFMT
             )

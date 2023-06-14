@@ -106,6 +106,7 @@ Pre-release
       osism/ansible-collection-validations
       osism/ansible-defaults
       osism/ansible-playbooks
+      osism/ansible-playbooks-manager
       osism/cf-generics
       osism/kolla-operations
       osism/python-osism
@@ -148,7 +149,10 @@ Stable release
 
    .. code-block:: none
 
-      5.0.0a -> 5.0.0
+      5.0.0a -> 5.0.0b
+      5.0.0b -> 5.0.0
+      5.0.0  -> 5.1.0
+      5.1.0  -> 5.2.0
 
 2. Change all necessary versions in the YAML files within the new directory.
    In any case, the version of the pre-release or the version of the stable
@@ -161,7 +165,6 @@ Stable release
 
    .. code-block:: none
 
-      osism/cfg-cookiecutter
       osism/container-image-ceph-ansible
       osism/container-image-inventory-reconciler
       osism/container-image-osism-ansible
