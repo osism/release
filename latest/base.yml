@@ -48,7 +48,7 @@ docker_images:
   docker_openpolicyagent: '0.8'
   # yamllint disable-line rule:line-length
   # renovate: datasource=docker depName=quay.io/sovereigncloudstack/openstack-health-monitor
-  openstack_health_monitor: 'v3.0.0'
+  openstack_health_monitor: 'v5.0'
   osism: 'latest'
   # renovate: datasource=docker depName=quay.io/osism/patchman
   patchman: '2.0.13'
