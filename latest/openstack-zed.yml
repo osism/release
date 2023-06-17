@@ -57,6 +57,7 @@ openstack_projects:
   manila: stable-zed
   mistral: stable-zed
   neutron-vpnaas: stable-zed
+  neutron-dynamic-routing: stable-zed
   neutron: stable-zed
   nova: stable-zed
   octavia: stable-zed
