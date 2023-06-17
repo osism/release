@@ -58,6 +58,7 @@ openstack_projects:
   manila: 14.0.1
   mistral: 14.0.0
   neutron-vpnaas-agent: 20.0.1
+  neutron-dynamic-routing: 20.0.1
   neutron: 20.3.0
   nova: 25.1.0
   octavia: 10.0.0

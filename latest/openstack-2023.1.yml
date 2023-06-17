@@ -57,6 +57,7 @@ openstack_projects:
   manila: stable-2023.1
   mistral: stable-2023.1
   neutron-vpnaas: stable-2023.1
+  neutron-dynamic-routing: stable-2023.1
   neutron: stable-2023.1
   nova: stable-2023.1
   octavia: stable-2023.1
