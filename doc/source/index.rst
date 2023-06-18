@@ -2,7 +2,7 @@
 OSISM releases
 ==============
 
-The latest available stable release is 5.1.0.
+The latest available stable release is 5.2.0.
 
 Release 6.0.0 is currently under development.
 
@@ -18,6 +18,7 @@ Release notes
    notes/4.3.0
    notes/5.0.0
    notes/5.1.0
+   notes/5.2.0
    notes/6.0.0
 
 Atom Feeds
@@ -37,26 +38,32 @@ Use of a specific release in the configuration repository
 
   .. code-block:: console
 
-     MANAGER_VERSION=5.1.0 gilt overlay  # you have to do this 2x
-     MANAGER_VERSION=5.1.0 gilt overlay
+     MANAGER_VERSION=5.2.0 gilt overlay  # you have to do this 2x
+     MANAGER_VERSION=5.2.0 gilt overlay
 
 * set the new manager version in the configuration repository
 
   .. code-block:: console
 
-     yq -i '.manager_version = "5.1.0"' environments/manager/configuration.yml
+     yq -i '.manager_version = "5.2.0"' environments/manager/configuration.yml
 
 * if ``openstack_version`` or ``ceph_version`` are set in ``environments/manager/configuration.yml``
   (or anywhere else), they must be removed when using a stable release
+
+* update the configuration repository on the manager
+
+  .. code-block:: console
+
+     osism apply configuration
 
 * update the manager services on the manager
 
   .. code-block:: console
 
-     osism apply configuration
-     osism-update-manager
+     osism-update-manager                   # if vault is not used
+     osism-update-manager --ask-vault-pass  # if vault is used
 
-* synchronise the reconciler
+* synchronise the reconciler (after upgrading to 5.2.0 optional)
 
   .. code-block:: console
 
@@ -67,7 +74,6 @@ Use of a specific release in the configuration repository
   .. code-block:: console
 
      osism apply facts
-     osism-generic facts  # old way
 
 How do we release?
 ==================

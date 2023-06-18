@@ -2,9 +2,12 @@
 5.2.0
 =====
 
-Release date: not yet relesed
+Release date: 16. June 2023
 
 Regular updates as well as the switch from Ceph Pacific to Ceph Quincy.
+
+Upgrade notes
+=============
 
 No configuration changes are required to upgrade Ceph. For the sake of completeness,
 the commands to upgrade Ceph and Ceph Client are listed below.
@@ -14,13 +17,120 @@ the commands to upgrade Ceph and Ceph Client are listed below.
    osism apply ceph-rolling_update -e ireallymeanit=yes
    osism apply cephclient
 
+If the Ironic integration of OSISM is not used, the listener service of the
+manager can be deactivated. Set ``enable_listener: false`` in
+``environments/manager/configuration.yml``.
+
 Known issues
 ============
 
-No known issues.
+During live migrations, an error ``Postcopy is not supported`` may occur on compute nodes.
+In this case, ``vm.unprivileged_userfaultfd=1`` must currently be set by sysctl on the
+compute nodes. Further details: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=d0d4730ac2.
+
+During tests it sometimes happened that the ``osism-update-manager`` script did not update
+all manager services successfully. In this case the following workaround can be used.
+
+.. code-block:: console
+
+   cd /opt/manager
+   docker compose pull
+   docker compose down
+   docker compose up -d
+   osism-update-manager
+
+Changed versions
+================
+
+
+=============================  =======  =======
+service                        5.1.0    5.2.0
+=============================  =======  =======
+cinder                         21.1.1   21.3.1
+fluentd                        4.4.2    4.5.0
+grafana                        9.4.7    10.0.0
+haproxy                        2.4.18   2.4.22
+manila                         15.1.1   15.2.1
+mariadb                        10.6.12  10.6.14
+neutron                        21.1.1   21.1.2
+nova                           26.1.1   26.2.1
+opensearch                     2.3.0    2.8.0
+prometheus_libvirt_exporter    5.1.0    5.2.0
+prometheus_openstack_exporter  5.1.0    5.2.0
+rabbitmq                       3.11.13  3.11.18
+swift                          2.30.1   2.30.2
+=============================  =======  =======
+
 
 Versions
 ========
+
+
+=================================  =========
+service                            version
+=================================  =========
+aodh                               15.0.1
+barbican                           15.0.1
+ceilometer                         19.0.1
+cinder                             21.3.1
+cloudkitty                         17.0.1
+cron                               3.0
+designate                          15.0.1
+dnsmasq                            2.86
+etcd                               3.3.27
+fluentd                            4.5.0
+glance                             25.1.1
+gnocchi                            4.5.0
+grafana                            10.0.0
+haproxy                            2.4.22
+heat                               19.0.1
+horizon                            23.0.1
+influxdb                           1.8.10
+ironic                             21.1.1
+ironic_inspector                   11.1.1
+iscsid                             2.1.5
+keepalived                         2.2.4
+keystone                           22.0.1
+kolla-toolbox                      15.1.1
+kolla_toolbox                      15.1.1
+kuryr                              10.0.0
+magnum                             15.0.2
+manila                             15.2.1
+mariadb                            10.6.14
+memcached                          1.6.14
+mistral                            15.0.0
+multipathd                         0.8.8
+neutron                            21.1.2
+nova                               26.2.1
+nova_libvirt                       8.0.0
+octavia                            11.0.1
+opensearch                         2.8.0
+openvswitch                        3.1.1
+ovn                                23.3.0
+placement                          8.0.0
+prometheus                         2.38.0
+prometheus_alertmanager            0.24.0
+prometheus_blackbox_exporter       0.22.0
+prometheus_cadvisor                0.45.0
+prometheus_elasticsearch_exporter  1.5.0
+prometheus_haproxy_exporter        0.13.0
+prometheus_libvirt_exporter        5.2.0
+prometheus_memcached_exporter      0.10.0
+prometheus_msteams                 1.5.1
+prometheus_mtail                   3.0.0
+prometheus_mysqld_exporter         0.14.0
+prometheus_node_exporter           1.4.0
+prometheus_openstack_exporter      5.2.0
+prometheus_ovn_exporter            1.0.4
+rabbitmq                           3.11.18
+redis                              6.0.16
+senlin                             14.0.0
+skyline                            1.0.0
+swift                              2.30.2
+tgtd                               1.0.80
+trove                              18.0.1
+=================================  =========
+
 
 Changes
 =======
