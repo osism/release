@@ -39,6 +39,15 @@ all manager services successfully. In this case the following workaround can be 
    docker compose up -d
    osism-update-manager
 
+After updating the Ceph client via ``osism apply cephclient``, there is currently no restart
+of the container. This must be done manually at the moment.
+
+.. code-block:: console
+
+   cd /opt/cephclient
+   docker compose pull
+   docker compose up -d
+
 Changed versions
 ================
 
