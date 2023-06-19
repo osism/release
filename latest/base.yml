@@ -75,11 +75,11 @@ docker_images:
   zuul_client: '8.2.0'
   # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
   zuul_executor: '8.2.0'
-  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/nodepool.git
   zuul_nodepool_builder: '8.2.0'
   # renovate: datasource=git-tags depName=https://opendev.org/zuul/nodepool.git
   zuul_nodepool_launcher: '8.2.0'
-  # renovate: datasource=git-tags depName=https://opendev.org/zuul/nodepool.git
+  # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
   zuul_scheduler: '8.2.0'
   # renovate: datasource=git-tags depName=https://opendev.org/zuul/zuul.git
   zuul_web: '8.2.0'
