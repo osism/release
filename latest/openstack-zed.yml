@@ -67,4 +67,4 @@ openstack_projects:
   skyline-console: stable-2023.1
   swift: stable-zed
   trove: stable-zed
-  zed: stable-zed
+  zun: stable-zed
