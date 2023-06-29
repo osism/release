@@ -14,7 +14,6 @@ docker_images:
 
 infrastructure_projects:
   chrony:
-  collectd:
   cron:
   dnsmasq:
   etcd:
