@@ -13,20 +13,16 @@ docker_images:
   openstackclient: yoga
 
 infrastructure_projects:
-  chrony:
   cron:
   dnsmasq:
   elasticsearch:
-  etcd:
   fluentd:
   grafana:
   haproxy:
-  influxdb:
   iscsid:
   keepalived:
   kibana:
   kolla-toolbox:
-  logstash:
   mariadb:
   memcached:
   multipathd:

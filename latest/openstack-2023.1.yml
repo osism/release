@@ -13,18 +13,14 @@ docker_images:
   openstackclient: "2023.1"
 
 infrastructure_projects:
-  chrony:
   cron:
   dnsmasq:
-  etcd:
   fluentd:
   grafana:
   haproxy:
-  influxdb:
   iscsid:
   keepalived:
   kolla-toolbox:
-  logstash:
   mariadb:
   memcached:
   multipathd:
