@@ -29,6 +29,7 @@ infrastructure_projects:
   openvswitch:
   ovn:
   prometheus:
+  proxysql:
   rabbitmq:
   redis:
   tgtd:
