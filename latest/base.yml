@@ -58,7 +58,7 @@ docker_images:
   postgres: '15.3-alpine'
   postgres_upgrade: '14-to-15'
   # renovate: datasource=docker depName=redis
-  redis: '7.0.11-alpine'
+  redis: '7.0.12-alpine'
   # renovate: datasource=docker depName=registry
   registry: '2.8'
   # renovate: datasource=docker depName=hubblo/scaphandre
