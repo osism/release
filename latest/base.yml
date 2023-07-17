@@ -101,7 +101,7 @@ ansible_collections:
   cloud.common: '2.1.2'
   community.crypto: '2.9.0'
   community.docker: '2.7.3'
-  community.general: '7.1.0'
+  community.general: '7.2.0'
   community.grafana: '1.5.3'
   community.hashi_vault: '3.4.0'
   community.mysql: '3.5.1'
