@@ -1,6 +1,6 @@
 PyDriller==2.5
 PyGithub==1.59.0
-PyYAML==6.0
+PyYAML==6.0.1
 Sphinx==7.0.1
 dictdiffer==0.9.0
 docker==6.1.3
