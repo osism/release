@@ -1,5 +1,5 @@
 PyDriller==2.5
-PyGithub==1.59.0
+PyGithub==1.59.1
 PyYAML==6.0.1
 Sphinx==7.1.2
 dictdiffer==0.9.0
