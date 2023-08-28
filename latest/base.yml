@@ -13,7 +13,7 @@ osism_projects:
   # renovate: datasource=docker depName=quay.io/osism/ara-server
   ara: '1.6.1'
   # renovate: datasource=github-releases depName=moby/moby
-  docker: '5:20.10.24'
+  docker: '5:20.10.25'
   # renovate: datasource=pypi depName=osism
   osism: '0.20230718.0'
   # renovate: datasource=github-releases depName=k3s-io/k3s
