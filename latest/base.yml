@@ -110,7 +110,7 @@ ansible_collections:
   containers.podman: '1.10.1'
   debops.debops: '3.0.5'
   kubernetes.core: '2.3.2'
-  netbox.netbox: '3.13.0'
+  netbox.netbox: '3.14.0'
   openstack.cloud: '2.1.0'
   osism.commons: main
   osism.services: main
