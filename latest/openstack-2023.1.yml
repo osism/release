@@ -43,7 +43,7 @@ openstack_projects:
   cloudkitty: stable-2023.1
   designate: stable-2023.1
   glance: stable-2023.1
-  gnocchi: 4.5.0
+  gnocchi: stable/4.5
   heat: stable-2023.1
   horizon: stable-2023.1
   ironic: stable-2023.1
