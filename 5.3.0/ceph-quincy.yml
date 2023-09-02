@@ -7,7 +7,7 @@ ceph_container_version: stable-7.0
 ceph_version: quincy
 
 defaults_version: 'v0.20230901.0'
-generics_version: 'v0.20230901.0'
+generics_version: 'v0.20230902.0'
 playbooks_version: 'v0.20230901.0'
 
 docker_images:
