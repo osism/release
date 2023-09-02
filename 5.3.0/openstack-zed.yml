@@ -6,7 +6,7 @@ openstack_version: zed
 openstack_previous_version: yoga
 
 defaults_version: 'v0.20230901.0'
-generics_version: 'v0.20230901.0'
+generics_version: 'v0.20230902.0'
 playbooks_version: 'v0.20230901.0'
 
 docker_images:
