@@ -43,7 +43,7 @@ openstack_projects:
   cloudkitty: stable-zed
   designate: stable-zed
   glance: stable-zed
-  gnocchi: 4.5.0
+  gnocchi: stable/4.5
   heat: stable-zed
   horizon: stable-zed
   ironic: stable-zed
