@@ -2,16 +2,16 @@
 ansible_version: '7.7.0'
 ansible_core_version: '2.14.9'
 
-defaults_version: 'v0.20230901.0'
+defaults_version: 'v0.20230902.0'
 generics_version: 'v0.20230902.0'
 manager_version: '5.3.0'
-operations_version: 'v0.20230901.0'
-playbooks_version: 'v0.20230901.0'
+operations_version: 'v0.20230902.0'
+playbooks_version: 'v0.20230902.0'
 
 osism_projects:
   ara: '1.6.1'
   docker: '5:20.10.23'
-  osism: '0.20230901.0'
+  osism: '0.20230902.0'
 
 docker_images:
   adminer: '4.8.1'
@@ -30,7 +30,7 @@ docker_images:
   nginx: '1.25.1-alpine'
   docker_openpolicyagent: '0.8'
   openstack_health_monitor: 'v5.0'
-  osism: '0.20230901.0'
+  osism: '0.20230902.0'
   patchman: '2.0.13'
   phpmyadmin: '5.2.1'
   postgres: '15.3-alpine'
