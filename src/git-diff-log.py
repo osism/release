@@ -35,7 +35,7 @@ REPOSITORIES = {
     "openstack/swift": "origin/stable/zed",
     "openstack/trove": "origin/stable/zed",
 }
-SINCE = "2023-04-07"
+SINCE = "2023-06-16"
 TABLEFMT = "rst"
 
 since_dt = datetime.strptime(SINCE, "%Y-%m-%d")
