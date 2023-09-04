@@ -2,7 +2,7 @@
 ansible_version: '>=6.0.0,<7.0.0'
 ansible_core_version: "2.13.8"
 
-openstack_version: "2023.1"
+openstack_version: 2023.1
 openstack_previous_version: zed
 
 defaults_version: 'v0.20230901.0'
