@@ -5,9 +5,9 @@ ansible_core_version: "2.13.8"
 openstack_version: 2023.1
 openstack_previous_version: zed
 
-defaults_version: 'v0.20230901.0'
-generics_version: 'v0.20230902.0'
-playbooks_version: 'v0.20230901.0'
+defaults_version: 'v0.20230906.0'
+generics_version: 'v0.20230906.0'
+playbooks_version: 'v0.20230906.0'
 
 docker_images:
   openstackclient: '6.2.0'
