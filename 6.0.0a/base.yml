@@ -80,5 +80,5 @@ ansible_collections:
   openstack.cloud: '2.1.0'
   osism.commons: '0.20230906.0'
   osism.services: '0.20230906.0'
-  osism.validations: '0.2023090..0'
+  osism.validations: '0.20230906.0'
   stackhpc.cephadm: '1.13.1'
