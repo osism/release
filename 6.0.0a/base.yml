@@ -2,16 +2,16 @@
 ansible_version: '8.3.0'
 ansible_core_version: '2.15.3'
 
-defaults_version: 'v0.20230901.0'
-generics_version: 'v0.20230902.0'
+defaults_version: 'v0.20230906.0'
+generics_version: 'v0.20230906.0'
 manager_version: '6.0.0a'
-operations_version: 'v0.20230901.0'
-playbooks_version: 'v0.20230901.0'
+operations_version: 'v0.20230906.0'
+playbooks_version: 'v0.20230906.0'
 
 osism_projects:
   ara: '1.6.1'
   docker: '5:20.10.24'
-  osism: '0.20230902.0'
+  osism: 'v0.20230906.0'
   k3s: 'v1.27.3+k3s1'
 
 docker_images:
@@ -31,7 +31,7 @@ docker_images:
   nginx: '1.25.2-alpine'
   docker_openpolicyagent: '0.8'
   openstack_health_monitor: 'v5.0'
-  osism: '0.20230902.0'
+  osism: '0.20230906.0'
   patchman: '2.0.13'
   phpmyadmin: '5.2.1'
   postgres: '15.4-alpine'
@@ -78,7 +78,7 @@ ansible_collections:
   kubernetes.core: '2.3.2'
   netbox.netbox: '3.14.0'
   openstack.cloud: '2.1.0'
-  osism.commons: '0.20230901.0'
-  osism.services: '0.20230901.0'
-  osism.validations: '0.20230901.0'
+  osism.commons: '0.20230906.0'
+  osism.services: '0.20230906.0'
+  osism.validations: '0.2023090..0'
   stackhpc.cephadm: '1.13.1'
