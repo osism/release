@@ -42,7 +42,7 @@ docker_images:
   memcached: '1.6.21-alpine'
   netbox: 'latest'
   # renovate: datasource=docker depName=quay.io/osism/nexus
-  nexus: '3.59.0'
+  nexus: '3.60.0'
   # renovate: datasource=docker depName=nginx
   nginx: '1.25.2-alpine'
   docker_openpolicyagent: '0.8'
