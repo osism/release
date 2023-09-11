@@ -1,7 +1,7 @@
 ---
 ansible_version: '8.3.0'
 # renovate: datasource=pypi depName=ansible-core
-ansible_core_version: '2.15.3'
+ansible_core_version: '2.15.4'
 
 defaults_version: main
 generics_version: main
