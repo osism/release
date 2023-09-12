@@ -70,7 +70,7 @@ docker_images:
   # renovate: datasource=docker depName=hashicorp/vault
   vault: '1.14.2'
   # renovate: datasource=docker depName=zookeeper
-  zookeeper: '3.8.2'
+  zookeeper: '3.9.0'
 
 ansible_roles:
   geerlingguy.certbot: master
