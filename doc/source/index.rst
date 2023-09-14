@@ -6,7 +6,7 @@ The latest available stable release is 5.3.0.
 
 Release 6.0.0 is currently under development.
 
-The latest available pre release is 6.0.0a.
+The latest available pre release is 6.0.0b.
 
 Release notes
 =============
@@ -22,7 +22,6 @@ Release notes
    notes/5.1.0
    notes/5.2.0
    notes/5.3.0
-   notes/6.0.0
 
 Atom Feeds
 ==========
@@ -124,7 +123,7 @@ Pre-release
 
    .. code-block:: none
 
-      latest -> 6.0.0a
+      latest -> 6.0.0b
  
 3. Remove all ``# renovate`` lines from the ``base.yml`` file.
   
@@ -146,7 +145,7 @@ Pre-release
 
    .. code-block:: none
 
-      RELEASE=6.0.0a python3 src/prepare-release.py
+      RELEASE=6.0.0b python3 src/prepare-release.py
 
 7. Do the steps from the ``Stable release`` starting from the 4th step.
 
