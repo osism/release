@@ -22,6 +22,7 @@ Release notes
    notes/5.1.0
    notes/5.2.0
    notes/5.3.0
+   notes/6.0.0
 
 Atom Feeds
 ==========
