@@ -34,8 +34,7 @@ General notes
 
 * IPv6 is now completely supported.
 
-* The metering service developed by Cloud & Heat is now deployable via
-  ``osism.services.metering``.
+* The SCS metering service is now deployable via ``osism.services.metering``.
 
 Testbed
 =======
@@ -43,7 +42,7 @@ Testbed
 * The Terraform definitions previously included directly in the repository have been moved
   to a separate repository (osism/terraform-base).
 
-* The metering service developed by Cloud & Heat is now available for use in the testbed.
+* The SCS metering service is now deployed in the testbed.
 
 * Keycloak/Keystone integration has been further improved.
 
