@@ -34,47 +34,7 @@ done releases via an Atom feed.
 Use of a specific release in the configuration repository
 =========================================================
 
-* read the release notes to learn what has changed and what adjustments are necessary
-* sync the image versions in the configuration repository
-
-  .. code-block:: console
-
-     MANAGER_VERSION=6.0.0 gilt overlay  # you have to do this 2x
-     MANAGER_VERSION=6.0.0 gilt overlay
-
-* set the new manager version in the configuration repository
-
-  .. code-block:: console
-
-     yq -i '.manager_version = "6.0.0"' environments/manager/configuration.yml
-
-* if ``openstack_version`` or ``ceph_version`` are set in ``environments/manager/configuration.yml``
-  (or anywhere else), they must be removed when using a stable release
-
-* update the configuration repository on the manager
-
-  .. code-block:: console
-
-     osism apply configuration
-
-* update the manager services on the manager
-
-  .. code-block:: console
-
-     osism-update-manager                   # if vault is not used
-     osism-update-manager --ask-vault-pass  # if vault is used
-
-* synchronise the reconciler (after upgrading to 5.2.0 optional)
-
-  .. code-block:: console
-
-     osism reconciler sync
-
-* refresh the facts
-
-  .. code-block:: console
-
-     osism apply facts
+The documentation has been moved: https://osism.github.io/docs/guides/upgrade-guides/manager
 
 How do we release?
 ==================
