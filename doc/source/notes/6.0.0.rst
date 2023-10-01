@@ -4,6 +4,15 @@
 
 Release date: 20. September 2023
 
+First things first
+==================
+
+When upgrading REGIO.cloud, we had problems with Neutron interacting with Nova when
+upgrading OVN. The Neutron metadata agents were all ``UP`` but not ``ALIVE``. In the Nova
+logs we saw failed port bindings when creating instances. A restart of ``nova_compute``
+and ``ovn_controller`` on the compute nodes followed by a restart of
+``neutron_ovn_metadata_agent`` a few minutes later solved the problem.
+
 General notes
 =============
 
