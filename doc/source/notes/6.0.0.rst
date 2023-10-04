@@ -13,6 +13,17 @@ logs we saw failed port bindings when creating instances. A restart of ``nova_co
 and ``ovn_controller`` on the compute nodes followed by a restart of
 ``neutron_ovn_metadata_agent`` a few minutes later solved the problem.
 
+Both on REGIO.cloud and on the SCS environment at Plusserver there were problems in the
+interaction of Octavia with Neutron.
+``octavia.network.base.PlugVIPException: Bad port request: A virtual logical switch port cannot be bound to a host.``
+A hoffix was added to the Neutron code which is currently already usable through the
+following change in ``environments/kolla/images.yml``. A stable image will soon be
+available.
+
+.. code-block:: yaml
+
+   neutron_server_image_full: quay.io/osism/neutron-server:2023.1
+
 General notes
 =============
 
