@@ -2,7 +2,7 @@
 OSISM releases
 ==============
 
-The latest available stable release is 6.0.0.
+The latest available stable release is 6.0.1.
 
 Release 6.1.0 is currently under development.
 
@@ -21,6 +21,7 @@ Release notes
    notes/5.2.0
    notes/5.3.0
    notes/6.0.0
+   notes/6.0.1
 
 Atom Feeds
 ==========
