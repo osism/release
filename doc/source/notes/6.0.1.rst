@@ -1,0 +1,14 @@
+=====
+6.0.1
+=====
+
+Release date: 15. October 2023
+
+Both on REGIO.cloud and on the SCS environment at Plusserver there were problems in the
+interaction of Octavia with Neutron.
+``octavia.network.base.PlugVIPException: Bad port request: A virtual logical switch port cannot be bound to a host.`` A hoffix was added to the Neutron code. This is the only change in this release.
+
+The previously necessary change in ``environments/kolla/images.yml`` can be removed again.
+
+It is sufficient to update the manager from ``6.0.0`` to ``6.0.1`` and update Neutron on the
+control plane. No further upgrades of other services are required with this release.
