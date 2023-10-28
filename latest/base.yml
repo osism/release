@@ -76,6 +76,7 @@ ansible_roles:
   stackhpc.libvirt_vm: master
   stackhpc.luks: master
   stackhpc.systemd_networkd: master
+  ubuntu22_cis: devel
 
 ansible_collections:
   ansible.netcommon: '5.2.0'
