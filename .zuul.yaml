@@ -5,11 +5,14 @@
       jobs:
         - flake8
         - yamllint
+        - python-black
     gate:
       jobs:
         - flake8
         - yamllint
+        - python-black
     periodic-daily:
       jobs:
         - flake8
         - yamllint
+        - python-black
