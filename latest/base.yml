@@ -79,7 +79,7 @@ ansible_roles:
   ubuntu22_cis: devel
 
 ansible_collections:
-  ansible.netcommon: '5.2.0'
+  ansible.netcommon: '5.3.0'
   ansible.posix: '1.5.4'
   ansible.utils: '2.8.0'
   cloud.common: '2.1.2'
