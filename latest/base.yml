@@ -89,7 +89,7 @@ ansible_collections:
   community.grafana: '1.5.3'
   community.hashi_vault: '3.4.0'
   community.mysql: '3.5.1'
-  community.network: '5.0.0'
+  community.network: '5.0.2'
   community.rabbitmq: '1.2.3'
   containers.podman: '1.10.1'
   debops.debops: '3.0.5'
