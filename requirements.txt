@@ -1,4 +1,4 @@
-PyDriller==2.5.1
+PyDriller==2.6
 PyGithub==2.1.1
 PyYAML==6.0.1
 Sphinx==7.2.6
