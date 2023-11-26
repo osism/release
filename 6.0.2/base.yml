@@ -30,7 +30,7 @@ docker_images:
   nexus: '3.59.0'
   nginx: '1.25.2-alpine'
   openstack_health_monitor: 'v5.0'
-  osism: '0.20230919.0'
+  osism: '0.20231126.0'
   patchman: '2.0.13'
   phpmyadmin: '5.2.1'
   postgres: '15.4-alpine'
