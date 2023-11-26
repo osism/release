@@ -12,17 +12,17 @@ Release notes
 .. toctree::
    :maxdepth: 1
 
-   notes/4.0.0
-   notes/4.1.0
-   notes/4.2.0
-   notes/4.3.0
-   notes/5.0.0
-   notes/5.1.0
-   notes/5.2.0
-   notes/5.3.0
-   notes/6.0.0
-   notes/6.0.1
    notes/6.0.2
+   notes/6.0.1
+   notes/6.0.0
+   notes/5.3.0
+   notes/5.2.0
+   notes/5.1.0
+   notes/5.0.0
+   notes/4.3.0
+   notes/4.2.0
+   notes/4.1.0
+   notes/4.0.0
 
 
 Release Series
