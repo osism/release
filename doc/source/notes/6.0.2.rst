@@ -1,0 +1,32 @@
+=====
+6.0.2
+=====
+
+Release date: 26. November 2023
+
+This is a maintenance update for the manager. The service images will not change.
+These will only be updated in December with the release of OSISM 6.1.0.
+
+It is sufficient to update the manager from ``6.0.0`` or ``6.0.1`` to ``6.0.2``.
+No further upgrades of other services are required with this release.
+
+Anyone still using ``/etc/interfaces`` for their network configuration must now
+explicitly set ``network_type: interfaces``. The default in Ubuntu has been Netplan
+for a long time and the default has now been adjusted in ``osism.commons.network``.
+As a result, it is no longer necessary to explicitly set ``network_type: netplan``
+in the configuration repository.
+
+As a new feature, the inventory reconciler now automatically calculates the value
+for ``ceph_rgw_hosts`` and ``cephclient_mons``. This means that these parameters
+can be removed from the configuration repository in future.
+
+The transfer of outputs from running Ansible playbooks on the workers has been
+changed from Redis Pub/Sub to Redis Streams. This should make the transfer of
+outputs much more stable.
+
+From now on it is sufficient to adjust the ``manager_version`` in ``environments/manager/configuration.yml``
+and then execute ``gilt overlay``. It is no longer necessary to specify the version
+with ``MANAGER_VERSION``.
+
+A detailed list of the changes will be added here when the script for reading the
+new Reno relesenotes in the individual repositories is ready.
