@@ -40,14 +40,13 @@ Release Series
 | 4            | End of Life          |                            |                      |              |
 +--------------+----------------------+----------------------------+----------------------+--------------+
 
-Atom Feeds
-==========
+Atom Feed
+=========
 
-There is the possibility to subscribe to the GitHub releases or Git tags for
-done releases via an Atom feed.
+There is the possibility to subscribe to the GitHub releases for
+final releases via an Atom feed.
 
 * https://github.com/osism/release/releases.atom
-* https://github.com/osism/release/tags.atom
 
 Use of a specific release in the configuration repository
 =========================================================
