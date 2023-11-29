@@ -11,7 +11,7 @@ playbooks_version: 'v0.20231126.0'
 osism_projects:
   ara: '1.7.0'
   docker: '5:20.10.24'
-  osism: 'v0.20231129.1'
+  osism: 'v0.20231129.2'
   k3s: 'v1.27.3+k3s1'
 
 docker_images:
@@ -30,7 +30,7 @@ docker_images:
   nexus: '3.59.0'
   nginx: '1.25.2-alpine'
   openstack_health_monitor: 'v5.0'
-  osism: '0.20231129.1'
+  osism: '0.20231129.2'
   patchman: '2.0.13'
   phpmyadmin: '5.2.1'
   postgres: '15.4-alpine'
