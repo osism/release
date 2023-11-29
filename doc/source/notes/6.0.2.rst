@@ -2,7 +2,7 @@
 6.0.2
 =====
 
-Release date: 26. November 2023
+Release date: 29. November 2023
 
 This is a maintenance update for the manager. The service images will not change.
 These will only be updated in December with the release of OSISM 6.1.0.
@@ -27,6 +27,9 @@ outputs much more stable.
 From now on it is sufficient to adjust the ``manager_version`` in ``environments/manager/configuration.yml``
 and then execute ``gilt overlay``. It is no longer necessary to specify the version
 with ``MANAGER_VERSION``.
+
+The error logs of Ansible services and inventory reconciler have been significantly
+improved
 
 A detailed list of the changes will be added here when the script for reading the
 new Reno relesenotes in the individual repositories is ready.
