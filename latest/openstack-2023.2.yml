@@ -37,10 +37,10 @@ infrastructure_projects:
 openstack_projects:
   aodh: stable-2023.2
   barbican: stable-2023.2
-  bifrost: stable-2023.2
+  # bifrost: stable-2023.2
   ceilometer: stable-2023.2
   cinder: stable-2023.2
-  cloudkitty: stable-2023.2
+  # cloudkitty: stable-2023.2
   designate: stable-2023.2
   glance: stable-2023.2
   gnocchi: stable/4.6
@@ -48,19 +48,19 @@ openstack_projects:
   horizon: stable-2023.2
   ironic: stable-2023.2
   keystone: stable-2023.2
-  kuryr: stable-2023.2
+  # kuryr: stable-2023.2
   magnum: stable-2023.2
   manila: stable-2023.2
-  mistral: stable-2023.2
+  # mistral: stable-2023.2
   neutron-vpnaas: stable-2023.2
   neutron-dynamic-routing: stable-2023.2
   neutron: stable-2023.2
   nova: stable-2023.2
   octavia: stable-2023.2
   placement: stable-2023.2
-  senlin: stable-2023.2
+  # senlin: stable-2023.2
   skyline-apiserver: stable-2023.2
   skyline-console: stable-2023.2
-  swift: stable-2023.2
-  trove: stable-2023.2
-  zun: stable-2023.2
+  # swift: stable-2023.2
+  # trove: stable-2023.2
+  # zun: stable-2023.2
