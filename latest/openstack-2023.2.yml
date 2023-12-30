@@ -28,6 +28,7 @@ infrastructure_projects:
   openstack-base:
   openvswitch:
   ovn:
+  ovsdpdk:
   prometheus:
   proxysql:
   rabbitmq:
