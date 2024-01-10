@@ -33,7 +33,7 @@ docker_images:
   homer: 'v23.10.1'
   inventory_reconciler: 'latest'
   # renovate: datasource=docker depName=fleetdm/fleet
-  fleet: 'v4.42.0'
+  fleet: 'v4.43.0'
   # renovate: datasource=docker depName=quay.io/keycloak/keycloak
   keycloak: '19.0.3-legacy'
   # renovate: datasource=docker depName=mariadb
