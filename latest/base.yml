@@ -101,3 +101,7 @@ ansible_collections:
   osism.sonic: main
   osism.validations: main
   stackhpc.cephadm: master
+
+helm_chart_repositories:
+  cnpg: https://cloudnative-pg.github.io/charts
+  codecentric: https://codecentric.github.io/helm-charts
