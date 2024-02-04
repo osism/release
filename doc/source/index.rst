@@ -4,14 +4,13 @@ OSISM releases
 
 The latest available stable release is 6.0.2.
 
-Release 6.1.0 is currently under development.
-
 Release notes
 =============
 
 .. toctree::
    :maxdepth: 1
 
+   notes/7.0.0a
    notes/6.0.2
    notes/6.0.1
    notes/6.0.0
@@ -31,7 +30,7 @@ Release Series
 +--------------+----------------------+----------------------------+----------------------+--------------+
 | Series       | Status               | Initial Release Date       | Next Phase           | EOL Date     |
 +==============+======================+============================+======================+==============+
-| 7            | Development          | 20. March 2024 (estimated) | Maintained           |              |
+| 7            | Development          | 20. March 2024             | Maintained           |              |
 +--------------+----------------------+----------------------------+----------------------+--------------+
 | 6            | Maintained           | 20. September 2023         | Extended Maintenance | 20. May 2024 |
 +--------------+----------------------+----------------------------+----------------------+--------------+
