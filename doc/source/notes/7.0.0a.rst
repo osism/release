@@ -1,0 +1,31 @@
+======
+7.0.0a
+======
+
+**This is a pre-release. Do not use in production.**
+
+First things first
+==================
+
+General notes
+=============
+
+Deprecations
+============
+
+Removals
+========
+
+Housekeeping
+============
+
+Upgrade notes
+=============
+
+Other
+=====
+
+* Refstack 2022.11 results
+ 
+Versions
+========
