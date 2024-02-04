@@ -10,7 +10,7 @@ generics_version: 'v0.20240204.0'
 playbooks_version: 'v0.20240204.0'
 
 docker_images:
-  openstackclient: 2023.2
+  openstackclient: '6.5.0'
 
 infrastructure_projects:
   cron:
