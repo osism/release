@@ -70,9 +70,9 @@ ansible_collections:
   kubernetes.core: '3.0.0'
   netbox.netbox: '3.16.0'
   openstack.cloud: '2.2.0'
-  osism.commons: 'v0.20240204.0'
-  osism.services: 'v0.20240204.0'
-  osism.validations: 'v0.20240204.0'
+  osism.commons: '0.20240204.0'
+  osism.services: '0.20240204.0'
+  osism.validations: '0.20240204.0'
   stackhpc.cephadm: fa76f330ce161b76e03828807b2eff8893216513
 
 helm_chart_repositories:
