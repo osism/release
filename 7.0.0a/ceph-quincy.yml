@@ -11,5 +11,5 @@ generics_version: 'v0.20240204.0'
 playbooks_version: 'v0.20240204.0'
 
 docker_images:
-  ceph: quincy
-  cephclient: quincy
+  ceph: '17.2.7'
+  cephclient: '17.2.6'
