@@ -1,81 +1,55 @@
 ---
 ansible_version: '9.2.0'
-# renovate: datasource=pypi depName=ansible-core
 ansible_core_version: '2.16.3'
 
-defaults_version: main
-generics_version: main
-manager_version: latest
-operations_version: main
-playbooks_version: main
+defaults_version: 'v0.20240204.0'
+generics_version: 'v0.20240204.0'
+manager_version: 7.0.0a
+operations_version: 'v0.20240204.0'
+playbooks_version: 'v0.20240204.0'
 
 osism_projects:
-  # renovate: datasource=docker depName=quay.io/osism/ara-server
   ara: '1.7.0'
-  # renovate: datasource=github-releases depName=moby/moby
   docker: '5:24.0.9'
-  # renovate: datasource=pypi depName=osism
   osism: '0.20240117.0'
-  # renovate: datasource=github-releases depName=k3s-io/k3s
   k3s: 'v1.28.2+k3s1'
 
 docker_images:
-  # renovate: datasource=docker depName=adminer
   adminer: '4.8.1'
-  # renovate: datasource=docker depName=alerta/alerta-web
   alerta: '9.0.1'
-  ara_server: 'latest'
-  # renovate: datasource=docker depName=quay.io/osism/cgit
+  ara_server: '1.7.0'
   cgit: '1.2.3'
-  # renovate: datasource=docker depName=quay.io/osism/dnsdist
   dnsdist: '1.8.0'
-  # renovate: datasource=docker depName=quay.io/osism/homer
   homer: 'v23.10.1'
-  inventory_reconciler: 'latest'
-  # renovate: datasource=docker depName=fleetdm/fleet
+  inventory_reconciler: '7.0.0a'
   fleet: 'v4.43.3'
-  # renovate: datasource=docker depName=quay.io/keycloak/keycloak
   keycloak: '19.0.3-legacy'
-  # renovate: datasource=docker depName=mariadb
   mariadb: '11.2.2'
-  # renovate: datasource=docker depName=memcached
   memcached: '1.6.23-alpine'
-  netbox: 'latest'
-  # renovate: datasource=docker depName=quay.io/osism/nexus
+  netbox: 'v3.4.8'
   nexus: '3.64.0'
-  # renovate: datasource=docker depName=nginx
   nginx: '1.25.3-alpine'
-  # yamllint disable-line rule:line-length
-  # renovate: datasource=docker depName=quay.io/sovereigncloudstack/openstack-health-monitor
-  openstack_health_monitor: 'v5.0'
-  osism: 'latest'
-  # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
+  openstack_health_monitor: 'v6.0.0'
+  osism: '0.20240204.0'
   phpmyadmin: '5.2.1'
-  # renovate: datasource=docker depName=postgres
   postgres: '15.5-alpine'
   postgres_upgrade: '14-to-15'
-  # renovate: datasource=docker depName=redis
   redis: '7.2.4-alpine'
-  # renovate: datasource=docker depName=registry
   registry: '2.8'
-  # renovate: datasource=docker depName=hubblo/scaphandre
   scaphandre: '0.5.0'
-  # renovate: datasource=docker depName=ubuntu/squid
   squid: '5.7-23.04_beta'
-  # renovate: datasource=docker depName=traefik
   traefik: '2.10.7'
-  # renovate: datasource=docker depName=hashicorp/vault
   vault: '1.15.5'
 
 ansible_roles:
-  geerlingguy.certbot: master
-  geerlingguy.dotfiles: master
+  geerlingguy.certbot: 4be771f12a62c9a835491f76ac49cfdc150481ce
+  geerlingguy.dotfiles: d3c06e05442ec75e67c2d2e40591eed13f96587f
   hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
   pdns_recursor: 'v1.6.0'
-  stackhpc.libvirt_host: master
-  stackhpc.libvirt_vm: master
-  stackhpc.luks: master
-  stackhpc.systemd_networkd: master
+  stackhpc.libvirt_host: 27144f846d2c088d9de0d633f2ad26060bd8e5e7
+  stackhpc.libvirt_vm: 0c08b28ce3547878e104adc284e09c947809df50
+  stackhpc.luks: 81faff11713675f4e35126587445b52732b02aba
+  stackhpc.systemd_networkd: 091601b0b02d1db59297e1f72533927540e9b9c7
   ubuntu22_cis: devel
 
 ansible_collections:
@@ -96,11 +70,10 @@ ansible_collections:
   kubernetes.core: '3.0.0'
   netbox.netbox: '3.16.0'
   openstack.cloud: '2.2.0'
-  osism.commons: main
-  osism.services: main
-  osism.sonic: main
-  osism.validations: main
-  stackhpc.cephadm: master
+  osism.commons: 'v0.20240204.0'
+  osism.services: 'v0.20240204.0'
+  osism.validations: 'v0.20240204.0'
+  stackhpc.cephadm: fa76f330ce161b76e03828807b2eff8893216513
 
 helm_chart_repositories:
   cnpg: https://cloudnative-pg.github.io/charts
