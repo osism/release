@@ -10,6 +10,12 @@ First things first
 General notes
 =============
 
+* Shortly before the first pre-release, `gilt <https://github.com/retr0h/gilt>`_
+  made a major release which led to breaking changes. It is therefore important
+  for the moment to install python-gilt in a version < 2 when synchronising the
+  configuration repository against the generics. In the CI and within the container
+  images, we currently use `python-gilt == 1.2.3`.
+
 Deprecations
 ============
 
