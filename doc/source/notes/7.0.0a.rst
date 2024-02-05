@@ -68,6 +68,11 @@ Upgrade notes
      ceph_nova_user: nova
      ceph_nova_keyring: ceph.client.nova.keyring
 
+* Parameters for the Netbox service in ``environments/infrastructure/configuration.yml`` or
+  ``secrets.yml`` must now also be added in ``environments/manager/configuration.yml`` or
+  ``secrets.yml``. In an upcoming  release, the parameters can be removed from the
+  infrastructure environment.
+
 Other
 =====
 
