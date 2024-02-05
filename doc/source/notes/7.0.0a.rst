@@ -22,6 +22,25 @@ Housekeeping
 Upgrade notes
 =============
 
+* The following parameters must be removed from the configuration repository from
+  `environments/kolla/configuration.yml`:
+
+  .. code-block:: yaml
+
+     ceph_nova_user: nova
+     ceph_nova_keyring: ceph.client.nova.keyring
+
+* The following secrets must be added in `environments/kolla/secrets.yml`:
+
+  .. code-block:: yaml
+
+     mariadb_monitor_password:     # generate with: pwgen 32 1
+     prometheus_bcrypt_salt:       # generate with: pwgen 22 1 <-- there's a 22
+     prometheus_grafana_password:  # generate with: pwgen 32 1
+     prometheus_password:          # generate with: pwgen 32 1
+     proxysql_admin_password:      # generate with: pwgen 32 1
+     proxysql_stats_password:      # generate with: pwgen 32 1
+
 Other
 =====
 
