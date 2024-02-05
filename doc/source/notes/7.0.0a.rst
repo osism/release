@@ -54,3 +54,28 @@ Other
  
 Versions
 ========
+
+References
+==========
+
+OpenStack 2023.2 press announcement: https://www.openstack.org/software/openstack-bobcat
+
+OpenStack 2023.2 release notes: https://releases.openstack.org/bobcat/index.html
+
+Release notes for each OpenStack service:
+
+* Barbican: https://docs.openstack.org/releasenotes/barbican/2023.2.html
+* Ceilometer: https://docs.openstack.org/releasenotes/ceilometer/2023.2.html
+* Cinder: https://docs.openstack.org/releasenotes/cinder/2023.2.html
+* Designate: https://docs.openstack.org/releasenotes/designate/2023.2.html
+* Glance: https://docs.openstack.org/releasenotes/glance/2023.2.html
+* Heat: https://docs.openstack.org/releasenotes/heat/2023.2.html
+* Horizon: https://docs.openstack.org/releasenotes/horizon/2023.2.html
+* Ironic: https://docs.openstack.org/releasenotes/ironic/2023.2.html
+* Keystone: https://docs.openstack.org/releasenotes/keystone/2023.2.html
+* Manila: https://docs.openstack.org/releasenotes/manila/2023.2.html
+* Neutron: https://docs.openstack.org/releasenotes/neutron/2023.2.html
+* Nova: https://docs.openstack.org/releasenotes/nova/2023.2.html
+* Octavia: https://docs.openstack.org/releasenotes/octavia/2023.2.html
+* Placement: https://docs.openstack.org/releasenotes/placement/2023.2.html
+* Skyline: https://docs.openstack.org/releasenotes/skyline-apiserver/2023.2.html, https://docs.openstack.org/releasenotes/skyline-console/2023.2.html
