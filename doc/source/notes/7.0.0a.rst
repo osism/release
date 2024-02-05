@@ -14,7 +14,7 @@ General notes
   made a major release which led to breaking changes. It is therefore important
   for the moment to install python-gilt in a version < 2 when synchronising the
   configuration repository against the generics. In the CI and within the container
-  images, we currently use `python-gilt == 1.2.3`.
+  images, we currently use ``python-gilt == 1.2.3``.
 
 Deprecations
 ============
@@ -28,24 +28,45 @@ Housekeeping
 Upgrade notes
 =============
 
-* The following parameters must be removed from the configuration repository from
-  `environments/kolla/configuration.yml`:
+* The use of ProxySQL for MariaDB is now possible and it is recommended to switch
+  to it as part of the upgrade. The parameter ``enable_proxysql`` is added to
+  ``environments/kolla/configuration.yml`` for this purpose.
 
   .. code-block:: yaml
 
-     ceph_nova_user: nova
-     ceph_nova_keyring: ceph.client.nova.keyring
+     enable_proxysql: yes
 
-* The following secrets must be added in `environments/kolla/secrets.yml`:
+  The secrets listed below (``proxysql_admin_password``, ``proxysql_stats_password``,
+  ``mariadb_monitor_password``) must also be added or changed.
+
+  When upgrading, it is important to update MariaDB first. This is followed by the
+  load balancer. ProxySQL is deployed with the load balancer play.
+
+* The following secrets must be added in ``environments/kolla/secrets.yml``:
 
   .. code-block:: yaml
 
-     mariadb_monitor_password:     # generate with: pwgen 32 1
      prometheus_bcrypt_salt:       # generate with: pwgen 22 1 <-- there's a 22
      prometheus_grafana_password:  # generate with: pwgen 32 1
      prometheus_password:          # generate with: pwgen 32 1
      proxysql_admin_password:      # generate with: pwgen 32 1
      proxysql_stats_password:      # generate with: pwgen 32 1
+
+* The parameter ``mariadb_monitoring_password`` in ``environments/kolla/secrets.yml``
+  has to be renamed to ``mariadb_monitor_password``. If the parameter is not present,
+  it is added.
+
+  .. code-block:: yaml
+
+     mariadb_monitor_password:     # generate with: pwgen 32 1
+
+* The following parameters must be removed from the configuration repository from
+  ``environments/kolla/configuration.yml``:
+
+  .. code-block:: yaml
+
+     ceph_nova_user: nova
+     ceph_nova_keyring: ceph.client.nova.keyring
 
 Other
 =====
