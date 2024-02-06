@@ -28,6 +28,14 @@ Housekeeping
 Upgrade notes
 =============
 
+* The use of RabbitMQ quorum queues is now possible and recommended. The parameter
+  ``om_enable_rabbitmq_quorum_queues`` is added to ``environments/kolla/configuration.yml``
+  for this purpose.
+
+  .. code-block:: yaml
+
+     om_enable_rabbitmq_quorum_queues: yes
+
 * The use of ProxySQL for MariaDB is now possible and it is recommended to switch
   to it as part of the upgrade. The parameter ``enable_proxysql`` is added to
   ``environments/kolla/configuration.yml`` for this purpose.
