@@ -73,6 +73,17 @@ Upgrade notes
   ``secrets.yml``. In an upcoming  release, the parameters can be removed from the
   infrastructure environment.
 
+* The Ansible callback plugin ``osism.commons.still_alive`` is now available to avoid timeouts
+  for long-running tasks. This currently has to be explicitly enabled in the Ansible configuration.
+  This is done in the ``environments/ansible.cfg`` file in the configuration repository.
+  The callback plugin is enabled by default in the future.
+
+  .. code-block:: ini
+
+     [defaults]
+     ...
+     stdout_callback = osism.commons.still_alive
+
 Other
 =====
 
