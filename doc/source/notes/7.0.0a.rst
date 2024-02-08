@@ -84,6 +84,16 @@ Upgrade notes
      ...
      stdout_callback = osism.commons.still_alive
 
+Known issues
+============
+
+* The manager service is updated via ``osism update manager``. If this command is not yet
+  available, you can use ``osism-update-manager`` as an alternative.
+
+  .. code-block:: ini
+
+     osism: 'update manager' is not an osism command. See 'osism --help'.
+
 Other
 =====
 
