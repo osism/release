@@ -59,7 +59,7 @@ docker_images:
   # renovate: datasource=docker depName=registry
   registry: '2.8'
   # renovate: datasource=docker depName=hubblo/scaphandre
-  scaphandre: '0.5.0'
+  scaphandre: '1.0.0'
   # renovate: datasource=docker depName=ubuntu/squid
   squid: '5.7-23.04_beta'
   # renovate: datasource=docker depName=traefik
