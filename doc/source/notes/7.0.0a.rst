@@ -84,6 +84,13 @@ Upgrade notes
      ...
      stdout_callback = osism.commons.still_alive
 
+* In the inventory, the ``nova_backend`` parameter must be added to the host vars of
+  compute nodes where local storage is used.
+
+  .. code-block:: yaml
+
+     nova_backend: default
+
 Known issues
 ============
 
