@@ -91,13 +91,20 @@ Upgrade notes
 
      nova_backend: default
 
+* The persistence feature in Octavia was enabled by default. This requires an additional
+  database, which is only created when Octavia play is run in bootstrap mode first.
+
+  .. code-block:: none
+
+     osism apply octavia -e kolla_action=bootstrap
+
 Known issues
 ============
 
 * The manager service is updated via ``osism update manager``. If this command is not yet
   available, you can use ``osism-update-manager`` as an alternative.
 
-  .. code-block:: ini
+  .. code-block:: none
 
      osism: 'update manager' is not an osism command. See 'osism --help'.
 
