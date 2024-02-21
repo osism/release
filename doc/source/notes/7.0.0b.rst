@@ -4,8 +4,26 @@
 
 **This is a pre-release. Do not use in production.**
 
+Report any feedback on this pre-release in the issues
+`osism/issues#841 <https://github.com/osism/issues/issues/841>`_.
+
+This pre-release is set in the configuration repository like a stable release.
+Instructions for the upgrade can be found in the `upgrade guide <https://osism.github.io/docs/guides/upgrade-guide/manager>`_.
+
 First things first
 ==================
+
+* There is currently still a bug in part of the new Keycloak deployment.
+  It is therefore currently not possible to use the Keycloak service itself
+  or the Keycloak/Keystone integration. This will work again with the next
+  pre-release.
+
+* The Keycloak deployment via Docker Compose, which was previously included
+  as a technical preview, has been completely revised and is now deployed on
+  Kubernetes. No migration from the old deployment via Docker Compose to the
+  new deployment via Kubernetes has been prepared. If you are currently using
+  the Keycloak service, do not upgrade the Keycloak service and contact us in
+  advance.
 
 General notes
 =============
@@ -24,6 +42,11 @@ Removals
 
 Housekeeping
 ============
+
+To be considered
+================
+
+* The ``hosts_interface`` parameter is now set to ``internal_interface`` by default.
 
 Upgrade notes
 =============
@@ -96,7 +119,7 @@ Upgrade notes
 
   .. code-block:: none
 
-     osism apply octavia -e kolla_action=bootstrap
+     osism apply -a bootstrap octavia
 
 Known issues
 ============
