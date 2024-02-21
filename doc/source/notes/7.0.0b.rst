@@ -27,8 +27,7 @@ First things first
 
 * The switch from classic queue mirroring and durable queues to quorum queues
   in RabbitMQ has not yet been tested and documented. So far, there is only the
-  `Kolla-Ansible documentation <https://docs.openstack.org/kolla-ansible/latest/reference/message-queues/rabbitmq.html#high-availability
->`_,
+  `Kolla-Ansible documentation <https://docs.openstack.org/kolla-ansible/latest/reference/message-queues/rabbitmq.html#high-availability>`_,
   which requires all services to be stopped. We are still working on a better
   approach.
 
