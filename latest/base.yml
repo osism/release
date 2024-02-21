@@ -17,7 +17,7 @@ osism_projects:
   # renovate: datasource=pypi depName=osism
   osism: '0.20240221.0'
   # renovate: datasource=github-releases depName=k3s-io/k3s
-  k3s: 'v1.28.2+k3s1'
+  k3s: 'v1.29.0+k3s1'
 
 docker_images:
   # renovate: datasource=docker depName=adminer
@@ -45,9 +45,7 @@ docker_images:
   nexus: '3.65.0'
   # renovate: datasource=docker depName=nginx
   nginx: '1.25.4-alpine'
-  # yamllint disable-line rule:line-length
-  # renovate: datasource=docker depName=quay.io/sovereigncloudstack/openstack-health-monitor
-  openstack_health_monitor: 'v5.0'
+  openstack_health_monitor: 'v7.0.0a'
   osism: 'latest'
   # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
   phpmyadmin: '5.2.1'
