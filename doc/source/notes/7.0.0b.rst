@@ -75,11 +75,12 @@ Upgrade notes
 
   .. code-block:: yaml
 
-     prometheus_bcrypt_salt:       # generate with: pwgen 22 1 <-- there's a 22
-     prometheus_grafana_password:  # generate with: pwgen 32 1
-     prometheus_password:          # generate with: pwgen 32 1
-     proxysql_admin_password:      # generate with: pwgen 32 1
-     proxysql_stats_password:      # generate with: pwgen 32 1
+     octavia_persistence_database_password:  # generate with: pwgen 32 1
+     prometheus_bcrypt_salt:                 # generate with: pwgen 22 1 <-- there's a 22
+     prometheus_grafana_password:            # generate with: pwgen 32 1
+     prometheus_password:                    # generate with: pwgen 32 1
+     proxysql_admin_password:                # generate with: pwgen 32 1
+     proxysql_stats_password:                # generate with: pwgen 32 1
 
 * The parameter ``mariadb_monitoring_password`` in ``environments/kolla/secrets.yml``
   has to be renamed to ``mariadb_monitor_password``. If the parameter is not present,
@@ -126,6 +127,12 @@ Upgrade notes
   .. code-block:: none
 
      osism apply -a bootstrap octavia
+
+* The SSL certificate file ``haproxy.pem`` is now available in a different location in the
+  ``haproxy`` container. Previously it was stored under ``/etc/haproxy/haproxy.pem``. From
+  now on it is stored under ``/etc/haproxy/certificates/haproxy.pem``. If you have customised
+  the configuration for the haproxy service or use overlays for this, adjust the locations of
+  the SSL certificate as required.
 
 Known issues
 ============
