@@ -68,8 +68,13 @@ Upgrade notes
   The secrets listed below (``proxysql_admin_password``, ``proxysql_stats_password``,
   ``mariadb_monitor_password``) must also be added or changed.
 
-  When upgrading, it is important to update MariaDB first. This is followed by the
-  load balancer. ProxySQL is deployed with the load balancer play.
+  When migrating to ProxySQL, it is important to upgrade MariaDB first.
+
+  When migrating to ProxySQL, it is important to perform the loadbalancer upgrade
+  before all OpenStack service upgrades. To make sure that the OpenStack services
+  continue to work after the upgrade when ProxySQL is enabled as part of the upgrade,
+  the ProxySQL service must have been deployed first. The ProxySQL service is deployed
+  with the loadbalancer play.
 
 * The following secrets must be added in ``environments/kolla/secrets.yml``:
 
