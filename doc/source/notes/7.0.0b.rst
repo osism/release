@@ -133,6 +133,9 @@ Upgrade notes
 
      osism apply -a bootstrap octavia
 
+  The secret ``octavia_persistence_database_password`` (see above) must be added to
+  ``environments/kolla/secrets.yml`` before.
+
 * The SSL certificate file ``haproxy.pem`` is now available in a different location in the
   ``haproxy`` container. Previously it was stored under ``/etc/haproxy/haproxy.pem``. From
   now on it is stored under ``/etc/haproxy/certificates/haproxy.pem``. If you have customised
