@@ -152,11 +152,15 @@ Known issues
 
      osism: 'update manager' is not an osism command. See 'osism --help'.
 
+* If error ``Couldn't fetch the key client.bootstrap-rbd at /var/lib/ceph/bootstrap-rbd/."``
+  occurs when updating Ceph in task ``create potentially missing keys (rbd and rbd-mirror)``,
+  create directory ``/var/lib/ceph/bootstrap-rbd/`` on the 1st control node used for Ceph.
+  Use the UID ``64045`` and the GID ``64045``. Set ``0755`` as permissions.
+
 The following issues have been noticed during tests and could not yet be reproduced and fixed:
 
 * `unhealthy mariadb service on the manager <https://github.com/osism/issues/issues/863>`_
 * `permission denied error in fluentd service <https://github.com/osism/issues/issues/864>`_
-* `couldn't fetch the key client.bootstrap-rbd error in ceph-rolling_update play <https://github.com/osism/issues/issues/865>`_
 
 Other
 =====
