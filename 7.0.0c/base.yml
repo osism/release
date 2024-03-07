@@ -78,3 +78,4 @@ ansible_collections:
 helm_chart_repositories:
   cnpg: https://cloudnative-pg.github.io/charts
   codecentric: https://codecentric.github.io/helm-charts
+  dnationcloud: https://dnationcloud.github.io/helm-hub
