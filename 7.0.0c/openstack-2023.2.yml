@@ -1,0 +1,58 @@
+---
+ansible_version: '>=9.0.0,<10.0.0'
+ansible_core_version: '2.16.4'
+
+openstack_version: 2023.2
+openstack_previous_version: 2023.1
+
+defaults_version: 'v0.20240307.0'
+generics_version: 'v0.20240307.0'
+playbooks_version: 'v0.20240307.0'
+
+docker_images:
+  openstackclient: '6.5.0'
+
+infrastructure_projects:
+  cron:
+  dnsmasq:
+  fluentd:
+  grafana:
+  haproxy:
+  iscsid:
+  keepalived:
+  kolla-toolbox:
+  mariadb:
+  memcached:
+  multipathd:
+  opensearch:
+  openstack-base:
+  openvswitch:
+  ovn:
+  prometheus:
+  proxysql:
+  rabbitmq:
+  redis:
+  tgtd:
+
+openstack_projects:
+  aodh: stable-2023.2
+  barbican: stable-2023.2
+  ceilometer: stable-2023.2
+  cinder: stable-2023.2
+  designate: stable-2023.2
+  glance: stable-2023.2
+  gnocchi: stable/4.6
+  heat: stable-2023.2
+  horizon: stable-2023.2
+  ironic: stable-2023.2
+  keystone: stable-2023.2
+  magnum: stable-2023.2
+  manila: stable-2023.2
+  neutron-dynamic-routing: stable-2023.2
+  neutron-vpnaas: stable-2023.2
+  neutron: stable-2023.2
+  nova: stable-2023.2
+  octavia: stable-2023.2
+  placement: stable-2023.2
+  skyline-apiserver: stable-2023.2
+  skyline-console: stable-2023.2

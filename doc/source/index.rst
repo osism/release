@@ -10,7 +10,7 @@ Release notes
 .. toctree::
    :maxdepth: 1
 
-   notes/7.0.0b
+   notes/7.0.0c
    notes/6.0.2
    notes/6.0.1
    notes/6.0.0
