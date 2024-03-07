@@ -17,7 +17,7 @@ osism_projects:
 docker_images:
   adminer: '4.8.1'
   alerta: '9.0.1'
-  ara_server: '1.7.0'
+  ara_server: '1.7.1'
   cgit: '1.2.3'
   dnsdist: '1.8.0'
   homer: 'v23.10.1'
