@@ -52,6 +52,13 @@ To be considered
 Upgrade notes
 =============
 
+* The Keystone role ``service`` is required by a number of OpenStack services. The
+  role has been created automatically with new deployments for some time now. It is
+  possible that this role is not yet available on older deployments and must be created
+  once in preparation for the upgrade. You can check whether the role is available in
+  the output of ``openstack --os-cloud admin role list``. If it does not exist, it can
+  be created with ``openstack --os-cloud admin role create service``.
+
 * The use of ProxySQL for MariaDB is now possible and it is recommended to switch
   to it as part of the upgrade. The parameter ``enable_proxysql`` is added to
   ``environments/kolla/configuration.yml`` for this purpose.
