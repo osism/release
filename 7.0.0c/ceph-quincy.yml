@@ -12,4 +12,4 @@ playbooks_version: 'v0.20240307.0'
 
 docker_images:
   ceph: '17.2.7'
-  cephclient: '17.2.6'
+  cephclient: '17.2.7'
