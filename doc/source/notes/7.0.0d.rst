@@ -1,8 +1,10 @@
 ======
-7.0.0c
+7.0.0d
 ======
 
 **This is a pre-release. Do not use in production.**
+
+OSISM 7.0.0 will be released on 20 March.
 
 Report any feedback on this pre-release in the issues
 `osism/issues#841 <https://github.com/osism/issues/issues/841>`_.
