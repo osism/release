@@ -38,11 +38,38 @@ General notes
 Deprecations
 ============
 
+* The role for deploying the Tang service (``osism.services.tang``) is deprecated in preparation for removal
+  as it is currently not in a usable state. An attempt will be made to make the role usable until the next
+  release. The same applies to Clevis integration via the ``osism.commons.clevis`` role.
+
 Removals
 ========
 
+* The role for deploying the OpenLDAP service (``osism.services.openldap``) has been removed.
+* The manager plays to control the Vault service (seal, unseal, ..) have been removed as these tasks will
+  be realized directly via the OSISM CLI in the future.
+
 Housekeeping
 ============
+
+New features in the OSISM CLI
+=============================
+
+* With the ``osism manage image octavia`` command it is possible to rotate the Octavia Amphora image,
+  which is rebuilt daily. Older images are deactivated. The old images must be removed manually after
+  rotating the amphorae instances.
+* With the ``osism manage image clusterapi`` command it is possible to import all currently stable Cluster
+  API images (v1.27, v1.28, and v1.29). As soon as new minor or major versions are available, these are also
+  imported. Old and no longer used versions must currently be removed manually.
+
+Technical Previews
+==================
+
+* The Keycloak service previously provided with Docker Compose has been switched to the new internal
+  Kubernetes cluster and is available there as a technical preview.
+* In preparation for the migration to Rook, the Rook operator is deployable on the internal Kubernetes
+  cluster.
+
 
 To be considered
 ================
