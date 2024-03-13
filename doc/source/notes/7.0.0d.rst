@@ -1,0 +1,231 @@
+======
+7.0.0c
+======
+
+**This is a pre-release. Do not use in production.**
+
+Report any feedback on this pre-release in the issues
+`osism/issues#841 <https://github.com/osism/issues/issues/841>`_.
+
+This pre-release is set in the configuration repository like a stable release.
+Instructions for the upgrade can be found in the `upgrade guide <https://osism.github.io/docs/guides/upgrade-guide/manager>`_.
+
+First things first
+==================
+
+* The Keycloak deployment via Docker Compose, which was previously included
+  as a technical preview, has been completely revised and is now deployed on
+  Kubernetes. No migration from the old deployment via Docker Compose to the
+  new deployment via Kubernetes has been prepared. If you are currently using
+  the Keycloak service, do not upgrade the Keycloak service and contact us in
+  advance.
+
+* The switch from classic queue mirroring and durable queues to quorum queues
+  in RabbitMQ has not yet been tested and documented. So far, there is only the
+  `Kolla-Ansible documentation <https://docs.openstack.org/kolla-ansible/latest/reference/message-queues/rabbitmq.html#high-availability>`_,
+  which requires all services to be stopped. We are still working on a better
+  approach.
+
+General notes
+=============
+
+* Shortly before the first pre-release, `gilt <https://github.com/retr0h/gilt>`_
+  made a major release which led to breaking changes. It is therefore important
+  for the moment to install python-gilt in a version < 2 when synchronising the
+  configuration repository against the generics. In the CI and within the container
+  images, we currently use ``python-gilt == 1.2.3``.
+
+Deprecations
+============
+
+* The role for deploying the Tang service (``osism.services.tang``) is deprecated in preparation for removal
+  as it is currently not in a usable state. An attempt will be made to make the role usable until the next
+  release. The same applies to Clevis integration via the ``osism.commons.clevis`` role.
+
+Removals
+========
+
+* The role for deploying the OpenLDAP service (``osism.services.openldap``) has been removed.
+* The manager plays to control the Vault service (seal, unseal, ..) have been removed as these tasks will
+  be realized directly via the OSISM CLI in the future.
+
+Housekeeping
+============
+
+New features in the OSISM CLI
+=============================
+
+* With the ``osism manage image octavia`` command it is possible to rotate the Octavia Amphora image,
+  which is rebuilt daily. Older images are deactivated. The old images must be removed manually after
+  rotating the amphorae instances.
+* With the ``osism manage image clusterapi`` command it is possible to import all currently stable Cluster
+  API images (v1.27, v1.28, and v1.29). As soon as new minor or major versions are available, these are also
+  imported. Old and no longer used versions must currently be removed manually.
+
+Technical Previews
+==================
+
+* The Keycloak service previously provided with Docker Compose has been switched to the new internal
+  Kubernetes cluster and is available there as a technical preview.
+* In preparation for the migration to Rook, the Rook operator is deployable on the internal Kubernetes
+  cluster.
+
+
+To be considered
+================
+
+* The ``hosts_interface`` parameter is now set to ``internal_interface`` by default.
+
+Upgrade notes
+=============
+
+* The Keystone role ``service`` is required by a number of OpenStack services. The
+  role has been created automatically with new deployments for some time now. It is
+  possible that this role is not yet available on older deployments and must be created
+  once in preparation for the upgrade. You can check whether the role is available in
+  the output of ``openstack --os-cloud admin role list``. If it does not exist, it can
+  be created with ``openstack --os-cloud admin role create service``.
+
+* The use of ProxySQL for MariaDB is now possible and it is recommended to switch
+  to it as part of the upgrade. The parameter ``enable_proxysql`` is added to
+  ``environments/kolla/configuration.yml`` for this purpose.
+
+  .. code-block:: yaml
+
+     enable_proxysql: yes
+
+  The secrets listed below (``proxysql_admin_password``, ``proxysql_stats_password``,
+  ``mariadb_monitor_password``) must also be added or changed.
+
+  When migrating to ProxySQL, it is important to upgrade MariaDB first.
+
+  When migrating to ProxySQL, it is important to perform the loadbalancer upgrade
+  before all OpenStack service upgrades. To make sure that the OpenStack services
+  continue to work after the upgrade when ProxySQL is enabled as part of the upgrade,
+  the ProxySQL service must have been deployed first. The ProxySQL service is deployed
+  with the loadbalancer play.
+
+* The following secrets must be added in ``environments/kolla/secrets.yml``:
+
+  .. code-block:: yaml
+
+     octavia_persistence_database_password:  # generate with: pwgen 32 1
+     prometheus_bcrypt_salt:                 # generate with: pwgen 22 1 <-- there's a 22
+     prometheus_grafana_password:            # generate with: pwgen 32 1
+     prometheus_password:                    # generate with: pwgen 32 1
+     proxysql_admin_password:                # generate with: pwgen 32 1
+     proxysql_stats_password:                # generate with: pwgen 32 1
+
+* The parameter ``mariadb_monitoring_password`` in ``environments/kolla/secrets.yml``
+  has to be renamed to ``mariadb_monitor_password``. If the parameter is not present,
+  it is added.
+
+  .. code-block:: yaml
+
+     mariadb_monitor_password:     # generate with: pwgen 32 1
+
+* The following parameters must be removed from the configuration repository from
+  ``environments/kolla/configuration.yml``:
+
+  .. code-block:: yaml
+
+     ceph_nova_user: nova
+     ceph_nova_keyring: ceph.client.nova.keyring
+
+* Parameters for the Netbox service in ``environments/infrastructure/configuration.yml`` or
+  ``secrets.yml`` must now also be added in ``environments/manager/configuration.yml`` or
+  ``secrets.yml``. In an upcoming  release, the parameters can be removed from the
+  infrastructure environment.
+
+* The Ansible callback plugin ``osism.commons.still_alive`` is now available to avoid timeouts
+  for long-running tasks. This currently has to be explicitly enabled in the Ansible configuration.
+  This is done in the ``environments/ansible.cfg`` file in the configuration repository.
+  The callback plugin is enabled by default in the future.
+
+  .. code-block:: ini
+
+     [defaults]
+     ...
+     stdout_callback = osism.commons.still_alive
+
+* In the inventory, the ``nova_backend`` parameter must be added to the host vars of
+  compute nodes where local storage is used.
+
+  .. code-block:: yaml
+
+     nova_backend: default
+
+* The persistence feature in Octavia was enabled by default. This requires an additional
+  database, which is only created when Octavia play is run in bootstrap mode first.
+
+  .. code-block:: none
+
+     osism apply -a bootstrap octavia
+
+  The secret ``octavia_persistence_database_password`` (see above) must be added to
+  ``environments/kolla/secrets.yml`` before.
+
+* The SSL certificate file ``haproxy.pem`` is now available in a different location in the
+  ``haproxy`` container. Previously it was stored under ``/etc/haproxy/haproxy.pem``. From
+  now on it is stored under ``/etc/haproxy/certificates/haproxy.pem``. If you have customised
+  the configuration for the haproxy service or use overlays for this, adjust the locations of
+  the SSL certificate as required.
+
+* Due to the upgrade from Fluentd to version 5, some directory names within the container
+  image for Fluentd have changed. If you have worked with overlay files in the Fluentd service,
+  check these in advance. Currently we know that ``/var/run/td-agent`` is now available as
+  ``/var/run/fluentd`` (check `GitHub issue #864 <https://github.com/osism/issues/issues/864>`_
+  for details).  We assume that other directory names have changed similarly.
+
+Known issues
+============
+
+
+* If error ``Couldn't fetch the key client.bootstrap-rbd at /var/lib/ceph/bootstrap-rbd/."``
+  occurs when updating Ceph in task ``create potentially missing keys (rbd and rbd-mirror)``,
+  create directory ``/var/lib/ceph/bootstrap-rbd/`` on the 1st control node used for Ceph.
+  Use the UID ``64045`` and the GID ``64045``. Set ``0755`` as permissions.
+
+* The manager service is updated via ``osism update manager``. If this command is not yet
+  available, you can use ``osism-update-manager`` as an alternative.
+
+  .. code-block:: none
+
+     osism: 'update manager' is not an osism command. See 'osism --help'.
+
+The following issues have been noticed during tests and could not yet be reproduced and fixed:
+
+* `unhealthy mariadb service on the manager <https://github.com/osism/issues/issues/863>`_
+
+Other
+=====
+
+* Refstack 2022.11 results
+ 
+Versions
+========
+
+References
+==========
+
+OpenStack 2023.2 press announcement: https://www.openstack.org/software/openstack-bobcat
+
+OpenStack 2023.2 release notes: https://releases.openstack.org/bobcat/index.html
+
+Release notes for each OpenStack service:
+
+* Barbican: https://docs.openstack.org/releasenotes/barbican/2023.2.html
+* Ceilometer: https://docs.openstack.org/releasenotes/ceilometer/2023.2.html
+* Cinder: https://docs.openstack.org/releasenotes/cinder/2023.2.html
+* Designate: https://docs.openstack.org/releasenotes/designate/2023.2.html
+* Glance: https://docs.openstack.org/releasenotes/glance/2023.2.html
+* Heat: https://docs.openstack.org/releasenotes/heat/2023.2.html
+* Horizon: https://docs.openstack.org/releasenotes/horizon/2023.2.html
+* Ironic: https://docs.openstack.org/releasenotes/ironic/2023.2.html
+* Keystone: https://docs.openstack.org/releasenotes/keystone/2023.2.html
+* Manila: https://docs.openstack.org/releasenotes/manila/2023.2.html
+* Neutron: https://docs.openstack.org/releasenotes/neutron/2023.2.html
+* Nova: https://docs.openstack.org/releasenotes/nova/2023.2.html
+* Octavia: https://docs.openstack.org/releasenotes/octavia/2023.2.html
+* Placement: https://docs.openstack.org/releasenotes/placement/2023.2.html
+* Skyline: https://docs.openstack.org/releasenotes/skyline-apiserver/2023.2.html, https://docs.openstack.org/releasenotes/skyline-console/2023.2.html
