@@ -64,6 +64,25 @@ New features in the OSISM CLI
   API images (v1.27, v1.28, and v1.29). As soon as new minor or major versions are available, these are also
   imported. Old and no longer used versions must currently be removed manually.
 
+New features in Kolla
+=====================
+
+* The persistence feature in Octavia can enabled with the new ``enable_octavia_jobboard`` parameter.
+
+  .. code-block:: yaml
+
+     enable_octavia_jobboard: "yes"
+
+  This requires an additional database, which is only created when Octavia play is run in bootstrap mode
+  first.
+
+  .. code-block:: none
+
+     osism apply -a bootstrap octavia
+
+  The secret ``octavia_persistence_database_password`` (see above) must be added to
+  ``environments/kolla/secrets.yml`` before.
+
 Technical Previews
 ==================
 
@@ -157,16 +176,6 @@ Upgrade notes
 
      nova_backend: default
 
-* The persistence feature in Octavia was enabled by default. This requires an additional
-  database, which is only created when Octavia play is run in bootstrap mode first.
-
-  .. code-block:: none
-
-     osism apply -a bootstrap octavia
-
-  The secret ``octavia_persistence_database_password`` (see above) must be added to
-  ``environments/kolla/secrets.yml`` before.
-
 * The SSL certificate file ``haproxy.pem`` is now available in a different location in the
   ``haproxy`` container. Previously it was stored under ``/etc/haproxy/haproxy.pem``. From
   now on it is stored under ``/etc/haproxy/certificates/haproxy.pem``. If you have customised
@@ -181,7 +190,6 @@ Upgrade notes
 
 Known issues
 ============
-
 
 * If error ``Couldn't fetch the key client.bootstrap-rbd at /var/lib/ceph/bootstrap-rbd/."``
   occurs when updating Ceph in task ``create potentially missing keys (rbd and rbd-mirror)``,
