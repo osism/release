@@ -12,30 +12,15 @@ Report any feedback on this pre-release in the issues
 This pre-release is set in the configuration repository like a stable release.
 Instructions for the upgrade can be found in the `upgrade guide <https://osism.github.io/docs/guides/upgrade-guide/manager>`_.
 
-First things first
-==================
-
-* The Keycloak deployment via Docker Compose, which was previously included
-  as a technical preview, has been completely revised and is now deployed on
-  Kubernetes. No migration from the old deployment via Docker Compose to the
-  new deployment via Kubernetes has been prepared. If you are currently using
-  the Keycloak service, do not upgrade the Keycloak service and contact us in
-  advance.
-
-* The switch from classic queue mirroring and durable queues to quorum queues
-  in RabbitMQ has not yet been tested and documented. So far, there is only the
-  `Kolla-Ansible documentation <https://docs.openstack.org/kolla-ansible/latest/reference/message-queues/rabbitmq.html#high-availability>`_,
-  which requires all services to be stopped. We are still working on a better
-  approach.
-
 General notes
 =============
 
-* Shortly before the first pre-release, `gilt <https://github.com/retr0h/gilt>`_
+* Shortly before the release, `gilt <https://github.com/retr0h/gilt>`_
   made a major release which led to breaking changes. It is therefore important
-  for the moment to install python-gilt in a version < 2 when synchronising the
+  for the moment to install ``python-gilt < 2`` when synchronising the
   configuration repository against the generics. In the CI and within the container
-  images, we currently use ``python-gilt == 1.2.3``.
+  images, we currently use ``python-gilt == 1.2.3``. This is also the version that's
+  currently installed in the container images and that's set in the ``requirements.txt``.
 
 Deprecations
 ============
@@ -48,26 +33,24 @@ Removals
 ========
 
 * The role for deploying the OpenLDAP service (``osism.services.openldap``) has been removed.
-* The manager plays to control the Vault service (seal, unseal, ..) have been removed as these tasks will
-  be realized directly via the OSISM CLI in the future.
 
-Housekeeping
+* The manager plays to control the Vault service (``seal``, ``unseal``, ..) have been removed as these tasks will
+  be realized directly via the OSISM CLI (``osism set vault password``, ..) in the future.
+
+New features
 ============
-
-New features in the OSISM CLI
-=============================
 
 * With the ``osism manage image octavia`` command it is possible to rotate the Octavia Amphora image,
   which is rebuilt daily. Older images are deactivated. The old images must be removed manually after
   rotating the amphorae instances.
+
 * With the ``osism manage image clusterapi`` command it is possible to import all currently stable Cluster
   API images (v1.27, v1.28, and v1.29). As soon as new minor or major versions are available, these are also
   imported. Old and no longer used versions must currently be removed manually.
 
-New features in Kolla
-=====================
-
 * The persistence feature in Octavia can enabled with the new ``enable_octavia_jobboard`` parameter.
+  The jobboard in Octavia is an `experimental feature <https://docs.openstack.org/octavia/latest/install/install-amphorav2.html>`_.
+  It is not recommended to use it in production.
 
   .. code-block:: yaml
 
@@ -83,22 +66,29 @@ New features in Kolla
   The secret ``octavia_persistence_database_password`` (see above) must be added to
   ``environments/kolla/secrets.yml`` before.
 
-Technical Previews
-==================
-
-* The Keycloak service previously provided with Docker Compose has been switched to the new internal
-  Kubernetes cluster and is available there as a technical preview.
 * In preparation for the migration to Rook, the Rook operator is deployable on the internal Kubernetes
-  cluster.
+  cluster with ``osism apply rook``. The Rook operator is not yet used for the Ceph deployment. For the deployment
+  of Ceph we still use the ceph-ansible project. For the next release a tool called ``rookify`` is planned to
+  migrate the Ceph deployment from ceph-ansible to Rook.
 
-
-To be considered
-================
-
-* The ``hosts_interface`` parameter is now set to ``internal_interface`` by default.
+* The roles of the osism.commons collection are now usable with CentOS 9. The roles have been tested with
+  CentOS 9.
 
 Upgrade notes
 =============
+
+* The switch from classic queue mirroring and durable queues to quorum queues
+  in RabbitMQ has not yet been tested and documented. This is planned for the
+  next release. The switch is not yet recommended.
+
+* The ``hosts_interface`` parameter is now set to ``internal_interface`` by default.
+
+* The Keycloak deployment via Docker Compose, which was previously included
+  as a technical preview, has been completely revised and is now deployed on
+  Kubernetes. No migration from the old deployment via Docker Compose to the
+  new deployment via Kubernetes has been prepared. If you are currently using
+  the Keycloak service, do not upgrade the Keycloak service and contact us in
+  advance.
 
 * The Keystone role ``service`` is required by a number of OpenStack services. The
   role has been created automatically with new deployments for some time now. It is
@@ -107,9 +97,10 @@ Upgrade notes
   the output of ``openstack --os-cloud admin role list``. If it does not exist, it can
   be created with ``openstack --os-cloud admin role create service``.
 
-* The use of ProxySQL for MariaDB is now possible and it is recommended to switch
-  to it as part of the upgrade. The parameter ``enable_proxysql`` is added to
-  ``environments/kolla/configuration.yml`` for this purpose.
+* The use of ProxySQL for MariaDB is now possible and it is possible to switch
+  to it as part of the upgrade. It is not mandatory and there is no recommendation.
+  The parameter ``enable_proxysql`` is added to ``environments/kolla/configuration.yml``
+  for this purpose.
 
   .. code-block:: yaml
 
@@ -125,6 +116,10 @@ Upgrade notes
   continue to work after the upgrade when ProxySQL is enabled as part of the upgrade,
   the ProxySQL service must have been deployed first. The ProxySQL service is deployed
   with the loadbalancer play.
+
+  It is possible that connectivity with the database may be interrupted for a short time
+  during the migration. It is therefore recommended to carry out extensive tests on the
+  staging environment in advance.
 
 * The following secrets must be added in ``environments/kolla/secrets.yml``:
 
