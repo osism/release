@@ -74,6 +74,13 @@ New features
 * The roles of the osism.commons collection are now usable with CentOS 9. The roles have been tested with
   CentOS 9.
 
+* The roles of the osism.services collection are now usable with CentOS 9. The roles have been tested with
+  CentOS 9.
+
+* With the openstack-resource-manager it is now possible to clean up orphaned amphora instances of Octavia
+  or volumes that are stuck in the DELETING state.
+
+
 Upgrade notes
 =============
 
@@ -207,6 +214,19 @@ Other
 
 * Refstack 2022.11 results
  
+  ```
+  ======
+  Totals
+  ======
+  Ran: 356 tests in 1221.9879 sec.
+   - Passed: 353
+   - Skipped: 3
+   - Expected Fail: 0
+   - Unexpected Success: 0
+   - Failed: 0
+  Sum of execute time for each test: 715.6658 sec.
+  ```
+
 Versions
 ========
 
