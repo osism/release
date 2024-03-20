@@ -50,17 +50,17 @@ final releases via an Atom feed.
 Use of a specific release in the configuration repository
 =========================================================
 
-The documentation has been moved: https://osism.github.io/docs/guides/configuration-guide/manager#stable-release
+The documentation has been moved: https://osism.tech/docs/guides/configuration-guide/manager#stable-release
 
 How we handle releases
 ======================
 
-The documentation has been moved: https://osism.github.io/docs/guides/other-guides/developer-guide/releases#how-we-handle-releases
+The documentation has been moved: https://osism.tech/docs/guides/other-guides/developer-guide/releases#how-we-handle-releases
 
 How to make a release
 =====================
 
-The documentation has been moved: https://osism.github.io/docs/guides/other-guides/developer-guide/releases#how-to-make-a-release
+The documentation has been moved: https://osism.tech/docs/guides/other-guides/developer-guide/releases#how-to-make-a-release
 
 Questions & Answers
 ===================
