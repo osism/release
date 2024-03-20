@@ -75,7 +75,7 @@ Testbed
 * Services that are no longer needed have been removed (virtualbmc, nexus).
 
 * The documentation has been completely revised and is now available here:
-  https://osism.github.io/docs/advanced-guides/testbed
+  https://osism.tech/docs/advanced-guides/testbed
 
 Cloud in a Box
 ==============
@@ -103,7 +103,7 @@ Cloud in a Box
   Octavia OVN driver is feature complete to Octavia amphora driver.
 
 * The documentation has been completely revised and is now available here:
-  https://osism.github.io/docs/advanced-guides/cloud-in-a-box
+  https://osism.tech/docs/advanced-guides/cloud-in-a-box
 
 Deprecations
 ============

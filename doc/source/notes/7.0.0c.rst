@@ -8,7 +8,7 @@ Report any feedback on this pre-release in the issues
 `osism/issues#841 <https://github.com/osism/issues/issues/841>`_.
 
 This pre-release is set in the configuration repository like a stable release.
-Instructions for the upgrade can be found in the `upgrade guide <https://osism.github.io/docs/guides/upgrade-guide/manager>`_.
+Instructions for the upgrade can be found in the `upgrade guide <https://osism.tech/docs/guides/upgrade-guide/manager>`_.
 
 First things first
 ==================
