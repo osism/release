@@ -212,10 +212,6 @@ Known issues
 
      osism: 'update manager' is not an osism command. See 'osism --help'.
 
-The following issues have been noticed during tests and could not yet be reproduced and fixed:
-
-* `unhealthy mariadb service on the manager <https://github.com/osism/issues/issues/863>`_
-
 Other
 -----
 
