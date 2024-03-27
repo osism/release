@@ -45,7 +45,7 @@ docker_images:
   nexus: '3.66.0'
   # renovate: datasource=docker depName=nginx
   nginx: '1.25.4-alpine'
-  openstack_health_monitor: 'v7.0.0a'
+  openstack_health_monitor: 'v7.0.0'
   osism: 'latest'
   # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
   phpmyadmin: '5.2.1'
