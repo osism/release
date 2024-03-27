@@ -163,7 +163,9 @@ Upgrade notes
 * The Ansible callback plugin ``osism.commons.still_alive`` is now available to avoid timeouts
   for long-running tasks. This currently has to be explicitly enabled in the Ansible configuration.
   This is done in the ``environments/ansible.cfg`` file in the configuration repository.
-  The callback plugin is enabled by default in the future.
+  The callback plugin is enabled by default in the future. After this change has been made, the
+  update of the manager must be performed. A manager with a version before OSISM 7.0.0 cannot be
+  longer used if this plugin is set in ``environments/ansible.cfg``.
 
   .. code-block:: ini
 
