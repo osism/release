@@ -5,7 +5,7 @@ ansible_core_version: '2.16.5'
 defaults_version: 'v0.20240327.0'
 generics_version: 'v0.20240327.0'
 manager_version: 7.0.1
-operations_version: 'v0.20240327.0'
+operations_version: 'v0.20240319.0'
 playbooks_version: 'v0.20240327.0'
 
 osism_projects:
