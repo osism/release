@@ -44,7 +44,7 @@ openstack_projects:
   designate: stable-2024.1
   glance: stable-2024.1
   # gnocchi: stable/4.6
-  # heat: stable-2024.1
+  heat: stable-2024.1
   horizon: stable-2024.1
   ironic: stable-2024.1
   keystone: stable-2024.1
@@ -59,8 +59,8 @@ openstack_projects:
   octavia: stable-2024.1
   placement: stable-2024.1
   # senlin: stable-2024.1
-  # skyline-apiserver: stable-2024.1
-  # skyline-console: stable-2024.1
+  skyline-apiserver: stable-2024.1
+  skyline-console: stable-2024.1
   # swift: stable-2024.1
   # trove: stable-2024.1
   # zun: stable-2024.1
