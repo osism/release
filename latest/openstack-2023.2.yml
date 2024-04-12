@@ -63,4 +63,4 @@ openstack_projects:
   skyline-console: stable-2023.2
   # swift: stable-2023.2
   # trove: stable-2023.2
-  # zun: stable-2023.2
+  zun: stable-2023.2
