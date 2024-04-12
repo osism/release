@@ -58,7 +58,7 @@ openstack_projects:
   nova: stable-2024.1
   octavia: stable-2024.1
   placement: stable-2024.1
-  # senlin: stable-2024.1
+  senlin: stable-2024.1
   skyline-apiserver: stable-2024.1
   skyline-console: stable-2024.1
   # swift: stable-2024.1
