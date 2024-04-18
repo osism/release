@@ -6,6 +6,45 @@ Instructions for the upgrade can be found in the `upgrade guide <https://osism.g
 
 7.0.0a, 7.0.0b, 7.0.0c, 7.0.0d are pre-releases. Do not use these releases.
 
+7.0.2
+=====
+
+Release date: 17. April 2024
+
+* The Ceph & OpenStack service images have not been rebuilt. No upgrades of Ceph & OpenStack (and associated
+  infrastructure services such as MariaDB or RabbitMQ) are required.
+
+* Properties for device type vrfs are now supported in the osism.commons.network role.
+
+* Debian support in osism.commons & osism.services Ansible collection.
+
+  * The roles of the osism.commons collection are now usable with Debian. The roles have been tested with Debian Bookworm.
+  * The roles of the osism.services collection are now usable with Debian. The roles have been tested with Debian Bookworm.
+
+* If the OSISM CLI is executed as root user there is now an informal warning message.
+
+* Use a single network for ceph frontend & backend in the cookiecutter (https://docs.ceph.com/en/latest/rados/configuration/network-config-ref/#network-configuration-reference
+  for details).
+
+* When synchronising the configuration repository, it is now ensured that you are on the correct branch.
+
+* Senlin images available again as rolling tag for OpenStack 2023.2.
+
+* Zun images available again as rolling tag for OpenStack 2023.2 & 2024.1.
+
+* New FRR configuration template for loadbalancers with an external uplink in the osism.services.frr role.
+
+* ``scs:name-v1`` and ``scs:name-v2`` extra specs are now set via the OpenStack flavor manager.
+
+* Task ID is now displayed in the output of the OSISM CLI for prepared tasks.
+
+* New Makefile target in the OSISM Testbed to fetch the Wireguard configuration file: ``vpn-wireguard-config``.
+
+* With the play ``noop`` it is now possible to run a play with noop. This is useful for testing purposes of the manager service.
+
+* The stable repository is now used as the default for the Netdata service in the osism.services.netdata role. This avoids
+  package conflicts in future.
+
 7.0.1
 =====
 
