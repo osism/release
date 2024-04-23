@@ -49,7 +49,7 @@ openstack_projects:
   horizon: stable-2024.1
   ironic: stable-2024.1
   keystone: stable-2024.1
-  # kuryr: stable-2024.1
+  kuryr: stable-2024.1
   magnum: stable-2024.1
   manila: stable-2024.1
   # mistral: stable-2024.1

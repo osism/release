@@ -49,7 +49,7 @@ openstack_projects:
   horizon: stable-2023.2
   ironic: stable-2023.2
   keystone: stable-2023.2
-  # kuryr: stable-2023.2
+  kuryr: stable-2023.2
   magnum: stable-2023.2
   manila: stable-2023.2
   # mistral: stable-2023.2
