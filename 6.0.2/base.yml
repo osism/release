@@ -4,6 +4,7 @@ ansible_core_version: '2.15.5'
 
 defaults_version: 'v0.20231126.0'
 generics_version: 'v0.20231126.0'
+manager_playbooks_version: 'v0.20231126.0'
 manager_version: '6.0.2'
 operations_version: 'v0.20231126.0'
 playbooks_version: 'v0.20231126.0'
