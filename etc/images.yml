@@ -31,6 +31,10 @@ registry: library/registry
 ceph: osism/ceph-daemon
 cephclient: osism/cephclient
 
+# openstack
+
+tempest: osism/tempest
+
 # infrastructure
 
 alerta: alerta/alerta-web
