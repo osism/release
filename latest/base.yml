@@ -61,6 +61,8 @@ docker_images:
   scaphandre: '1.0.0'
   # renovate: datasource=docker depName=ubuntu/squid
   squid: '5.7-23.04_beta'
+  # renovate: datasource=docker depName=quay.io/osism/tempest
+  tempest: 'latest'
   # renovate: datasource=docker depName=traefik
   traefik: '2.11.2'
   # renovate: datasource=docker depName=hashicorp/vault
