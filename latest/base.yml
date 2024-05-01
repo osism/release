@@ -63,7 +63,7 @@ docker_images:
   squid: '5.7-23.04_beta'
   # yamllint disable-line rule:line-length
   # renovate: datasource=docker depName=ghcr.io/vexxhost/openstack-database-exporter
-  openstack-database-exporter: 'v0.3.0'
+  openstack_database_exporter: 'v0.3.0'
   # renovate: datasource=docker depName=quay.io/osism/tempest
   tempest: 'latest'
   # renovate: datasource=docker depName=traefik
