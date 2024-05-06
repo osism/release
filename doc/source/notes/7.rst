@@ -26,7 +26,7 @@ Release date: 3. May 2024
   * When upgrading the Nova and Octavia API services, there is a short downtime of the APIs.
     This downtime is usually less than 1 minute.
 
-* During the preparation of the upgrades of the regions of the PCO a bug (`osism/issues#937 <https://github.com/osism/issues/issues/973>`_)
+* During the preparation of the upgrades of the regions of the PCO a bug (`osism/issues#973 <https://github.com/osism/issues/issues/973>`_)
   has been noticed which leads to a delay of up to 2 minutes between the necessary container stops and starts.
   This is due to a bug in the service units of all Kolla services. The bug is fixed in the current release.
   To avoid the delay during an upgrade, a fix must be applied in advance for all service units from
@@ -34,7 +34,7 @@ Release date: 3. May 2024
 
   .. code-block:: console
 
-     osism apply fix-gh937
+     osism apply fix-gh973
 
 * The ``openstack_cacert`` parameter used by Kolla is now set to ``"/etc/ssl/certs/ca-certificates.crt"``
   by default. The previous default was ``""``. If this is not wanted, the parameter must be overwritten in
