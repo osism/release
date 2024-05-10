@@ -21,6 +21,7 @@ infrastructure_projects:
   iscsid:
   keepalived:
   kolla-toolbox:
+  letsencrypt:
   mariadb:
   memcached:
   multipathd:
