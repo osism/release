@@ -462,6 +462,15 @@ Upgrade notes
   ``/var/run/fluentd`` (check `GitHub issue #864 <https://github.com/osism/issues/issues/864>`_
   for details).  We assume that other directory names have changed similarly.
 
+* If a Keystone domain with LDAP backend is used, it is important to add the ``tls_cacertfile``
+  parameter in the ``[ldap]`` section of the corresponding domain configuration.
+
+  .. code-block:: ini
+
+     [ldap]
+     ...
+     tls_cacertfile = /etc/ssl/certs/ca-certificates.crt
+
 Known issues
 ------------
 
