@@ -1,3 +1,3 @@
 # OSISM release repository
 
-Documentation published at https://release.osism.tech.
+Release notes published at https://osism.tech/docs/release-notes/
