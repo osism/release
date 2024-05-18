@@ -4,7 +4,14 @@ OSISM 7
 
 Instructions for the upgrade can be found in the `upgrade guide <https://osism.github.io/docs/guides/upgrade-guide/manager>`_.
 
-7.0.0a, 7.0.0b, 7.0.0c, 7.0.0d are pre-releases. Do not use these releases.
+The release notes build on each other. When upgrading from 6.0.2 to 7.0.4, you should
+therefore not only read and take into account the release notes for 7.0.4 but also the
+previous release notes. The same applies to an update from, for example, 7.0.2 to 7.0.4.
+The release notes for 7.0.3 must then also be taken into account.
+
+.. warning::
+
+   7.0.0a, 7.0.0b, 7.0.0c, 7.0.0d are pre-releases. Do not use these releases.
 
 7.0.4
 =====
