@@ -493,6 +493,27 @@ Known issues
 
      osism: 'update manager' is not an osism command. See 'osism --help'.
 
+* With some upgrades we noticed that in certain constellations there were problems with the
+  OpenStack Octavia service, which could be prevented if the parameter ``valid_interfaces`` was added
+  to the ``environments/kolla/files/overlays/octavia.conf`` file ([osism/issues#1021](https://github.com/osism/issues/issues/1021)).
+
+  .. code-block:: ini
+
+     [certificates]
+     valid_interfaces = internal
+
+     [keystone_authtoken]
+     valid_interfaces = internal
+
+     [glance]
+     valid_interfaces = internal
+
+     [neutron]
+     valid_interfaces = internal
+
+     [nova]
+     valid_interfaces = internal
+
 Other
 -----
 
