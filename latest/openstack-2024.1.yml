@@ -40,6 +40,7 @@ openstack_projects:
   aodh: stable-2024.1
   barbican: stable-2024.1
   # bifrost: stable-2024.1
+  blazar: stable-2024.1
   ceilometer: stable-2024.1
   cinder: stable-2024.1
   # cloudkitty: stable-2024.1

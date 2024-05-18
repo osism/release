@@ -40,6 +40,7 @@ openstack_projects:
   aodh: stable-2023.2
   barbican: stable-2023.2
   # bifrost: stable-2023.2
+  blazar: stable-2023.2
   ceilometer: stable-2023.2
   cinder: stable-2023.2
   # cloudkitty: stable-2023.2
