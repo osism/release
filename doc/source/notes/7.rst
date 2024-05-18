@@ -381,6 +381,38 @@ Upgrade notes
   the output of ``openstack --os-cloud admin role list``. If it does not exist, it can
   be created with ``openstack --os-cloud admin role create service``.
 
+  This ``service`` role is required by the service accounts for authentication after the
+  upgrade of the OpenStack services. To avoid problems during the upgrade, it is important
+  to assign this role to all existing service accounts in advance.
+
+  .. code-block:: none
+
+     # List all users in the project service with the admin role. The existing service
+     # accounts depend on the deployed services and may vary.
+     $ openstack --os-cloud admin role assignment list --names --role admin --project service
+     +-------+--------------------------+-------+-----------------+--------+--------+-----------+
+     | Role  | User                     | Group | Project         | Domain | System | Inherited |
+     +-------+--------------------------+-------+-----------------+--------+--------+-----------+
+     | admin | ironic@Default           |       | service@Default |        |        | False     |
+     | admin | neutron@Default          |       | service@Default |        |        | False     |
+     | admin | gnocchi@Default          |       | service@Default |        |        | False     |
+     | admin | swift@Default            |       | service@Default |        |        | False     |
+     | admin | nova@Default             |       | service@Default |        |        | False     |
+     | admin | placement@Default        |       | service@Default |        |        | False     |
+     | admin | cinder@Default           |       | service@Default |        |        | False     |
+     | admin | glance@Default           |       | service@Default |        |        | False     |
+     | admin | designate@Default        |       | service@Default |        |        | False     |
+     | admin | octavia@Default          |       | service@Default |        |        | False     |
+     | admin | skyline@Default          |       | service@Default |        |        | False     |
+     | admin | ironic-inspector@Default |       | service@Default |        |        | False     |
+     | admin | ceilometer@Default       |       | service@Default |        |        | False     |
+     +-------+--------------------------+-------+-----------------+--------+--------+-----------+
+
+     # Assign the service role to all users in the project service (repeat this step for every
+     # user in the list.
+     $ openstack --os-cloud admin role add --user ironic --project service service
+     [...]
+
 * The use of ProxySQL for MariaDB is now possible and it is possible to switch
   to it as part of the upgrade. It is not mandatory and there is no recommendation.
   The parameter ``enable_proxysql`` is added to ``environments/kolla/configuration.yml``
