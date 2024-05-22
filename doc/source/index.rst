@@ -2,10 +2,19 @@
 OSISM releases
 ==============
 
-The latest available stable release is 7.0.4.
+.. warning::
+
+   This page is archived.
 
 Release notes
 =============
+
+.. warning::
+
+   The release notes have been migrated. OSISM release notes are now only
+   available here: https://osism.tech/docs/release-notes. The content on
+   this page remains as it is. The list of available releases is probably
+   no longer up to date.
 
 .. toctree::
    :maxdepth: 1
@@ -26,6 +35,13 @@ Release notes
 
 Release Series
 ==============
+
+.. warning::
+
+   The release notes have been migrated. OSISM release notes are now only
+   available here: https://osism.tech/docs/release-notes. Please visit this
+   page to get information about the latest available OSISM release. This
+   table is probably no longer up to date.
 
 +--------------+-----------------------+----------------------------+-----------------------+--------------+
 | Series       | Status                | Initial Release Date       | Next Phase            | EOL Date     |
