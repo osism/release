@@ -2,7 +2,7 @@ extensions = []
 source_suffix = ".rst"
 master_doc = "index"
 project = "OSISM"
-copyright = "2022-2023, OSISM GmbH"
+copyright = "2022-2024, OSISM GmbH"
 author = "OSISM GmbH"
 version = ""
 release = ""
@@ -24,7 +24,7 @@ html_theme_options = {
 }
 html_context = {}
 html_logo = "images/logo.png"
-html_title = "OSISM Release Notes"
+html_title = "Archived OSISM Release Notes"
 html_sidebars = {
     "**": ["logo-text.html", "globaltoc.html", "localtoc.html", "searchbox.html"]
 }
