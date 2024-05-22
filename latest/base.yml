@@ -67,7 +67,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/osism/tempest
   tempest: 'latest'
   # renovate: datasource=docker depName=traefik
-  traefik: '2.11.2'
+  traefik: 'v2.11.3'
   # renovate: datasource=docker depName=hashicorp/vault
   vault: '1.16.2'
 
