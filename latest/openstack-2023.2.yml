@@ -18,6 +18,7 @@ infrastructure_projects:
   dnsmasq:
   fluentd:
   grafana:
+  hacluster:
   haproxy:
   iscsid:
   keepalived:
