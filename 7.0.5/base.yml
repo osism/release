@@ -1,0 +1,88 @@
+---
+ansible_version: '9.6.0'
+ansible_core_version: '2.16.6'
+
+defaults_version: 'v0.20240524.0'
+generics_version: 'v0.20240524.0'
+manager_playbooks_version: 'v0.20240524.0'
+manager_version: 7.0.5
+operations_version: 'v0.20240524.0'
+playbooks_version: 'v0.20240524.0'
+
+osism_projects:
+  ara: '1.7.1'
+  docker: '5:24.0.9'
+  osism: '0.20240523.0'
+  k3s: 'v1.29.2+k3s1'
+
+docker_images:
+  adminer: '4.8.1'
+  alerta: '9.0.3'
+  ara_server: '1.7.1'
+  cgit: '1.2.3'
+  dnsdist: '1.8.0'
+  homer: 'v24.05.1'
+  inventory_reconciler: '7.0.5'
+  fleet: 'v4.49.4'
+  keycloak: '19.0.3-legacy'
+  mariadb: '11.3.2'
+  memcached: '1.6.27-alpine'
+  netbox: 'v3.4.8'
+  nexus: '3.68.1'
+  nginx: '1.25.4-alpine'
+  openstack_health_monitor: 'v7.0.0'
+  osism: '0.20240523.0'
+  phpmyadmin: '5.2.1'
+  postgres: '15.7-alpine'
+  postgres_upgrade: '14-to-15'
+  redis: '7.2.5-alpine'
+  registry: '2.8'
+  scaphandre: '1.0.0'
+  squid: '5.7-23.04_beta'
+  openstack_database_exporter: 'v0.3.0'
+  tempest: 'latest'
+  traefik: '2.11.3'
+  vault: '1.16.2'
+
+ansible_roles:
+  geerlingguy.certbot: 4be771f12a62c9a835491f76ac49cfdc150481ce
+  geerlingguy.dotfiles: d3c06e05442ec75e67c2d2e40591eed13f96587f
+  hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
+  pdns_recursor: 'v1.6.0'
+  proxmox: develop
+  stackhpc.libvirt_host: 27144f846d2c088d9de0d633f2ad26060bd8e5e7
+  stackhpc.libvirt_vm: 0c08b28ce3547878e104adc284e09c947809df50
+  stackhpc.luks: 81faff11713675f4e35126587445b52732b02aba
+  stackhpc.systemd_networkd: 091601b0b02d1db59297e1f72533927540e9b9c7
+  ubuntu22_cis: devel
+
+ansible_collections:
+  ansible.netcommon: '6.1.2'
+  ansible.posix: '1.5.4'
+  ansible.utils: '3.0.0'
+  cloud.common: '3.0.0'
+  community.crypto: '2.16.2'
+  community.docker: '3.5.0'
+  community.general: '9.0.0'
+  community.grafana: '1.6.1'
+  community.hashi_vault: '6.1.0'
+  community.mysql: '3.8.0'
+  community.network: '5.0.2'
+  community.rabbitmq: '1.2.3'
+  containers.podman: '1.11.0'
+  debops.debops: '3.1.0'
+  kubernetes.core: '3.0.0'
+  netbox.netbox: '3.18.0'
+  openstack.cloud: '2.2.0'
+  osism.commons: '0.20240524.0'
+  osism.services: '0.20240524.0'
+  osism.validations: '0.20240524.0'
+  stackhpc.cephadm: 49f2487fea80b861b40c00ccd887a6ef03684ae2
+
+helm_chart_repositories:
+  bitnami: https://charts.bitnami.com/bitnami
+  cnpg: https://cloudnative-pg.github.io/charts
+  codecentric: https://codecentric.github.io/helm-charts
+  dnationcloud: https://dnationcloud.github.io/helm-hub
+  kubernetes-dashboard: https://kubernetes.github.io/dashboard
+  rook-release: https://charts.rook.io/release
