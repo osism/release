@@ -30,6 +30,8 @@ registry: library/registry
 
 ceph: osism/ceph-daemon
 cephclient: osism/cephclient
+rook_ceph: ceph/ceph
+rook_operator: rook/ceph
 
 # openstack
 
