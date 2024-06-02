@@ -116,4 +116,5 @@ helm_chart_repositories:
   codecentric: https://codecentric.github.io/helm-charts
   dnationcloud: https://dnationcloud.github.io/helm-hub
   kubernetes-dashboard: https://kubernetes.github.io/dashboard
+  mariadb-operator: https://mariadb-operator.github.io/mariadb-operator
   rook-release: https://charts.rook.io/release
