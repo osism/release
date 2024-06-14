@@ -38,16 +38,20 @@ infrastructure_projects:
   tgtd:
 
 openstack_projects:
+  # bifrost: stable-2024.1
+  # cloudkitty: stable-2024.1
+  # gnocchi: stable/4.6
+  # mistral: stable-2024.1
+  # senlin: stable-2024.1
+  # swift: stable-2024.1
+  # trove: stable-2024.1
   aodh: stable-2024.1
   barbican: stable-2024.1
-  # bifrost: stable-2024.1
   blazar: stable-2024.1
   ceilometer: stable-2024.1
   cinder: stable-2024.1
-  # cloudkitty: stable-2024.1
   designate: stable-2024.1
   glance: stable-2024.1
-  # gnocchi: stable/4.6
   heat: stable-2024.1
   horizon: stable-2024.1
   ironic: stable-2024.1
@@ -55,16 +59,13 @@ openstack_projects:
   kuryr: stable-2024.1
   magnum: stable-2024.1
   manila: stable-2024.1
-  # mistral: stable-2024.1
-  neutron-vpnaas: stable-2024.1
+  masakari: stable-2024.1
   neutron-dynamic-routing: stable-2024.1
+  neutron-vpnaas: stable-2024.1
   neutron: stable-2024.1
   nova: stable-2024.1
   octavia: stable-2024.1
   placement: stable-2024.1
-  # senlin: stable-2024.1
   skyline-apiserver: stable-2024.1
   skyline-console: stable-2024.1
-  # swift: stable-2024.1
-  # trove: stable-2024.1
   zun: stable-2024.1
