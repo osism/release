@@ -1,23 +1,16 @@
 ---
 # manager
 
-adminer: library/adminer
 ara_server: osism/ara-server
 ceph_ansible: osism/ceph-ansible
-homer: osism/homer
 inventory_reconciler: osism/inventory-reconciler
-jenkins: bitnami/jenkins
 kolla_ansible: osism/kolla-ansible
 mariadb: library/mariadb
-openstackclient: osism/openstackclient
 osism: osism/osism
 osism_ansible: osism/osism-ansible
+osism_kubernetes: osism/osism-kubernetes
 osism_netbox: osism/osism-netbox
-phpmyadmin: phpmyadmin/phpmyadmin
-postgres: library/postgres
-postgres_upgrade: tianon/postgres-upgrade
 redis: library/redis
-traefik: library/traefik
 vault: hashicorp/vault
 
 # mirror
@@ -35,19 +28,26 @@ rook_operator: rook/ceph
 
 # openstack
 
-tempest: osism/tempest
 openstack_database_exporter: vexxhost/openstack-database-exporter
+openstackclient: osism/openstackclient
+tempest: osism/tempest
 
 # infrastructure
 
+adminer: library/adminer
 alerta: alerta/alerta-web
 cgit: osism/cgit
 dnsdist: osism/dnsdist
 fleet: fleetdm/fleet
+homer: osism/homer
 keycloak: keycloak/keycloak
 memcached: memcached
 netbox: osism/netbox
+phpmyadmin: phpmyadmin/phpmyadmin
+postgres: library/postgres
+postgres_upgrade: tianon/postgres-upgrade
 squid: ubuntu/squid
+traefik: library/traefik
 
 # zuul
 
