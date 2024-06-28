@@ -42,7 +42,8 @@ docker_images:
   mariadb: '11.4.2'
   # renovate: datasource=docker depName=memcached
   memcached: '1.6.28-alpine'
-  netbox: 'latest'
+  # renovate: datasource=docker depName=quay.io/osism/netbox
+  netbox: 'v3.7.8'
   # renovate: datasource=docker depName=quay.io/osism/nexus
   nexus: '3.69.0'
   # renovate: datasource=docker depName=nginx
