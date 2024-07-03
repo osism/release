@@ -105,7 +105,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=community.general
   community.general: '9.1.0'
   # renovate: datasource=galaxy-collection depName=community.grafana
-  community.grafana: '1.6.1'
+  community.grafana: '1.9.1'
   # renovate: datasource=galaxy-collection depName=community.hashi_vault
   community.hashi_vault: '6.1.0'
   # renovate: datasource=galaxy-collection depName=community.mysql
