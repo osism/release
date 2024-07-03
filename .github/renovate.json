@@ -18,105 +18,6 @@
         "^latest\\/base.yml$"
       ],
       "matchStrings":[
-        "(?<depName>ansible.netcommon): '(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate":"galaxy-collection"
-    },
-    {
-      "fileMatch":[
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings":[
-        "(?<depName>ansible.posix): '(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate":"galaxy-collection"
-    },
-    {
-      "fileMatch":[
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings":[
-        "(?<depName>arista.cvp): '(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate":"galaxy-collection"
-    },
-    {
-      "fileMatch":[
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings":[
-        "(?<depName>arista.eos): '(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate":"galaxy-collection"
-    },
-    {
-      "fileMatch":[
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings":[
-        "(?<depName>community.general): '(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate":"galaxy-collection"
-    },
-    {
-      "fileMatch":[
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings":[
-        "(?<depName>community.network): '(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate":"galaxy-collection"
-    },
-    {
-      "fileMatch":[
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings":[
-        "(?<depName>community.zabbix): '(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate":"galaxy-collection"
-    },
-    {
-      "fileMatch":[
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings":[
-        "(?<depName>debops.debops): '(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate":"galaxy-collection"
-    },
-    {
-      "fileMatch":[
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings":[
-        "(?<depName>netbox.netbox): '(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate":"galaxy-collection"
-    },
-    {
-      "fileMatch":[
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings":[
-        "(?<depName>openstack.cloud): '(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate":"galaxy-collection"
-    },
-    {
-      "fileMatch":[
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings":[
-        "(?<depName>juniper.device): '(?<currentValue>.*?)'"
-      ],
-      "datasourceTemplate":"galaxy-collection"
-    },
-    {
-      "fileMatch":[
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings":[
         "(?<depName>ara): '(?<currentValue>.*?)'"
       ],
       "datasourceTemplate":"pypi"
@@ -152,6 +53,14 @@
       ],
       "matchStrings":[
         "# renovate: datasource=(?<datasource>pypi) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
+      ]
+    },
+    {
+      "fileMatch":[
+        "^latest\\/base.yml$"
+      ],
+      "matchStrings":[
+        "# renovate: datasource=(?<datasource>galaxy-collection) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
       ]
     }
   ]
