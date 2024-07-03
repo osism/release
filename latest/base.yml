@@ -95,7 +95,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=ansible.posix
   ansible.posix: '1.5.4'
   # renovate: datasource=galaxy-collection depName=ansible.utils
-  ansible.utils: '3.0.0'
+  ansible.utils: '3.1.0'
   # renovate: datasource=galaxy-collection depName=cloud.common
   cloud.common: '3.0.0'
   # renovate: datasource=galaxy-collection depName=community.crypto
