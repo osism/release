@@ -26,7 +26,8 @@ docker_images:
   adminer: '4.8.1'
   # renovate: datasource=docker depName=alerta/alerta-web
   alerta: '9.0.3'
-  ara_server: 'latest'
+  # renovate: datasource=docker depName=quay.io/osism/ara-server
+  ara_server: '1.7.1'
   # renovate: datasource=docker depName=quay.io/osism/cgit
   cgit: '1.2.3'
   # renovate: datasource=docker depName=quay.io/osism/dnsdist
