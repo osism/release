@@ -27,7 +27,7 @@ docker_images:
   keycloak: '19.0.3-legacy'
   mariadb: '11.4.2'
   memcached: '1.6.29-alpine'
-  netbox: 'v3.4.8'
+  netbox: 'v3.7.8'
   nexus: '3.69.0'
   nginx: '1.27.0-alpine'
   openstack_health_monitor: 'v7.0.0'
