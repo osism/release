@@ -40,7 +40,6 @@ infrastructure_projects:
 openstack_projects:
   # bifrost: stable-2024.1
   # cloudkitty: stable-2024.1
-  # gnocchi: stable/4.6
   # mistral: stable-2024.1
   # senlin: stable-2024.1
   # swift: stable-2024.1
@@ -52,6 +51,7 @@ openstack_projects:
   cinder: stable-2024.1
   designate: stable-2024.1
   glance: stable-2024.1
+  gnocchi: stable/4.6
   heat: stable-2024.1
   horizon: stable-2024.1
   ironic: stable-2024.1
