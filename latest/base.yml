@@ -31,7 +31,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/osism/cgit
   cgit: '1.2.3'
   # renovate: datasource=docker depName=quay.io/osism/dnsdist
-  dnsdist: '1.8.0'
+  dnsdist: '1.9.6'
   # renovate: datasource=docker depName=quay.io/osism/homer
   homer: 'v24.05.1'
   inventory_reconciler: 'latest'
