@@ -63,7 +63,7 @@ ansible_collections:
   ansible.posix: '1.5.4'
   ansible.utils: '5.0.0'
   cloud.common: '4.0.0'
-  community.crypto: '2.22.1'
+  community.crypto: '2.21.1'
   community.docker: '3.11.0'
   community.general: '9.2.0'
   community.grafana: '2.0.0'
