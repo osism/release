@@ -45,7 +45,6 @@ memcached: memcached
 netbox: osism/netbox
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
-postgres_upgrade: tianon/postgres-upgrade
 squid: ubuntu/squid
 traefik: library/traefik
 
