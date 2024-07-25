@@ -55,7 +55,6 @@ docker_images:
   phpmyadmin: '5.2.1'
   # renovate: datasource=docker depName=postgres
   postgres: '15.7-alpine'
-  postgres_upgrade: '14-to-15'
   # renovate: datasource=docker depName=redis
   redis: '7.2.5-alpine'
   # renovate: datasource=docker depName=registry
