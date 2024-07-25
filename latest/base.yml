@@ -67,7 +67,7 @@ docker_images:
   # renovate: datasource=docker depName=hubblo/scaphandre
   scaphandre: '1.0.0'
   # renovate: datasource=docker depName=ubuntu/squid
-  squid: '5.7-23.04_beta'
+  squid: '6.1-23.10_beta'
   # yamllint disable-line rule:line-length
   # renovate: datasource=docker depName=ghcr.io/vexxhost/openstack-database-exporter
   openstack_database_exporter: 'v0.4.2'
