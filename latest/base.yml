@@ -53,6 +53,8 @@ docker_images:
   osism: 'latest'
   # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
   phpmyadmin: '5.2.1'
+  # renovate: datasource=docker depName=prom/pushgateway
+  pushgateway: 'v1.9.0'
   # renovate: datasource=docker depName=postgres
   postgres: '16.3-alpine'
   # renovate: datasource=docker depName=redis
