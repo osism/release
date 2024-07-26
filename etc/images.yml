@@ -48,6 +48,9 @@ postgres: library/postgres
 squid: ubuntu/squid
 traefik: library/traefik
 
+# monitoring
+pushgateway: prom/pushgateway
+
 # zuul
 
 zookeeper: library/zookeeper
