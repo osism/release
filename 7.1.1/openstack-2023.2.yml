@@ -58,7 +58,7 @@ openstack_projects:
   skyline-console: stable-2023.2
 
 openstack_projects_filter:
-  - common
+  - fluentd
   - keystone
   - nova
   - openvswitch
