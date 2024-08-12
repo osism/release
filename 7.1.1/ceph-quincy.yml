@@ -8,7 +8,7 @@ ceph_version: quincy
 
 defaults_version: 'v0.20240812.0'
 generics_version: 'v0.20240812.0'
-playbooks_version: 'v0.20240811.0'
+playbooks_version: 'v0.20240812.0'
 
 docker_images:
   ceph: '17.2.7'
