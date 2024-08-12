@@ -2,18 +2,18 @@
 ansible_version: '10.2.0'
 ansible_core_version: '2.17.2'
 
-defaults_version: 'v0.20240723.0'
-generics_version: 'v0.20240723.0'
-manager_playbooks_version: 'v0.20240723.0'
+defaults_version: 'v0.20240812.0'
+generics_version: 'v0.20240812.0'
+manager_playbooks_version: 'v0.20240812.0'
 manager_version: 7.1.1
-operations_version: 'v0.20240723.0'
-playbooks_version: 'v0.20240723.0'
+operations_version: 'v0.20240812.0'
+playbooks_version: 'v0.20240812.0'
 
 osism_projects:
   ara: '1.7.1'
   docker: '5:24.0.9'
-  osism: '0.20240723.0'
-  k3s: 'v1.29.2+k3s1'
+  osism: '0.20240812.0'
+  k3s: 'v1.30.3+k3s1'
 
 docker_images:
   adminer: '4.8.1'
@@ -31,7 +31,7 @@ docker_images:
   nexus: '3.70.1'
   nginx: '1.27.0-alpine'
   openstack_health_monitor: 'v7.0.0'
-  osism: '0.20240723.0'
+  osism: '0.20240812.0'
   phpmyadmin: '5.2.1'
   postgres: '15.7-alpine'
   postgres_upgrade: '14-to-15'
@@ -76,9 +76,9 @@ ansible_collections:
   kubernetes.core: '5.0.0'
   netbox.netbox: '3.19.1'
   openstack.cloud: '2.2.0'
-  osism.commons: '0.20240723.0'
-  osism.services: '0.20240723.0'
-  osism.validations: '0.20240723.0'
+  osism.commons: '0.20240812.0'
+  osism.services: '0.20240812.0'
+  osism.validations: '0.20240812.0'
   stackhpc.cephadm: 49f2487fea80b861b40c00ccd887a6ef03684ae2
 
 helm_chart_repositories:
