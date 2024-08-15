@@ -48,7 +48,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/osism/nexus
   nexus: '3.71.0'
   # renovate: datasource=docker depName=nginx
-  nginx: '1.27.0-alpine'
+  nginx: '1.27.1-alpine'
   osism: 'latest'
   # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
   phpmyadmin: '5.2.1'
