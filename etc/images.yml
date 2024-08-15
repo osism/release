@@ -64,5 +64,4 @@ zuul_web: zuul-ci/zuul-web
 # other
 
 docker_openpolicyagent: openpolicyagent/opa-docker-authz-v2
-openstack_health_monitor: sovereigncloudstack/openstack-health-monitor
 scaphandre: hubblo/scaphandre
