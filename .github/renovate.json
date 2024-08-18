@@ -49,7 +49,11 @@
     },
     {
       "fileMatch":[
-        "^latest\\/base.yml$"
+        "^latest\\/base.yml$",
+        "^latest\\/ceph-quincy.yml$",
+        "^latest\\/ceph-reef.yml$",
+        "^latest\\/openstack-2023.2.yml$",
+        "^latest\\/openstack-2024.1.yml$"
       ],
       "matchStrings":[
         "# renovate: datasource=(?<datasource>pypi) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
