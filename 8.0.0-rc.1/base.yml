@@ -7,7 +7,7 @@ generics_version: 'v0.20240825.0'
 manager_playbooks_version: 'v0.20240825.0'
 manager_version: 8.0.0-rc.1
 operations_version: 'v0.20240825.0'
-playbooks_version: 'v0.20240825.0'
+playbooks_version: 'v0.20240825.1'
 
 osism_projects:
   ara: '1.7.1'

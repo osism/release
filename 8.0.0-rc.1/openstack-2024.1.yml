@@ -8,7 +8,7 @@ openstack_previous_version: 2023.2
 
 defaults_version: '0.20240825.0'
 generics_version: '0.20240825.0'
-playbooks_version: '0.20240825.0'
+playbooks_version: '0.20240825.1'
 
 docker_images:
   openstackclient: '6.6.1'
