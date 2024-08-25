@@ -84,10 +84,6 @@ ansible_roles:
   hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
   pdns_recursor: 'v1.7.1'
   proxmox: develop
-  stackhpc.libvirt_host: master
-  stackhpc.libvirt_vm: master
-  stackhpc.luks: master
-  stackhpc.systemd_networkd: master
   ubuntu22_cis: devel
 
 ansible_collections:
@@ -130,7 +126,6 @@ ansible_collections:
   osism.commons: main
   osism.services: main
   osism.validations: main
-  stackhpc.cephadm: master
 
 helm_chart_repositories:
   bitnami: https://charts.bitnami.com/bitnami

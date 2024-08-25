@@ -2,4 +2,3 @@
 osism.commons: osism/ansible-collection-commons
 osism.services: osism/ansible-collection-services
 osism.validations: osism/ansible-collection-validations
-stackhpc.cephadm: stackhpc/ansible-collection-cephadm
