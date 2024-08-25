@@ -3,15 +3,15 @@ ansible_version: '>=10.0.0,<11.0.0'
 # renovate: datasource=pypi depName=ansible-core
 ansible_core_version: '2.17.3'
 
-openstack_version: "2024.1"
-openstack_previous_version: "2023.2"
+openstack_version: 2024.1
+openstack_previous_version: 2023.2
 
 defaults_version: '0.20240825.0'
 generics_version: '0.20240825.0'
 playbooks_version: '0.20240825.0'
 
 docker_images:
-  openstackclient: "6.6.1"
+  openstackclient: '6.6.1'
 
 infrastructure_projects:
   cron:
