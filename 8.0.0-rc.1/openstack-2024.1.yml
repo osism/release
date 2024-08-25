@@ -6,12 +6,12 @@ ansible_core_version: '2.17.3'
 openstack_version: "2024.1"
 openstack_previous_version: "2023.2"
 
-defaults_version: main
-generics_version: main
-playbooks_version: main
+defaults_version: '0.20240825.0'
+generics_version: '0.20240825.0'
+playbooks_version: '0.20240825.0'
 
 docker_images:
-  openstackclient: "2024.1"
+  openstackclient: "6.6.1"
 
 infrastructure_projects:
   cron:
