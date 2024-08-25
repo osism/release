@@ -4,8 +4,4 @@ geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
 hardening: openstack/ansible-hardening
 pdns_recursor: PowerDNS/pdns_recursor-ansible
 proxmox: lae/ansible-role-proxmox
-stackhpc.libvirt_host: stackhpc/ansible-role-libvirt-host
-stackhpc.libvirt_vm: stackhpc/ansible-role-libvirt-vm
-stackhpc.luks: stackhpc/ansible-role-luks
-stackhpc.systemd_networkd: stackhpc/ansible-role-systemd-networkd
 ubuntu22_cis: ansible-lockdown/UBUNTU22-CIS
