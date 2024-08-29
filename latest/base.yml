@@ -88,7 +88,7 @@ ansible_roles:
 
 ansible_collections:
   # renovate: datasource=galaxy-collection depName=ansible.netcommon
-  ansible.netcommon: '7.0.0'
+  ansible.netcommon: '7.1.0'
   # renovate: datasource=galaxy-collection depName=ansible.posix
   ansible.posix: '1.5.4'
   # renovate: datasource=galaxy-collection depName=ansible.utils
