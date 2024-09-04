@@ -10,7 +10,7 @@ operations_version: 'v0.20240904.0'
 playbooks_version: 'v0.20240904.0'
 
 osism_projects:
-  ara: '1.7.1'
+  ara: '1.7.2'
   docker: '5:26.1.4'
   osism: '0.20240904.0'
   k3s: 'v1.30.3+k3s1'
@@ -18,7 +18,7 @@ osism_projects:
 docker_images:
   adminer: '4.8.1'
   alerta: '9.0.3'
-  ara_server: '1.7.1'
+  ara_server: '1.7.2'
   cgit: '1.2.3'
   dnsdist: '1.8.0'
   homer: 'v24.05.1'
