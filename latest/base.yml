@@ -82,9 +82,12 @@ ansible_roles:
   geerlingguy.certbot: master
   geerlingguy.dotfiles: master
   hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
+  # renovate: datasource=github-releases depName=PowerDNS/pdns_recursor-ansible
   pdns_recursor: 'v1.7.1'
-  proxmox: develop
-  ubuntu22_cis: devel
+  # renovate: datasource=github-releases depName=lae/ansible-role-proxmox
+  proxmox: 'v1.8.1'
+  # renovate: datasource=github-releases depName=ansible-lockdown/UBUNTU22-CIS
+  ubuntu22_cis: '1.4.1'
 
 ansible_collections:
   # renovate: datasource=galaxy-collection depName=ansible.netcommon
