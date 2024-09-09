@@ -38,12 +38,6 @@ infrastructure_projects:
   tgtd:
 
 openstack_projects:
-  # bifrost: stable-2024.1
-  # cloudkitty: stable-2024.1
-  # mistral: stable-2024.1
-  # senlin: stable-2024.1
-  # swift: stable-2024.1
-  # trove: stable-2024.1
   aodh: stable-2024.1
   barbican: stable-2024.1
   blazar: stable-2024.1
@@ -69,6 +63,3 @@ openstack_projects:
   skyline-apiserver: stable-2024.1
   skyline-console: stable-2024.1
   zun: stable-2024.1
-
-openstack_projects_filter:
-  - ironic
