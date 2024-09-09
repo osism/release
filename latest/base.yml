@@ -103,7 +103,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=community.docker
   community.docker: '3.12.1'
   # renovate: datasource=galaxy-collection depName=community.general
-  community.general: '9.3.0'
+  community.general: '9.4.0'
   # renovate: datasource=galaxy-collection depName=community.grafana
   community.grafana: '2.1.0'
   # renovate: datasource=galaxy-collection depName=community.hashi_vault
