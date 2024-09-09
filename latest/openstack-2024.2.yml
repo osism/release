@@ -1,0 +1,71 @@
+---
+ansible_version: '>=10.0.0,<11.0.0'
+# renovate: datasource=pypi depName=ansible-core
+ansible_core_version: '2.17.3'
+
+openstack_version: "2024.2"
+openstack_previous_version: "2024.1"
+
+defaults_version: main
+generics_version: main
+playbooks_version: main
+
+docker_images:
+  openstackclient: "2024.2"
+
+infrastructure_projects:
+  cron:
+  dnsmasq:
+  fluentd:
+  grafana:
+  hacluster:
+  haproxy:
+  iscsid:
+  keepalived:
+  kolla-toolbox:
+  letsencrypt:
+  mariadb:
+  memcached:
+  multipathd:
+  opensearch:
+  openstack-base:
+  openvswitch:
+  ovn:
+  prometheus:
+  proxysql:
+  rabbitmq:
+  redis:
+  tgtd:
+
+openstack_projects:
+  # bifrost: stable-2024.1
+  # cloudkitty: stable-2024.1
+  # mistral: stable-2024.1
+  # senlin: stable-2024.1
+  # swift: stable-2024.1
+  # trove: stable-2024.1
+  aodh: stable-2024.2
+  barbican: stable-2024.2
+  blazar: stable-2024.2
+  ceilometer: stable-2024.2
+  cinder: stable-2024.2
+  designate: stable-2024.2
+  glance: stable-2024.2
+  gnocchi: stable/4.6
+  heat: stable-2024.2
+  horizon: stable-2024.2
+  ironic: stable-2024.2
+  keystone: stable-2024.2
+  kuryr: stable-2024.2
+  magnum: stable-2024.2
+  manila: stable-2024.2
+  masakari: stable-2024.2
+  neutron-dynamic-routing: stable-2024.2
+  neutron-vpnaas: stable-2024.2
+  neutron: stable-2024.2
+  nova: stable-2024.2
+  octavia: stable-2024.2
+  placement: stable-2024.2
+  skyline-apiserver: stable-2024.2
+  skyline-console: stable-2024.2
+  zun: stable-2024.2
