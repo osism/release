@@ -6,7 +6,7 @@ openstack_version: 2024.1
 openstack_previous_version: 2023.2
 
 defaults_version: 'v0.20240904.0'
-generics_version: 'v0.20240904.0'
+generics_version: 'v0.20240911.0'
 playbooks_version: 'v0.20240904.0'
 
 docker_images:
