@@ -129,6 +129,8 @@ ansible_collections:
   osism.commons: main
   osism.services: main
   osism.validations: main
+  # renovate: datasource=galaxy-collection depName=purestorage.flasharray
+  purestorage.flasharray: '1.31.1'
 
 helm_chart_repositories:
   bitnami: https://charts.bitnami.com/bitnami
