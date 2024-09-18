@@ -50,6 +50,8 @@ docker_images:
   # renovate: datasource=docker depName=nginx
   nginx: '1.27.1-alpine'
   osism: 'latest'
+  # renovate: datasource=docker depName=pgautoupgrade/pgautoupgrade
+  pgautoupgrade: '16-alpine'
   # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
   phpmyadmin: '5.2.1'
   # renovate: datasource=docker depName=prom/pushgateway
