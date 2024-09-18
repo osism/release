@@ -42,11 +42,14 @@ fleet: fleetdm/fleet
 homer: osism/homer
 keycloak: keycloak/keycloak
 memcached: memcached
-netbox: osism/netbox
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
 squid: ubuntu/squid
 traefik: library/traefik
+
+# netbox
+netbox: osism/netbox
+pgautoupgrade: pgautoupgrade/pgautoupgrade
 
 # monitoring
 pushgateway: prom/pushgateway
