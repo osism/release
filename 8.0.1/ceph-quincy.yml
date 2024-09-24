@@ -1,0 +1,15 @@
+---
+ansible_version: ">=8.0.0,<9.0.0"
+ansible_core_version: '2.15.12'
+
+ceph_ansible_version: stable-7.0
+ceph_container_version: stable-7.0
+ceph_version: quincy
+
+defaults_version: 'v0.20240924.0'
+generics_version: 'v0.20240924.0'
+playbooks_version: 'v0.20240924.0'
+
+docker_images:
+  ceph: '17.2.7'
+  cephclient: '17.2.7'
