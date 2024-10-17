@@ -47,6 +47,9 @@ postgres: library/postgres
 squid: ubuntu/squid
 traefik: library/traefik
 
+# security
+syft: anchore/syft
+
 # netbox
 netbox: osism/netbox
 pgautoupgrade: pgautoupgrade/pgautoupgrade
