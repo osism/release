@@ -80,7 +80,7 @@ docker_images:
   # renovate: datasource=docker depName=traefik
   traefik: 'v3.2.0'
   # renovate: datasource=docker depName=hashicorp/vault
-  vault: '1.18.0'
+  vault: '1.18.1'
 
 ansible_roles:
   geerlingguy.certbot: master
