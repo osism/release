@@ -119,7 +119,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=community.rabbitmq
   community.rabbitmq: '1.3.0'
   # renovate: datasource=galaxy-collection depName=community.zabbix
-  community.zabbix: '3.1.2'
+  community.zabbix: '3.2.0'
   # renovate: datasource=galaxy-collection depName=containers.podman
   containers.podman: '1.16.2'
   # renovate: datasource=galaxy-collection depName=debops.debops
