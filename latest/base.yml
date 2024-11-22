@@ -65,7 +65,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/ceph/ceph
   rook_ceph: 'v18.2.4-20240724'
   # renovate: datasource=docker depName=rook/ceph
-  rook_operator: 'v1.15.5'
+  rook_operator: 'v1.15.6'
   # renovate: datasource=docker depName=hubblo/scaphandre
   scaphandre: '1.0.0'
   # renovate: datasource=docker depName=ubuntu/squid
