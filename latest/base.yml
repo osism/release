@@ -48,7 +48,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/osism/nexus
   nexus: '3.74.0'
   # renovate: datasource=docker depName=nginx
-  nginx: '1.27.2-alpine'
+  nginx: '1.27.3-alpine'
   osism: 'latest'
   # renovate: datasource=docker depName=pgautoupgrade/pgautoupgrade
   pgautoupgrade: '16-alpine'
