@@ -46,7 +46,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/osism/netbox
   netbox: 'v4.1.7'
   # renovate: datasource=docker depName=quay.io/osism/nexus
-  nexus: '3.75.0'
+  nexus: '3.75.1'
   # renovate: datasource=docker depName=nginx
   nginx: '1.27.3-alpine'
   osism: 'latest'
