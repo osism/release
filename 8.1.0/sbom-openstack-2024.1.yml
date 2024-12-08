@@ -23,7 +23,6 @@ images:
   - image: osism.harbor.regio.digital/kolla/release/designate-backend-bind9:18.0.1.20241206
   - image: osism.harbor.regio.digital/kolla/release/designate-mdns:18.0.1.20241206
   - image: osism.harbor.regio.digital/kolla/release/designate-central:18.0.1.20241206
-  - image: osism.harbor.regio.digital/kolla/release/kuryr-libnetwork:13.0.0.20241206
   - image: osism.harbor.regio.digital/kolla/release/aodh-api:18.0.1.20241206
   - image: osism.harbor.regio.digital/kolla/release/aodh-evaluator:18.0.1.20241206
   - image: osism.harbor.regio.digital/kolla/release/aodh-expirer:18.0.1.20241206
@@ -34,13 +33,6 @@ images:
   - image: osism.harbor.regio.digital/kolla/release/octavia-worker:14.0.1.20241206
   - image: osism.harbor.regio.digital/kolla/release/octavia-housekeeping:14.0.1.20241206
   - image: osism.harbor.regio.digital/kolla/release/octavia-health-manager:14.0.1.20241206
-  - image: osism.harbor.regio.digital/kolla/release/swift-account:2.33.1.20241206
-  - image: osism.harbor.regio.digital/kolla/release/swift-object-expirer:2.33.1.20241206
-  - image: osism.harbor.regio.digital/kolla/release/swift-rsyncd:2.33.1.20241206
-  - image: osism.harbor.regio.digital/kolla/release/swift-proxy-server:2.33.1.20241206
-  - image: osism.harbor.regio.digital/kolla/release/swift-object:2.33.1.20241206
-  - image: osism.harbor.regio.digital/kolla/release/swift-container:2.33.1.20241206
-  - image: osism.harbor.regio.digital/kolla/release/bifrost-deploy:18.0.1.20241206
   - image: osism.harbor.regio.digital/kolla/release/manila-api:18.2.2.20241206
   - image: osism.harbor.regio.digital/kolla/release/manila-data:18.2.2.20241206
   - image: osism.harbor.regio.digital/kolla/release/manila-scheduler:18.2.2.20241206
@@ -55,9 +47,6 @@ images:
   - image: osism.harbor.regio.digital/kolla/release/skyline-apiserver:4.0.2.20241206
   - image: osism.harbor.regio.digital/kolla/release/skyline-console:4.0.2.20241206
   - image: osism.harbor.regio.digital/kolla/release/trove-conductor:21.0.2.20241206
-  - image: osism.harbor.regio.digital/kolla/release/trove-api:21.0.2.20241206
-  - image: osism.harbor.regio.digital/kolla/release/trove-taskmanager:21.0.2.20241206
-  - image: osism.harbor.regio.digital/kolla/release/trove-guestagent:21.0.2.20241206
   - image: osism.harbor.regio.digital/kolla/release/nova-compute-ironic:29.2.1.20241206
   - image: osism.harbor.regio.digital/kolla/release/nova-spicehtml5proxy:29.2.1.20241206
   - image: osism.harbor.regio.digital/kolla/release/nova-compute:29.2.1.20241206
@@ -74,10 +63,6 @@ images:
   - image: osism.harbor.regio.digital/kolla/release/ceilometer-notification:22.0.0.20241206
   - image: osism.harbor.regio.digital/kolla/release/ceilometer-central:22.0.0.20241206
   - image: osism.harbor.regio.digital/kolla/release/ceilometer-ipmi:22.0.0.20241206
-  - image: osism.harbor.regio.digital/kolla/release/mistral-engine:18.0.0.20241206
-  - image: osism.harbor.regio.digital/kolla/release/mistral-event-engine:18.0.0.20241206
-  - image: osism.harbor.regio.digital/kolla/release/mistral-api:18.0.0.20241206
-  - image: osism.harbor.regio.digital/kolla/release/mistral-executor:18.0.0.20241206
   - image: osism.harbor.regio.digital/kolla/release/glance-api:28.1.1.20241206
   - image: osism.harbor.regio.digital/kolla/release/ironic-neutron-agent:24.0.2.20241206
   - image: osism.harbor.regio.digital/kolla/release/neutron-dhcp-agent:24.0.2.20241206
@@ -142,7 +127,6 @@ images:
 versions:
   aodh: 18.0.1.20241206
   barbican: 18.0.1.20241206
-  bifrost: 18.0.1.20241206
   ceilometer: 22.0.0.20241206
   cinder: 24.2.1.20241206
   cloudkitty: 20.0.1.20241206
@@ -167,12 +151,10 @@ versions:
   keystone: 25.0.1.20241206
   kolla-toolbox: 18.3.0.20241206
   kolla_toolbox: 18.3.0.20241206
-  kuryr: 13.0.0.20241206
   magnum: 18.0.1.20241206
   manila: 18.2.2.20241206
   mariadb: 10.11.10.20241206
   memcached: 1.6.14.20241206
-  mistral: 18.0.0.20241206
   multipathd: 0.8.8.20241206
   neutron: 24.0.2.20241206
   nova: 29.2.1.20241206
@@ -200,6 +182,4 @@ versions:
   redis: 6.0.16.20241206
   skyline: 4.0.2.20241206
   skyline_console: 4.0.2.20241206
-  swift: 2.33.1.20241206
   tgtd: 1.0.80.20241206
-  trove: 21.0.2.20241206
