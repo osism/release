@@ -1,0 +1,205 @@
+---
+images:
+  - image: osism.harbor.regio.digital/kolla/release/ironic-prometheus-exporter:24.1.4.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-infoblox-ipam-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ovn-controller:24.3.4.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ovn-sb-db-server:24.3.4.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ovn-northd:24.3.4.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ovn-nb-db-server:24.3.4.20241206
+  - image: osism.harbor.regio.digital/kolla/release/keystone:25.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/keystone-fernet:25.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/keystone-ssh:25.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/cinder-scheduler:24.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/cinder-backup:24.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/cinder-volume:24.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/cinder-api:24.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/heat-api-cfn:22.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/heat-api:22.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/heat-engine:22.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/designate-sink:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/designate-worker:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/designate-producer:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/designate-api:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/designate-backend-bind9:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/designate-mdns:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/designate-central:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/kuryr-libnetwork:13.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/aodh-api:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/aodh-evaluator:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/aodh-expirer:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/aodh-listener:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/aodh-notifier:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/octavia-api:14.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/octavia-driver-agent:14.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/octavia-worker:14.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/octavia-housekeeping:14.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/octavia-health-manager:14.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/swift-account:2.33.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/swift-object-expirer:2.33.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/swift-rsyncd:2.33.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/swift-proxy-server:2.33.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/swift-object:2.33.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/swift-container:2.33.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/bifrost-deploy:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/manila-api:18.2.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/manila-data:18.2.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/manila-scheduler:18.2.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/manila-share:18.2.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/gnocchi-api:4.6.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/gnocchi-metricd:4.6.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/gnocchi-statsd:4.6.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/magnum-api:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/magnum-conductor:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/cloudkitty-processor:20.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/cloudkitty-api:20.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/skyline-apiserver:4.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/skyline-console:4.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/trove-conductor:21.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/trove-api:21.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/trove-taskmanager:21.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/trove-guestagent:21.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/nova-compute-ironic:29.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/nova-spicehtml5proxy:29.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/nova-compute:29.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/nova-serialproxy:29.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/nova-conductor:29.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/nova-scheduler:29.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/nova-api:29.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/nova-novncproxy:29.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/nova-ssh:29.2.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ironic-conductor:24.1.4.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ironic-pxe:24.1.4.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ironic-api:24.1.4.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ceilometer-compute:22.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ceilometer-notification:22.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ceilometer-central:22.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ceilometer-ipmi:22.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/mistral-engine:18.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/mistral-event-engine:18.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/mistral-api:18.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/mistral-executor:18.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/glance-api:28.1.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ironic-neutron-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-dhcp-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-bgp-dragent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-ovn-vpn-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-metering-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-mlnx-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-openvswitch-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-sriov-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-linuxbridge-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-metadata-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-ovn-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-l3-agent:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/neutron-server:24.0.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/placement-api:11.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/barbican-keystone-listener:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/barbican-worker:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/barbican-api:18.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/openvswitch-db-server:3.3.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/openvswitch-vswitchd:3.3.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/redis-sentinel:6.0.16.20241206
+  - image: osism.harbor.regio.digital/kolla/release/redis:6.0.16.20241206
+  - image: osism.harbor.regio.digital/kolla/release/collectd:5.12.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/horizon:24.0.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ironic-inspector:12.1.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-libvirt-exporter:8.1.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-memcached-exporter:0.14.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-openstack-exporter:8.1.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-blackbox-exporter:0.24.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-mysqld-exporter:0.15.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-msteams:1.5.2.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-alertmanager:0.27.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-mtail:3.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-node-exporter:1.7.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-cadvisor:0.49.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-elasticsearch-exporter:1.7.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/prometheus-v2-server:2.50.1.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ovsdpdk-db:3.3.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ovsdpdk-vswitchd:3.3.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/mariadb-clustercheck:10.11.10.20241206
+  - image: osism.harbor.regio.digital/kolla/release/mariadb-server:10.11.10.20241206
+  - image: osism.harbor.regio.digital/kolla/release/tgtd:1.0.80.20241206
+  - image: osism.harbor.regio.digital/kolla/release/rabbitmq:3.13.7.20241206
+  - image: osism.harbor.regio.digital/kolla/release/memcached:1.6.14.20241206
+  - image: osism.harbor.regio.digital/kolla/release/kolla-toolbox:18.3.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/influxdb:1.11.8.20241206
+  - image: osism.harbor.regio.digital/kolla/release/keepalived:2.2.4.20241206
+  - image: osism.harbor.regio.digital/kolla/release/grafana:11.4.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/iscsid:2.1.5.20241206
+  - image: osism.harbor.regio.digital/kolla/release/multipathd:0.8.8.20241206
+  - image: osism.harbor.regio.digital/kolla/release/haproxy-ssh:8.9.20241206
+  - image: osism.harbor.regio.digital/kolla/release/haproxy:2.4.24.20241206
+  - image: osism.harbor.regio.digital/kolla/release/proxysql:2.6.6.20241206
+  - image: osism.harbor.regio.digital/kolla/release/nova-libvirt:8.0.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/fluentd:5.0.5.20241206
+  - image: osism.harbor.regio.digital/kolla/release/dnsmasq:2.90.20241206
+  - image: osism.harbor.regio.digital/kolla/release/etcd:3.4.27.20241206
+  - image: osism.harbor.regio.digital/kolla/release/ovsdpdk:3.3.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/cron:3.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/opensearch-dashboards:2.18.0.20241206
+  - image: osism.harbor.regio.digital/kolla/release/opensearch:2.18.0.20241206
+versions:
+  aodh: 18.0.1.20241206
+  barbican: 18.0.1.20241206
+  bifrost: 18.0.1.20241206
+  ceilometer: 22.0.0.20241206
+  cinder: 24.2.1.20241206
+  cloudkitty: 20.0.1.20241206
+  collectd: 5.12.0.20241206
+  cron: 3.0.20241206
+  designate: 18.0.1.20241206
+  dnsmasq: 2.90.20241206
+  etcd: 3.4.27.20241206
+  fluentd: 5.0.5.20241206
+  glance: 28.1.1.20241206
+  gnocchi: 4.6.2.20241206
+  grafana: 11.4.0.20241206
+  haproxy: 2.4.24.20241206
+  haproxy_ssh: 8.9.20241206
+  heat: 22.0.2.20241206
+  horizon: 24.0.1.20241206
+  influxdb: 1.11.8.20241206
+  ironic: 24.1.4.20241206
+  ironic_inspector: 12.1.1.20241206
+  iscsid: 2.1.5.20241206
+  keepalived: 2.2.4.20241206
+  keystone: 25.0.1.20241206
+  kolla-toolbox: 18.3.0.20241206
+  kolla_toolbox: 18.3.0.20241206
+  kuryr: 13.0.0.20241206
+  magnum: 18.0.1.20241206
+  manila: 18.2.2.20241206
+  mariadb: 10.11.10.20241206
+  memcached: 1.6.14.20241206
+  mistral: 18.0.0.20241206
+  multipathd: 0.8.8.20241206
+  neutron: 24.0.2.20241206
+  nova: 29.2.1.20241206
+  nova_libvirt: 8.0.0.20241206
+  octavia: 14.0.1.20241206
+  opensearch: 2.18.0.20241206
+  opensearch_dashboards: 2.18.0.20241206
+  openvswitch: 3.3.0.20241206
+  ovn: 24.3.4.20241206
+  placement: 11.0.0.20241206
+  prometheus: 2.50.1.20241206
+  prometheus_alertmanager: 0.27.0.20241206
+  prometheus_blackbox_exporter: 0.24.0.20241206
+  prometheus_cadvisor: 0.49.1.20241206
+  prometheus_elasticsearch_exporter: 1.7.0.20241206
+  prometheus_libvirt_exporter: 8.1.0.20241206
+  prometheus_memcached_exporter: 0.14.2.20241206
+  prometheus_msteams: 1.5.2.20241206
+  prometheus_mtail: 3.0.0.20241206
+  prometheus_mysqld_exporter: 0.15.1.20241206
+  prometheus_node_exporter: 1.7.0.20241206
+  prometheus_openstack_exporter: 8.1.0.20241206
+  proxysql: 2.6.6.20241206
+  rabbitmq: 3.13.7.20241206
+  redis: 6.0.16.20241206
+  skyline: 4.0.2.20241206
+  skyline_console: 4.0.2.20241206
+  swift: 2.33.1.20241206
+  tgtd: 1.0.80.20241206
+  trove: 21.0.2.20241206
