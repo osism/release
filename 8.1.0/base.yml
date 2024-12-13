@@ -12,7 +12,7 @@ playbooks_version: 'v0.20241206.0'
 osism_projects:
   ara: '1.7.2'
   docker: '5:26.1.4'
-  osism: '0.20241206.0'
+  osism: '0.20241213.0'
   k3s: 'v1.30.6+k3s1'
 
 docker_images:
@@ -31,7 +31,7 @@ docker_images:
   nexus: '3.75.1'
   nginx: '1.27.3-alpine'
   openstack_database_exporter: 'v0.4.2'
-  osism: '0.20241206.0'
+  osism: '0.20241213.0'
   pgautoupgrade: '16-alpine'
   phpmyadmin: '5.2.1'
   postgres: '16.6-alpine'
