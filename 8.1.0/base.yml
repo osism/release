@@ -76,7 +76,7 @@ ansible_collections:
   openstack.cloud: '2.2.0'
   osism.commons: '0.20241206.0'
   osism.services: '0.20241206.0'
-  osism.validations: '0.20241206.0'
+  osism.validations: '0.20241217.0'
 
 helm_chart_repositories:
   bitnami: https://charts.bitnami.com/bitnami
