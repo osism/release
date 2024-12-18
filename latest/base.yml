@@ -129,7 +129,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=netbox.netbox
   netbox.netbox: '3.20.0'
   # renovate: datasource=galaxy-collection depName=openstack.cloud
-  openstack.cloud: '2.3.0'
+  openstack.cloud: '2.3.1'
   osism.commons: main
   osism.services: main
   osism.validations: main
