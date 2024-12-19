@@ -2,17 +2,17 @@
 ansible_version: '10.7.0'
 ansible_core_version: '2.17.5'
 
-defaults_version: 'v0.20241206.0'
+defaults_version: 'v0.20241219.0'
 generics_version: 'v0.20241206.0'
 manager_playbooks_version: 'v0.20240924.0'
 manager_version: 8.1.0
-operations_version: 'v0.20241206.0'
-playbooks_version: 'v0.20241206.0'
+operations_version: 'v0.20241219.0'
+playbooks_version: 'v0.20241219.0'
 
 osism_projects:
   ara: '1.7.2'
   docker: '5:26.1.4'
-  osism: '0.20241213.0'
+  osism: '0.20241219.1'
   k3s: 'v1.30.6+k3s1'
 
 docker_images:
@@ -31,7 +31,7 @@ docker_images:
   nexus: '3.75.1'
   nginx: '1.27.3-alpine'
   openstack_database_exporter: 'v0.4.2'
-  osism: '0.20241213.0'
+  osism: '0.20241219.1'
   pgautoupgrade: '16-alpine'
   phpmyadmin: '5.2.1'
   postgres: '16.6-alpine'
@@ -74,9 +74,9 @@ ansible_collections:
   kubernetes.core: '5.0.0'
   netbox.netbox: '3.20.0'
   openstack.cloud: '2.2.0'
-  osism.commons: '0.20241206.0'
-  osism.services: '0.20241206.0'
-  osism.validations: '0.20241217.0'
+  osism.commons: '0.20241219.0'
+  osism.services: '0.20241219.0'
+  osism.validations: '0.20241219.0'
 
 helm_chart_repositories:
   bitnami: https://charts.bitnami.com/bitnami
