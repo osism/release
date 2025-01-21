@@ -125,7 +125,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=debops.debops
   debops.debops: '3.2.4'
   # renovate: datasource=galaxy-collection depName=kubernetes.core
-  kubernetes.core: '5.0.0'
+  kubernetes.core: '5.1.0'
   # renovate: datasource=galaxy-collection depName=netbox.netbox
   netbox.netbox: '3.20.0'
   # renovate: datasource=galaxy-collection depName=openstack.cloud
