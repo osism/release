@@ -38,12 +38,6 @@ infrastructure_projects:
   tgtd:
 
 openstack_projects:
-  # bifrost: stable-2024.1
-  # cloudkitty: stable-2024.1
-  # mistral: stable-2024.1
-  # senlin: stable-2024.1
-  # swift: stable-2024.1
-  # trove: stable-2024.1
   aodh: stable-2024.1
   barbican: stable-2024.1
   blazar: stable-2024.1
@@ -52,11 +46,9 @@ openstack_projects:
   designate: stable-2024.1
   glance: stable-2024.1
   gnocchi: stable/4.6
-  heat: stable-2024.1
   horizon: stable-2024.1
   ironic: stable-2024.1
   keystone: stable-2024.1
-  kuryr: stable-2024.1
   magnum: stable-2024.1
   manila: stable-2024.1
   masakari: stable-2024.1
@@ -68,4 +60,3 @@ openstack_projects:
   placement: stable-2024.1
   skyline-apiserver: stable-2024.1
   skyline-console: stable-2024.1
-  zun: stable-2024.1
