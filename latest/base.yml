@@ -37,8 +37,6 @@ docker_images:
   inventory_reconciler: 'latest'
   # renovate: datasource=docker depName=fleetdm/fleet
   fleet: 'v4.62.3'
-  # renovate: datasource=docker depName=quay.io/keycloak/keycloak
-  keycloak: '19.0.3-legacy'
   # renovate: datasource=docker depName=mariadb
   mariadb: '11.6.2'
   # renovate: datasource=docker depName=memcached

@@ -40,7 +40,6 @@ cgit: osism/cgit
 dnsdist: osism/dnsdist
 fleet: fleetdm/fleet
 homer: osism/homer
-keycloak: keycloak/keycloak
 memcached: memcached
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
