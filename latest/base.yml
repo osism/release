@@ -33,7 +33,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/osism/dnsdist
   dnsdist: '1.9.8'
   # renovate: datasource=docker depName=quay.io/osism/dnsmasq
-  dnsmasq: '2.90'
+  dnsmasq: '2024.2'
   # renovate: datasource=docker depName=quay.io/osism/homer
   homer: 'v25.02.1'
   inventory_reconciler: 'latest'
