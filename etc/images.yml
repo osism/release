@@ -38,6 +38,7 @@ adminer: library/adminer
 alerta: alerta/alerta-web
 cgit: osism/cgit
 dnsdist: osism/dnsdist
+dnsmasq: osism/dnsmasq
 fleet: fleetdm/fleet
 homer: osism/homer
 memcached: memcached
