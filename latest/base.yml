@@ -48,7 +48,7 @@ docker_images:
   # renovate: datasource=docker depName=quay.io/osism/nexus
   nexus: '3.77.0'
   # renovate: datasource=docker depName=nginx
-  nginx: '1.27.3-alpine'
+  nginx: '1.27.4-alpine'
   osism: 'latest'
   # renovate: datasource=docker depName=otel/opentelemetry-collector-contrib
   opentelemetry_collector: '0.119.0'
