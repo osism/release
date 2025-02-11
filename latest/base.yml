@@ -69,7 +69,7 @@ docker_images:
   # renovate: datasource=docker depName=rook/ceph
   rook_operator: 'v1.16.3'
   # renovate: datasource=docker depName=hubblo/scaphandre
-  scaphandre: '1.0.0'
+  scaphandre: '1.0.2'
   # renovate: datasource=docker depName=ubuntu/squid
   squid: '6.1-23.10_beta'
   # renovate: datasource=docker depName=anchore/syft
