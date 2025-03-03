@@ -53,7 +53,7 @@ docker_images:
   # renovate: datasource=docker depName=otel/opentelemetry-collector-contrib
   opentelemetry_collector: '0.120.0'
   # renovate: datasource=docker depName=pgautoupgrade/pgautoupgrade
-  pgautoupgrade: '16-alpine'
+  pgautoupgrade: '17-alpine'
   # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
   phpmyadmin: '5.2.2'
   # renovate: datasource=docker depName=prom/pushgateway
