@@ -127,7 +127,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=kubernetes.core
   kubernetes.core: '5.1.0'
   # renovate: datasource=galaxy-collection depName=netbox.netbox
-  netbox.netbox: '3.20.0'
+  netbox.netbox: '3.21.0'
   # renovate: datasource=galaxy-collection depName=openstack.cloud
   openstack.cloud: '2.4.1'
   osism.commons: main
