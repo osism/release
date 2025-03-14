@@ -38,7 +38,7 @@ docker_images:
   homer: 'v25.02.1'
   inventory_reconciler: 'latest'
   # renovate: datasource=docker depName=fleetdm/fleet
-  fleet: 'v4.64.2'
+  fleet: 'v4.65.0'
   # renovate: datasource=docker depName=mariadb
   mariadb: '11.7.2'
   # renovate: datasource=docker depName=memcached
