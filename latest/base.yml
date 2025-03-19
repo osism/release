@@ -51,7 +51,7 @@ docker_images:
   nginx: '1.27.4-alpine'
   osism: 'latest'
   # renovate: datasource=docker depName=otel/opentelemetry-collector-contrib
-  opentelemetry_collector: '0.121.0'
+  opentelemetry_collector: '0.122.1'
   # renovate: datasource=docker depName=pgautoupgrade/pgautoupgrade
   pgautoupgrade: '16-alpine'
   # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
