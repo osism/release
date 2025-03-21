@@ -12,7 +12,7 @@ operations_version: main
 playbooks_version: main
 
 osism_projects:
-  # renovate: datasource=docker depName=quay.io/osism/ara-server
+  # renovate: datasource=docker depName=registry.osism.tech/osism/ara-server
   ara: '1.7.2'
   # renovate: datasource=github-releases depName=moby/moby
   docker: '5:27.4.1'
@@ -26,15 +26,15 @@ docker_images:
   adminer: '5.0.4'
   # renovate: datasource=docker depName=alerta/alerta-web
   alerta: '9.0.4'
-  # renovate: datasource=docker depName=quay.io/osism/ara-server
+  # renovate: datasource=docker depName=registry.osism.tech/osism/ara-server
   ara_server: '1.7.2'
-  # renovate: datasource=docker depName=quay.io/osism/cgit
+  # renovate: datasource=docker depName=registry.osism.tech/osism/cgit
   cgit: '1.2.3'
-  # renovate: datasource=docker depName=quay.io/osism/dnsdist
+  # renovate: datasource=docker depName=registry.osism.tech/osism/dnsdist
   dnsdist: '1.9.8'
-  # renovate: datasource=docker depName=quay.io/osism/dnsmasq-osism
+  # renovate: datasource=docker depName=registry.osism.tech/osism/dnsmasq-osism
   dnsmasq: '2.90'
-  # renovate: datasource=docker depName=quay.io/osism/homer
+  # renovate: datasource=docker depName=registry.osism.tech/osism/homer
   homer: 'v25.02.1'
   inventory_reconciler: 'latest'
   # renovate: datasource=docker depName=fleetdm/fleet
@@ -43,9 +43,9 @@ docker_images:
   mariadb: '11.7.2'
   # renovate: datasource=docker depName=memcached
   memcached: '1.6.38-alpine'
-  # renovate: datasource=docker depName=quay.io/osism/netbox
+  # renovate: datasource=docker depName=registry.osism.tech/osism/netbox
   netbox: 'v4.1.10'
-  # renovate: datasource=docker depName=quay.io/osism/nexus
+  # renovate: datasource=docker depName=registry.osism.tech/osism/nexus
   nexus: '3.77.1'
   # renovate: datasource=docker depName=nginx
   nginx: '1.27.4-alpine'
@@ -77,7 +77,7 @@ docker_images:
   # yamllint disable-line rule:line-length
   # renovate: datasource=docker depName=ghcr.io/vexxhost/openstack-database-exporter
   openstack_database_exporter: 'v0.4.2'
-  # renovate: datasource=docker depName=quay.io/osism/tempest
+  # renovate: datasource=docker depName=registry.osism.tech/osism/tempest
   tempest: 'latest'
   # renovate: datasource=docker depName=traefik
   traefik: 'v3.3.4'
