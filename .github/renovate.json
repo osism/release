@@ -67,5 +67,12 @@
         "# renovate: datasource=(?<datasource>galaxy-collection) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
       ]
     }
+  ],
+  "packageRules": [
+    {
+      "matchDepNames": ["postgres", "pgautoupgrade/pgautoupgrade"],
+      "matchPaths": ["latest/base.yml"],
+      "groupName": "postgres"
+    }
   ]
 }
