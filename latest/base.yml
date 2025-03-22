@@ -15,7 +15,7 @@ osism_projects:
   # renovate: datasource=docker depName=registry.osism.tech/osism/ara-server
   ara: '1.7.2'
   # renovate: datasource=github-releases depName=moby/moby
-  docker: '5:27.4.1'
+  docker: '5:27.5.1'
   # renovate: datasource=pypi depName=osism
   osism: '0.20250314.0'
   # renovate: datasource=github-releases depName=k3s-io/k3s
