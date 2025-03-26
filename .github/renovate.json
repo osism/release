@@ -70,6 +70,11 @@
   ],
   "packageRules": [
     {
+      "matchDepNames": ["ansible", "ansible-core"],
+      "matchPaths": ["latest/base.yml"],
+      "groupName": "ansible"
+    },
+    {
       "matchDepNames": ["postgres", "pgautoupgrade/pgautoupgrade"],
       "matchPaths": ["latest/base.yml"],
       "groupName": "postgres"
