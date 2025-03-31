@@ -44,7 +44,7 @@ docker_images:
   # renovate: datasource=docker depName=memcached
   memcached: '1.6.38-alpine'
   # renovate: datasource=docker depName=registry.osism.tech/osism/netbox
-  netbox: 'v4.2.2'
+  netbox: 'v4.2.6'
   # renovate: datasource=docker depName=registry.osism.tech/osism/nexus
   nexus: '3.78.2'
   # renovate: datasource=docker depName=nginx
