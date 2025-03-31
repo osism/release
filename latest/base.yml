@@ -64,10 +64,6 @@ docker_images:
   redis: '7.4.2-alpine'
   # renovate: datasource=docker depName=registry
   registry: '2.8'
-  # renovate: datasource=docker depName=quay.io/ceph/ceph
-  rook_ceph: 'v18.2.4-20240724'
-  # renovate: datasource=docker depName=rook/ceph
-  rook_operator: 'v1.16.5'
   # renovate: datasource=docker depName=hubblo/scaphandre
   scaphandre: '1.0.2'
   # renovate: datasource=docker depName=ubuntu/squid
