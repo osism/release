@@ -63,7 +63,7 @@ docker_images:
   # renovate: datasource=docker depName=redis
   redis: '7.4.2-alpine'
   # renovate: datasource=docker depName=registry
-  registry: '2.8'
+  registry: '3.0'
   # renovate: datasource=docker depName=hubblo/scaphandre
   scaphandre: '1.0.2'
   # renovate: datasource=docker depName=ubuntu/squid
