@@ -5,9 +5,12 @@ ansible_core_version: "2.14.18"
 openstack_version: "2023.1"
 openstack_previous_version: zed
 
-defaults_version: main
-generics_version: main
-playbooks_version: main
+# renovate: datasource=github-tags depName=osism/defaults
+defaults_version: 'main'
+# renovate: datasource=github-tags depName=osism/cfg-generics
+generics_version: 'main'
+# renovate: datasource=github-tags depName=osism/ansible-playbooks
+playbooks_version: 'main'
 
 docker_images:
   openstackclient: "2023.1"
