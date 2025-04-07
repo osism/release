@@ -5,16 +5,16 @@ ansible_version: '11.4.0'
 ansible_core_version: '2.18.4'
 
 # renovate: datasource=github-tags depName=osism/defaults
-defaults_version: 'main'
+defaults_version: 'v0.20250407.0'
 # renovate: datasource=github-tags depName=osism/cfg-generics
-generics_version: 'main'
+generics_version: 'v0.20250407.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks-manager
-manager_playbooks_version: 'main'
+manager_playbooks_version: 'v0.20250407.0'
 manager_version: latest
 # renovate: datasource=github-tags depName=osism/kolla-operations
-operations_version: 'main'
+operations_version: 'v0.20250407.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
-playbooks_version: 'main'
+playbooks_version: 'v0.20250407.0'
 
 osism_projects:
   # renovate: datasource=docker depName=registry.osism.tech/osism/ara-server
@@ -54,7 +54,8 @@ docker_images:
   nexus: '3.79.0'
   # renovate: datasource=docker depName=nginx
   nginx: '1.27.4-alpine'
-  osism: 'latest'
+  # renovate: datasource=docker depName=registry.osism.tech/osism/osism
+  osism: '0.20250407.0'
   # renovate: datasource=docker depName=otel/opentelemetry-collector-contrib
   opentelemetry_collector: '0.123.0'
   # renovate: datasource=docker depName=pgautoupgrade/pgautoupgrade
@@ -130,10 +131,10 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=openstack.cloud
   openstack.cloud: '2.4.1'
   # renovate: datasource=galaxy-collection depName=osism.commons
-  osism.commons: 'main'
+  osism.commons: '0.20250407.0'
   # renovate: datasource=galaxy-collection depName=osism.services
-  osism.services: 'main'
+  osism.services: '0.20250407.0'
   # renovate: datasource=galaxy-collection depName=osism.validations
-  osism.validations: 'main'
+  osism.validations: '0.20250407.0'
   # renovate: datasource=galaxy-collection depName=purestorage.flasharray
   purestorage.flasharray: '1.34.1'
