@@ -60,6 +60,7 @@
         "^latest\\/ceph-reef.yml$",
         "^latest\\/openstack-2023.2.yml$",
         "^latest\\/openstack-2024.1.yml$"
+        "^latest\\/openstack-2024.2.yml$"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>pypi) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
