@@ -6,9 +6,12 @@ ceph_ansible_version: stable-8.0
 ceph_container_version: stable-8.0
 ceph_version: reef
 
-defaults_version: main
-generics_version: main
-playbooks_version: main
+# renovate: datasource=github-tags depName=osism/defaults
+defaults_version: 'main'
+# renovate: datasource=github-tags depName=osism/cfg-generics
+generics_version: 'main'
+# renovate: datasource=github-tags depName=osism/ansible-playbooks
+playbooks_version: 'main'
 
 docker_images:
   ceph: reef
