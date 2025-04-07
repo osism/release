@@ -1,6 +1,6 @@
 ---
 ansible_version: '>=9.0.0,<10.0.0'
-ansible_core_version: '2.16.6'
+ansible_core_version: '2.16.14'
 
 openstack_version: "2023.2"
 openstack_previous_version: "2023.1"
