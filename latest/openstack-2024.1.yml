@@ -6,11 +6,11 @@ openstack_version: "2024.1"
 openstack_previous_version: "2023.2"
 
 # renovate: datasource=github-tags depName=osism/defaults
-defaults_version: 'main'
+defaults_version: 'v0.20250407.0'
 # renovate: datasource=github-tags depName=osism/cfg-generics
-generics_version: 'main'
+generics_version: 'v0.20250407.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
-playbooks_version: 'main'
+playbooks_version: 'v0.20250407.0'
 
 docker_images:
   openstackclient: "2024.1"
