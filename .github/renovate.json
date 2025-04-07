@@ -59,7 +59,7 @@
         "^latest\\/ceph-quincy.yml$",
         "^latest\\/ceph-reef.yml$",
         "^latest\\/openstack-2023.2.yml$",
-        "^latest\\/openstack-2024.1.yml$"
+        "^latest\\/openstack-2024.1.yml$",
         "^latest\\/openstack-2024.2.yml$"
       ],
       "matchStrings": [
