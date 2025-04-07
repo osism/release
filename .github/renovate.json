@@ -48,6 +48,7 @@
         "# renovate: datasource=(?<datasource>docker) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'",
         "# renovate: datasource=(?<datasource>pypi) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'",
         "# renovate: datasource=(?<datasource>github-tags) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'",
+        "# renovate: datasource=(?<datasource>github-releases) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'",
         "# renovate: datasource=(?<datasource>galaxy-collection) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
       ]
     }
