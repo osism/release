@@ -37,24 +37,6 @@
     {
       "customType": "regex",
       "fileMatch": [
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>git-tags) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
-      ]
-    },
-    {
-      "customType": "regex",
-      "fileMatch": [
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings": [
-        "# renovate: datasource=(?<datasource>docker) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
-      ]
-    },
-    {
-      "customType": "regex",
-      "fileMatch": [
         "^latest\\/base.yml$",
         "^latest\\/ceph-quincy.yml$",
         "^latest\\/ceph-reef.yml$",
@@ -63,15 +45,9 @@
         "^latest\\/openstack-2024.2.yml$"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>pypi) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
-      ]
-    },
-    {
-      "customType": "regex",
-      "fileMatch": [
-        "^latest\\/base.yml$"
-      ],
-      "matchStrings": [
+        "# renovate: datasource=(?<datasource>docker) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'",
+        "# renovate: datasource=(?<datasource>pypi) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'",
+        "# renovate: datasource=(?<datasource>github-tags) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'",
         "# renovate: datasource=(?<datasource>galaxy-collection) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'"
       ]
     }
