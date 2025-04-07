@@ -86,7 +86,7 @@ ansible_roles:
   hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
   # renovate: datasource=github-releases depName=PowerDNS/pdns_recursor-ansible
   pdns_recursor: 'v1.7.1'
-  # renovate: datasource=github-releases depName=ansible-lockdown/UBUNTU22-CIS
+  # renovate: datasource=github-tags depName=ansible-lockdown/UBUNTU22-CIS
   ubuntu22_cis: '1.4.1'
 
 ansible_collections:
