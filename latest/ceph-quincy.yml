@@ -7,11 +7,11 @@ ceph_container_version: stable-7.0
 ceph_version: quincy
 
 # renovate: datasource=github-tags depName=osism/defaults
-defaults_version: 'main'
+defaults_version: 'v0.20250407.0'
 # renovate: datasource=github-tags depName=osism/cfg-generics
-generics_version: 'main'
+generics_version: 'v0.20250407.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
-playbooks_version: 'main'
+playbooks_version: 'v0.20250407.0'
 
 docker_images:
   ceph: quincy
