@@ -59,13 +59,13 @@ docker_images:
   # renovate: datasource=docker depName=otel/opentelemetry-collector-contrib
   opentelemetry_collector: '0.123.0'
   # renovate: datasource=docker depName=pgautoupgrade/pgautoupgrade
-  pgautoupgrade: '16-alpine'
+  pgautoupgrade: '17-alpine'
   # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
   phpmyadmin: '5.2.2'
   # renovate: datasource=docker depName=prom/pushgateway
   pushgateway: 'v1.11.0'
   # renovate: datasource=docker depName=postgres
-  postgres: '16.8-alpine'
+  postgres: '17.4-alpine'
   # renovate: datasource=docker depName=redis
   redis: '7.4.2-alpine'
   # renovate: datasource=docker depName=registry
