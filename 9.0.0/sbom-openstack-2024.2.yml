@@ -1,0 +1,282 @@
+---
+images:
+  - digest: sha256:07fff7095814414ce26402a35583974708d9a2a3ac17dbef49e6607d08daec63
+    image: registry.osism.tech/kolla/release/neutron-infoblox-ipam-agent:25.1.1.20250408
+  - digest: sha256:5d5e9bd77ccd63038a89f7b0c343a0642bdfb1c2cfe98484959418e51f44077f
+    image: registry.osism.tech/kolla/release/ironic-prometheus-exporter:26.1.2.20250408
+  - digest: sha256:fbbbeec7a2b6eee47414d82d512bdfec525d281257b0eac744212d06a596b5d3
+    image: registry.osism.tech/kolla/release/ovn-nb-db-server:24.9.2.20250408
+  - digest: sha256:1cb762fafe68b5e0646e934f3e128407f3e15c9f8c59ac0cc189d3eb694cd362
+    image: registry.osism.tech/kolla/release/ovn-sb-db-server:24.9.2.20250408
+  - digest: sha256:b63aa9ff78b9accf029095f06fc70be9bb54bdb2f21096bcef1f8a8101a4968a
+    image: registry.osism.tech/kolla/release/ovn-controller:24.9.2.20250408
+  - digest: sha256:d2cced28cbf7641c6239f82df2343f228421daec15d8692d788e3a6dbfd2df81
+    image: registry.osism.tech/kolla/release/ovn-northd:24.9.2.20250408
+  - digest: sha256:463542f1a94f5b2ca31b033cd478064f820c8d422efda6f03555c8f8e1d2d6f8
+    image: registry.osism.tech/kolla/release/ironic-neutron-agent:25.1.1.20250408
+  - digest: sha256:579ad6a72503893d15c6cfcc3aef7991e079f7e9e1810e17e019630d23df57e0
+    image: registry.osism.tech/kolla/release/neutron-sriov-agent:25.1.1.20250408
+  - digest: sha256:c42c6ab89d5120451ed58192bdfa5ecf9575661efc44d6ef80680f87e87ece34
+    image: registry.osism.tech/kolla/release/neutron-ovn-vpn-agent:25.1.1.20250408
+  - digest: sha256:b4c0b1e829d383ee87723a7dac74a782efe480b32d5fa644ad3038bce05036f0
+    image: registry.osism.tech/kolla/release/neutron-dhcp-agent:25.1.1.20250408
+  - digest: sha256:97de887650329dad30e4efb97f2cb4e68d43579b0474c98b51f4a54b3bae188a
+    image: registry.osism.tech/kolla/release/neutron-linuxbridge-agent:25.1.1.20250408
+  - digest: sha256:95cc24e2e7be58492ae69fc171dbc5f4a041eaa97823177fd7089406b58661fd
+    image: registry.osism.tech/kolla/release/neutron-mlnx-agent:25.1.1.20250408
+  - digest: sha256:13db2230261500de009d4f90593562e30e3b030978649298f862f043984b7a3e
+    image: registry.osism.tech/kolla/release/neutron-metadata-agent:25.1.1.20250408
+  - digest: sha256:a0a267c546d7c56ccbdc75991b0bbc6a0c96d62b376a5136f69ccb6accbaf0ca
+    image: registry.osism.tech/kolla/release/neutron-server:25.1.1.20250408
+  - digest: sha256:d07982610492cb4d0bb1db13ae2b3bb249308aa38d7350ed62dde510bed74a42
+    image: registry.osism.tech/kolla/release/neutron-openvswitch-agent:25.1.1.20250408
+  - digest: sha256:407f5285bcd3dfb71057fe699e8ff027b5750a3605f4ae9524c1fa8e0c521dab
+    image: registry.osism.tech/kolla/release/neutron-bgp-dragent:25.1.1.20250408
+  - digest: sha256:d5187cf2d7a67db84df6bfcf0cd90de2ed78d77e9d9ddf43424eff20e50b1395
+    image: registry.osism.tech/kolla/release/neutron-ovn-agent:25.1.1.20250408
+  - digest: sha256:5b59abaac1885ee596e295bd5729410e8992dc94adb11d28eba447a78a6ebe3c
+    image: registry.osism.tech/kolla/release/neutron-l3-agent:25.1.1.20250408
+  - digest: sha256:23238adb730d43450c3901665e8f4102807e73b21c67d7419f8287256ffd3271
+    image: registry.osism.tech/kolla/release/neutron-metering-agent:25.1.1.20250408
+  - digest: sha256:de0c88772986187e51431927c73d14fb40375ea01f2a08227c2213c2bc53d257
+    image: registry.osism.tech/kolla/release/keystone:26.0.1.20250408
+  - digest: sha256:6a593088d6d1b44a031b81e3abf9c4e4609e2a32358097184d70e01b5b79d292
+    image: registry.osism.tech/kolla/release/keystone-ssh:26.0.1.20250408
+  - digest: sha256:47c84df1aba4bb834860610ffd35ef63d2ae071b5355f12429b9463229504127
+    image: registry.osism.tech/kolla/release/keystone-fernet:26.0.1.20250408
+  - digest: sha256:ad34d3cd372f4f0b70b39c108d4fe333646aace74fe2a5bb3d185069d3712e38
+    image: registry.osism.tech/kolla/release/placement-api:12.0.1.20250408
+  - digest: sha256:1b8080629594b0d85a133d4672c049954ef10c2625c25d005a7b22b45a03e7bf
+    image: registry.osism.tech/kolla/release/gnocchi-statsd:4.6.4.20250408
+  - digest: sha256:fdae412dc70291a8c97395a0177f664c751f6c2b57a46f19ce0fb31f139f01b3
+    image: registry.osism.tech/kolla/release/gnocchi-api:4.6.4.20250408
+  - digest: sha256:b9a2473674bbf6c9b095777668de1566546312fd69c3a411167e8484f25c8677
+    image: registry.osism.tech/kolla/release/gnocchi-metricd:4.6.4.20250408
+  - digest: sha256:d6d7ed2793105fb26164fc99360759753006a66d70a31e7c0948c23ea906fbb9
+    image: registry.osism.tech/kolla/release/ironic-pxe:26.1.2.20250408
+  - digest: sha256:7a8e98fc79da3794d61a3e68fc34f8191f34c286b1fed00c6740116930b46963
+    image: registry.osism.tech/kolla/release/ironic-api:26.1.2.20250408
+  - digest: sha256:8f4500aa322cca288fddddc181c32ed1528f2500b9f94a4c02242fc27afe2454
+    image: registry.osism.tech/kolla/release/ironic-conductor:26.1.2.20250408
+  - digest: sha256:c6398c6eedf007e1a42b5d1680b3e07d6b4b6a7af99b08be1231ead094789437
+    image: registry.osism.tech/kolla/release/magnum-conductor:19.0.1.20250408
+  - digest: sha256:cd40eb2d92cf65988ba8d3bb1d93d82b3ceb7cd0577217c80dc6fe17259d6042
+    image: registry.osism.tech/kolla/release/magnum-api:19.0.1.20250408
+  - digest: sha256:859900e4d7777e2594fbd6eda5b16c486eac6755db5cde6aacdc23ec5ac7a451
+    image: registry.osism.tech/kolla/release/ceilometer-compute:23.0.0.20250408
+  - digest: sha256:1c7f9fc9c6842af95823c4282cf1a51ac8f99c360b8d64fb8364173a52dc3f53
+    image: registry.osism.tech/kolla/release/ceilometer-central:23.0.0.20250408
+  - digest: sha256:8068b915c1ca6f417a0d286eb18297fb0486cf2d7d624f40508dc5df9f6ac1d1
+    image: registry.osism.tech/kolla/release/ceilometer-notification:23.0.0.20250408
+  - digest: sha256:4cff3049ead480f4b38e8b37bc637b61ad92e4e26cdb0b5ed55ad185d497460a
+    image: registry.osism.tech/kolla/release/ceilometer-ipmi:23.0.0.20250408
+  - digest: sha256:548a91e8c97f92c837c598fcb0652d98dfeb394ff57d390df71bd23f2d59b747
+    image: registry.osism.tech/kolla/release/skyline-apiserver:5.0.1.20250408
+  - digest: sha256:c867f1048be1afcfd959bfafa697b0abb7561ed1f067c2801c28c81b4213a9eb
+    image: registry.osism.tech/kolla/release/skyline-console:5.0.1.20250408
+  - digest: sha256:2a6bbbef084abbd7f1c728ad86e0ce6743f599a9a8971beb2883c5d0288bd689
+    image: registry.osism.tech/kolla/release/barbican-keystone-listener:19.0.1.20250408
+  - digest: sha256:0ffc5205df44a4206528c03fbe81061241a8194a7d9b00d05a000e35eb93af2f
+    image: registry.osism.tech/kolla/release/barbican-api:19.0.1.20250408
+  - digest: sha256:16e5e8d268332f268855b7401e0ba2bf9098708d52f04cdb2e6a4275c9fc2185
+    image: registry.osism.tech/kolla/release/barbican-worker:19.0.1.20250408
+  - digest: sha256:bd04ddfa92eb1fe96a54e13d1ed639da48d28db7593a348d21a07413a5dbcb52
+    image: registry.osism.tech/kolla/release/manila-share:19.0.2.20250408
+  - digest: sha256:99eda104ae1665902014cc37b57375d663f36f8e8e4f74e395354e5d67ee334a
+    image: registry.osism.tech/kolla/release/manila-scheduler:19.0.2.20250408
+  - digest: sha256:7189520215f049dade3935ecf10181d191dc78334148cd71a999a1ae06806070
+    image: registry.osism.tech/kolla/release/manila-api:19.0.2.20250408
+  - digest: sha256:7a3d55a33c61358271335c2bd9000367f86198e5ad13895024dcfea182e04c13
+    image: registry.osism.tech/kolla/release/manila-data:19.0.2.20250408
+  - digest: sha256:7bfc4c2ff5f8378ceebbfc9a6b63ded588255e265725e1dcf7582b764f328175
+    image: registry.osism.tech/kolla/release/aodh-notifier:19.0.0.20250408
+  - digest: sha256:f7e5f0c2d9ef41d1676dca853bda5064eac03b7b24c2a5b1b8284a80fb322110
+    image: registry.osism.tech/kolla/release/aodh-listener:19.0.0.20250408
+  - digest: sha256:9b9495718aeac7edb385239557c893ea366b93a2b217b4efd3916c8db3b385a2
+    image: registry.osism.tech/kolla/release/aodh-expirer:19.0.0.20250408
+  - digest: sha256:247e0d5ac2d077902d7c1993b0d44ca2807cebab1fb252cf1e5757fe658bfdea
+    image: registry.osism.tech/kolla/release/aodh-api:19.0.0.20250408
+  - digest: sha256:530d4a98c572b11f4ed22cfb7140dd44e3b6794d09ddd393e9c0e67188e0d9e2
+    image: registry.osism.tech/kolla/release/aodh-evaluator:19.0.0.20250408
+  - digest: sha256:24d0bc39a7e5f715aa5941bc28ba5f18134edb567e4cd8c635d441b94f68b259
+    image: registry.osism.tech/kolla/release/nova-scheduler:30.0.1.20250408
+  - digest: sha256:a815aa1b366bc7c922291279c3a76c5888aaca27755a16794ba960bbdfedea9e
+    image: registry.osism.tech/kolla/release/nova-novncproxy:30.0.1.20250408
+  - digest: sha256:7b2efbc4e128008570047231f3e49d173dc2119cd32bdc1cb20e1af89b7e2f98
+    image: registry.osism.tech/kolla/release/nova-serialproxy:30.0.1.20250408
+  - digest: sha256:52accd44ed0a1cfdd2c83326eb74949cd69ac8c9de165f25ac56bc6b41230426
+    image: registry.osism.tech/kolla/release/nova-ssh:30.0.1.20250408
+  - digest: sha256:35d428917be27d04b4bd0fbf2501581a16f0ee2c9d47ac7bda987e84e1701489
+    image: registry.osism.tech/kolla/release/nova-compute-ironic:30.0.1.20250408
+  - digest: sha256:7ed9076f5db2a5022d95d6263d54f8a7868202c38e423e36cb6877839d01246c
+    image: registry.osism.tech/kolla/release/nova-conductor:30.0.1.20250408
+  - digest: sha256:959c7b7c0bd26fa9e217d804d57ae2d43975d61456c9f3cf7bc4a6523c360533
+    image: registry.osism.tech/kolla/release/nova-api:30.0.1.20250408
+  - digest: sha256:d591131510dafc2d65505d1224adad3da6d1c6b3f7412603c11cd9c5aa5db688
+    image: registry.osism.tech/kolla/release/nova-spicehtml5proxy:30.0.1.20250408
+  - digest: sha256:0ce1ef94c23e911eac79dcd7d97a0dc88f8c8a3ae2f6cf00b1338128ac29d340
+    image: registry.osism.tech/kolla/release/nova-compute:30.0.1.20250408
+  - digest: sha256:48c2090d0f36390fe2c0597426efeb9485da8c5ed02538712a67c8cdd68f8c54
+    image: registry.osism.tech/kolla/release/designate-backend-bind9:19.0.1.20250408
+  - digest: sha256:ce05c4d9fb8ac00a3898b29fc3ba98b8355cc71b8cb8d01e21fc7422d1fdddde
+    image: registry.osism.tech/kolla/release/designate-api:19.0.1.20250408
+  - digest: sha256:105b83937065b82fed01bfed14354dd4f3b2ef356a9605803674ae21762eab79
+    image: registry.osism.tech/kolla/release/designate-sink:19.0.1.20250408
+  - digest: sha256:5378462882c5968f187c8ab21a8d103e6379a47b9c2a3746f0014fecbdbeb679
+    image: registry.osism.tech/kolla/release/designate-mdns:19.0.1.20250408
+  - digest: sha256:8f035fa63a73c0217b56f0e242c40570a802aa367f95ac5fe836f996d204e1d7
+    image: registry.osism.tech/kolla/release/designate-producer:19.0.1.20250408
+  - digest: sha256:6b6aafff972c18f60e79e4991b410ec0eaf556f209d4fea1e0822cfe82930101
+    image: registry.osism.tech/kolla/release/designate-worker:19.0.1.20250408
+  - digest: sha256:cbb90b9563bac3e2851e86477ebb52c860871cc98a6f19b7d48a782c0ba5bb12
+    image: registry.osism.tech/kolla/release/designate-central:19.0.1.20250408
+  - digest: sha256:f2def4ab260b604f955e859e858f269467e4bf9277ac6c95451db370b4157843
+    image: registry.osism.tech/kolla/release/octavia-api:15.0.1.20250408
+  - digest: sha256:c5b03a7a6e62821855d634d178124edd019952da41ee8de3b02777f5002db710
+    image: registry.osism.tech/kolla/release/octavia-housekeeping:15.0.1.20250408
+  - digest: sha256:c5f22eba2ae6abe711e68ce32949b32c5b2c699d8d0a68b350e7c693fae0dbc6
+    image: registry.osism.tech/kolla/release/octavia-worker:15.0.1.20250408
+  - digest: sha256:366dc9716e8d0f6cd204d04293b83f736631826f781696221feb7935669711c7
+    image: registry.osism.tech/kolla/release/octavia-driver-agent:15.0.1.20250408
+  - digest: sha256:32ad42021f17a5e6aa2aded95b6037631d6f3738fe063a624b88d8711cfab0cc
+    image: registry.osism.tech/kolla/release/octavia-health-manager:15.0.1.20250408
+  - digest: sha256:de73fe63f2a88835f13807c7aea863d29dcf658801278d4c14a3d42224ab42c4
+    image: registry.osism.tech/kolla/release/cinder-volume:25.1.1.20250408
+  - digest: sha256:2367887628354ebb5602c037992b5d23550e280e3eb573ad5e15c69535bf04dc
+    image: registry.osism.tech/kolla/release/cinder-backup:25.1.1.20250408
+  - digest: sha256:2d84166e9db75355f198cd8b3a01e9e76409cbb6cfee997f89ab6eaf19543cd2
+    image: registry.osism.tech/kolla/release/cinder-api:25.1.1.20250408
+  - digest: sha256:b4294aa50e9312c3d59eb8d4f4304cb21396bc000b8e74719f6bfce6be1c7b68
+    image: registry.osism.tech/kolla/release/cinder-scheduler:25.1.1.20250408
+  - digest: sha256:9f775a814e883024b79394740043e1035a553a328a2beddfd9375a2ffa8a8d15
+    image: registry.osism.tech/kolla/release/glance-api:29.0.1.20250408
+  - digest: sha256:2fc355345d7183180dc17d3cf1411e2d397da4c01ded74762c3bf84f46b16fde
+    image: registry.osism.tech/kolla/release/openvswitch-vswitchd:3.4.2.20250408
+  - digest: sha256:404c41ed3f00ad58750d6902600198e874c5ebe6ea6fcfc40acce5f0a89fa78d
+    image: registry.osism.tech/kolla/release/openvswitch-db-server:3.4.2.20250408
+  - digest: sha256:5757482ff82d75ead96c0b6c91d846969fab8f0b5003755849815e09c5feed2a
+    image: registry.osism.tech/kolla/release/redis:7.0.15.20250408
+  - digest: sha256:1b298faa193835dba6fbafc2b63ff8818c497e4c1f6706f138517178d2918d19
+    image: registry.osism.tech/kolla/release/redis-sentinel:7.0.15.20250408
+  - digest: sha256:c2dd8696708acdf10bee00900b1967eae166db45293c7d8574a9d55c911a4e96
+    image: registry.osism.tech/kolla/release/horizon:25.1.1.20250408
+  - digest: sha256:f9328ab89875bcba74a2ea9d461181210c29f3cc67c9a44263a7e24d8e6cee36
+    image: registry.osism.tech/kolla/release/ironic-inspector:12.3.1.20250408
+  - digest: sha256:555743c71cfa29e654e1026e9857f952ceba5979d9895c5554194c477f89f116
+    image: registry.osism.tech/kolla/release/mariadb-server:10.11.11.20250408
+  - digest: sha256:66cbd07976283aba035a5dd038fba90228278ef1208e56873fd5751d4ba48dac
+    image: registry.osism.tech/kolla/release/mariadb-clustercheck:10.11.11.20250408
+  - digest: sha256:ecf65db00926f895c178a0f18cc573e17a6b134743f5b318732f24dc22bc13eb
+    image: registry.osism.tech/kolla/release/ovsdpdk-db:3.1.0.20250408
+  - digest: sha256:fb2355860bf6602b6b26097163cd5d74396eff3eb4aaa9b107ed03a928b22dd7
+    image: registry.osism.tech/kolla/release/ovsdpdk-vswitchd:3.1.0.20250408
+  - digest: sha256:ad2ed6bf2ea6a84c39789535122f919847ef1d0285961ca4124092a9dd406c58
+    image: registry.osism.tech/kolla/release/prometheus-elasticsearch-exporter:1.8.0.20250408
+  - digest: sha256:7d148de10f2256f335455a75390134fbea26a9d48d6399b31871872d08851b83
+    image: registry.osism.tech/kolla/release/prometheus-alertmanager:0.28.0.20250408
+  - digest: sha256:899e7b55372366423ff791413a7b43303c79b9e8f4d46a800d301b2fac8f6362
+    image: registry.osism.tech/kolla/release/prometheus-cadvisor:0.49.2.20250408
+  - digest: sha256:7d9a1308cc929098ca858890595c7ade8c08968c65ff319d8dc41c481aaebca4
+    image: registry.osism.tech/kolla/release/prometheus-memcached-exporter:0.15.0.20250408
+  - digest: sha256:3e773dcdf03ef0cacf3d887106c7d956a09a49f384e6b7f2cf2a8b028e8038f3
+    image: registry.osism.tech/kolla/release/prometheus-node-exporter:1.8.2.20250408
+  - digest: sha256:34999ef6c9b1d5395cff41d548491ff25cb102e1af77afa4814ddd755af6ae2c
+    image: registry.osism.tech/kolla/release/prometheus-libvirt-exporter:9.0.0.20250408
+  - digest: sha256:294dedd8d212b7159aad9a9a9712748fc34e4474242c167b7f0e2c999f06c78c
+    image: registry.osism.tech/kolla/release/prometheus-blackbox-exporter:0.25.0.20250408
+  - digest: sha256:e03c1b9120347da69e8cf4bdc377c1bb46219ecd1291d3b194d3b5665ce8ec34
+    image: registry.osism.tech/kolla/release/prometheus-openstack-exporter:9.0.0.20250408
+  - digest: sha256:ba2536bb93195af7b90e4a8770dcef55d6ee893dc20a4bb8a037c27d407e707f
+    image: registry.osism.tech/kolla/release/prometheus-mysqld-exporter:0.16.0.20250408
+  - digest: sha256:a8cec7bc57486609566e057f79a0f2a910013884b25b63103a9cbdd3cfa9eaa8
+    image: registry.osism.tech/kolla/release/prometheus-mtail:3.0.8.20250408
+  - digest: sha256:7d6cda54f62439a7c691638a7ddfeaa8815b7be92cf518cf540275e0b35b437a
+    image: registry.osism.tech/kolla/release/prometheus-v2-server:2.55.1.20250408
+  - digest: sha256:40f8d57f1e1e098ec1f07d2f1d25b0a7523b50556c8bf3f3e73b7defcb67b8ab
+    image: registry.osism.tech/kolla/release/tgtd:1.0.85.20250408
+  - digest: sha256:ea2f1c90c2bd3c0ed161e9e30d5f6b21d223f98c7417cea56ffec794b1ff170a
+    image: registry.osism.tech/kolla/release/rabbitmq:3.13.7.20250408
+  - digest: sha256:bc600760f6ff2745a0a6093d8ac172ca3793a467f939d38c80ce9097e4e85160
+    image: registry.osism.tech/kolla/release/cron:3.0.20250408
+  - digest: sha256:403e24fe9879972830d846c677d2911b452c838deb66e8510eb1c00cefb42a24
+    image: registry.osism.tech/kolla/release/grafana:11.6.0.20250408
+  - digest: sha256:a053cd4be893bc11377d995c4ff1a29e526e93449482bd931a05ea38abae9446
+    image: registry.osism.tech/kolla/release/opensearch:2.19.1.20250408
+  - digest: sha256:092704d4e282a3b9390e0de92f63b65eaae4c2de35f76153d8411af1aa8af989
+    image: registry.osism.tech/kolla/release/opensearch-dashboards:2.19.1.20250408
+  - digest: sha256:6fb802fc2787f5caa8e91f36526b39a382ecc563dd08157d4c53550c8662478c
+    image: registry.osism.tech/kolla/release/haproxy-ssh:9.2.20250408
+  - digest: sha256:a56d8ed7808569d36cfad4774b36d497f6ea85557f1d28aa6cbe6cc2bd204f43
+    image: registry.osism.tech/kolla/release/haproxy:2.6.12.20250408
+  - digest: sha256:0366f87413a8f65a28c178589385b39067374f3c028d0a3ccac7e091f4f9590f
+    image: registry.osism.tech/kolla/release/multipathd:0.9.4.20250408
+  - digest: sha256:bd8f33b5180fc5170778b73ed86cb33ca07e587ecd5d165f15eb3aa6a57e1627
+    image: registry.osism.tech/kolla/release/memcached:1.6.18.20250408
+  - digest: sha256:c51086cf74e8e193a686f5f3200e1dab1772496bdca6c7d2b15d33dd33085346
+    image: registry.osism.tech/kolla/release/fluentd:5.0.6.20250408
+  - digest: sha256:14680c45f4dfd6c022605214adbcc657de77b2c20bf49f3499d7ede6a4a910b3
+    image: registry.osism.tech/kolla/release/proxysql:2.7.3.20250408
+  - digest: sha256:c87b3769145653ac7657f6012ddc1f1f2d5381b894b05812264afd61713e3724
+    image: registry.osism.tech/kolla/release/kolla-toolbox:19.4.1.20250408
+  - digest: sha256:2f693a75a84fe84aa5d6224f60548f6c266f88dde939c9bc3fb5410a62c3d716
+    image: registry.osism.tech/kolla/release/keepalived:2.2.7.20250408
+  - digest: sha256:82112e02a0a0d23e5c5b5859a7e75dd1242fdf4042672fbe357fb870c57cdedb
+    image: registry.osism.tech/kolla/release/ovsdpdk:3.1.0.20250408
+  - digest: sha256:f993f736ac198bcce9347b0e70bff2d2df7bfece7c73ea568e1ebe2a1b981b03
+    image: registry.osism.tech/kolla/release/iscsid:2.1.8.20250408
+  - digest: sha256:7a97df9c642b29c978cbc809932fcc03d6c140481f9621f401a1fcde83a598dc
+    image: registry.osism.tech/kolla/release/nova-libvirt:9.0.0.20250408
+  - digest: sha256:64b29189fb01b0a1b6cccfd2fb382aeb43f3f5ab7504eda3adb769348c0ca3a4
+    image: registry.osism.tech/kolla/release/dnsmasq:2.90.20250408
+versions:
+  aodh: 19.0.0.20250408
+  barbican: 19.0.1.20250408
+  ceilometer: 23.0.0.20250408
+  cinder: 25.1.1.20250408
+  cron: 3.0.20250408
+  designate: 19.0.1.20250408
+  dnsmasq: 2.90.20250408
+  fluentd: 5.0.6.20250408
+  glance: 29.0.1.20250408
+  gnocchi: 4.6.4.20250408
+  grafana: 11.6.0.20250408
+  haproxy: 2.6.12.20250408
+  haproxy_ssh: 9.2.20250408
+  horizon: 25.1.1.20250408
+  ironic: 26.1.2.20250408
+  ironic_inspector: 12.3.1.20250408
+  iscsid: 2.1.8.20250408
+  keepalived: 2.2.7.20250408
+  keystone: 26.0.1.20250408
+  kolla-toolbox: 19.4.1.20250408
+  kolla_toolbox: 19.4.1.20250408
+  magnum: 19.0.1.20250408
+  manila: 19.0.2.20250408
+  mariadb: 10.11.11.20250408
+  memcached: 1.6.18.20250408
+  multipathd: 0.9.4.20250408
+  neutron: 25.1.1.20250408
+  nova: 30.0.1.20250408
+  nova_libvirt: 9.0.0.20250408
+  octavia: 15.0.1.20250408
+  opensearch: 2.19.1.20250408
+  opensearch_dashboards: 2.19.1.20250408
+  openvswitch: 3.4.2.20250408
+  ovn: 24.9.2.20250408
+  placement: 12.0.1.20250408
+  prometheus: 2.55.1.20250408
+  prometheus_alertmanager: 0.28.0.20250408
+  prometheus_blackbox_exporter: 0.25.0.20250408
+  prometheus_cadvisor: 0.49.2.20250408
+  prometheus_elasticsearch_exporter: 1.8.0.20250408
+  prometheus_libvirt_exporter: 9.0.0.20250408
+  prometheus_memcached_exporter: 0.15.0.20250408
+  prometheus_mtail: 3.0.8.20250408
+  prometheus_mysqld_exporter: 0.16.0.20250408
+  prometheus_node_exporter: 1.8.2.20250408
+  prometheus_openstack_exporter: 9.0.0.20250408
+  proxysql: 2.7.3.20250408
+  rabbitmq: 3.13.7.20250408
+  redis: 7.0.15.20250408
+  skyline: 5.0.1.20250408
+  skyline_console: 5.0.1.20250408
