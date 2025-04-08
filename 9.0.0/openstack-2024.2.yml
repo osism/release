@@ -2,8 +2,8 @@
 ansible_version: '>=11.0.0,<12.0.0'
 ansible_core_version: '2.18.4'
 
-openstack_version: "2024.2"
-openstack_previous_version: "2024.1"
+openstack_version: 2024.2
+openstack_previous_version: 2024.1
 
 defaults_version: 'v0.20250407.0'
 generics_version: 'v0.20250408.0'
