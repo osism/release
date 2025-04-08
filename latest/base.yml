@@ -41,7 +41,8 @@ docker_images:
   dnsmasq: '2.90'
   # renovate: datasource=docker depName=registry.osism.tech/osism/homer
   homer: 'v25.04.1'
-  inventory_reconciler: 'latest'
+  # renovate: datasource=docker depName=registry.osism.tech/osism/inventory-reconciler
+  inventory_reconciler: '0.20250408.0'
   # renovate: datasource=docker depName=fleetdm/fleet
   fleet: 'v4.66.0'
   # renovate: datasource=docker depName=mariadb
