@@ -280,3 +280,4 @@ versions:
   redis: 7.0.15.20250408
   skyline: 5.0.1.20250408
   skyline_console: 5.0.1.20250408
+  tgtd: 1.0.85.20250408
