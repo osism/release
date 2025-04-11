@@ -53,7 +53,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/netbox
   netbox: 'v4.2.2'
   # renovate: datasource=docker depName=registry.osism.tech/osism/nexus
-  nexus: '3.79.0'
+  nexus: '3.79.1'
   # renovate: datasource=docker depName=nginx
   nginx: '1.27.4-alpine'
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism
