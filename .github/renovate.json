@@ -70,8 +70,8 @@
     },
     {
       "matchDepNames": [
-        "ceph-daemon",
-	"cephclient"
+        "registry.osism.tech/osism/ceph-daemon",
+	"registry.osism.tech/osism/cephclient"
       ],
       "matchFileNames": [
         "latest/ceph-quincy.yml",
