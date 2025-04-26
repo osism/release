@@ -56,6 +56,20 @@
   "packageRules": [
     {
       "matchDepNames": [
+        "ansible-core"
+      ],
+      "matchFileNames": [
+        "latest/ceph-quincy.yml",
+        "latest/ceph-reef.yml",
+        "latest/openstack-2023.2.yml",
+        "latest/openstack-2024.1.yml",
+        "latest/openstack-2024.2.yml"
+      ],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      "matchDepNames": [
         "ceph-daemon",
 	"cephclient"
       ],
