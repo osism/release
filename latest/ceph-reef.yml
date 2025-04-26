@@ -1,7 +1,7 @@
 ---
 ansible_version: ">=9.0.0,<10.0.0"
 # renovate: datasource=pypi depName=ansible-core
-ansible_core_version: '2.16.14'
+ansible_core_version: '2.18.5'
 
 ceph_ansible_version: stable-8.0
 ceph_version: reef
