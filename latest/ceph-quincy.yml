@@ -17,4 +17,4 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/ceph-daemon
   ceph: '17.2.8'
   # renovate: datasource=docker depName=registry.osism.tech/osism/cephclient
-  cephclient: '18.2.6'
+  cephclient: '17.2.8'
