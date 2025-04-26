@@ -3,7 +3,6 @@ ansible_version: ">=9.0.0,<10.0.0"
 ansible_core_version: '2.16.14'
 
 ceph_ansible_version: stable-8.0
-ceph_container_version: stable-8.0
 ceph_version: reef
 
 # renovate: datasource=github-tags depName=osism/defaults
@@ -14,5 +13,7 @@ generics_version: 'v0.20250408.0'
 playbooks_version: 'v0.20250407.0'
 
 docker_images:
-  ceph: reef
-  cephclient: reef
+  # renovate: datasource=docker depName=registry.osism.tech/osism/ceph-daemon
+  ceph: '18.2.2'
+  # renovate: datasource=docker depName=registry.osism.tech/osism/cephclient
+  cephclient: '18.2.4'
