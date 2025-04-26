@@ -63,8 +63,7 @@
         "ceph-daemon",
 	"cephclient"
       ],
-      "matchUpdateTypes": ["minor"],
-      "rangeStrategy": "pin"
+      "matchUpdateTypes": ["minor"]
     },
     {
       "matchDepNames": [
