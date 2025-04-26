@@ -55,15 +55,16 @@
   ],
   "packageRules": [
     {
-      "matchFileNames": [
-        "latest/ceph-quincy.yml",
-	"latest/ceph-reef.yml"
-      ],
       "matchDepNames": [
         "ceph-daemon",
 	"cephclient"
       ],
-      "matchUpdateTypes": ["minor"]
+      "matchFileNames": [
+        "latest/ceph-quincy.yml",
+	"latest/ceph-reef.yml"
+      ],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
     },
     {
       "matchDepNames": [
