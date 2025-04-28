@@ -10,7 +10,7 @@ ceph_version: quincy
 # renovate: datasource=github-tags depName=osism/defaults
 defaults_version: 'v0.20250425.0'
 # renovate: datasource=github-tags depName=osism/cfg-generics
-generics_version: 'v0.20250408.0'
+generics_version: 'v0.20250428.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
 playbooks_version: 'v0.20250407.0'
 
