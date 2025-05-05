@@ -100,6 +100,16 @@
         "latest/base.yml"
       ],
       "groupName": "postgres"
+    },
+    {
+      "matchDepNames": [
+        "registry.osism.tech/osism/osism",
+        "osism"
+      ],
+      "matchFileNames": [
+        "latest/base.yml"
+      ],
+      "groupName": "osism"
     }
   ]
 }
