@@ -71,7 +71,7 @@ docker_images:
   # renovate: datasource=docker depName=prom/pushgateway
   pushgateway: 'v1.11.1'
   # renovate: datasource=docker depName=postgres
-  postgres: '16.8-alpine'
+  postgres: '16.9-alpine'
   # renovate: datasource=docker depName=redis
   redis: '7.4.3-alpine'
   # renovate: datasource=docker depName=registry
