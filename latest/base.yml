@@ -41,7 +41,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/dnsmasq-osism
   dnsmasq: '2.90'
   # renovate: datasource=docker depName=registry.osism.tech/osism/homer
-  homer: 'v25.05.1'
+  homer: 'v25.05.2'
   # renovate: datasource=docker depName=registry.osism.tech/osism/inventory-reconciler
   inventory_reconciler: '0.20250408.0'
   # renovate: datasource=docker depName=fleetdm/fleet
