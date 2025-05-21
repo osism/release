@@ -139,7 +139,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=osism.commons
   osism.commons: '0.20250407.0'
   # renovate: datasource=galaxy-collection depName=osism.services
-  osism.services: '0.20250516.0'
+  osism.services: '0.20250521.0'
   # renovate: datasource=galaxy-collection depName=osism.validations
   osism.validations: '0.20250407.0'
   # renovate: datasource=galaxy-collection depName=purestorage.flasharray
