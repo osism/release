@@ -45,7 +45,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/inventory-reconciler
   inventory_reconciler: '0.20250408.0'
   # renovate: datasource=docker depName=fleetdm/fleet
-  fleet: 'v4.67.3'
+  fleet: 'v4.68.0'
   # renovate: datasource=docker depName=mariadb
   mariadb: '11.7.2'
   # renovate: datasource=docker depName=memcached
