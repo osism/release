@@ -6,8 +6,8 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": [
-        "^latest\\/base.yml$"
+      "managerFilePatterns": [
+        "/^latest\\/base.yml$/"
       ],
       "matchStrings": [
         "(?<depName>ansible)_version: '(?<currentValue>.*?)'"
@@ -16,8 +16,8 @@
     },
     {
       "customType": "regex",
-      "fileMatch": [
-        "^latest\\/base.yml$"
+      "managerFilePatterns": [
+        "/^latest\\/base.yml$/"
       ],
       "matchStrings": [
         "(?<depName>ara): '(?<currentValue>.*?)'"
@@ -26,8 +26,8 @@
     },
     {
       "customType": "regex",
-      "fileMatch": [
-        "^latest\\/base.yml$"
+      "managerFilePatterns": [
+        "/^latest\\/base.yml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>github-releases) depName=(?<depName>.*?)\n.*?docker: '5:(?<currentValue>.*?)'"
@@ -36,13 +36,13 @@
     },
     {
       "customType": "regex",
-      "fileMatch": [
-        "^latest\\/base.yml$",
-        "^latest\\/ceph-quincy.yml$",
-        "^latest\\/ceph-reef.yml$",
-        "^latest\\/ceph-squid.yml$",
-        "^latest\\/openstack-2024.1.yml$",
-        "^latest\\/openstack-2024.2.yml$"
+      "managerFilePatterns": [
+        "/^latest\\/base.yml$/",
+        "/^latest\\/ceph-quincy.yml$/",
+        "/^latest\\/ceph-reef.yml$/",
+        "/^latest\\/ceph-squid.yml$/",
+        "/^latest\\/openstack-2024.1.yml$/",
+        "/^latest\\/openstack-2024.2.yml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>docker) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'",
@@ -66,7 +66,9 @@
         "latest/openstack-2024.1.yml",
         "latest/openstack-2024.2.yml"
       ],
-      "matchUpdateTypes": ["patch"],
+      "matchUpdateTypes": [
+        "patch"
+      ],
       "enabled": true
     },
     {
@@ -81,20 +83,25 @@
         "latest/openstack-2024.1.yml",
         "latest/openstack-2024.2.yml"
       ],
-      "matchUpdateTypes": ["major", "minor"],
+      "matchUpdateTypes": [
+        "major",
+        "minor"
+      ],
       "enabled": false
     },
     {
       "matchDepNames": [
         "registry.osism.tech/osism/ceph-daemon",
-	"registry.osism.tech/osism/cephclient"
+        "registry.osism.tech/osism/cephclient"
       ],
       "matchFileNames": [
         "latest/ceph-quincy.yml",
-	"latest/ceph-reef.yml",
-	"latest/ceph-squid.yml"
+        "latest/ceph-reef.yml",
+        "latest/ceph-squid.yml"
       ],
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "enabled": false
     },
     {
