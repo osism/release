@@ -9,7 +9,7 @@ ansible_core_version: '2.18.6'
 # renovate: datasource=github-tags depName=osism/defaults
 defaults_version: 'v0.20250425.0'
 # renovate: datasource=github-tags depName=osism/cfg-generics
-generics_version: 'v0.20250428.0'
+generics_version: 'v0.20250529.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks-manager
 manager_playbooks_version: 'v0.20250407.0'
 # renovate: datasource=github-tags depName=osism/kolla-operations
