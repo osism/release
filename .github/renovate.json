@@ -66,6 +66,21 @@
         "latest/openstack-2024.1.yml",
         "latest/openstack-2024.2.yml"
       ],
+      "matchUpdateTypes": ["minor", "patch"],
+      "enabled": true
+    },
+    {
+      "matchDepNames": [
+        "ansible",
+        "ansible-core"
+      ],
+      "matchFileNames": [
+        "latest/ceph-quincy.yml",
+        "latest/ceph-reef.yml",
+        "latest/openstack-2023.2.yml",
+        "latest/openstack-2024.1.yml",
+        "latest/openstack-2024.2.yml"
+      ],
       "matchUpdateTypes": ["major"],
       "enabled": false
     },
