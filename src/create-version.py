@@ -56,6 +56,12 @@ def get_latest_kolla_ansible():
     return version if version else "FIXME"
 
 
+def get_latest_ceph_ansible():
+    """Get the latest ceph-ansible tag version from git"""
+    version = get_latest_tag_version("ceph-ansible-v")
+    return version if version else "FIXME"
+
+
 def process_base_yaml(
     input_file,
     output_file,
@@ -64,6 +70,7 @@ def process_base_yaml(
     osism_kubernetes,
     inventory_reconciler,
     kolla_ansible,
+    ceph_ansible,
 ):
     """Process base.yml: remove comments and update versions"""
     with open(input_file, "r") as f:
@@ -81,6 +88,7 @@ def process_base_yaml(
     data["docker_images"]["osism_kubernetes"] = osism_kubernetes
     data["docker_images"]["inventory_reconciler"] = inventory_reconciler
     data["docker_images"]["kolla_ansible"] = kolla_ansible
+    data["docker_images"]["ceph_ansible"] = ceph_ansible
 
     with open(output_file, "w") as f:
         yaml.dump(
@@ -137,6 +145,11 @@ def main():
     if kolla_ansible == "FIXME":
         print("Warning: Could not find kolla-ansible version tag, using FIXME")
 
+    # Get latest ceph-ansible version from git tags
+    ceph_ansible = get_latest_ceph_ansible()
+    if ceph_ansible == "FIXME":
+        print("Warning: Could not find ceph-ansible version tag, using FIXME")
+
     # Copy and process base.yml
     try:
         process_base_yaml(
@@ -147,6 +160,7 @@ def main():
             osism_kubernetes,
             inventory_reconciler,
             kolla_ansible,
+            ceph_ansible,
         )
         print(f"Copied {source_file} to {dest_file}")
         print(f"  - manager_version: {version_dir}")
@@ -154,6 +168,7 @@ def main():
         print(f"  - docker_images.osism_kubernetes: {osism_kubernetes}")
         print(f"  - docker_images.inventory_reconciler: {inventory_reconciler}")
         print(f"  - docker_images.kolla_ansible: {kolla_ansible}")
+        print(f"  - docker_images.ceph_ansible: {ceph_ansible}")
     except Exception as e:
         print(f"Error processing file: {e}")
         # Clean up created directory on error
