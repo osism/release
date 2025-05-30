@@ -32,33 +32,27 @@ def get_latest_tag_version(prefix):
     return None
 
 
-def get_latest_osism_ansible_version():
+def get_latest_osism_ansible():
     """Get the latest osism-ansible tag version from git"""
     version = get_latest_tag_version("osism-ansible-v")
     return version if version else "FIXME"
 
 
-def get_latest_osism_kubernetes_version():
+def get_latest_osism_kubernetes():
     """Get the latest osism-kubernetes tag version from git"""
     version = get_latest_tag_version("osism-kubernetes-v")
     return version if version else "FIXME"
 
 
-def get_latest_inventory_reconciler_version():
+def get_latest_inventory_reconciler():
     """Get the latest inventory-reconciler tag version from git"""
     version = get_latest_tag_version("inventory-reconciler-v")
     return version if version else "FIXME"
 
 
-def get_latest_kolla_ansible_version():
+def get_latest_kolla_ansible():
     """Get the latest kolla-ansible tag version from git"""
     version = get_latest_tag_version("kolla-ansible-v")
-    return version if version else "FIXME"
-
-
-def get_latest_kolla_version():
-    """Get the latest kolla tag version from git"""
-    version = get_latest_tag_version("kolla-v")
     return version if version else "FIXME"
 
 
@@ -66,11 +60,10 @@ def process_base_yaml(
     input_file,
     output_file,
     version,
-    osism_ansible_version,
-    osism_kubernetes_version,
-    inventory_reconciler_version,
-    kolla_ansible_version,
-    kolla_version,
+    osism_ansible,
+    osism_kubernetes,
+    inventory_reconciler,
+    kolla_ansible,
 ):
     """Process base.yml: remove comments and update versions"""
     with open(input_file, "r") as f:
@@ -79,20 +72,15 @@ def process_base_yaml(
     # Replace manager_version with the provided version
     data["manager_version"] = version
 
-    # Add or update osism_ansible_version (always set, uses FIXME as fallback)
-    data["osism_ansible_version"] = osism_ansible_version
+    # Ensure docker_images section exists
+    if "docker_images" not in data:
+        data["docker_images"] = {}
 
-    # Add or update osism_kubernetes_version (always set, uses FIXME as fallback)
-    data["osism_kubernetes_version"] = osism_kubernetes_version
-
-    # Add or update inventory_reconciler_version (always set, uses FIXME as fallback)
-    data["inventory_reconciler_version"] = inventory_reconciler_version
-
-    # Add or update kolla_ansible_version (always set, uses FIXME as fallback)
-    data["kolla_ansible_version"] = kolla_ansible_version
-
-    # Add or update kolla_version (always set, uses FIXME as fallback)
-    data["kolla_version"] = kolla_version
+    # Add or update versions in docker_images section (always set, uses FIXME as fallback)
+    data["docker_images"]["osism_ansible"] = osism_ansible
+    data["docker_images"]["osism_kubernetes"] = osism_kubernetes
+    data["docker_images"]["inventory_reconciler"] = inventory_reconciler
+    data["docker_images"]["kolla_ansible"] = kolla_ansible
 
     with open(output_file, "w") as f:
         yaml.dump(
@@ -130,29 +118,24 @@ def main():
         sys.exit(1)
 
     # Get latest osism-ansible version from git tags
-    osism_ansible_version = get_latest_osism_ansible_version()
-    if osism_ansible_version == "FIXME":
+    osism_ansible = get_latest_osism_ansible()
+    if osism_ansible == "FIXME":
         print("Warning: Could not find osism-ansible version tag, using FIXME")
 
     # Get latest osism-kubernetes version from git tags
-    osism_kubernetes_version = get_latest_osism_kubernetes_version()
-    if osism_kubernetes_version == "FIXME":
+    osism_kubernetes = get_latest_osism_kubernetes()
+    if osism_kubernetes == "FIXME":
         print("Warning: Could not find osism-kubernetes version tag, using FIXME")
 
     # Get latest inventory-reconciler version from git tags
-    inventory_reconciler_version = get_latest_inventory_reconciler_version()
-    if inventory_reconciler_version == "FIXME":
+    inventory_reconciler = get_latest_inventory_reconciler()
+    if inventory_reconciler == "FIXME":
         print("Warning: Could not find inventory-reconciler version tag, using FIXME")
 
     # Get latest kolla-ansible version from git tags
-    kolla_ansible_version = get_latest_kolla_ansible_version()
-    if kolla_ansible_version == "FIXME":
+    kolla_ansible = get_latest_kolla_ansible()
+    if kolla_ansible == "FIXME":
         print("Warning: Could not find kolla-ansible version tag, using FIXME")
-
-    # Get latest kolla version from git tags
-    kolla_version = get_latest_kolla_version()
-    if kolla_version == "FIXME":
-        print("Warning: Could not find kolla version tag, using FIXME")
 
     # Copy and process base.yml
     try:
@@ -160,19 +143,17 @@ def main():
             source_file,
             dest_file,
             version_dir,
-            osism_ansible_version,
-            osism_kubernetes_version,
-            inventory_reconciler_version,
-            kolla_ansible_version,
-            kolla_version,
+            osism_ansible,
+            osism_kubernetes,
+            inventory_reconciler,
+            kolla_ansible,
         )
         print(f"Copied {source_file} to {dest_file}")
         print(f"  - manager_version: {version_dir}")
-        print(f"  - osism_ansible_version: {osism_ansible_version}")
-        print(f"  - osism_kubernetes_version: {osism_kubernetes_version}")
-        print(f"  - inventory_reconciler_version: {inventory_reconciler_version}")
-        print(f"  - kolla_ansible_version: {kolla_ansible_version}")
-        print(f"  - kolla_version: {kolla_version}")
+        print(f"  - docker_images.osism_ansible: {osism_ansible}")
+        print(f"  - docker_images.osism_kubernetes: {osism_kubernetes}")
+        print(f"  - docker_images.inventory_reconciler: {inventory_reconciler}")
+        print(f"  - docker_images.kolla_ansible: {kolla_ansible}")
     except Exception as e:
         print(f"Error processing file: {e}")
         # Clean up created directory on error
