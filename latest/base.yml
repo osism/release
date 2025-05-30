@@ -43,7 +43,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/homer
   homer: 'v25.05.2'
   # renovate: datasource=docker depName=registry.osism.tech/osism/inventory-reconciler
-  inventory_reconciler: '0.20250408.0'
+  inventory_reconciler: '0.20250530.0'
   # renovate: datasource=docker depName=fleetdm/fleet
   fleet: 'v4.68.0'
   # renovate: datasource=docker depName=mariadb
