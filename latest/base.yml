@@ -11,7 +11,7 @@ defaults_version: 'v0.20250529.0'
 # renovate: datasource=github-tags depName=osism/cfg-generics
 generics_version: 'v0.20250530.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks-manager
-manager_playbooks_version: 'v0.20250407.0'
+manager_playbooks_version: 'v0.20250602.0'
 # renovate: datasource=github-tags depName=osism/kolla-operations
 operations_version: 'v0.20250530.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
