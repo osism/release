@@ -1,0 +1,67 @@
+---
+# renovate: datasource=pypi depName=ansible
+ansible_version: '11.6.0'
+# renovate: datasource=pypi depName=ansible-core
+ansible_core_version: '2.18.6'
+
+openstack_version: "2025.1"
+openstack_previous_version: "2024.2"
+
+# renovate: datasource=github-tags depName=osism/defaults
+defaults_version: 'v0.20250529.0'
+# renovate: datasource=github-tags depName=osism/cfg-generics
+generics_version: 'v0.20250530.0'
+# renovate: datasource=github-tags depName=osism/ansible-playbooks
+playbooks_version: 'v0.20250602.0'
+
+docker_images:
+  openstackclient: "2025.1"
+
+infrastructure_projects:
+  cron:
+  dnsmasq:
+  fluentd:
+  grafana:
+  hacluster:
+  haproxy:
+  iscsid:
+  keepalived:
+  kolla-toolbox:
+  letsencrypt:
+  mariadb:
+  memcached:
+  multipathd:
+  opensearch:
+  openstack-base:
+  openvswitch:
+  ovn:
+  ovsdpdk:
+  prometheus:
+  proxysql:
+  rabbitmq:
+  redis:
+  tgtd:
+
+openstack_projects:
+  aodh: stable-2025.1
+  barbican: stable-2025.1
+  blazar: stable-2025.1
+  ceilometer: stable-2025.1
+  cinder: stable-2025.1
+  designate: stable-2025.1
+  glance: stable-2025.1
+  gnocchi: stable/4.6
+  horizon: stable-2025.1
+  ironic: stable-2025.1
+  keystone: stable-2025.1
+  magnum: stable-2025.1
+  manila: stable-2025.1
+  masakari: stable-2025.1
+  neutron-dynamic-routing: stable-2025.1
+  neutron-vpnaas: stable-2025.1
+  neutron: stable-2025.1
+  nova: stable-2025.1
+  octavia: stable-2025.1
+  placement: stable-2025.1
+  skyline-apiserver: stable-2025.1
+  skyline-console: stable-2025.1
