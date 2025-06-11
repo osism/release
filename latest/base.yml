@@ -47,7 +47,7 @@ docker_images:
   # renovate: datasource=docker depName=fleetdm/fleet
   fleet: 'v4.68.1'
   # renovate: datasource=docker depName=mariadb
-  mariadb: '11.7.2'
+  mariadb: '11.8.2'
   # renovate: datasource=docker depName=memcached
   memcached: '1.6.38-alpine'
   # renovate: datasource=docker depName=registry.osism.tech/osism/netbox
