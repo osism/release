@@ -12,6 +12,7 @@ osism_kubernetes: osism/osism-kubernetes
 osism_netbox: osism/osism-netbox
 redis: library/redis
 vault: hashicorp/vault
+sonic_vs: osism/sonic-vs
 
 # mirror
 
