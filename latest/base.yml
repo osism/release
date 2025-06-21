@@ -147,4 +147,4 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=osism.validations
   osism.validations: '0.20250605.0'
   # renovate: datasource=galaxy-collection depName=purestorage.flasharray
-  purestorage.flasharray: '1.35.0'
+  purestorage.flasharray: '1.35.1'
