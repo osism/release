@@ -55,7 +55,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/nexus
   nexus: '3.81.1'
   # renovate: datasource=docker depName=nginx
-  nginx: '1.28.0-alpine'
+  nginx: '1.29.0-alpine'
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism
   osism: '0.20250621.0'
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism-ansible
