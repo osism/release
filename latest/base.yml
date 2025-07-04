@@ -25,7 +25,7 @@ osism_projects:
   # renovate: datasource=pypi depName=osism
   osism: '0.20250701.0'
   # renovate: datasource=github-releases depName=k3s-io/k3s
-  k3s: 'v1.30.10+k3s1'
+  k3s: 'v1.33.2+k3s1'
 
 docker_images:
   # renovate: datasource=docker depName=adminer
