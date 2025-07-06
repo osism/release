@@ -8,7 +8,7 @@ openstack_version: "2024.2"
 openstack_previous_version: "2024.1"
 
 # renovate: datasource=github-tags depName=osism/defaults
-defaults_version: 'v0.20250705.0'
+defaults_version: 'v0.20250706.0'
 # renovate: datasource=github-tags depName=osism/cfg-generics
 generics_version: 'v0.20250701.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
