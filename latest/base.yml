@@ -90,7 +90,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/tempest
   tempest: 'latest'
   # renovate: datasource=docker depName=traefik
-  traefik: 'v3.4.3'
+  traefik: 'v3.4.4'
   # renovate: datasource=docker depName=registry.osism.tech/osism/sonic-vs
   sonic_vs: 'latest'
   # renovate: datasource=docker depName=hashicorp/vault
