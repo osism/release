@@ -42,7 +42,8 @@
         "/^latest\\/ceph-reef.yml$/",
         "/^latest\\/ceph-squid.yml$/",
         "/^latest\\/openstack-2024.1.yml$/",
-        "/^latest\\/openstack-2024.2.yml$/"
+        "/^latest\\/openstack-2024.2.yml$/",
+        "/^latest\\/openstack-2025.1.yml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>docker) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'",
@@ -64,12 +65,14 @@
         "latest/ceph-reef.yml",
         "latest/ceph-squid.yml",
         "latest/openstack-2024.1.yml",
-        "latest/openstack-2024.2.yml"
+        "latest/openstack-2024.2.yml",
+        "latest/openstack-2025.1.yml"
       ],
       "matchUpdateTypes": [
         "patch"
       ],
-      "enabled": true
+      "enabled": true,
+      "groupName": "ansible"
     },
     {
       "matchDepNames": [
@@ -81,7 +84,8 @@
         "latest/ceph-reef.yml",
         "latest/ceph-squid.yml",
         "latest/openstack-2024.1.yml",
-        "latest/openstack-2024.2.yml"
+        "latest/openstack-2024.2.yml",
+        "latest/openstack-2025.1.yml"
       ],
       "matchUpdateTypes": [
         "major",
