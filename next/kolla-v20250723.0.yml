@@ -1,0 +1,6 @@
+---
+openstack_projects_filter:
+  - hacluster
+  - horizon
+  - magnum
+  - masakari
