@@ -51,6 +51,7 @@ openstack_projects:
   designate: stable-2024.2
   glance: stable-2024.2
   gnocchi: stable/4.6
+  heat: stable-2024.2
   horizon: stable-2024.2
   ironic: stable-2024.2
   keystone: stable-2024.2
