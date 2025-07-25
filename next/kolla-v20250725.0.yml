@@ -1,4 +1,5 @@
 ---
+openstack_last_sbom: "0.20250711.0"
 openstack_projects_filter:
   - hacluster
   - horizon
