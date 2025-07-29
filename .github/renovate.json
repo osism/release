@@ -120,6 +120,18 @@
     },
     {
       "matchDepNames": [
+        "registry.osism.tech/osism/ceph-daemon",
+        "registry.osism.tech/osism/cephclient"
+      ],
+      "matchFileNames": [
+        "latest/ceph-quincy.yml",
+        "latest/ceph-reef.yml",
+        "latest/ceph-squid.yml"
+      ],
+      "groupName": "ceph"
+    },
+    {
+      "matchDepNames": [
         "postgres",
         "pgautoupgrade/pgautoupgrade"
       ],
