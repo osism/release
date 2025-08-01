@@ -65,7 +65,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism-kubernetes
   osism_kubernetes: '0.20250711.0'
   # renovate: datasource=docker depName=otel/opentelemetry-collector-contrib
-  opentelemetry_collector: '0.131.0'
+  opentelemetry_collector: '0.131.1'
   # renovate: datasource=docker depName=pgautoupgrade/pgautoupgrade
   pgautoupgrade: '16-alpine'
   # renovate: datasource=docker depName=phpmyadmin/phpmyadmin
