@@ -23,7 +23,7 @@ osism_projects:
   # renovate: datasource=github-releases depName=moby/moby
   docker: '5:27.5.1'
   # renovate: datasource=pypi depName=osism
-  osism: '0.20250709.0'
+  osism: '0.20250804.0'
   # renovate: datasource=github-releases depName=k3s-io/k3s
   k3s: 'v1.33.3+k3s1'
 
@@ -59,7 +59,7 @@ docker_images:
   # renovate: datasource=docker depName=nginx
   nginx: '1.29.0-alpine'
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism
-  osism: '0.20250709.0'
+  osism: '0.20250804.0'
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism-ansible
   osism_ansible: '0.20250711.0'
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism-kubernetes
