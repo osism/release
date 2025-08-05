@@ -117,7 +117,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=community.crypto
   community.crypto: '3.0.2'
   # renovate: datasource=galaxy-collection depName=community.docker
-  community.docker: '4.6.2'
+  community.docker: '4.7.0'
   # renovate: datasource=galaxy-collection depName=community.general
   community.general: '11.1.1'
   # renovate: datasource=galaxy-collection depName=community.grafana
