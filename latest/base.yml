@@ -49,7 +49,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/gnmic
   gnmic: '0.41.0'
   # renovate: datasource=docker depName=mariadb
-  mariadb: '11.8.2'
+  mariadb: '11.8.3'
   # renovate: datasource=docker depName=memcached
   memcached: '1.6.39-alpine'
   # renovate: datasource=docker depName=registry.osism.tech/osism/netbox
