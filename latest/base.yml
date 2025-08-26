@@ -33,7 +33,7 @@ docker_images:
   # renovate: datasource=docker depName=alerta/alerta-web
   alerta: '9.0.4'
   # renovate: datasource=docker depName=registry.osism.tech/osism/ara-server
-  ara_server: '1.7.2'
+  ara_server: '1.7.3'
   # renovate: datasource=docker depName=registry.osism.tech/osism/cgit
   cgit: '1.2.3'
   # renovate: datasource=docker depName=registry.osism.tech/osism/dnsdist
