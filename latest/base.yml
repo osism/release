@@ -19,7 +19,7 @@ playbooks_version: 'v0.20250710.0'
 
 osism_projects:
   # renovate: datasource=docker depName=registry.osism.tech/osism/ara-server
-  ara: '1.7.2'
+  ara: '1.7.3'
   # renovate: datasource=github-releases depName=moby/moby
   docker: '5:27.5.1'
   # renovate: datasource=pypi depName=osism
