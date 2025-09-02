@@ -8,7 +8,7 @@ ceph_ansible_version: stable-9.0
 ceph_version: squid
 
 # renovate: datasource=github-tags depName=osism/defaults
-defaults_version: 'v0.20250823.0'
+defaults_version: 'v0.20250902.0'
 # renovate: datasource=github-tags depName=osism/cfg-generics
 generics_version: 'v0.20250823.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
