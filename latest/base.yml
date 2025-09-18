@@ -83,7 +83,7 @@ docker_images:
   # renovate: datasource=docker depName=ubuntu/squid
   squid: '6.1-23.10_beta'
   # renovate: datasource=docker depName=anchore/syft
-  syft: 'v1.32.0'
+  syft: 'v1.33.0'
   # yamllint disable-line rule:line-length
   # renovate: datasource=docker depName=ghcr.io/vexxhost/openstack-database-exporter
   openstack_database_exporter: 'v0.4.2'
