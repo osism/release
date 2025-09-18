@@ -8,6 +8,7 @@ kolla_ansible: osism/kolla-ansible
 mariadb: library/mariadb
 osism: osism/osism
 osism_ansible: osism/osism-ansible
+osism_frontend: osism/osism-frontend
 osism_kubernetes: osism/osism-kubernetes
 osism_netbox: osism/osism-netbox
 redis: library/redis
