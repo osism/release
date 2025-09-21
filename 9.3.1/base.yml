@@ -48,6 +48,7 @@ docker_images:
   vault: 1.20.3
   kolla_ansible: 0.20250920.0
   ceph_ansible: 0.20250920.0
+  kolla: 0.20250916.0
 ansible_roles:
   geerlingguy.certbot: master
   geerlingguy.dotfiles: master

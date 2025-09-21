@@ -62,6 +62,12 @@ def get_latest_ceph_ansible():
     return version if version else "FIXME"
 
 
+def get_latest_kolla():
+    """Get the latest kolla tag version from git"""
+    version = get_latest_tag_version("kolla-v")
+    return version if version else "FIXME"
+
+
 def process_base_yaml(
     input_file,
     output_file,
@@ -71,6 +77,7 @@ def process_base_yaml(
     inventory_reconciler,
     kolla_ansible,
     ceph_ansible,
+    kolla,
 ):
     """Process base.yml: remove comments and update versions"""
     with open(input_file, "r") as f:
@@ -89,6 +96,7 @@ def process_base_yaml(
     data["docker_images"]["inventory_reconciler"] = inventory_reconciler
     data["docker_images"]["kolla_ansible"] = kolla_ansible
     data["docker_images"]["ceph_ansible"] = ceph_ansible
+    data["docker_images"]["kolla"] = kolla
 
     with open(output_file, "w") as f:
         yaml.dump(
@@ -150,6 +158,11 @@ def main():
     if ceph_ansible == "FIXME":
         print("Warning: Could not find ceph-ansible version tag, using FIXME")
 
+    # Get latest kolla version from git tags
+    kolla = get_latest_kolla()
+    if kolla == "FIXME":
+        print("Warning: Could not find kolla version tag, using FIXME")
+
     # Copy and process base.yml
     try:
         process_base_yaml(
@@ -161,6 +174,7 @@ def main():
             inventory_reconciler,
             kolla_ansible,
             ceph_ansible,
+            kolla,
         )
         print(f"Copied {source_file} to {dest_file}")
         print(f"  - manager_version: {version_dir}")
@@ -169,6 +183,7 @@ def main():
         print(f"  - docker_images.inventory_reconciler: {inventory_reconciler}")
         print(f"  - docker_images.kolla_ansible: {kolla_ansible}")
         print(f"  - docker_images.ceph_ansible: {ceph_ansible}")
+        print(f"  - docker_images.kolla: {kolla}")
     except Exception as e:
         print(f"Error processing file: {e}")
         # Clean up created directory on error
