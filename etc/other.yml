@@ -1,5 +1,5 @@
 ---
-defaults: osism/ansible-defaults
-generics: osism/cfg-generics
+defaults: osism/defaults
+generics: osism/generics
 operations: osism/kolla-operations
 playbooks: osism/ansible-playbooks
