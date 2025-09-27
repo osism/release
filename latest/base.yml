@@ -94,7 +94,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/sonic-vs
   sonic_vs: 'latest'
   # renovate: datasource=docker depName=hashicorp/vault
-  vault: '1.20.3'
+  vault: '1.20.4'
 
 ansible_roles:
   geerlingguy.certbot: master
