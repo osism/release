@@ -93,6 +93,8 @@ docker_images:
   traefik: 'v3.5.0'
   # renovate: datasource=docker depName=registry.osism.tech/osism/sonic-vs
   sonic_vs: 'latest'
+  # renovate: datasource=docker depName=ghcr.io/cloudnull/substation/substation
+  substation: 'latest'
   # renovate: datasource=docker depName=hashicorp/vault
   vault: '1.20.4'
 

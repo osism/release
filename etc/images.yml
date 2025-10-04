@@ -31,6 +31,7 @@ cephclient: osism/cephclient
 openstack_database_exporter: vexxhost/openstack-database-exporter
 openstackclient: osism/openstackclient
 tempest: osism/tempest
+substation: cloudnull/substation/substation
 
 # infrastructure
 
