@@ -82,6 +82,8 @@ docker_images:
   scaphandre: '1.0.2'
   # renovate: datasource=docker depName=ubuntu/squid
   squid: '6.1-23.10_beta'
+  # renovate: datasource=docker depName=smallstep/step-ca
+  stepca: '0.28.4'
   # renovate: datasource=docker depName=anchore/syft
   syft: 'v1.33.0'
   # yamllint disable-line rule:line-length

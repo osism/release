@@ -46,6 +46,7 @@ memcached: memcached
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
 squid: ubuntu/squid
+stepca: smallstep/step-ca
 traefik: library/traefik
 
 # security
