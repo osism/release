@@ -129,7 +129,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=community.hashi_vault
   community.hashi_vault: '7.0.0'
   # renovate: datasource=galaxy-collection depName=community.mysql
-  community.mysql: '4.0.0'
+  community.mysql: '4.0.1'
   # renovate: datasource=galaxy-collection depName=community.network
   community.network: '5.1.0'
   # renovate: datasource=galaxy-collection depName=community.rabbitmq
