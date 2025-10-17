@@ -107,7 +107,7 @@ ansible_roles:
   # renovate: datasource=github-releases depName=PowerDNS/pdns_recursor-ansible
   pdns_recursor: 'v1.7.1'
   # renovate: datasource=github-tags depName=ansible-lockdown/UBUNTU22-CIS
-  ubuntu22_cis: '2.0.1'
+  ubuntu22_cis: '2.0.2'
 
 ansible_collections:
   # renovate: datasource=galaxy-collection depName=ansible.netcommon
