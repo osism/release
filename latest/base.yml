@@ -147,7 +147,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=openstack.cloud
   openstack.cloud: '2.4.1'
   # renovate: datasource=galaxy-collection depName=osism.commons
-  osism.commons: '0.20251013.0'
+  osism.commons: '0.20251022.0'
   # renovate: datasource=galaxy-collection depName=osism.services
   osism.services: '0.20251013.0'
   # renovate: datasource=galaxy-collection depName=osism.validations
