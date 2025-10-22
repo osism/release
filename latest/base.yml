@@ -15,7 +15,7 @@ manager_playbooks_version: 'v0.20251019.0'
 # renovate: datasource=github-tags depName=osism/kolla-operations
 operations_version: 'v0.20250530.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
-playbooks_version: 'v0.20251013.0'
+playbooks_version: 'v0.20251022.0'
 
 osism_projects:
   # renovate: datasource=docker depName=registry.osism.tech/osism/ara-server
