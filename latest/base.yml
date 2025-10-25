@@ -98,7 +98,7 @@ docker_images:
   # renovate: datasource=docker depName=ghcr.io/cloudnull/substation/substation
   substation: 'latest'
   # renovate: datasource=docker depName=hashicorp/vault
-  vault: '1.20.4'
+  vault: '1.21.0'
 
 ansible_roles:
   geerlingguy.certbot: master
