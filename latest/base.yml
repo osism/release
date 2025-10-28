@@ -141,7 +141,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=debops.debops
   debops.debops: '3.2.5'
   # renovate: datasource=galaxy-collection depName=fortinet.fortios
-  fortinet.fortios: '2.4.1'
+  fortinet.fortios: '2.4.2'
   # renovate: datasource=galaxy-collection depName=netbox.netbox
   netbox.netbox: '3.21.0'
   # renovate: datasource=galaxy-collection depName=openstack.cloud
