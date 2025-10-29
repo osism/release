@@ -23,7 +23,7 @@ osism_projects:
   # renovate: datasource=github-releases depName=moby/moby
   docker: '5:27.5.1'
   # renovate: datasource=pypi depName=osism
-  osism: '0.20251026.0'
+  osism: '0.20251029.0'
   # renovate: datasource=github-releases depName=k3s-io/k3s
   k3s: 'v1.34.1+k3s1'
 
