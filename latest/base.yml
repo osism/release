@@ -45,7 +45,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/inventory-reconciler
   inventory_reconciler: '0.20251101.0'
   # renovate: datasource=docker depName=fleetdm/fleet
-  fleet: 'v4.75.1'
+  fleet: 'v4.76.0'
   # renovate: datasource=docker depName=registry.osism.tech/osism/gnmic
   gnmic: '0.41.0'
   # renovate: datasource=docker depName=mariadb
