@@ -92,7 +92,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/tempest
   tempest: 'latest'
   # renovate: datasource=docker depName=traefik
-  traefik: 'v3.5.0'
+  traefik: 'v3.6.2'
   # renovate: datasource=docker depName=registry.osism.tech/osism/sonic-vs
   sonic_vs: 'latest'
   # renovate: datasource=docker depName=ghcr.io/cloudnull/substation/substation
