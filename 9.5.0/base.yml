@@ -1,0 +1,82 @@
+---
+manager_version: 9.5.0
+ansible_version: 11.10.0
+ansible_core_version: 2.18.9
+defaults_version: v0.20251022.0
+generics_version: v0.20251019.0
+manager_playbooks_version: v0.20251019.0
+operations_version: v0.20250530.0
+playbooks_version: v0.20251022.0
+osism_projects:
+  ara: 1.7.3
+  docker: 5:27.5.1
+  osism: 0.20251101.0
+  k3s: v1.34.1+k3s1
+docker_images:
+  adminer: 5.4.1
+  alerta: 9.0.4
+  ara_server: 1.7.3
+  cgit: 1.2.3
+  dnsdist: 1.9.8
+  dnsmasq: '2.91'
+  homer: v25.10.1
+  inventory_reconciler: 0.20251101.0
+  fleet: v4.75.1
+  gnmic: 0.41.0
+  mariadb: 11.8.3
+  memcached: 1.6.39-alpine
+  netbox: v4.3.5
+  nexus: 3.85.0
+  nginx: 1.29.3-alpine
+  osism: 0.20251101.0
+  osism_ansible: 0.20251101.0
+  osism_kubernetes: 0.20251101.0
+  opentelemetry_collector: 0.138.0
+  pgautoupgrade: 16-alpine
+  phpmyadmin: 5.2.3
+  pushgateway: v1.11.2
+  postgres: 16.10-alpine
+  redis: 7.4.6-alpine
+  registry: '3.0'
+  scaphandre: 1.0.2
+  squid: 6.1-23.10_beta
+  stepca: 0.28.4
+  syft: v1.36.0
+  openstack_database_exporter: v0.4.2
+  tempest: latest
+  traefik: v3.5.0
+  sonic_vs: latest
+  substation: latest
+  vault: 1.21.0
+  kolla_ansible: 0.20251104.0
+  ceph_ansible: 0.20251101.0
+  kolla: 0.20251104.0
+ansible_roles:
+  geerlingguy.certbot: master
+  geerlingguy.dotfiles: master
+  hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
+  pdns_recursor: v1.7.1
+  ubuntu22_cis: 2.0.2
+ansible_collections:
+  ansible.netcommon: 8.1.0
+  ansible.posix: 2.1.0
+  ansible.utils: 6.0.0
+  cloud.common: 5.0.0
+  community.crypto: 3.0.5
+  community.docker: 4.8.2
+  community.general: 11.4.1
+  community.grafana: 2.3.0
+  community.hashi_vault: 7.1.0
+  community.mysql: 4.0.1
+  community.network: 5.1.0
+  community.rabbitmq: 1.6.0
+  community.zabbix: 4.1.1
+  containers.podman: 1.18.0
+  debops.debops: 3.2.5
+  fortinet.fortios: 2.4.2
+  netbox.netbox: 3.21.0
+  openstack.cloud: 2.5.0
+  osism.commons: 0.20251022.0
+  osism.services: 0.20251101.0
+  osism.validations: 0.20250927.0
+  purestorage.flasharray: 1.39.0
