@@ -66,3 +66,4 @@ openstack_projects:
   placement: stable-2025.1
   skyline-apiserver: stable-2025.1
   skyline-console: stable-2025.1
+  watcher: stable-2025.1
