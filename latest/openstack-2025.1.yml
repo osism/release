@@ -50,7 +50,7 @@ openstack_projects:
   cinder: stable-2025.1
   designate: stable-2025.1
   glance: stable-2025.1
-  gnocchi: stable/4.6
+  gnocchi: stable/4.7
   heat: stable-2025.1
   horizon: stable-2025.1
   ironic: stable-2025.1
