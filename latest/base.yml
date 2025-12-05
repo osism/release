@@ -61,7 +61,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism
   osism: '0.20251130.1'
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism-ansible
-  osism_ansible: '0.20251101.0'
+  osism_ansible: '0.20251130.0'
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism-kubernetes
   osism_kubernetes: '0.20251127.0'
   # renovate: datasource=docker depName=otel/opentelemetry-collector-contrib
