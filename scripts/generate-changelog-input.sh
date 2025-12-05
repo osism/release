@@ -9,6 +9,10 @@
 # For large releases, commits are processed in batches to avoid prompt
 # length limits. Batching is based on diff size, not commit count.
 #
+# For release preparation: If a tag with today's date is specified but
+# doesn't exist yet, the script will use HEAD as reference and collect
+# commits from the last existing tag to HEAD.
+#
 # Usage: ./scripts/generate-changelog-input.sh [options] [tag]
 #
 # Options:
@@ -20,6 +24,7 @@
 # Examples:
 #   ./scripts/generate-changelog-input.sh                     # Use latest tag, run Claude
 #   ./scripts/generate-changelog-input.sh v0.20251130.1       # Use specific tag, run Claude
+#   ./scripts/generate-changelog-input.sh v9.20251205.0       # Prepare new release (tag doesn't exist yet)
 #   ./scripts/generate-changelog-input.sh -n                  # Only generate file
 #   ./scripts/generate-changelog-input.sh -s 3000             # 3000 lines per batch
 #
@@ -93,14 +98,34 @@ if [ -z "$OUTPUT_FILE" ]; then
     OUTPUT_FILE="changelog-input-${LATEST_TAG}.md"
 fi
 
-# Verify the tag exists
+# Check if tag exists or if we're preparing a new release
+TAG_EXISTS=true
+COMMIT_REF="$LATEST_TAG"
+
 if ! git rev-parse "$LATEST_TAG" >/dev/null 2>&1; then
-    echo "Error: Tag '$LATEST_TAG' does not exist"
-    exit 1
+    TAG_EXISTS=false
+
+    # Check if the tag matches today's date (format: v*.YYYYMMDD.* or vYYYYMMDD.*)
+    TODAY=$(date +%Y%m%d)
+    if [[ "$LATEST_TAG" =~ [0-9]*\.?($TODAY)\.[0-9]+ ]] || [[ "$LATEST_TAG" =~ ^v($TODAY)\.[0-9]+$ ]]; then
+        echo "Note: Tag '$LATEST_TAG' does not exist yet, but matches today's date."
+        echo "      Using HEAD as reference for upcoming release preparation."
+        COMMIT_REF="HEAD"
+    else
+        echo "Error: Tag '$LATEST_TAG' does not exist"
+        echo "       (To prepare a new release, use a tag with today's date: $(date +%Y%m%d))"
+        exit 1
+    fi
 fi
 
-# Get the previous tag (the one before LATEST_TAG)
-PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -A1 "^${LATEST_TAG}$" | tail -1)
+# Get the previous tag
+if [ "$TAG_EXISTS" = true ]; then
+    # Tag exists: get the tag before LATEST_TAG
+    PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -A1 "^${LATEST_TAG}$" | tail -1)
+else
+    # Tag doesn't exist: use the most recent existing tag
+    PREVIOUS_TAG=$(git tag --sort=-version:refname | head -1)
+fi
 
 if [ -z "$PREVIOUS_TAG" ] || [ "$LATEST_TAG" = "$PREVIOUS_TAG" ]; then
     echo "Error: No previous tag found before $LATEST_TAG"
@@ -109,12 +134,18 @@ fi
 
 echo "Generating changelog input..."
 echo "  Target tag:   $LATEST_TAG"
+if [ "$TAG_EXISTS" = false ]; then
+    echo "  Commit ref:   $COMMIT_REF (tag not yet created)"
+fi
 echo "  Previous tag: $PREVIOUS_TAG"
 
 # Get the date from the tag name (format: v0.YYYYMMDD.X or vX.YYYYMMDD.X)
 # Extract YYYYMMDD from tag and convert to YYYY-MM-DD
 if [[ "$LATEST_TAG" =~ v[0-9]+\.([0-9]{4})([0-9]{2})([0-9]{2})\.[0-9]+ ]]; then
     TAG_DATE="${BASH_REMATCH[1]}-${BASH_REMATCH[2]}-${BASH_REMATCH[3]}"
+elif [ "$TAG_EXISTS" = false ]; then
+    # Tag doesn't exist yet, use today's date
+    TAG_DATE=$(date +%Y-%m-%d)
 else
     # Fallback to tag creation date if tag doesn't match expected format
     TAG_DATE=$(git for-each-ref --format='%(creatordate:short)' "refs/tags/$LATEST_TAG")
@@ -124,7 +155,7 @@ fi
 COMMITS=()
 while IFS= read -r commit; do
     COMMITS+=("$commit")
-done < <(git log --reverse --format="%h" "$PREVIOUS_TAG".."$LATEST_TAG")
+done < <(git log --reverse --format="%h" "$PREVIOUS_TAG".."$COMMIT_REF")
 TOTAL_COMMITS=${#COMMITS[@]}
 
 echo "  Total commits: $TOTAL_COMMITS"
