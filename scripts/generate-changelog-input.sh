@@ -116,64 +116,83 @@ if [ "$AUTO_MODE" = true ]; then
         exit 1
     fi
 
-    if [ ! -f "CHANGELOG.md" ]; then
-        echo "Error: CHANGELOG.md not found"
-        exit 1
+    # Check if CHANGELOG.md exists and has version entries
+    LAST_CHANGELOG_TAG=""
+    if [ -f "CHANGELOG.md" ] && [ -s "CHANGELOG.md" ]; then
+        LAST_CHANGELOG_TAG=$(sed -n 's/^## \[\([^]]*\)\].*/\1/p' CHANGELOG.md | head -1)
     fi
 
-    # Extract the last (most recent) tag from CHANGELOG.md
-    LAST_CHANGELOG_TAG=$(sed -n 's/^## \[\([^]]*\)\].*/\1/p' CHANGELOG.md | head -1)
+    AUTO_TAGS=()
 
     if [ -z "$LAST_CHANGELOG_TAG" ]; then
-        echo "Error: No version tag found in CHANGELOG.md (expected format: ## [v...])"
-        exit 1
-    fi
+        # No CHANGELOG.md, empty, or no version entries: process all tags
+        echo "Auto mode: No version entries found in CHANGELOG.md, processing all tags"
 
-    echo "Auto mode: Last tag in CHANGELOG.md is $LAST_CHANGELOG_TAG"
-
-    # Verify this tag exists in git
-    if ! git rev-parse "$LAST_CHANGELOG_TAG" >/dev/null 2>&1; then
-        echo "Error: Tag '$LAST_CHANGELOG_TAG' from CHANGELOG.md not found in git"
-        exit 1
-    fi
-
-    # Collect all tags after the last changelog tag
-    FOUND=false
-    AFTER=false
-    AUTO_TAGS=()
-    while IFS= read -r tag; do
-        if [ "$AFTER" = true ]; then
+        while IFS= read -r tag; do
             AUTO_TAGS+=("$tag")
-        fi
-        if [ "$tag" = "$LAST_CHANGELOG_TAG" ]; then
-            FOUND=true
-            AFTER=true
-        fi
-    done < <(git tag --sort=version:refname | grep '^v0\.')
+        done < <(git tag --sort=version:refname | grep '^v0\.')
 
-    if [ "$FOUND" = false ]; then
-        echo "Error: Tag '$LAST_CHANGELOG_TAG' not found in tag list"
-        exit 1
-    fi
+        if [ ${#AUTO_TAGS[@]} -eq 0 ]; then
+            echo "Error: No tags found in repository"
+            exit 1
+        fi
 
-    # Check if HEAD has commits beyond last existing tag
-    if [ ${#AUTO_TAGS[@]} -gt 0 ]; then
+        # Check for unreleased commits
         LAST_EXISTING_TAG="${AUTO_TAGS[${#AUTO_TAGS[@]}-1]}"
+        COMMITS_AFTER=$(git rev-list --count "$LAST_EXISTING_TAG"..HEAD)
+        if [ "$COMMITS_AFTER" -gt 0 ]; then
+            TODAY_TAG="v0.$(date +%Y%m%d).0"
+            if [ "$LAST_EXISTING_TAG" != "$TODAY_TAG" ]; then
+                echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, adding $TODAY_TAG"
+                AUTO_TAGS+=("$TODAY_TAG")
+            fi
+        fi
     else
-        LAST_EXISTING_TAG="$LAST_CHANGELOG_TAG"
-    fi
+        echo "Auto mode: Last tag in CHANGELOG.md is $LAST_CHANGELOG_TAG"
 
-    COMMITS_AFTER=$(git rev-list --count "$LAST_EXISTING_TAG"..HEAD)
-    if [ "$COMMITS_AFTER" -gt 0 ]; then
-        TODAY_TAG="v0.$(date +%Y%m%d).0"
-        if [ "$LAST_EXISTING_TAG" != "$TODAY_TAG" ]; then
-            echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, adding $TODAY_TAG"
-            AUTO_TAGS+=("$TODAY_TAG")
+        # Verify this tag exists in git
+        if ! git rev-parse "$LAST_CHANGELOG_TAG" >/dev/null 2>&1; then
+            echo "Error: Tag '$LAST_CHANGELOG_TAG' from CHANGELOG.md not found in git"
+            exit 1
+        fi
+
+        # Collect all tags after the last changelog tag
+        FOUND=false
+        AFTER=false
+        while IFS= read -r tag; do
+            if [ "$AFTER" = true ]; then
+                AUTO_TAGS+=("$tag")
+            fi
+            if [ "$tag" = "$LAST_CHANGELOG_TAG" ]; then
+                FOUND=true
+                AFTER=true
+            fi
+        done < <(git tag --sort=version:refname | grep '^v0\.')
+
+        if [ "$FOUND" = false ]; then
+            echo "Error: Tag '$LAST_CHANGELOG_TAG' not found in tag list"
+            exit 1
+        fi
+
+        # Check if HEAD has commits beyond last existing tag
+        if [ ${#AUTO_TAGS[@]} -gt 0 ]; then
+            LAST_EXISTING_TAG="${AUTO_TAGS[${#AUTO_TAGS[@]}-1]}"
+        else
+            LAST_EXISTING_TAG="$LAST_CHANGELOG_TAG"
+        fi
+
+        COMMITS_AFTER=$(git rev-list --count "$LAST_EXISTING_TAG"..HEAD)
+        if [ "$COMMITS_AFTER" -gt 0 ]; then
+            TODAY_TAG="v0.$(date +%Y%m%d).0"
+            if [ "$LAST_EXISTING_TAG" != "$TODAY_TAG" ]; then
+                echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, adding $TODAY_TAG"
+                AUTO_TAGS+=("$TODAY_TAG")
+            fi
         fi
     fi
 
     if [ ${#AUTO_TAGS[@]} -eq 0 ]; then
-        echo "No new tags found after $LAST_CHANGELOG_TAG. CHANGELOG.md is up to date."
+        echo "No new tags found. CHANGELOG.md is up to date."
         exit 0
     fi
 
@@ -546,9 +565,30 @@ $(cat "$OUTPUT_FILE")"
     echo "----------------------------------------"
 
     # Insert into CHANGELOG.md
-    if [ -f "CHANGELOG.md" ]; then
+    if [ ! -f "CHANGELOG.md" ] || [ ! -s "CHANGELOG.md" ]; then
+        # No CHANGELOG.md or empty: create with header and insert entry
+        # Format TAG_DATE to "Month DD, YYYY" for the header
+        STARTED_DATE=$(date -j -f "%Y-%m-%d" "$TAG_DATE" "+%B %d, %Y" 2>/dev/null \
+            || date -d "$TAG_DATE" "+%B %d, %Y" 2>/dev/null \
+            || echo "$TAG_DATE")
+        {
+            echo "# Changelog"
+            echo ""
+            echo "All notable changes to this project will be documented in this file."
+            echo ""
+            echo "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),"
+            echo "and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)."
+            echo ""
+            echo "This file was started on ${STARTED_DATE}. Changes prior to this date are not included in the CHANGELOG."
+            echo ""
+            cat "$OUTPUT_FILE"
+            echo ""
+        } > CHANGELOG.md
+        echo "Created CHANGELOG.md and inserted entry"
+    else
         INSERT_LINE=$(grep -n '^## \[v' CHANGELOG.md | head -1 | cut -d: -f1)
         if [ -n "$INSERT_LINE" ]; then
+            # Has existing version entries: insert before the first one
             {
                 head -n $((INSERT_LINE - 1)) CHANGELOG.md
                 cat "$OUTPUT_FILE"
@@ -556,7 +596,17 @@ $(cat "$OUTPUT_FILE")"
                 tail -n +"$INSERT_LINE" CHANGELOG.md
             } > CHANGELOG.md.tmp
             mv CHANGELOG.md.tmp CHANGELOG.md
-            echo "Inserted into CHANGELOG.md"
+            echo "Inserted into CHANGELOG.md before existing entries"
+        else
+            # Minimal changelog (header only, no version entries): append at the end
+            {
+                cat CHANGELOG.md
+                echo ""
+                cat "$OUTPUT_FILE"
+                echo ""
+            } > CHANGELOG.md.tmp
+            mv CHANGELOG.md.tmp CHANGELOG.md
+            echo "Appended to CHANGELOG.md"
         fi
     fi
 
