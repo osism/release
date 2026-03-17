@@ -10,6 +10,10 @@
 # generating release notes for each one. If commits exist beyond the last
 # tag, a virtual tag with today's date is added automatically.
 #
+# With --auto, it reads CHANGELOG.md to find the last documented tag,
+# then processes all tags after it (including a virtual tag for today
+# if there are unreleased commits).
+#
 # For large releases, commits are processed in batches to avoid prompt
 # length limits. Batching is based on diff size, not commit count.
 #
@@ -20,6 +24,7 @@
 # Usage: ./scripts/generate-changelog-input.sh [options] [tag]
 #
 # Options:
+#   -a, --auto         Auto-detect: read last tag from CHANGELOG.md, process all after it
 #   -f, --from         Process all tags from this tag onwards
 #   -n, --no-run       Only generate the input file(s), do not run Claude
 #   -o, --output       Specify output file (default: changelog-input-<tag>.md)
@@ -30,6 +35,7 @@
 #   ./scripts/generate-changelog-input.sh                     # Use latest tag, run Claude
 #   ./scripts/generate-changelog-input.sh v0.20251130.1       # Use specific tag, run Claude
 #   ./scripts/generate-changelog-input.sh v9.20251205.0       # Prepare new release (tag doesn't exist yet)
+#   ./scripts/generate-changelog-input.sh --auto              # Auto-detect from CHANGELOG.md
 #   ./scripts/generate-changelog-input.sh --from v0.20260301.0  # All tags from v0.20260301.0 onwards
 #   ./scripts/generate-changelog-input.sh -n                  # Only generate file
 #   ./scripts/generate-changelog-input.sh -s 3000             # 3000 lines per batch
@@ -40,6 +46,7 @@ set -e
 # Parse arguments
 LATEST_TAG=""
 FROM_TAG=""
+AUTO_MODE=false
 OUTPUT_FILE=""
 RUN_CLAUDE=true
 MAX_BATCH_SIZE=2000
@@ -48,6 +55,7 @@ show_help() {
     echo "Usage: $0 [options] [tag]"
     echo ""
     echo "Options:"
+    echo "  -a, --auto         Auto-detect: read last tag from CHANGELOG.md, process all after it"
     echo "  -f, --from         Process all tags from this tag onwards"
     echo "  -n, --no-run       Only generate the input file(s), do not run Claude"
     echo "  -o, --output       Specify output file (default: changelog-input-<tag>.md)"
@@ -57,6 +65,7 @@ show_help() {
     echo "Examples:"
     echo "  $0                          # Use latest tag, run Claude"
     echo "  $0 v0.20251130.1            # Use specific tag, run Claude"
+    echo "  $0 --auto                   # Auto-detect from CHANGELOG.md"
     echo "  $0 --from v0.20260301.0     # All tags from v0.20260301.0 onwards"
     echo "  $0 -n                       # Only generate file"
     echo "  $0 -s 3000                  # 3000 lines per batch"
@@ -77,6 +86,10 @@ while [ $# -gt 0 ]; do
             MAX_BATCH_SIZE="$2"
             shift 2
             ;;
+        -a|--auto)
+            AUTO_MODE=true
+            shift
+            ;;
         -f|--from)
             FROM_TAG="$2"
             shift 2
@@ -96,10 +109,90 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+# Handle --auto mode: read last tag from CHANGELOG.md
+if [ "$AUTO_MODE" = true ]; then
+    if [ -n "$FROM_TAG" ] || [ -n "$LATEST_TAG" ]; then
+        echo "Error: --auto cannot be combined with --from or a specific tag"
+        exit 1
+    fi
+
+    if [ ! -f "CHANGELOG.md" ]; then
+        echo "Error: CHANGELOG.md not found"
+        exit 1
+    fi
+
+    # Extract the last (most recent) tag from CHANGELOG.md
+    LAST_CHANGELOG_TAG=$(sed -n 's/^## \[\([^]]*\)\].*/\1/p' CHANGELOG.md | head -1)
+
+    if [ -z "$LAST_CHANGELOG_TAG" ]; then
+        echo "Error: No version tag found in CHANGELOG.md (expected format: ## [v...])"
+        exit 1
+    fi
+
+    echo "Auto mode: Last tag in CHANGELOG.md is $LAST_CHANGELOG_TAG"
+
+    # Verify this tag exists in git
+    if ! git rev-parse "$LAST_CHANGELOG_TAG" >/dev/null 2>&1; then
+        echo "Error: Tag '$LAST_CHANGELOG_TAG' from CHANGELOG.md not found in git"
+        exit 1
+    fi
+
+    # Collect all tags after the last changelog tag
+    FOUND=false
+    AFTER=false
+    AUTO_TAGS=()
+    while IFS= read -r tag; do
+        if [ "$AFTER" = true ]; then
+            AUTO_TAGS+=("$tag")
+        fi
+        if [ "$tag" = "$LAST_CHANGELOG_TAG" ]; then
+            FOUND=true
+            AFTER=true
+        fi
+    done < <(git tag --sort=version:refname | grep '^v0\.')
+
+    if [ "$FOUND" = false ]; then
+        echo "Error: Tag '$LAST_CHANGELOG_TAG' not found in tag list"
+        exit 1
+    fi
+
+    # Check if HEAD has commits beyond last existing tag
+    if [ ${#AUTO_TAGS[@]} -gt 0 ]; then
+        LAST_EXISTING_TAG="${AUTO_TAGS[${#AUTO_TAGS[@]}-1]}"
+    else
+        LAST_EXISTING_TAG="$LAST_CHANGELOG_TAG"
+    fi
+
+    COMMITS_AFTER=$(git rev-list --count "$LAST_EXISTING_TAG"..HEAD)
+    if [ "$COMMITS_AFTER" -gt 0 ]; then
+        TODAY_TAG="v0.$(date +%Y%m%d).0"
+        if [ "$LAST_EXISTING_TAG" != "$TODAY_TAG" ]; then
+            echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, adding $TODAY_TAG"
+            AUTO_TAGS+=("$TODAY_TAG")
+        fi
+    fi
+
+    if [ ${#AUTO_TAGS[@]} -eq 0 ]; then
+        echo "No new tags found after $LAST_CHANGELOG_TAG. CHANGELOG.md is up to date."
+        exit 0
+    fi
+
+    # Use the collected tags via FROM_TAG logic path
+    FROM_TAG="__auto__"
+fi
+
 # Build list of tags to process
 TAGS_TO_PROCESS=()
 
-if [ -n "$FROM_TAG" ]; then
+if [ "$FROM_TAG" = "__auto__" ]; then
+    TAGS_TO_PROCESS=("${AUTO_TAGS[@]}")
+
+    echo "Tags to process (${#TAGS_TO_PROCESS[@]}):"
+    for t in "${TAGS_TO_PROCESS[@]}"; do
+        echo "  - $t"
+    done
+    echo ""
+elif [ -n "$FROM_TAG" ]; then
     # Multi-tag mode: process all tags from FROM_TAG onwards
     if ! git rev-parse "$FROM_TAG" >/dev/null 2>&1; then
         echo "Error: Tag '$FROM_TAG' not found"
