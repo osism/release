@@ -317,8 +317,12 @@ else
 fi
 
 if [ -z "$PREVIOUS_TAG" ] || [ "$LATEST_TAG" = "$PREVIOUS_TAG" ]; then
-    echo "Error: No previous tag found before $LATEST_TAG"
-    exit 1
+    # No previous tag: this is the first tag, use the root commit as base
+    PREVIOUS_TAG=$(git rev-list --max-parents=0 HEAD | tail -1)
+    FIRST_TAG=true
+    echo "Note: No previous tag found before $LATEST_TAG, using initial commit as base"
+else
+    FIRST_TAG=false
 fi
 
 echo "Generating changelog input..."
@@ -326,7 +330,11 @@ echo "  Target tag:   $LATEST_TAG"
 if [ "$TAG_EXISTS" = false ]; then
     echo "  Commit ref:   $COMMIT_REF (tag not yet created)"
 fi
-echo "  Previous tag: $PREVIOUS_TAG"
+if [ "$FIRST_TAG" = true ]; then
+    echo "  Previous tag: (none, using initial commit)"
+else
+    echo "  Previous tag: $PREVIOUS_TAG"
+fi
 
 # Get the date from the tag name (format: v0.YYYYMMDD.X or vX.YYYYMMDD.X)
 # Extract YYYYMMDD from tag and convert to YYYY-MM-DD
@@ -342,9 +350,16 @@ fi
 
 # Get list of commits (oldest first for logical order)
 COMMITS=()
-while IFS= read -r commit; do
-    COMMITS+=("$commit")
-done < <(git log --reverse --format="%h" "$PREVIOUS_TAG".."$COMMIT_REF")
+if [ "$FIRST_TAG" = true ]; then
+    # Include all commits from the beginning of the repo up to COMMIT_REF
+    while IFS= read -r commit; do
+        COMMITS+=("$commit")
+    done < <(git log --reverse --format="%h" "$COMMIT_REF")
+else
+    while IFS= read -r commit; do
+        COMMITS+=("$commit")
+    done < <(git log --reverse --format="%h" "$PREVIOUS_TAG".."$COMMIT_REF")
+fi
 TOTAL_COMMITS=${#COMMITS[@]}
 
 echo "  Total commits: $TOTAL_COMMITS"
@@ -492,7 +507,7 @@ cat > "$OUTPUT_FILE" << EOF
 # Changelog for $LATEST_TAG
 
 **Date:** $TAG_DATE
-**Previous Version:** $PREVIOUS_TAG
+**Previous Version:** $(if [ "$FIRST_TAG" = true ]; then echo "(initial commit)"; else echo "$PREVIOUS_TAG"; fi)
 **Total Commits:** $TOTAL_COMMITS
 
 ---
