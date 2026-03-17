@@ -6,6 +6,10 @@
 # specified tag) and the previous tag, then creates a file with a prompt
 # for Claude to generate a changelog entry.
 #
+# With --from, it processes all tags from the specified tag onwards,
+# generating release notes for each one. If commits exist beyond the last
+# tag, a virtual tag with today's date is added automatically.
+#
 # For large releases, commits are processed in batches to avoid prompt
 # length limits. Batching is based on diff size, not commit count.
 #
@@ -16,6 +20,7 @@
 # Usage: ./scripts/generate-changelog-input.sh [options] [tag]
 #
 # Options:
+#   -f, --from         Process all tags from this tag onwards
 #   -n, --no-run       Only generate the input file(s), do not run Claude
 #   -o, --output       Specify output file (default: changelog-input-<tag>.md)
 #   -s, --max-size     Max lines per batch (default: 2000)
@@ -25,6 +30,7 @@
 #   ./scripts/generate-changelog-input.sh                     # Use latest tag, run Claude
 #   ./scripts/generate-changelog-input.sh v0.20251130.1       # Use specific tag, run Claude
 #   ./scripts/generate-changelog-input.sh v9.20251205.0       # Prepare new release (tag doesn't exist yet)
+#   ./scripts/generate-changelog-input.sh --from v0.20260301.0  # All tags from v0.20260301.0 onwards
 #   ./scripts/generate-changelog-input.sh -n                  # Only generate file
 #   ./scripts/generate-changelog-input.sh -s 3000             # 3000 lines per batch
 #
@@ -33,6 +39,7 @@ set -e
 
 # Parse arguments
 LATEST_TAG=""
+FROM_TAG=""
 OUTPUT_FILE=""
 RUN_CLAUDE=true
 MAX_BATCH_SIZE=2000
@@ -41,6 +48,7 @@ show_help() {
     echo "Usage: $0 [options] [tag]"
     echo ""
     echo "Options:"
+    echo "  -f, --from         Process all tags from this tag onwards"
     echo "  -n, --no-run       Only generate the input file(s), do not run Claude"
     echo "  -o, --output       Specify output file (default: changelog-input-<tag>.md)"
     echo "  -s, --max-size     Max lines per batch (default: 2000)"
@@ -49,6 +57,7 @@ show_help() {
     echo "Examples:"
     echo "  $0                          # Use latest tag, run Claude"
     echo "  $0 v0.20251130.1            # Use specific tag, run Claude"
+    echo "  $0 --from v0.20260301.0     # All tags from v0.20260301.0 onwards"
     echo "  $0 -n                       # Only generate file"
     echo "  $0 -s 3000                  # 3000 lines per batch"
     exit 0
@@ -68,6 +77,10 @@ while [ $# -gt 0 ]; do
             MAX_BATCH_SIZE="$2"
             shift 2
             ;;
+        -f|--from)
+            FROM_TAG="$2"
+            shift 2
+            ;;
         -h|--help)
             show_help
             ;;
@@ -83,19 +96,76 @@ while [ $# -gt 0 ]; do
     esac
 done
 
-# Get the latest tag if not specified
-if [ -z "$LATEST_TAG" ]; then
-    LATEST_TAG=$(git tag --sort=-version:refname | head -1)
+# Build list of tags to process
+TAGS_TO_PROCESS=()
+
+if [ -n "$FROM_TAG" ]; then
+    # Multi-tag mode: process all tags from FROM_TAG onwards
+    if ! git rev-parse "$FROM_TAG" >/dev/null 2>&1; then
+        echo "Error: Tag '$FROM_TAG' not found"
+        exit 1
+    fi
+
+    FOUND=false
+    while IFS= read -r tag; do
+        if [ "$tag" = "$FROM_TAG" ]; then
+            FOUND=true
+        fi
+        if [ "$FOUND" = true ]; then
+            TAGS_TO_PROCESS+=("$tag")
+        fi
+    done < <(git tag --sort=version:refname | grep '^v0\.')
+
+    if [ "$FOUND" = false ]; then
+        echo "Error: Tag '$FROM_TAG' not found in tag list"
+        exit 1
+    fi
+
+    # Check if HEAD has commits beyond last existing tag
+    LAST_EXISTING_TAG="${TAGS_TO_PROCESS[${#TAGS_TO_PROCESS[@]}-1]}"
+    COMMITS_AFTER=$(git rev-list --count "$LAST_EXISTING_TAG"..HEAD)
+    if [ "$COMMITS_AFTER" -gt 0 ]; then
+        TODAY_TAG="v0.$(date +%Y%m%d).0"
+        if [ "$LAST_EXISTING_TAG" != "$TODAY_TAG" ]; then
+            echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, adding $TODAY_TAG"
+            TAGS_TO_PROCESS+=("$TODAY_TAG")
+        fi
+    fi
+
+    echo "Tags to process (${#TAGS_TO_PROCESS[@]}):"
+    for t in "${TAGS_TO_PROCESS[@]}"; do
+        echo "  - $t"
+    done
+    echo ""
+else
+    # Single-tag mode
+    if [ -z "$LATEST_TAG" ]; then
+        LATEST_TAG=$(git tag --sort=-version:refname | grep '^v0\.' | head -1)
+    fi
+    if [ -z "$LATEST_TAG" ]; then
+        echo "Error: No tags found in repository"
+        exit 1
+    fi
+    TAGS_TO_PROCESS=("$LATEST_TAG")
 fi
 
-if [ -z "$LATEST_TAG" ]; then
-    echo "Error: No tags found in repository"
-    exit 1
+_USER_OUTPUT_FILE="$OUTPUT_FILE"
+
+# Process each tag
+for CURRENT_TAG in "${TAGS_TO_PROCESS[@]}"; do
+LATEST_TAG="$CURRENT_TAG"
+
+if [ ${#TAGS_TO_PROCESS[@]} -gt 1 ]; then
+    echo "========================================"
+    echo "Processing tag: $LATEST_TAG"
+    echo "========================================"
 fi
 
-# Set default output file with tag name
-if [ -z "$OUTPUT_FILE" ]; then
+# Set output file for this tag
+if [ -z "$_USER_OUTPUT_FILE" ] || [ -n "$FROM_TAG" ]; then
     OUTPUT_FILE="changelog-input-${LATEST_TAG}.md"
+else
+    OUTPUT_FILE="$_USER_OUTPUT_FILE"
 fi
 
 # Check if tag exists or if we're preparing a new release
@@ -121,10 +191,10 @@ fi
 # Get the previous tag
 if [ "$TAG_EXISTS" = true ]; then
     # Tag exists: get the tag before LATEST_TAG
-    PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -A1 "^${LATEST_TAG}$" | tail -1)
+    PREVIOUS_TAG=$(git tag --sort=-version:refname | grep '^v0\.' | grep -A1 "^${LATEST_TAG}$" | tail -1)
 else
     # Tag doesn't exist: use the most recent existing tag
-    PREVIOUS_TAG=$(git tag --sort=-version:refname | head -1)
+    PREVIOUS_TAG=$(git tag --sort=-version:refname | grep '^v0\.' | head -1)
 fi
 
 if [ -z "$PREVIOUS_TAG" ] || [ "$LATEST_TAG" = "$PREVIOUS_TAG" ]; then
@@ -193,7 +263,8 @@ Important notes:
 - Do not use periods at the end of entries
 - Include dependency updates from Renovate in the "Dependencies" section
 - Format dependency updates as: "package-name old_version → new_version" (use → arrow, lowercase package name)
-- Output ONLY the markdown changelog entries, no explanations
+- Do NOT include a version header (## [v...]) — start directly with ### Added, ### Changed, etc.
+- Do NOT include any preamble, explanation, or commentary — output ONLY the raw markdown
 
 ---
 
@@ -348,15 +419,22 @@ Rules:
 - Group by category (Added, Changed, Fixed, Removed, Dependencies)
 - Remove empty categories
 - Keep the format consistent
-- Output ONLY the final markdown, starting with ## [$LATEST_TAG] - $TAG_DATE
+- Your response MUST start with ## [$LATEST_TAG] - $TAG_DATE
+- Do NOT include any preamble, explanation, or commentary — output ONLY the raw markdown
 
 $(cat "$OUTPUT_FILE")"
 
     # Run final merge
     FINAL_RESULT=$(claude -p "$MERGE_PROMPT" 2>&1) || true
 
+    # Strip any preamble before the first ## [v line
+    CLEAN_RESULT=$(echo "$FINAL_RESULT" | sed -n '/^## \[v/,$p')
+    if [ -z "$CLEAN_RESULT" ]; then
+        CLEAN_RESULT="$FINAL_RESULT"
+    fi
+
     # Write final result
-    echo "$FINAL_RESULT" > "$OUTPUT_FILE"
+    echo "$CLEAN_RESULT" > "$OUTPUT_FILE"
 
     echo "Final changelog written to: $OUTPUT_FILE"
     echo ""
@@ -364,6 +442,21 @@ $(cat "$OUTPUT_FILE")"
     echo "----------------------------------------"
     cat "$OUTPUT_FILE"
     echo "----------------------------------------"
+
+    # Insert into CHANGELOG.md
+    if [ -f "CHANGELOG.md" ]; then
+        INSERT_LINE=$(grep -n '^## \[v' CHANGELOG.md | head -1 | cut -d: -f1)
+        if [ -n "$INSERT_LINE" ]; then
+            {
+                head -n $((INSERT_LINE - 1)) CHANGELOG.md
+                cat "$OUTPUT_FILE"
+                echo ""
+                tail -n +"$INSERT_LINE" CHANGELOG.md
+            } > CHANGELOG.md.tmp
+            mv CHANGELOG.md.tmp CHANGELOG.md
+            echo "Inserted into CHANGELOG.md"
+        fi
+    fi
 
     # Cleanup batch files
     for f in "${BATCH_FILES[@]}"; do
@@ -379,3 +472,5 @@ else
     echo "  2. Merge the results into $OUTPUT_FILE"
     echo "  3. Add the generated changelog entry to CHANGELOG.md"
 fi
+
+done  # end of TAGS_TO_PROCESS loop
