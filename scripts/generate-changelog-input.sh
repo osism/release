@@ -242,6 +242,13 @@ else
     TAGS_TO_PROCESS=("$LATEST_TAG")
 fi
 
+# Detect GitHub repository (org/repo) from remote URL
+GITHUB_REPO=$(git remote get-url origin 2>/dev/null | sed -E 's#.*github\.com[:/]([^/]+/[^/.]+)(\.git)?$#\1#')
+if [ -z "$GITHUB_REPO" ]; then
+    echo "Warning: Could not detect GitHub repository from remote URL"
+    GITHUB_REPO="osism/unknown"
+fi
+
 _USER_OUTPUT_FILE="$OUTPUT_FILE"
 
 # Process each tag
@@ -331,19 +338,19 @@ Analyze the following Git commits and diffs and create CHANGELOG entries in the 
 
 ```markdown
 ### Added
-- New features (if any)
+- New features (if any) ('"$GITHUB_REPO"'#123)
 
 ### Changed
-- Changes to existing features (if any)
+- Changes to existing features (if any) ('"$GITHUB_REPO"'#456)
 
 ### Fixed
-- Bug fixes (if any)
+- Bug fixes (if any) ('"$GITHUB_REPO"'#789)
 
 ### Removed
-- Removed features (if any)
+- Removed features (if any) ('"$GITHUB_REPO"'#101)
 
 ### Dependencies
-- package-name 1.0.0 → 1.1.0
+- package-name 1.0.0 → 1.1.0 ('"$GITHUB_REPO"'#102)
 ```
 
 Important notes:
@@ -356,6 +363,7 @@ Important notes:
 - Do not use periods at the end of entries
 - Include dependency updates from Renovate in the "Dependencies" section
 - Format dependency updates as: "package-name old_version → new_version" (use → arrow, lowercase package name)
+- If a commit message contains a PR reference like (#123), append it to the changelog entry as ('"$GITHUB_REPO"'#123) — this makes it a clickable link on GitHub
 - Do NOT include a version header (## [v...]) — start directly with ### Added, ### Changed, etc.
 - Do NOT include any preamble, explanation, or commentary — output ONLY the raw markdown
 
@@ -512,6 +520,7 @@ Rules:
 - Group by category (Added, Changed, Fixed, Removed, Dependencies)
 - Remove empty categories
 - Keep the format consistent
+- Preserve all PR references in the format (org/repo#number) at the end of each entry
 - Your response MUST start with ## [$LATEST_TAG] - $TAG_DATE
 - Do NOT include any preamble, explanation, or commentary — output ONLY the raw markdown
 
