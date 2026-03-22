@@ -31,6 +31,37 @@ for project in "${PROJECTS[@]}"; do
     tag_name="${project}-${VERSION}"
     echo "Creating tag: $tag_name"
 
+    # Check if tag already exists (locally or remote)
+    local_exists=false
+    remote_exists=false
+
+    if git rev-parse "refs/tags/$tag_name" >/dev/null 2>&1; then
+        local_exists=true
+    fi
+
+    if git ls-remote --tags origin "refs/tags/$tag_name" | grep -q .; then
+        remote_exists=true
+    fi
+
+    if $local_exists || $remote_exists; then
+        echo "⚠️  Tag $tag_name already exists (local: $local_exists, remote: $remote_exists)"
+        read -r -p "Delete and recreate tag $tag_name? [y/N] " answer
+        if [[ "$answer" =~ ^[Yy]$ ]]; then
+            if $local_exists; then
+                git tag -d "$tag_name"
+                echo "  Deleted local tag $tag_name"
+            fi
+            if $remote_exists; then
+                git push origin ":refs/tags/$tag_name"
+                echo "  Deleted remote tag $tag_name"
+            fi
+        else
+            echo "Skipping $tag_name"
+            echo
+            continue
+        fi
+    fi
+
     # Create the tag
     if git tag "$tag_name"; then
         echo "✅ Tag $tag_name created successfully"
