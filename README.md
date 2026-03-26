@@ -16,7 +16,9 @@ changelogs.
 ├── latest/              # Current development versions (continuously updated)
 │   ├── base.yml         # Core component versions
 │   ├── ceph-*.yml       # Ceph-specific versions (quincy, reef, squid)
-│   └── openstack-*.yml  # OpenStack-specific versions (2024.1, 2024.2, 2025.1, 2025.2)
+│   ├── ceph.yml         # Symlink → default Ceph version (currently ceph-reef.yml)
+│   ├── openstack-*.yml  # OpenStack-specific versions (2024.1, 2024.2, 2025.1, 2025.2)
+│   └── openstack.yml    # Symlink → default OpenStack version (currently openstack-2025.1.yml)
 ├── <VERSION>/           # Pinned release versions (e.g. 10.0.0/, 9.5.0/)
 │   └── base.yml         # Frozen component versions for this release
 ├── next/                # SBOMs and metadata for upcoming builds
@@ -55,16 +57,50 @@ Each version entry has a Renovate annotation comment above it (e.g.
 `# renovate: datasource=docker depName=registry.osism.tech/osism/osism-ansible`)
 that enables automated dependency updates.
 
-### `latest/ceph-*.yml`
+### `latest/ceph-*.yml` and `latest/openstack-*.yml`
 
-Ceph-specific versions per release stream (quincy, reef, squid). Contains the
-`ceph_ansible_version` (stable branch), `ceph_version`, and Ceph container image versions.
+Because OSISM supports multiple Ceph and OpenStack versions simultaneously, their
+versions are tracked in separate files — one per supported release stream.
 
-### `latest/openstack-*.yml`
+**Ceph files** (`ceph-quincy.yml`, `ceph-reef.yml`, `ceph-squid.yml`):
 
-OpenStack-specific versions per release (2024.1, 2024.2, 2025.1, 2025.2). Contains
-`openstack_version`, infrastructure project definitions, and all OpenStack project
-branch references (e.g. `stable-2025.1`).
+Each file pins the versions specific to one Ceph release stream:
+- `ceph_version` — the Ceph release name (e.g. `reef`)
+- `ceph_ansible_version` — the ceph-ansible branch (e.g. `stable-8.0`)
+- `ansible_version` / `ansible_core_version` — the Ansible versions required by that
+  ceph-ansible branch (these can differ from the versions in `base.yml`)
+- `defaults_version`, `generics_version`, `playbooks_version` — pinned component versions
+- `docker_images` — Ceph container image versions (`ceph`, `cephclient`)
+
+**OpenStack files** (`openstack-2024.1.yml`, `openstack-2024.2.yml`, `openstack-2025.1.yml`,
+`openstack-2025.2.yml`):
+
+Each file pins the versions specific to one OpenStack release:
+- `openstack_version` / `openstack_previous_version` — the release identifier and its
+  predecessor (used for upgrades)
+- `ansible_version` / `ansible_core_version` — the Ansible versions required for this
+  OpenStack release
+- `defaults_version`, `generics_version`, `playbooks_version` — pinned component versions
+- `docker_images` — the `openstackclient` image version
+- `infrastructure_projects` — list of Kolla infrastructure projects (shared across all
+  OpenStack versions)
+- `openstack_projects` — all OpenStack service projects with their stable branch references
+  (e.g. `stable-2025.1`); some projects like `gnocchi` use independent versioning
+  (e.g. `stable/4.7`)
+
+**Symlinks** — default versions:
+
+- `ceph.yml` → `ceph-reef.yml` — points to the current default Ceph version
+- `openstack.yml` → `openstack-2025.1.yml` — points to the current default OpenStack version
+
+These symlinks are used by consumers that do not specify a particular version and
+want to use the recommended default. When the default changes (e.g. after a new
+OpenStack release is promoted), the symlink target is updated.
+
+**Release versions** (`<VERSION>/`) only contain `base.yml`. The OpenStack and Ceph
+files are not copied into release directories because the supported OpenStack and
+Ceph versions remain the same across patch releases — they are always read from
+`latest/`.
 
 ### `<VERSION>/base.yml`
 
