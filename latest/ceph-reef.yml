@@ -16,6 +16,6 @@ playbooks_version: 'v0.20260320.0'
 
 docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/ceph-daemon
-  ceph: '18.2.7'
+  ceph: '18.2.8'
   # renovate: datasource=docker depName=registry.osism.tech/osism/cephclient
-  cephclient: '18.2.7'
+  cephclient: '18.2.8'
