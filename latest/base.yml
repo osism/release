@@ -135,7 +135,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=community.rabbitmq
   community.rabbitmq: '1.6.0'
   # renovate: datasource=galaxy-collection depName=community.zabbix
-  community.zabbix: '4.1.1'
+  community.zabbix: '4.2.0'
   # renovate: datasource=galaxy-collection depName=containers.podman
   containers.podman: '1.19.2'
   # renovate: datasource=galaxy-collection depName=debops.debops
