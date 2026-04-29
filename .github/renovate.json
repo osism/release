@@ -23,7 +23,8 @@
         "/^latest\\/ceph-squid.yml$/",
         "/^latest\\/openstack-2024.1.yml$/",
         "/^latest\\/openstack-2024.2.yml$/",
-        "/^latest\\/openstack-2025.1.yml$/"
+        "/^latest\\/openstack-2025.1.yml$/",
+        "/^latest\\/openstack-2025.2.yml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>docker) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'",
@@ -46,7 +47,8 @@
         "latest/ceph-squid.yml",
         "latest/openstack-2024.1.yml",
         "latest/openstack-2024.2.yml",
-        "latest/openstack-2025.1.yml"
+        "latest/openstack-2025.1.yml",
+        "latest/openstack-2025.2.yml"
       ],
       "matchUpdateTypes": [
         "patch"
@@ -65,7 +67,8 @@
         "latest/ceph-squid.yml",
         "latest/openstack-2024.1.yml",
         "latest/openstack-2024.2.yml",
-        "latest/openstack-2025.1.yml"
+        "latest/openstack-2025.1.yml",
+        "latest/openstack-2025.2.yml"
       ],
       "matchUpdateTypes": [
         "major",
