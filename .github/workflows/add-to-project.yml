@@ -1,0 +1,15 @@
+name: Add issues and PRs to project boards
+
+on:
+  issues:
+    types:
+      - opened
+  pull_request:
+    types:
+      - opened
+
+permissions: read-all
+
+jobs:
+  add-to-project-boards:
+    uses: osism/osism.github.io/.github/workflows/add-to-project.yml@26f84f8d6cdfd6b7e2fc6bfa85be4ee059158099
