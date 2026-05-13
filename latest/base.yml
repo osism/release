@@ -44,6 +44,8 @@ docker_images:
   homer: 'v25.11.1'
   # renovate: datasource=docker depName=registry.osism.tech/osism/inventory-reconciler
   inventory_reconciler: '0.20260322.0'
+  # renovate: datasource=docker depName=registry.osism.tech/osism/kolla-ansible
+  kolla_ansible: '0.20260328.0'
   # renovate: datasource=docker depName=fleetdm/fleet
   fleet: 'v4.85.1'
   # renovate: datasource=docker depName=registry.osism.tech/osism/gnmic

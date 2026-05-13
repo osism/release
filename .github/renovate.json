@@ -132,6 +132,11 @@
         "latest/base.yml"
       ],
       "groupName": "osism"
+    },
+    {
+      "matchDepNames": ["registry.osism.tech/osism/kolla-ansible"],
+      "matchFileNames": ["latest/base.yml"],
+      "allowedVersions": "/^0\\.\\d{8}\\.\\d+$/"
     }
   ]
 }
