@@ -41,6 +41,7 @@ infrastructure_projects:
   rabbitmq:
   redis:
   tgtd:
+  valkey:
 
 openstack_projects:
   aodh: stable-2025.2
