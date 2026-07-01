@@ -1,0 +1,3 @@
+ara_server_mariadb_tag: '11.8.3'
+manager_redis_tag: '7.4.6-alpine'
+ara_server_tag: "{{ lookup('vars', 'ara_server_tag', default=Undefined) }}"

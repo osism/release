@@ -1,4 +1,31 @@
 ---
 # Known-intentional exceptions. Each entry needs a non-empty `reason`.
 # An entry that suppresses no real drift is reported as stale (a hard error).
-allow: []
+allow:
+  - plugin: release_vs_manager
+    image: inventory_reconciler
+    reason: "rolling-release image; rendered as 'latest' by design"
+  - plugin: release_vs_manager
+    image: osism
+    reason: "rolling-release image; rendered as 'latest' by design"
+  - plugin: release_vs_manager
+    image: osism_ansible
+    reason: "rolling-release image; rendered as 'latest' by design"
+  - plugin: release_vs_manager
+    image: osism_kubernetes
+    reason: "rolling-release image; rendered as 'latest' by design"
+  - plugin: role_unpinned
+    image: zuul_zuul
+    reason: "OSISM CI stack; version maintained in the zuul role, not release (osism/issues#1397)"
+  - plugin: role_unpinned
+    image: zuul_nodepool
+    reason: "OSISM CI stack; version maintained in the zuul role, not release (osism/issues#1397)"
+  - plugin: role_unpinned
+    image: zuul_zookeeper
+    reason: "OSISM CI stack; version maintained in the zuul role, not release (osism/issues#1397)"
+  - plugin: role_unpinned
+    image: zuul_mariadb
+    reason: "OSISM CI stack; version maintained in the zuul role, not release (osism/issues#1397)"
+  - plugin: role_unpinned
+    image: zuul_log_server
+    reason: "OSISM CI stack; version maintained in the zuul role, not release (osism/issues#1397)"

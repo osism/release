@@ -11,4 +11,8 @@ remote:
 
 release_version: latest
 
-plugins: {}
+plugins:
+  release_vs_manager: {enabled: true}
+  role_shadows: {enabled: true}
+  role_unpinned: {enabled: true}
+  image_orphan: {enabled: true}
