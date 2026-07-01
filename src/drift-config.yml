@@ -1,0 +1,14 @@
+---
+# Default config for the drift detector.
+# Override with `--config PATH` if needed. Reads remote (GitHub) by default;
+# pass `--base-dir DIR` (repeatable) to read OSISM repos from local checkouts.
+
+remote:
+  github_raw: https://raw.githubusercontent.com/
+  github_api: https://api.github.com/repos/
+  default_owner: osism
+  branch: main
+
+release_version: latest
+
+plugins: {}
