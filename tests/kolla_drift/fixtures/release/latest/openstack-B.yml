@@ -1,0 +1,4 @@
+openstack_projects:
+  foo: stable-B
+  bar: stable-B
+  multi-word: stable-B

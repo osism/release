@@ -1,0 +1,5 @@
+[control]
+ctl01
+
+[nova:children]
+control
