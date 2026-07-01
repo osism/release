@@ -1,0 +1,3 @@
+adminer_tag: '4.7'
+adminer_namespace: library
+adminer_image: "{{ adminer_image }}"
