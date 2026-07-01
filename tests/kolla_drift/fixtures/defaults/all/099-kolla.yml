@@ -1,0 +1,7 @@
+enable_foo: "yes"
+enable_bar: "yes"
+enable_feat: "yes"
+enable_off: "no"
+enable_multi_word: "yes"
+feat_internal_fqdn: "internal"
+feat_api_port: "9999"

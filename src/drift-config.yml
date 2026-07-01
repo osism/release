@@ -9,6 +9,10 @@ remote:
   default_owner: osism
   branch: main
 
+sources:
+  kolla: {owner: openstack, branch: stable/2025.2}
+  kolla_ansible: {owner: openstack, branch: stable/2025.2}
+
 release_version: latest
 
 plugins:
@@ -16,3 +20,10 @@ plugins:
   role_shadows: {enabled: true}
   role_unpinned: {enabled: true}
   image_orphan: {enabled: true}
+  kolla_version_chain_inner: {enabled: true}
+  kolla_version_chain_upstream: {enabled: true}
+  kolla_inventory: {enabled: true}
+  kolla_enablement_build: {enabled: true}
+  kolla_enablement_orphan: {enabled: true}
+  kolla_orphan_config: {enabled: true}
+  kolla_secrets_orphan: {enabled: true}
