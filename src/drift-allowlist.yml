@@ -1,0 +1,4 @@
+---
+# Known-intentional exceptions. Each entry needs a non-empty `reason`.
+# An entry that suppresses no real drift is reported as stale (a hard error).
+allow: []
