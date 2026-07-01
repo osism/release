@@ -1,0 +1,6 @@
+adminer_tag: "5.4.2"
+ara_server_tag: "1.7.3"
+ara_server_mariadb_tag: "11.8.4"
+manager_redis_tag: "7.4.7-alpine"
+netbox_redis_tag: "7.4.7-alpine"
+osism_ansible_tag: "{{ osism_ansible_version|default('latest') }}"

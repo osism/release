@@ -1,0 +1,17 @@
+adminer_tag: "{{ versions['adminer'] }}"
+ara_server_tag: "{{ versions['ara_server'] }}"
+ara_server_mariadb_tag: "{{ versions['mariadb'] }}"
+manager_redis_tag: "{{ versions['redis'] }}"
+netbox_redis_tag: "{{ versions['redis'] }}"
+widget_tag: "{{ versions['gadget'] }}"
+pbonly_tag: "{{ versions['pbonly'] }}"
+{% if versions['osism_ansible'] == 'latest' -%}
+osism_ansible_tag: "{{ '{{' }} osism_ansible_version|default('latest') {{ '}}' }}"
+{% else -%}
+osism_ansible_tag: "{{ versions['osism_ansible'] }}"
+{% endif -%}
+{% if 'ceph_ansible' in versions -%}
+ceph_ansible_tag: "{{ versions['ceph_ansible'] }}"
+{% else -%}
+ceph_ansible_tag: "{{ '{{' }} ceph_version|default(manager_version) {{ '}}' }}"
+{% endif -%}

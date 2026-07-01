@@ -1,0 +1,11 @@
+---
+manager_version: latest
+docker_images:
+  ara_server: '1.7.5'
+  adminer: '5.4.2'
+  redis: '7.5.0'
+  mariadb: '11.8.4'
+  inventory_reconciler: '0.20260322.0'
+  osism: '0.20260414.0'
+  osism_ansible: '0.20260322.0'
+  floatdemo: '1.0.0'

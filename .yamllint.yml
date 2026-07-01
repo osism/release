@@ -7,3 +7,4 @@ rules:
 
 ignore: |
   archive/
+  tests/image_drift/fixtures/
