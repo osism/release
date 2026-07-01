@@ -1,0 +1,7 @@
+openstack_version: "2025.2"
+kolla_present_a_version: "{{ versions['present_a']|default(openstack_version) }}"
+kolla_present_b_version: "{{ versions['present_b']|default(openstack_version) }}"
+kolla_common_version: "{{ versions['kolla_toolbox']|default(openstack_version) }}"
+kolla_inert_x_version: "{{ versions['inert_x']|default(openstack_version) }}"
+kolla_foo_version: "{{ versions['foo']|default(openstack_version) }}"
+kolla_off_version: "{{ versions['off']|default(openstack_version) }}"

@@ -1,0 +1,4 @@
+infrastructure_projects:
+  bar:
+openstack_projects:
+  multi-word: stable-A

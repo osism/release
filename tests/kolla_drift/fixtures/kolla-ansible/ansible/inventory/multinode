@@ -1,0 +1,14 @@
+[control]
+ctl01
+
+[nova:children]
+control
+
+[cyborg:children]
+cyborg-agent
+
+[cyborg-agent:children]
+compute
+
+[ironic-dnsmasq:children]
+control

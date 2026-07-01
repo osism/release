@@ -29,3 +29,38 @@ allow:
   - plugin: role_unpinned
     image: zuul_log_server
     reason: "OSISM CI stack; version maintained in the zuul role, not release (osism/issues#1397)"
+  # Not deployed in this OSISM series (cf. inventory IGNORE_NOT_DEPLOYED).
+  - {plugin: kolla_version_chain_upstream, image: cyborg, reason: "not deployed in this series"}
+  - {plugin: kolla_version_chain_upstream, image: tacker, reason: "not deployed in this series"}
+  - {plugin: kolla_version_chain_upstream, image: telegraf, reason: "not deployed in this series"}
+  - {plugin: kolla_version_chain_upstream, image: zun, reason: "not deployed in this series"}
+  # Build base layer, not a deployable service.
+  - {plugin: kolla_version_chain_upstream, image: base, reason: "build base layer, not a service"}
+  - {plugin: kolla_version_chain_upstream, image: openstack_base, reason: "build base layer, not a service"}
+  # Naming/variant or supporting image, no distinct versions['K'] key.
+  - {plugin: kolla_version_chain_upstream, image: hacluster, reason: "pacemaker/corosync variant, no distinct version key"}
+  - {plugin: kolla_version_chain_upstream, image: letsencrypt, reason: "wired via versions['letsencrypt_lego'] / ['letsencrypt_webserver']"}
+  - {plugin: kolla_version_chain_upstream, image: networking_baremetal, reason: "neutron plugin image, no distinct version key"}
+  - {plugin: kolla_version_chain_upstream, image: ovsdpdk, reason: "openvswitch dpdk variant, no distinct version key"}
+  - {plugin: kolla_version_chain_upstream, image: httpd, reason: "apache supporting image, not independently pinned"}
+  - {plugin: kolla_version_chain_upstream, image: mariadb_server, reason: "upstream dir mariadb-server; wired via versions['mariadb']"}
+  # --- kolla_inventory (Flow A) ---
+  # OSISM's overlay model assumes these base-infra groups exist in the
+  # environment inventory, so they are intentionally absent from 50/51-kolla.
+  - {plugin: kolla_inventory, image: compute, reason: "base infra group; provided by the environment inventory"}
+  - {plugin: kolla_inventory, image: control, reason: "base infra group; provided by the environment inventory"}
+  - {plugin: kolla_inventory, image: network, reason: "base infra group; provided by the environment inventory"}
+  - {plugin: kolla_inventory, image: storage, reason: "base infra group; provided by the environment inventory"}
+  - {plugin: kolla_inventory, image: monitoring, reason: "base infra group; provided by the environment inventory"}
+  - {plugin: kolla_inventory, image: deployment, reason: "base infra group; provided by the environment inventory"}
+  - {plugin: kolla_inventory, image: "baremetal:children", reason: "baremetal aggregator; omitted by the OSISM overlay model"}
+  # Services not deployed in this series (prefix covers their sub-groups).
+  - {plugin: kolla_inventory, image: cyborg, match: prefix, reason: "not deployed in this series"}
+  - {plugin: kolla_inventory, image: tacker, match: prefix, reason: "not deployed in this series"}
+  - {plugin: kolla_inventory, image: telegraf, match: prefix, reason: "not deployed in this series"}
+  - {plugin: kolla_inventory, image: collectd, match: prefix, reason: "not deployed in this series"}
+  # --- kolla_enablement_orphan ---
+  # OSISM-invented enable flags with no upstream counterpart by design (not a
+  # removed-upstream service). Truthy, so they surface in the truthy-only scope.
+  - {plugin: kolla_enablement_orphan, image: common, reason: "OSISM-invented flag; no upstream counterpart by design"}
+  - {plugin: kolla_enablement_orphan, image: kolla_operations, reason: "OSISM-invented flag; no upstream counterpart by design"}
