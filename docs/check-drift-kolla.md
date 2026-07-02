@@ -82,7 +82,7 @@ stage or the transition into it:
    versions template and the producer's SBOM map.
 4. **deployed** — the service has ansible inventory groups to deploy into.
 
-The seven plugins run in that order, and the report renders them the same way.
+The eight plugins run in that order, and the report renders them the same way.
 Each opens with the stage it guards. Each is independent and can be run alone
 with `--plugin <name>`; every finding can be suppressed with an allowlist entry
 (see "Allowlist"). Service names are compared as **key spaces**, normalising
@@ -118,6 +118,38 @@ is to extend `upstream_enable_keys` to union role-default keys.)
 - **Fix:** remove the stale `enable_<name>` from `osism/defaults`, or migrate it
   to the upstream replacement; if it is an OSISM invention, add an allowlist entry
   with a reason.
+
+### Plugin: kolla_groupvars_missing
+
+**Enabled — a required upstream global var must be mirrored.** The add-direction
+mirror of `kolla_enablement_orphan`: flags an upstream kolla-ansible
+`group_vars/all` top-level key that OSISM never mirrored, so it is undefined in
+the deploy var context and aborts any role task that references it — the class
+behind the 2025.2 `keystone_listen_port` failure (added upstream in the uWSGI
+migration, never picked up by `osism/defaults`). Compares the **union** of
+upstream `group_vars/all` keys across the supported release range against
+everything OSISM supplies to the container's `group_vars/all`, from **both**
+delivery paths: `osism/defaults` `all/*.yml` (via the generics gilt overlay)
+**and** the rendered `container-image-kolla-ansible` `versions.yml`
+(`openstack_release`, `openstack_previous_release_name`, the `kolla_*_version`
+pins) — a var supplied only by the latter must not false-positive. Union across
+releases because one `osism/defaults` snapshot must satisfy every supported
+release at once (see "Release model" below); top-level keys only, compared
+verbatim (an Ansible var name is an exact identifier).
+
+    python3 src/check-drift.py --group kolla --plugin kolla_groupvars_missing
+
+- **Reads:** `openstack/kolla-ansible` `group_vars/all` per resolved release ref;
+  `osism/defaults` `all/*.yml`; `container-image-kolla-ansible`
+  `files/src/templates/versions.yml.j2`.
+- **Fix:** mirror the missing var into `osism/defaults` `all/*.yml` (copying
+  upstream's definition — harmless when the service is off, correct when an
+  environment enables it), or allowlist it with a reason if OSISM deliberately
+  omits it. The most common allowlist case is a var for a service **OSISM does
+  not ship/support at all** (never evaluated anywhere) — note this is a stronger,
+  stable claim than "off in the base defaults", which an environment can override
+  (metalbox enables ironic, so `enable_ironic_pxe_filter` bites there). Other
+  cases: a var OSISM supplies another way, or an upstream typo.
 
 ### Plugin: kolla_orphan_config
 

@@ -5,6 +5,7 @@ from osism_drift.drift import (
     image_orphan,
     kolla_enablement_build,
     kolla_enablement_orphan,
+    kolla_groupvars_missing,
     kolla_inventory,
     kolla_orphan_config,
     kolla_secrets_orphan,
@@ -17,6 +18,7 @@ from osism_drift.drift import (
 
 KOLLA_PLUGINS = [
     kolla_enablement_orphan,
+    kolla_groupvars_missing,
     kolla_orphan_config,
     kolla_secrets_orphan,
     kolla_enablement_build,

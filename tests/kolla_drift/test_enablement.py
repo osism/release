@@ -143,6 +143,110 @@ def test_upstream_enable_keys_split_dir():
     assert enablement.upstream_enable_keys("2025.2", cfg) == {"valkey", "redis"}
 
 
+@responses.activate
+def test_upstream_groupvars_keys_monolithic():
+    # ALL top-level keys (not just enable_*), raw (no prefix strip, no canon).
+    cfg = _ka_config()
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/openstack/kolla-ansible/commits/stable/2025.1",
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/openstack/kolla-ansible/"
+        "stable/2025.1/ansible/group_vars/all.yml",
+        body=b'enable_redis: "no"\nkeystone_listen_port: "5000"\nother_var: 1\n',
+        status=200,
+    )
+    assert enablement.upstream_groupvars_keys("2025.1", cfg) == {
+        "enable_redis",
+        "keystone_listen_port",
+        "other_var",
+    }
+
+
+@responses.activate
+def test_upstream_groupvars_keys_split_dir():
+    # monolithic absent -> split all/ dir; union all top-level keys across files.
+    cfg = _ka_config()
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/openstack/kolla-ansible/commits/stable/2025.2",
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/openstack/kolla-ansible/"
+        "stable/2025.2/ansible/group_vars/all.yml",
+        status=404,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/openstack/kolla-ansible/contents/ansible/group_vars/all",
+        json=[
+            {"name": "keystone.yml", "type": "file"},
+            {"name": "nova.yml", "type": "file"},
+            {"name": "README.md", "type": "file"},
+        ],
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/openstack/kolla-ansible/"
+        "stable/2025.2/ansible/group_vars/all/keystone.yml",
+        body=b'enable_keystone: "no"\nkeystone_listen_port: "5000"\n',
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/openstack/kolla-ansible/"
+        "stable/2025.2/ansible/group_vars/all/nova.yml",
+        body=b"nova_database_name: nova\n",
+        status=200,
+    )
+    assert enablement.upstream_groupvars_keys("2025.2", cfg) == {
+        "enable_keystone",
+        "keystone_listen_port",
+        "nova_database_name",
+    }
+
+
+def test_osism_groupvars_keys_merges_defaults_and_versions_template(tmp_path):
+    # OSISM supplies group_vars from BOTH osism/defaults all/*.yml AND the rendered
+    # container-image-kolla-ansible versions.yml. Both must count (non-.yml under
+    # all/ skipped); the jinja versions template is parsed for top-level keys.
+    dall = tmp_path / "defaults" / "all"
+    dall.mkdir(parents=True)
+    (dall / "001-kolla-defaults.yml").write_text(
+        "keystone_public_port: 5000\nenable_foo: yes\n"
+    )
+    (dall / "keystone.yml").write_text('keystone_listen_port: "5000"\n')
+    (dall / "notes.txt").write_text("ignored_key: 1\n")  # not .yml -> skipped
+    vt = tmp_path / "container-image-kolla-ansible" / "files" / "src" / "templates"
+    vt.mkdir(parents=True)
+    (vt / "versions.yml.j2").write_text(
+        'openstack_release: "{{ openstack_version }}"\n'
+        'openstack_previous_release_name: "{{ openstack_previous_version }}"\n'
+        "kolla_nova_version: \"{{ versions['nova']|default(openstack_version) }}\"\n"
+    )
+    cfg = Config(
+        remote=Remote("https://raw/", "https://api/", "main", "osism"),
+        base_dirs=(str(tmp_path),),
+        release_version="latest",
+        plugins={},
+        sources={},
+    )
+    assert enablement.osism_groupvars_keys(cfg) == {
+        "keystone_public_port",
+        "enable_foo",
+        "keystone_listen_port",
+        "openstack_release",
+        "openstack_previous_release_name",
+        "kolla_nova_version",
+    }
+
+
 def test_osism_enable_flags_merges_across_all_files(tmp_path):
     # enable_* flags are collected from EVERY defaults all/*.yml, so the OSISM
     # enable set is independent of which file a flag lives in (layout-agnostic).

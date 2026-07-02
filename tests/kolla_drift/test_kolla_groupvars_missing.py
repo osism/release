@@ -1,0 +1,148 @@
+import pytest
+import responses
+from osism_drift.config import (
+    Config,
+    Remote,
+    PluginCfg,
+    SourceCfg,
+    Allowlist,
+    AllowEntry,
+)
+from osism_drift.drift import kolla_groupvars_missing as plugin
+
+API = "https://api.github.com/repos"
+RAW = "https://raw.githubusercontent.com"
+
+
+def _write_defaults(tmp_path, files, versions=""):
+    dall = tmp_path / "defaults" / "all"
+    dall.mkdir(parents=True)
+    for name, text in files.items():
+        (dall / name).write_text(text)
+    # OSISM also supplies group_vars via container-image-kolla-ansible's rendered
+    # versions.yml; osism_groupvars_keys reads its top-level keys too.
+    vt = tmp_path / "container-image-kolla-ansible" / "files" / "src" / "templates"
+    vt.mkdir(parents=True)
+    (vt / "versions.yml.j2").write_text(versions)
+
+
+def _cfg(tmp_path, releases=("A", "B")):
+    return Config(
+        remote=Remote(f"{RAW}/", f"{API}/", "main", "osism"),
+        base_dirs=(str(tmp_path),),
+        remote_fallback=True,  # kolla-ansible is not local here -> remote
+        release_version="latest",
+        plugins={"kolla_groupvars_missing": PluginCfg(enabled=True)},
+        sources={"kolla_ansible": SourceCfg(owner="openstack", branch="stable/2025.2")},
+        releases=releases,
+    )
+
+
+def _mock_release(ref, keys):
+    # release_to_ref probes stable/<r> (200), then the monolithic all.yml.
+    body = ("".join(f"{k}: x\n" for k in sorted(keys))).encode()
+    responses.add(
+        responses.GET, f"{API}/openstack/kolla-ansible/commits/{ref}", status=200
+    )
+    responses.add(
+        responses.GET,
+        f"{RAW}/openstack/kolla-ansible/{ref}/ansible/group_vars/all.yml",
+        body=body,
+        status=200,
+    )
+
+
+def _mock_upstream(keys):
+    for ref in ("stable/A", "stable/B"):
+        _mock_release(ref, keys)
+
+
+@responses.activate
+def test_flags_upstream_key_missing_from_osism(tmp_path):
+    _write_defaults(
+        tmp_path, {"001-kolla-defaults.yml": "keystone_public_port: 5000\n"}
+    )
+    _mock_upstream({"keystone_public_port", "keystone_listen_port"})
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    assert [d.image for d in drifts] == ["keystone_listen_port"]
+    assert all(not d.allowlisted for d in drifts)
+
+
+@responses.activate
+def test_present_in_osism_is_not_missing(tmp_path):
+    _write_defaults(
+        tmp_path,
+        {
+            "001-kolla-defaults.yml": "keystone_public_port: 5000\nkeystone_listen_port: 5000\n"
+        },
+    )
+    _mock_upstream({"keystone_public_port", "keystone_listen_port"})
+    assert plugin.run(_cfg(tmp_path), Allowlist(())) == []
+
+
+@responses.activate
+def test_osism_key_in_any_file_suppresses(tmp_path):
+    # The missing-check reads the union of osism/defaults all/*.yml: a key that
+    # lives in a NON-001 file still counts as present (layout-agnostic).
+    _write_defaults(
+        tmp_path,
+        {
+            "001-kolla-defaults.yml": "keystone_public_port: 5000\n",
+            "keystone.yml": 'keystone_listen_port: "5000"\n',
+        },
+    )
+    _mock_upstream({"keystone_public_port", "keystone_listen_port"})
+    assert plugin.run(_cfg(tmp_path), Allowlist(())) == []
+
+
+@responses.activate
+def test_versions_template_supplied_key_not_flagged(tmp_path):
+    # openstack_release is supplied by the rendered versions.yml (second delivery
+    # path), not by osism/defaults. It must NOT be flagged as missing.
+    _write_defaults(
+        tmp_path,
+        {"001-kolla-defaults.yml": "foo: 1\n"},
+        versions='openstack_release: "{{ openstack_version }}"\n',
+    )
+    _mock_upstream({"foo", "openstack_release"})
+    assert plugin.run(_cfg(tmp_path), Allowlist(())) == []
+
+
+@responses.activate
+def test_union_across_releases_not_intersection(tmp_path):
+    # only_at_a is defined upstream ONLY at release A. OSISM's single defaults
+    # set must satisfy every supported release, so a key needed at ANY release
+    # and absent from OSISM is flagged (union, not intersection).
+    _write_defaults(tmp_path, {"001-kolla-defaults.yml": "foo: 1\n"})
+    _mock_release("stable/A", {"foo", "only_at_a"})
+    _mock_release("stable/B", {"foo"})
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    assert [d.image for d in drifts] == ["only_at_a"]
+
+
+@responses.activate
+def test_allowlist_marks_allowlisted(tmp_path):
+    _write_defaults(tmp_path, {"001-kolla-defaults.yml": "foo: 1\n"})
+    _mock_upstream({"foo", "openstack_release"})
+    al = Allowlist(
+        (
+            AllowEntry(
+                plugin="kolla_groupvars_missing",
+                image="openstack_release",
+                reason="OSISM sets the release by another mechanism",
+            ),
+        )
+    )
+    drifts = plugin.run(_cfg(tmp_path), al)
+    entry = [d for d in drifts if d.image == "openstack_release"][0]
+    assert entry.allowlisted is True
+
+
+def test_empty_release_range_raises(tmp_path):
+    from osism_drift.source import SourceError
+
+    _write_defaults(tmp_path, {"001-kolla-defaults.yml": "foo: 1\n"})
+    # Empty release dir -> release_range() derives an empty range (no network).
+    (tmp_path / "release" / "latest").mkdir(parents=True)
+    with pytest.raises(SourceError, match="empty supported release range"):
+        plugin.run(_cfg(tmp_path, releases=()), Allowlist(()))
