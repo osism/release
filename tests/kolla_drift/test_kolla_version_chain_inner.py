@@ -59,6 +59,25 @@ def test_hyphen_underscore_is_not_drift(cfg):
     assert all(d.image != "kolla_toolbox" for d in drifts)
 
 
+def test_reads_enable_flags_split_across_files(tmp_path):
+    # enable_foo lives in a file OTHER than 099-kolla.yml. A single-file reader
+    # would not see foo enabled and would misclassify its inert pin as a dead
+    # line (remove) instead of a wire-the-SBOM-key (add).
+    dall = tmp_path / "defaults" / "all"
+    dall.mkdir(parents=True)
+    (dall / "099-kolla.yml").write_text('enable_off: "no"\n')
+    (dall / "keystone.yml").write_text('enable_foo: "yes"\n')
+    c = Config(
+        remote=Remote("https://raw/", "https://api/", "main"),
+        base_dirs=(str(tmp_path), str(FIXT)),
+        release_version="latest",
+        plugins={"kolla_version_chain_inner": PluginCfg(enabled=True)},
+    )
+    d = [x for x in plugin.run(c, Allowlist(())) if x.image == "foo"][0]
+    assert "SBOM_IMAGE_TO_VERSION" in d.remediation  # add, not remove
+    assert "remove" not in d.remediation.lower()
+
+
 def test_allowlist_marks_allowlisted(cfg):
     al = Allowlist(
         (

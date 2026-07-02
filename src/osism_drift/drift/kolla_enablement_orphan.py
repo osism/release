@@ -1,6 +1,6 @@
 """kolla_enablement_orphan: OSISM enables a service upstream no longer defines.
 
-An OSISM enable flag (defaults all/099-kolla.yml enable_X) is an orphan when its
+An OSISM enable flag (defaults all/*.yml enable_X) is an orphan when its
 service X is absent from upstream kolla-ansible's enable-defaults at every
 supported release: upstream removed or renamed the service, so the OSISM flag is
 stale and should be cleaned up or migrated.
@@ -32,7 +32,7 @@ DESCRIPTION = (
     "kolla-ansible enable-defaults across all supported releases (orphan)."
 )
 INPUT_FILES = [
-    ("defaults", "all/099-kolla.yml"),
+    ("defaults", "all/*.yml"),
     ("kolla_ansible", "ansible/group_vars/all[.yml|/*.yml] (per resolved release ref)"),
 ]
 SUMMARY = (
@@ -47,7 +47,6 @@ REMEDIATION = (
     "than removed."
 )
 
-_ENABLE = "all/099-kolla.yml"
 SCOPE = "explicit"  # see module docstring; also flags dead enable_X: "no" cruft
 
 
@@ -62,9 +61,7 @@ def orphan_ids(config, scope: str = SCOPE) -> set:
     The raw orphan set (before the allowlist), shared with kolla_orphan_config
     so the companion/image sweep keys off the same dead-service determination.
     """
-    osism = enablement.osism_enable_ids(
-        enablement.parse_enable_flags(source.read("defaults", _ENABLE, config)), scope
-    )
+    osism = enablement.osism_enable_ids(enablement.osism_enable_flags(config), scope)
     releases = enablement.release_range(config)
     if not releases:
         # set().union(*[]) is empty, which would report EVERY selected flag as an
@@ -95,7 +92,7 @@ def _run(config, allowlist, scope, verbose: bool = False) -> list[DriftEntry]:
                 "releases (orphan)"
             ),
             expected_src="openstack/kolla-ansible group_vars enable-defaults @ supported refs",
-            found_src="osism/defaults all/099-kolla.yml",
+            found_src="osism/defaults all/*.yml",
         )
         drifts.append(allowlist.apply(d))
     return drifts

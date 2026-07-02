@@ -61,6 +61,28 @@ def test_flags_enabled_buildable_not_built(cfg):
 
 
 @responses.activate
+def test_reads_enable_flags_split_across_files(tmp_path):
+    # enable_foo lives in a file OTHER than 099-kolla.yml; a single-file reader
+    # would not see foo enabled and would miss the foo@A build drift.
+    dall = tmp_path / "defaults" / "all"
+    dall.mkdir(parents=True)
+    (dall / "099-kolla.yml").write_text('enable_bar: "yes"\n')
+    (dall / "keystone.yml").write_text('enable_foo: "yes"\n')
+    c = Config(
+        remote=Remote("https://raw.githubusercontent.com/", f"{API}/", "main", "osism"),
+        base_dirs=(str(tmp_path), str(FIXT)),
+        remote_fallback=True,
+        release_version="latest",
+        plugins={"kolla_enablement_build": PluginCfg(enabled=True)},
+        sources={"kolla": SourceCfg(owner="openstack", branch="stable/2025.2")},
+        releases=("A", "B"),
+    )
+    _mock_all()
+    drifts = plugin.run(c, Allowlist(()))
+    assert [d.image for d in drifts] == ["foo"]
+
+
+@responses.activate
 def test_allowlist_marks_allowlisted(cfg):
     _mock_all()
     al = Allowlist(

@@ -91,7 +91,7 @@ with `--plugin <name>`; every finding can be suppressed with an allowlist entry
 ### Plugin: kolla_enablement_orphan
 
 **Enabled — an enable flag must name a service upstream still defines.**
-Flags an OSISM enable flag (`osism/defaults` `all/099-kolla.yml` `enable_X`) whose service `X` is
+Flags an OSISM enable flag (`osism/defaults` `all/*.yml` `enable_X`) whose service `X` is
 **absent from upstream kolla-ansible's enable-defaults at every supported
 release** — the service was removed or renamed upstream, so the flag is stale.
 Orphan means absent from the **union** across the release range; a service still
@@ -113,7 +113,7 @@ is to extend `upstream_enable_keys` to union role-default keys.)
 
     python3 src/check-drift.py --group kolla --plugin kolla_enablement_orphan
 
-- **Reads:** `osism/defaults` `all/099-kolla.yml`; `openstack/kolla-ansible`
+- **Reads:** `osism/defaults` `all/*.yml`; `openstack/kolla-ansible`
   enable-defaults per resolved release ref.
 - **Fix:** remove the stale `enable_<name>` from `osism/defaults`, or migrate it
   to the upstream replacement; if it is an OSISM invention, add an allowlist entry
@@ -158,7 +158,7 @@ release with no OSISM template is skipped, not an error.
 ### Plugin: kolla_enablement_build
 
 **Enabled → built — an enabled service must be in the build set.** For each supported release R, an OSISM-enabled kolla service
-(`osism/defaults` `all/099-kolla.yml` `enable_X: "yes"`) that is **buildable
+(`osism/defaults` `all/*.yml` `enable_X: "yes"`) that is **buildable
 upstream** at R (a `docker/X` dir exists in `openstack/kolla` at R's ref) must
 appear in OSISM's **build set** for R — `osism/release`
 `latest/openstack-R.yml` under `infrastructure_projects` or `openstack_projects`.
@@ -177,7 +177,7 @@ release that resolves to no ref is a hard error, not a silent skip.
 
     python3 src/check-drift.py --group kolla --plugin kolla_enablement_build
 
-- **Reads:** `osism/defaults` `all/099-kolla.yml`; `osism/release`
+- **Reads:** `osism/defaults` `all/*.yml`; `osism/release`
   `latest/openstack-<release>.yml`; `openstack/kolla` `docker/` per resolved ref.
 - **Fix:** add the service to `infrastructure_projects` or `openstack_projects`
   in the release file, or allowlist it if it is intentionally not built.
@@ -216,7 +216,7 @@ A `versions['<key>']` key referenced in the template but **absent** from the SBO
 map is never produced, so the line silently falls back to the coarse
 `openstack_version` — an inert pin, with no error. This plugin flags exactly those
 keys, and **classifies** each: if OSISM actually deploys the service (enabled in
-`099-kolla.yml` and buildable in `openstack/kolla` `docker/`) the right fix is to
+`all/*.yml` and buildable in `openstack/kolla` `docker/`) the right fix is to
 **wire the SBOM key**; otherwise the template line is dead and should be
 **removed**. The report renders the two buckets as separate blocks, each pointing
 at the repo to edit.
@@ -225,7 +225,7 @@ at the repo to edit.
 
 - **Reads:** `container-image-kolla-ansible` `files/src/templates/versions.yml.j2`;
   `container-images-kolla` `src/tag-images-with-the-version.py`;
-  `osism/defaults` `all/099-kolla.yml`; `openstack/kolla` `docker/`.
+  `osism/defaults` `all/*.yml`; `openstack/kolla` `docker/`.
 - **Fix:** wire the key into `SBOM_IMAGE_TO_VERSION` if OSISM deploys it, else
   remove the dead template line; allowlist keys meant to default.
 

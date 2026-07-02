@@ -37,7 +37,7 @@ DESCRIPTION = (
 INPUT_FILES = [
     ("container_image_kolla_ansible", "files/src/templates/versions.yml.j2"),
     ("container_images_kolla", "src/tag-images-with-the-version.py"),
-    ("defaults", "all/099-kolla.yml"),
+    ("defaults", "all/*.yml"),
     ("kolla", "docker/"),
 ]
 # Module-level fallback for the report; every entry below sets a per-finding
@@ -53,7 +53,6 @@ REMEDIATION = (
 
 _TEMPLATE = "files/src/templates/versions.yml.j2"
 _SBOM = "src/tag-images-with-the-version.py"
-_ENABLE = "all/099-kolla.yml"
 _DOCKER = "docker"
 
 _ADD_SUMMARY = (
@@ -90,9 +89,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     template_keys = versions_template.parse_versions_keys(template_bytes)
     sbom_keys = {enablement.canon(k) for k in sbom_map.parse_sbom_keys(sbom_bytes)}
 
-    enabled = enablement.truthy_enables(
-        enablement.parse_enable_flags(source.read("defaults", _ENABLE, config))
-    )
+    enabled = enablement.truthy_enables(enablement.osism_enable_flags(config))
     buildable = kolla_docker.parse(
         source.list_dir("kolla", _DOCKER, config, dirs_only=True)
     )

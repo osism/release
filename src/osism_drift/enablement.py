@@ -26,6 +26,27 @@ def parse_enable_flags(body: bytes) -> dict:
     }
 
 
+_OSISM_DEFAULTS_DIR = "all"
+
+
+def osism_enable_flags(config) -> dict:
+    """{service_id: raw_value} for every enable_<id> across all OSISM defaults
+    files (`osism/defaults` all/*.yml), merged.
+
+    Reading the union of the directory — not a single hardcoded file — keeps the
+    OSISM enable set independent of how the defaults are split across files, so a
+    reorganization that moves an enable_<id> out of 099-kolla.yml cannot silently
+    drop it from the comparison. Non-.yml entries are skipped.
+    """
+    flags = {}
+    for fn in sorted(source.list_dir("defaults", _OSISM_DEFAULTS_DIR, config)):
+        if not fn.endswith(".yml"):
+            continue
+        body = source.read("defaults", f"{_OSISM_DEFAULTS_DIR}/{fn}", config)
+        flags.update(parse_enable_flags(body))
+    return flags
+
+
 def truthy_enables(flags: dict) -> set:
     """canon ids whose value is a literal yes/true (skip no/false/jinja)."""
     out = set()
