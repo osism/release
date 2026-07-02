@@ -44,6 +44,10 @@ def test_kolla_orphan_config_plugin_registered():
     assert "kolla_orphan_config" in [p.NAME for p in KOLLA_PLUGINS]
 
 
+def test_kolla_groupvars_missing_plugin_registered():
+    assert "kolla_groupvars_missing" in [p.NAME for p in KOLLA_PLUGINS]
+
+
 def test_every_plugin_has_summary_and_remediation():
     for p in KOLLA_PLUGINS:
         assert isinstance(p.SUMMARY, str) and p.SUMMARY.strip(), p.NAME
@@ -66,6 +70,7 @@ def test_default_config_enables_every_registered_plugin():
 def test_plugins_in_lifecycle_order():
     assert [p.NAME for p in KOLLA_PLUGINS] == [
         "kolla_enablement_orphan",
+        "kolla_groupvars_missing",
         "kolla_orphan_config",
         "kolla_secrets_orphan",
         "kolla_enablement_build",
