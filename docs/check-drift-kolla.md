@@ -169,7 +169,9 @@ table.
 
 This check is **range-aware**: the supported releases derive from the
 `release/latest/openstack-*.yml` file set (override with the `releases:` config
-key). Each release resolves to a real upstream ref via a probe —
+key), and the comparison spans that whole range for the reason set out in
+"Release model and why the range-aware checks use unions". Each release resolves
+to a real upstream ref via a probe —
 `stable/<r>` → `unmaintained/<r>` → `<r>-eol` → `<r>-eom`, first that exists —
 because OSISM keeps building releases upstream OpenStack has moved past EOL.
 Override a specific ref with `release_refs: {kolla: {"2024.2": "2024.2-eol"}}`. A
@@ -272,6 +274,42 @@ exit non-zero — a dead exception is a bug, not a silent no-op. Detection is sc
 to the plugins that actually ran (a `--plugin` run only judges that plugin's
 entries) and is skipped under `--no-allowlist`. Remove an entry once its drift is
 fixed.
+
+## Release model and why the range-aware checks use unions
+
+To read the range-aware plugins correctly (or write one), you need the OSISM
+defaults release/bake model:
+
+- **`osism/defaults` is a single-tip repo.** It has one line of history (`main`
+  plus feature branches) and dated release **tags** like `v0.20260701.0`. There
+  are **no** per-OpenStack-release branches of defaults.
+- **A defaults tag is baked into each `osism/release` manifest at release-cut
+  time.** In `osism/release`, `latest/base.yml` and every
+  `latest/openstack-<rel>.yml` carry a renovate-managed
+  `defaults_version: '<tag>'`. An already-cut manager version freezes an older
+  tag — e.g. `10.1.0/base.yml` pins `v0.20260526.0` while `latest/base.yml` pins
+  `v0.20260701.0`.
+- **One defaults snapshot serves every supported release.** Within a single
+  manager version, one `defaults_version` is shared across **all** supported
+  OpenStack releases: in `latest/`, `openstack-2024.1.yml … openstack-2025.2.yml`
+  all pin the same `defaults_version`. So that one `osism/defaults` snapshot must
+  be simultaneously correct for every supported release (2024.1, 2024.2, 2025.1,
+  2025.2).
+
+The range-aware kolla plugins therefore read `osism/defaults` at its single tip
+(`remote.branch = main`, unpinned) and compare it against the **union** of the
+per-release upstream refs across the supported range (`release_range` /
+`release_to_ref`). Both directions need the union, for slightly different
+reasons:
+
+- **Removal direction** (e.g. `kolla_enablement_orphan`): a service or flag is
+  only an orphan if it is absent from upstream at **every** supported release.
+  The one defaults tip must not break **any** supported release, so anything a
+  still-in-range release defines is still needed — comparing against the union is
+  the conservative choice that avoids false orphans.
+- **Add direction** (e.g. `kolla_groupvars_missing`): a var is missing if
+  upstream defines it at **any** supported release and OSISM lacks it — because
+  that one defaults tip has to satisfy every supported release at once.
 
 ## Adding a plugin
 
