@@ -7,3 +7,5 @@ rules:
 
 ignore: |
   archive/
+  tests/image_drift/fixtures/
+  tests/kolla_drift/fixtures/

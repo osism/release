@@ -1,0 +1,11 @@
+---
+# Fixture: a manager orchestration playbook that consumes pbonly_image.
+# Proves image_orphan scans ansible-playbooks-manager, not only roles, so
+# pbonly (emitted by the manager template, consumed only here) is not an orphan.
+- name: Pull images
+  hosts: manager
+  tasks:
+    - name: Pull pbonly
+      community.docker.docker_image:
+        name: "{{ pbonly_image }}"
+        source: pull

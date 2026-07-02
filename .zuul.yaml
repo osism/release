@@ -1,4 +1,16 @@
 ---
+- job:
+    name: release-tox-drift-test
+    parent: tox
+    vars:
+      tox_envlist: drift-test
+
+- job:
+    name: release-tox-drift
+    parent: tox
+    vars:
+      tox_envlist: drift
+
 - project:
     merge-mode: squash-merge
     check:
@@ -6,8 +18,11 @@
         - flake8
         - yamllint
         - python-black
+        - release-tox-drift-test
     periodic-daily:
       jobs:
         - flake8
         - yamllint
         - python-black
+        - release-tox-drift-test
+        - release-tox-drift
