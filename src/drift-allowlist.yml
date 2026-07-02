@@ -64,3 +64,9 @@ allow:
   # removed-upstream service). Truthy, so they surface in the truthy-only scope.
   - {plugin: kolla_enablement_orphan, image: common, reason: "OSISM-invented flag; no upstream counterpart by design"}
   - {plugin: kolla_enablement_orphan, image: kolla_operations, reason: "OSISM-invented flag; no upstream counterpart by design"}
+  # --- kolla_groupvars_missing ---
+  # Upstream typo for neutron_external_interface (which OSISM defines correctly),
+  # so it must not be mirrored. Waiting for the upstream fix to merge:
+  # https://review.opendev.org/c/openstack/kolla-ansible/+/985031
+  # Remove this entry once that lands (the check will then report it as stale).
+  - {plugin: kolla_groupvars_missing, image: eutron_external_interface, reason: "upstream typo for neutron_external_interface; awaiting upstream fix https://review.opendev.org/c/openstack/kolla-ansible/+/985031"}
