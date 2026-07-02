@@ -26,7 +26,7 @@ DESCRIPTION = (
 )
 INPUT_FILES = [
     ("defaults", "all/*.yml"),
-    ("defaults", "all/099-kolla.yml (enable flags, via kolla_enablement_orphan)"),
+    ("defaults", "all/*.yml (enable flags, via kolla_enablement_orphan)"),
 ]
 SUMMARY = (
     "{n} dead companion/image config vars for services upstream removed (their "

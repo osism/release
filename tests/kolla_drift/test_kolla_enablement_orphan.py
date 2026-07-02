@@ -108,6 +108,28 @@ def test_run_uses_explicit_default(cfg):
     assert sorted(d.image for d in drifts) == ["feat", "multi_word", "off"]
 
 
+@responses.activate
+def test_reads_enable_flags_split_across_files(tmp_path):
+    # An enable_<id> living in a file OTHER than 099-kolla.yml must still be
+    # compared. A single-file reader would miss enable_ghost and never flag it.
+    dall = tmp_path / "defaults" / "all"
+    dall.mkdir(parents=True)
+    (dall / "099-kolla.yml").write_text('enable_foo: "yes"\n')
+    (dall / "extra.yml").write_text('enable_ghost: "yes"\n')
+    c = Config(
+        remote=Remote(f"{RAW}/", f"{API}/", "main", "osism"),
+        base_dirs=(str(tmp_path),),
+        remote_fallback=True,
+        release_version="latest",
+        plugins={"kolla_enablement_orphan": PluginCfg(enabled=True)},
+        sources={"kolla_ansible": SourceCfg(owner="openstack", branch="stable/2025.2")},
+        releases=("A", "B"),
+    )
+    _mock_upstream({"foo"})  # upstream defines foo, not ghost -> ghost is an orphan
+    drifts = plugin._run(c, Allowlist(()), "truthy")
+    assert [d.image for d in drifts] == ["ghost"]
+
+
 def test_empty_release_range_raises(tmp_path):
     from osism_drift.source import SourceError
 

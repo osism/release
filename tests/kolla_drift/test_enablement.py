@@ -143,6 +143,31 @@ def test_upstream_enable_keys_split_dir():
     assert enablement.upstream_enable_keys("2025.2", cfg) == {"valkey", "redis"}
 
 
+def test_osism_enable_flags_merges_across_all_files(tmp_path):
+    # enable_* flags are collected from EVERY defaults all/*.yml, so the OSISM
+    # enable set is independent of which file a flag lives in (layout-agnostic).
+    # A single-file reader would miss enable_keystone here.
+    dall = tmp_path / "defaults" / "all"
+    dall.mkdir(parents=True)
+    (dall / "099-kolla.yml").write_text('enable_redis: "yes"\nenable_heat: "no"\n')
+    (dall / "keystone.yml").write_text(
+        'enable_keystone: "yes"\nkeystone_listen_port: "5000"\n'
+    )
+    (dall / "notes.txt").write_text("enable_ignored: yes\n")  # not .yml -> skipped
+    cfg = Config(
+        remote=Remote("https://raw/", "https://api/", "main", "osism"),
+        base_dirs=(str(tmp_path),),
+        release_version="latest",
+        plugins={},
+        sources={},
+    )
+    assert enablement.osism_enable_flags(cfg) == {
+        "redis": "yes",
+        "heat": "no",
+        "keystone": "yes",
+    }
+
+
 def test_osism_enable_ids_truthy():
     flags = {"redis": "yes", "off": "no", "grafana": True, "jinja": "{{ x | bool }}"}
     assert enablement.osism_enable_ids(flags, "truthy") == {"redis", "grafana"}

@@ -3,7 +3,7 @@
 For each supported release R, an OSISM-enabled service is a build gap when it is
 buildable upstream at R yet missing from OSISM's build set for R:
 
-  - enabled    -- enable_X is truthy in defaults all/099-kolla.yml
+  - enabled    -- enable_X is truthy in defaults all/*.yml
   - buildable  -- a docker/X dir exists in openstack/kolla at R's resolved ref
   - built      -- X appears in release latest/openstack-R.yml under
                   infrastructure_projects or openstack_projects
@@ -25,7 +25,7 @@ DESCRIPTION = (
     "supported release but absent from that release's OSISM build set."
 )
 INPUT_FILES = [
-    ("defaults", "all/099-kolla.yml"),
+    ("defaults", "all/*.yml"),
     ("release", "latest/openstack-<release>.yml"),
     ("kolla", "docker/ (per resolved release ref)"),
 ]
@@ -38,14 +38,10 @@ REMEDIATION = (
     "release file, or allowlist it if it is intentionally not built."
 )
 
-_ENABLE = "all/099-kolla.yml"
-
 
 def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     """Return build-gap drifts: enabled and upstream-buildable but not built."""
-    enabled = enablement.truthy_enables(
-        enablement.parse_enable_flags(source.read("defaults", _ENABLE, config))
-    )
+    enabled = enablement.truthy_enables(enablement.osism_enable_flags(config))
     drifts = []
     for release in enablement.release_range(config):
         ref = source.release_to_ref("kolla", release, config)
