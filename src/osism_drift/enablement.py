@@ -66,30 +66,71 @@ def osism_enable_flags(config) -> dict:
     return flags
 
 
+_CONTAINER_IMAGE_REPO = "container_image_kolla_ansible"
 _VERSIONS_TEMPLATE = (
-    "container_image_kolla_ansible",
+    _CONTAINER_IMAGE_REPO,
     "files/src/templates/versions.yml.j2",
 )
+_OVERLAYS_DIR = "overlays"
+_OVERLAY_FILE = "kolla-ansible.yml"
+
+
+def _osism_overlay_bodies(config):
+    """Yield the bytes of every container-image-kolla-ansible per-release overlay
+    group_vars file (overlays/<release>/kolla-ansible.yml).
+
+    The Dockerfile bakes the deployed release's overlay into the image's
+    group_vars/all (mv /overlays/$OPENSTACK_VERSION/kolla-ansible.yml /overlays,
+    staged by the entrypoint), so its top-level keys are part of OSISM's effective
+    group_vars supply — the third path alongside osism/defaults and the rendered
+    versions.yml. Enumerated from the overlays/ tree (not a hardcoded release
+    list) so the set tracks whatever releases carry an overlay and a repo with no
+    overlays/ dir contributes nothing. Only the per-release overlay files count:
+    overlays/<release>/kolla-ansible.yml has exactly one path segment between the
+    dir and the file, which skips the overlays/release/<ver>/ image-release tree
+    (not a group_vars overlay). Union across all release overlays, consistent with
+    the union-over-supported-releases approximation the group_vars diff uses.
+    """
+    prefix = f"{_OVERLAYS_DIR}/"
+    suffix = f"/{_OVERLAY_FILE}"
+    for path in sorted(
+        source.list_tree(_CONTAINER_IMAGE_REPO, _OVERLAYS_DIR, config, missing_ok=True)
+    ):
+        if not (path.startswith(prefix) and path.endswith(suffix)):
+            continue
+        # Exactly one segment between overlays/ and the file (a release id): keep
+        # overlays/<release>/kolla-ansible.yml, skip any deeper nesting.
+        if path[len(prefix) : -len(suffix)].count("/") == 0:
+            yield source.read(_CONTAINER_IMAGE_REPO, path, config)
 
 
 def osism_groupvars_keys(config) -> set:
     """Union of every top-level group_vars key OSISM supplies to the kolla-ansible
     container's group_vars/all — the OSISM side of the group_vars diff.
 
-    OSISM delivers these from two paths, and BOTH must count or a var supplied by
-    the second path false-positives as missing:
-      1. osism/defaults all/*.yml (the generics gilt overlay), and
+    OSISM delivers these from three paths, and ALL must count or a var supplied by
+    one of them false-positives as missing:
+      1. osism/defaults all/*.yml (the generics gilt overlay),
       2. container-image-kolla-ansible files/src/templates/versions.yml.j2, rendered
          into group_vars/all/versions.yml in the image (openstack_release,
-         openstack_previous_release_name, the kolla_*_version pins, ...).
+         openstack_previous_release_name, the kolla_*_version pins, ...), and
+      3. container-image-kolla-ansible overlays/<release>/kolla-ansible.yml, the
+         per-release group_vars the Dockerfile bakes into the image at deploy time
+         (the release-specific analogue of a defaults/all backward-compat entry:
+         vars upstream removed from group_vars/all but an older supported release's
+         role still references, e.g. the external-Ceph keyrings and the 2024.x
+         swift group_vars).
     The versions template is jinja/cookiecutter, not valid YAML, so its top-level
-    keys are read with the line-key parser, not a YAML load.
+    keys are read with the line-key parser, not a YAML load; the overlays are valid
+    YAML (jinja only in values), so top_level_keys reads them like the defaults.
     """
     keys = set()
     for body in _osism_defaults_bodies(config):
         keys |= top_level_keys(body)
     repo, path = _VERSIONS_TEMPLATE
     keys |= secrets_map.parse_secret_keys(source.read(repo, path, config))
+    for body in _osism_overlay_bodies(config):
+        keys |= top_level_keys(body)
     return keys
 
 

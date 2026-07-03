@@ -247,6 +247,46 @@ def test_osism_groupvars_keys_merges_defaults_and_versions_template(tmp_path):
     }
 
 
+def test_osism_groupvars_keys_counts_overlays(tmp_path):
+    # The third supply path: container-image-kolla-ansible
+    # overlays/<release>/kolla-ansible.yml, baked into group_vars/all at deploy
+    # time. Top-level keys of every per-release overlay are unioned in; a deeper
+    # overlays/release/<ver>/ tree is NOT a group_vars overlay and is skipped.
+    dall = tmp_path / "defaults" / "all"
+    dall.mkdir(parents=True)
+    (dall / "001-kolla-defaults.yml").write_text("keystone_public_port: 5000\n")
+    vt = tmp_path / "container-image-kolla-ansible" / "files" / "src" / "templates"
+    vt.mkdir(parents=True)
+    (vt / "versions.yml.j2").write_text('openstack_release: "{{ v }}"\n')
+    overlays = tmp_path / "container-image-kolla-ansible" / "overlays"
+    (overlays / "2024.1").mkdir(parents=True)
+    (overlays / "2024.1" / "kolla-ansible.yml").write_text(
+        'ceph_cinder_keyring: "client.cinder.keyring"\nglance_backend_swift: "no"\n'
+    )
+    (overlays / "2024.2").mkdir(parents=True)
+    (overlays / "2024.2" / "kolla-ansible.yml").write_text(
+        'ceph_glance_keyring: "client.glance.keyring"\n'
+    )
+    (overlays / "release" / "6.0.1").mkdir(parents=True)
+    (overlays / "release" / "6.0.1" / "kolla-ansible.yml").write_text(
+        "not_a_groupvar: 1\n"
+    )
+    cfg = Config(
+        remote=Remote("https://raw/", "https://api/", "main", "osism"),
+        base_dirs=(str(tmp_path),),
+        release_version="latest",
+        plugins={},
+        sources={},
+    )
+    assert enablement.osism_groupvars_keys(cfg) == {
+        "keystone_public_port",
+        "openstack_release",
+        "ceph_cinder_keyring",
+        "glance_backend_swift",
+        "ceph_glance_keyring",
+    }
+
+
 def test_osism_enable_flags_merges_across_all_files(tmp_path):
     # enable_* flags are collected from EVERY defaults all/*.yml, so the OSISM
     # enable set is independent of which file a flag lives in (layout-agnostic).
