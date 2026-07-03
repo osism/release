@@ -80,3 +80,8 @@ allow:
   - {plugin: kolla_image_orphan, image: dcap_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}
   - {plugin: kolla_image_orphan, image: dcap_register_image_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}
   - {plugin: kolla_image_orphan, image: dcap_server_image_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}
+  # Defined in kolla-ansible master (neutron role) but not yet in a supported
+  # release; remove these once 2026.1 is supported (the union will cover them and
+  # the check will report the entries as stale).
+  - {plugin: kolla_image_orphan, image: neutron_ovn_vpn_agent_image, reason: "defined upstream at master, ahead of the supported release range"}
+  - {plugin: kolla_image_orphan, image: neutron_ovn_vpn_agent_tag, reason: "defined upstream at master, ahead of the supported release range"}
