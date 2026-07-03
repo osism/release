@@ -60,6 +60,9 @@ class Config:  # pylint: disable=too-many-instance-attributes  # data record
     release_refs: dict = field(default_factory=dict)  # {repo: {release: ref}} override
     base_dirs: tuple = ()  # local checkout roots (CLI --base-dir); () -> all remote
     remote_fallback: bool = False  # CLI --remote-fallback: not-found-local -> remote
+    ref_cache: dict = field(
+        default_factory=dict
+    )  # per-run release_to_ref memo (runtime state)
 
 
 def load_config(path) -> Config:
