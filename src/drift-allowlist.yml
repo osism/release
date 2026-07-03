@@ -70,3 +70,13 @@ allow:
   # https://review.opendev.org/c/openstack/kolla-ansible/+/985031
   # Remove this entry once that lands (the check will then report it as stale).
   - {plugin: kolla_groupvars_missing, image: eutron_external_interface, reason: "upstream typo for neutron_external_interface; awaiting upstream fix https://review.opendev.org/c/openstack/kolla-ansible/+/985031"}
+  # --- kolla_image_orphan: OSISM-built / no upstream kolla-ansible role ---
+  - {plugin: kolla_image_orphan, image: mariabackup_image, reason: "OSISM-built mariadb backup image; no upstream role"}
+  - {plugin: kolla_image_orphan, image: mariabackup_tag, reason: "OSISM-built mariadb backup image; no upstream role"}
+  - {plugin: kolla_image_orphan, image: prometheus_haproxy_exporter_image, reason: "OSISM-built exporter; no upstream role"}
+  - {plugin: kolla_image_orphan, image: prometheus_haproxy_exporter_tag, reason: "OSISM-built exporter; no upstream role"}
+  - {plugin: kolla_image_orphan, image: tempest_image, reason: "kolla-built test image; not a deployed role"}
+  - {plugin: kolla_image_orphan, image: tempest_tag, reason: "kolla-built test image; not a deployed role"}
+  - {plugin: kolla_image_orphan, image: dcap_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}
+  - {plugin: kolla_image_orphan, image: dcap_register_image_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}
+  - {plugin: kolla_image_orphan, image: dcap_server_image_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}

@@ -325,3 +325,53 @@ def test_osism_enable_ids_explicit_includes_all_keys():
 def test_osism_enable_ids_unknown_scope_raises():
     with pytest.raises(ValueError):
         enablement.osism_enable_ids({}, "bogus")
+
+
+API = "https://api.github.com/repos"
+RAW = "https://raw.githubusercontent.com"
+
+
+def _cfg_ka():
+    return Config(
+        remote=Remote(f"{RAW}/", f"{API}/", "main", "osism"),
+        base_dirs=(),  # no local checkout -> remote (mocked)
+        remote_fallback=True,
+        release_version="latest",
+        plugins={},
+        sources={"kolla_ansible": SourceCfg(owner="openstack", branch="stable/2025.2")},
+        releases=("A",),
+    )
+
+
+def _mock_roles(ref, roles):
+    # roles: {role_name: "<yaml body of that role's defaults/main.yml>"}
+    responses.add(
+        responses.GET, f"{API}/openstack/kolla-ansible/commits/{ref}", status=200
+    )
+    responses.add(
+        responses.GET,
+        f"{API}/openstack/kolla-ansible/contents/ansible/roles?ref={ref}",
+        json=[{"name": r, "type": "dir"} for r in roles],
+        status=200,
+    )
+    for role, body in roles.items():
+        responses.add(
+            responses.GET,
+            f"{RAW}/openstack/kolla-ansible/{ref}/ansible/roles/{role}/defaults/main.yml",
+            body=body,
+            status=200,
+        )
+
+
+@responses.activate
+def test_upstream_image_tag_keys_collects_both_suffixes():
+    _mock_roles(
+        "stable/A",
+        {
+            "nova": 'nova_tag: "x"\nnova_api_image: "y"\nnova_api_tag: "z"\n',
+            "glance": 'glance_image: "g"\nglance_tag: "t"\nglance_image_full: "drop"\n',
+        },
+    )
+    images, tags = enablement.upstream_image_tag_keys("A", _cfg_ka())
+    assert images == {"nova_api_image", "glance_image"}  # *_image_full excluded
+    assert tags == {"nova_tag", "nova_api_tag", "glance_tag"}

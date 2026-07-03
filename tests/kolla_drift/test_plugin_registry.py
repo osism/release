@@ -72,6 +72,7 @@ def test_plugins_in_lifecycle_order():
         "kolla_enablement_orphan",
         "kolla_groupvars_missing",
         "kolla_orphan_config",
+        "kolla_image_orphan",
         "kolla_secrets_orphan",
         "kolla_enablement_build",
         "kolla_version_chain_upstream",

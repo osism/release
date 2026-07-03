@@ -216,6 +216,42 @@ def upstream_groupvars_keys(release, config) -> set:
     return keys
 
 
+_UPSTREAM_ROLES_DIR = "ansible/roles"
+
+
+def upstream_image_tag_keys(release, config) -> tuple[set, set]:
+    """(image_vars, tag_vars) defined across upstream kolla-ansible role defaults
+    at `release`'s resolved ref.
+
+    The canonical source of kolla image/tag parameters is
+    ansible/roles/<role>/defaults/main.yml, where each carries `<svc>_image` and
+    `<svc>_tag` top-level defaults. Read every role's defaults once and split the
+    top-level keys by suffix: `*_image` (excluding the derived `*_image_full`)
+    and `*_tag`. A role without a defaults file is skipped. Compared by exact
+    name (an Ansible var name is a Python identifier), matching top_level_keys.
+    """
+    ref = source.release_to_ref("kolla_ansible", release, config)
+    images, tags = set(), set()
+    for role in source.list_dir_at_ref(
+        "kolla_ansible", _UPSTREAM_ROLES_DIR, ref, config, dirs_only=True
+    ):
+        body = source.read_at_ref(
+            "kolla_ansible",
+            f"{_UPSTREAM_ROLES_DIR}/{role}/defaults/main.yml",
+            ref,
+            config,
+            optional=True,
+        )
+        if body is None:
+            continue
+        for k in top_level_keys(body):
+            if k.endswith("_image") and not k.endswith("_image_full"):
+                images.add(k)
+            elif k.endswith("_tag"):
+                tags.add(k)
+    return images, tags
+
+
 def osism_enable_ids(flags, scope) -> set:
     """OSISM enable ids selected by scope. 'truthy' -> literal yes/true only;
     'explicit' -> every enable_* key (canon-normalized) regardless of value."""
