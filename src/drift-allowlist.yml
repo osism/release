@@ -71,6 +71,7 @@ allow:
   # in kolla_orphan_config (which derives its dead-service set from this check).
   - {plugin: kolla_enablement_orphan, image: chrony, reason: "OSISM host-level NTP (ansible-collection-services/roles/chrony consumes chrony_servers/chrony_allowed_subnets); not the kolla chrony container removed upstream in Xena"}
   - {plugin: kolla_enablement_orphan, image: openstack_exporter, reason: "OSISM k8s openstack-exporter (osism-kubernetes/roles/monitoring); OSISM invention, distinct from upstream prometheus_openstack_exporter"}
+  - {plugin: kolla_enablement_orphan, image: auditd, reason: "OSISM host-level auditd (ansible-collection-services/roles/auditd, gated by generic/auditd.yml + bootstrap/maintenance playbooks); never an upstream kolla service. enable_auditd is false by default, but explicit scope flags it by name regardless of value"}
   # --- kolla_groupvars_missing ---
   # Upstream typo for neutron_external_interface (which OSISM defines correctly),
   # so it must not be mirrored. Waiting for the upstream fix to merge:
