@@ -61,9 +61,16 @@ allow:
   - {plugin: kolla_inventory, image: collectd, match: prefix, reason: "not deployed in this series"}
   # --- kolla_enablement_orphan ---
   # OSISM-invented enable flags with no upstream counterpart by design (not a
-  # removed-upstream service). Truthy, so they surface in the truthy-only scope.
+  # removed-upstream service). The check uses explicit scope -- it flags every
+  # invented enable_* by name regardless of value -- so these surface even when off.
   - {plugin: kolla_enablement_orphan, image: common, reason: "OSISM-invented flag; no upstream counterpart by design"}
   - {plugin: kolla_enablement_orphan, image: kolla_operations, reason: "OSISM-invented flag; no upstream counterpart by design"}
+  # Live OSISM services whose flag/var names collide with dead or renamed kolla
+  # ones. Verified via upstream git history + OSISM consumers: not the removed
+  # kolla service, so allowlisting here also clears their <svc>_* companion vars
+  # in kolla_orphan_config (which derives its dead-service set from this check).
+  - {plugin: kolla_enablement_orphan, image: chrony, reason: "OSISM host-level NTP (ansible-collection-services/roles/chrony consumes chrony_servers/chrony_allowed_subnets); not the kolla chrony container removed upstream in Xena"}
+  - {plugin: kolla_enablement_orphan, image: openstack_exporter, reason: "OSISM k8s openstack-exporter (osism-kubernetes/roles/monitoring); OSISM invention, distinct from upstream prometheus_openstack_exporter"}
   # --- kolla_groupvars_missing ---
   # Upstream typo for neutron_external_interface (which OSISM defines correctly),
   # so it must not be mirrored. Waiting for the upstream fix to merge:
