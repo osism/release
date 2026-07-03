@@ -27,4 +27,5 @@ plugins:
   kolla_enablement_orphan: {enabled: true}
   kolla_groupvars_missing: {enabled: true}
   kolla_orphan_config: {enabled: true}
+  kolla_image_orphan: {enabled: true}
   kolla_secrets_orphan: {enabled: true}
