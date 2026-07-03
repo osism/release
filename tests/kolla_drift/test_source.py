@@ -852,3 +852,82 @@ def test_release_to_ref_memoizes_probes(monkeypatch):
     assert source.release_to_ref("kolla", "X", cfg) == "stable/X"
     assert len(calls) == first  # served from cache, no new probes
     assert cfg.ref_cache[("kolla", "X")] == "stable/X"
+
+
+def test_auth_headers_adds_bearer_for_github_host(monkeypatch):
+    from osism_drift import source
+
+    monkeypatch.setenv("GITHUB_TOKEN", "secrettoken")
+    h = source._auth_headers("https://api.github.com/repos/x", {"Accept": "x"})
+    assert h["Authorization"] == "Bearer secrettoken"
+    assert h["Accept"] == "x"
+
+
+def test_auth_headers_absent_when_no_token(monkeypatch):
+    from osism_drift import source
+
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    assert "Authorization" not in source._auth_headers("https://api.github.com/x")
+
+
+def test_auth_headers_not_leaked_to_non_github_host(monkeypatch):
+    # A token in the environment must NOT be attached when github_raw/github_api
+    # have been pointed at a mirror/proxy/test server (non-GitHub host).
+    from osism_drift import source
+
+    monkeypatch.setenv("GITHUB_TOKEN", "secrettoken")
+    assert "Authorization" not in source._auth_headers("https://mirror.internal/x")
+    assert "Authorization" not in source._auth_headers("http://localhost:8080/x")
+
+
+@responses.activate
+def test_get_sends_auth_header_to_github(monkeypatch):
+    from osism_drift import source
+    from osism_drift.config import Config, Remote
+
+    monkeypatch.setenv("GITHUB_TOKEN", "tok")
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/osism/release/main/x.yml",
+        body=b"k: v",
+        status=200,
+    )
+    cfg = Config(
+        remote=Remote(
+            "https://raw.githubusercontent.com/",
+            "https://api.github.com/repos/",
+            "main",
+            "osism",
+        ),
+        release_version="latest",
+        plugins={},
+    )
+    source.read("release", "x.yml", cfg)
+    assert responses.calls[0].request.headers["Authorization"] == "Bearer tok"
+
+
+@responses.activate
+def test_get_does_not_send_auth_to_non_github_mirror(monkeypatch):
+    from osism_drift import source
+    from osism_drift.config import Config, Remote
+
+    monkeypatch.setenv("GITHUB_TOKEN", "tok")
+    responses.add(
+        responses.GET,
+        "https://mirror.internal/osism/release/main/x.yml",
+        body=b"k: v",
+        status=200,
+    )
+    cfg = Config(
+        remote=Remote(
+            "https://mirror.internal/",
+            "https://mirror.internal/repos/",
+            "main",
+            "osism",
+        ),
+        release_version="latest",
+        plugins={},
+    )
+    source.read("release", "x.yml", cfg)
+    assert "Authorization" not in responses.calls[0].request.headers

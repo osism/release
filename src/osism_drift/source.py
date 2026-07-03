@@ -5,14 +5,42 @@ A set `branch` *pins* the repo: it is always read remotely at that ref, so the
 result is deterministic regardless of any local checkout's current branch.
 """
 
+import os
 import subprocess
 from pathlib import Path
+from urllib.parse import urlparse
 
 import requests
 
 
 class SourceError(Exception):
     """Raised on any read/list failure that should abort the run."""
+
+
+# Hosts the GitHub bearer token may be sent to. github_raw/github_api are
+# configurable (a mirror, proxy, or test server), so the token is attached only
+# when the actual request host is public GitHub -- an ambient GITHUB_TOKEN must
+# never leak to a non-GitHub endpoint someone pointed the base URLs at.
+_GITHUB_HOSTS = frozenset({"github.com", "api.github.com", "raw.githubusercontent.com"})
+
+
+def _auth_headers(url: str, extra: dict | None = None) -> dict:
+    """Merge a GitHub bearer token into request headers when one is available
+    AND `url` targets a public GitHub host.
+
+    Reads GITHUB_TOKEN (then GH_TOKEN) from the environment. When set and the
+    request goes to a GitHub host, the read is authenticated, lifting GitHub's
+    unauthenticated 60/hr per-IP limit to 5000/hr; otherwise behaviour is
+    unchanged (unauthenticated). Gating on the host keeps a token configured for
+    github.com from leaking to a non-GitHub github_raw/github_api override. The
+    Zuul periodic-daily job carries no token today, so this is a no-op there and
+    a win for local/developer and any future authenticated runs.
+    """
+    headers = dict(extra or {})
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token and (urlparse(url).hostname or "") in _GITHUB_HOSTS:
+        headers["Authorization"] = f"Bearer {token}"
+    return headers
 
 
 def _source(repo: str, config):
@@ -158,7 +186,7 @@ def read(repo: str, rel_path: str, config) -> bytes:
         return p.read_bytes()
     url = _remote_url(repo, rel_path, config)
     try:
-        r = requests.get(url, timeout=30)
+        r = requests.get(url, timeout=30, headers=_auth_headers(url))
     except requests.RequestException as e:
         raise SourceError(f"network error fetching {url}: {e}") from e
     if r.status_code == 404:
@@ -178,7 +206,7 @@ def read_optional(repo: str, rel_path: str, config) -> bytes | None:
         return p.read_bytes() if p.exists() else None
     url = _remote_url(repo, rel_path, config)
     try:
-        r = requests.get(url, timeout=30)
+        r = requests.get(url, timeout=30, headers=_auth_headers(url))
     except requests.RequestException as e:
         raise SourceError(f"network error fetching {url}: {e}") from e
     if r.status_code == 404:
@@ -227,7 +255,9 @@ def list_tree(repo: str, rel_path: str, config, missing_ok: bool = False) -> lis
     )
     try:
         r = requests.get(
-            url, timeout=30, headers={"Accept": "application/vnd.github.v3+json"}
+            url,
+            timeout=30,
+            headers=_auth_headers(url, {"Accept": "application/vnd.github.v3+json"}),
         )
     except requests.RequestException as e:
         raise SourceError(f"network error listing tree {url}: {e}") from e
@@ -262,7 +292,9 @@ def list_dir(repo: str, rel_path: str, config, dirs_only: bool = False) -> list[
     )
     try:
         r = requests.get(
-            url, timeout=30, headers={"Accept": "application/vnd.github.v3+json"}
+            url,
+            timeout=30,
+            headers=_auth_headers(url, {"Accept": "application/vnd.github.v3+json"}),
         )
     except requests.RequestException as e:
         raise SourceError(f"network error listing {url}: {e}") from e
@@ -297,7 +329,9 @@ def list_dir_at_ref(
     )
     try:
         r = requests.get(
-            url, timeout=30, headers={"Accept": "application/vnd.github.v3+json"}
+            url,
+            timeout=30,
+            headers=_auth_headers(url, {"Accept": "application/vnd.github.v3+json"}),
         )
     except requests.RequestException as e:
         raise SourceError(f"network error listing {url}: {e}") from e
@@ -321,7 +355,9 @@ def ref_exists(repo: str, ref: str, config) -> bool:
     url = f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/commits/{ref}"
     try:
         r = requests.get(
-            url, timeout=30, headers={"Accept": "application/vnd.github.v3+json"}
+            url,
+            timeout=30,
+            headers=_auth_headers(url, {"Accept": "application/vnd.github.v3+json"}),
         )
     except requests.RequestException as e:
         raise SourceError(f"network error checking ref {url}: {e}") from e
@@ -385,7 +421,7 @@ def read_at_ref(
         f"{ref}/{rel_path}"
     )
     try:
-        r = requests.get(url, timeout=30)
+        r = requests.get(url, timeout=30, headers=_auth_headers(url))
     except requests.RequestException as e:
         raise SourceError(f"network error fetching {url}: {e}") from e
     if r.status_code == 404:
