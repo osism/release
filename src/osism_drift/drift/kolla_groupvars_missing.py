@@ -11,10 +11,13 @@ picked up by osism/defaults, aborting the keystone upgrade).
 
 The check diffs key spaces: the union of upstream group_vars/all top-level keys
 across the supported release range MINUS everything OSISM supplies to the
-container's group_vars/all. OSISM supplies from TWO paths, both counted (via
-enablement.osism_groupvars_keys): osism/defaults all/*.yml, and the rendered
+container's group_vars/all. OSISM supplies from THREE paths, all counted (via
+enablement.osism_groupvars_keys): osism/defaults all/*.yml, the rendered
 container-image-kolla-ansible versions.yml (openstack_release, the kolla_*_version
-pins, ...) — a var supplied only by the latter must not false-positive as missing.
+pins, ...), and the per-release container-image-kolla-ansible
+overlays/<release>/kolla-ansible.yml the Dockerfile bakes into the image (the
+external-Ceph keyrings, the 2024.x swift group_vars, ...) — a var supplied only by
+one of these must not false-positive as missing.
 Union across releases (not intersection) because OSISM's single defaults set must
 satisfy every supported release — a key introduced upstream at only the newest
 release is still required there. Top-level group_vars only, never
@@ -42,6 +45,7 @@ DESCRIPTION = (
 INPUT_FILES = [
     ("defaults", "all/*.yml"),
     ("container_image_kolla_ansible", "files/src/templates/versions.yml.j2"),
+    ("container_image_kolla_ansible", "overlays/*/kolla-ansible.yml"),
     ("kolla_ansible", "ansible/group_vars/all[.yml|/*.yml] (per resolved release ref)"),
 ]
 SUMMARY = (

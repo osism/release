@@ -14,7 +14,7 @@ API = "https://api.github.com/repos"
 RAW = "https://raw.githubusercontent.com"
 
 
-def _write_defaults(tmp_path, files, versions=""):
+def _write_defaults(tmp_path, files, versions="", overlays=None):
     dall = tmp_path / "defaults" / "all"
     dall.mkdir(parents=True)
     for name, text in files.items():
@@ -24,6 +24,12 @@ def _write_defaults(tmp_path, files, versions=""):
     vt = tmp_path / "container-image-kolla-ansible" / "files" / "src" / "templates"
     vt.mkdir(parents=True)
     (vt / "versions.yml.j2").write_text(versions)
+    # ...and via the per-release overlays/<release>/kolla-ansible.yml the image
+    # bakes into group_vars/all at deploy time (the third supply path).
+    for release, text in (overlays or {}).items():
+        od = tmp_path / "container-image-kolla-ansible" / "overlays" / release
+        od.mkdir(parents=True)
+        (od / "kolla-ansible.yml").write_text(text)
 
 
 def _cfg(tmp_path, releases=("A", "B")):
@@ -106,6 +112,28 @@ def test_versions_template_supplied_key_not_flagged(tmp_path):
     )
     _mock_upstream({"foo", "openstack_release"})
     assert plugin.run(_cfg(tmp_path), Allowlist(())) == []
+
+
+@responses.activate
+def test_overlay_supplied_key_not_flagged(tmp_path):
+    # ceph_cinder_keyring is supplied by the container-image-kolla-ansible
+    # per-release overlay (third delivery path), not by osism/defaults. Upstream
+    # still defines it (2024.2 cinder role references it), so it must NOT be
+    # flagged as missing.
+    _write_defaults(
+        tmp_path,
+        {"001-kolla-defaults.yml": "foo: 1\n"},
+        overlays={
+            "2024.2": 'ceph_cinder_keyring: "client.cinder.keyring"\n',
+            # a deeper tree under overlays/release/ must not be read as a var file
+            "release/6.0.1": "should_not_be_counted: 1\n",
+        },
+    )
+    _mock_upstream({"foo", "ceph_cinder_keyring", "should_not_be_counted"})
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    # ceph_cinder_keyring drops (overlay supplies it); the nested release/ file is
+    # not a per-release overlay, so should_not_be_counted stays reported.
+    assert [d.image for d in drifts] == ["should_not_be_counted"]
 
 
 @responses.activate
