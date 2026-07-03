@@ -343,15 +343,20 @@ def release_to_ref(repo: str, release: str, config) -> str:
     OSISM builds releases upstream has moved past EOL, so ref naming is
     non-uniform: a release_refs override wins, else probe stable/ ->
     unmaintained/ -> <r>-eol -> <r>-eom and take the first that exists. None
-    exists -> SourceError (loud, never a silent 404 mid-listing). Each
-    (repo, release) is resolved once per run, so no caching is needed.
+    exists -> SourceError (loud, never a silent 404 mid-listing). Results are
+    memoized on config.ref_cache so repeated resolves across plugins do not
+    re-probe (each (repo, release) costs at most one probe sequence per run).
     """
     override = (config.release_refs.get(repo) or {}).get(release)
     if override:
         return override
+    cached = config.ref_cache.get((repo, release))
+    if cached is not None:
+        return cached
     for tmpl in _REF_CANDIDATES:
         cand = tmpl.format(r=release)
         if ref_exists(repo, cand, config):
+            config.ref_cache[(repo, release)] = cand
             return cand
     tried = ", ".join(t.format(r=release) for t in _REF_CANDIDATES)
     raise SourceError(

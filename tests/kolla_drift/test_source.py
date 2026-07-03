@@ -827,3 +827,28 @@ def test_read_at_ref_unpinned_local_dir_is_remote(tmp_path):
     )
     cfg = _cfg(tmp_path, base_dirs=(tmp_path,))  # acs unpinned (no sources)
     assert read_at_ref("acs", "x.yml", "stable/2025.2", cfg) == b"remote"
+
+
+def test_release_to_ref_memoizes_probes(monkeypatch):
+    """A second resolve of the same (repo, release) does not re-probe refs."""
+    from osism_drift import source
+    from osism_drift.config import Config, Remote
+
+    calls = []
+
+    def fake_ref_exists(repo, ref, config):
+        calls.append((repo, ref))
+        return ref == "stable/X"
+
+    monkeypatch.setattr(source, "ref_exists", fake_ref_exists)
+    cfg = Config(
+        remote=Remote("https://raw/", "https://api/", "main", "osism"),
+        release_version="latest",
+        plugins={},
+    )
+    assert source.release_to_ref("kolla", "X", cfg) == "stable/X"
+    first = len(calls)
+    assert first >= 1
+    assert source.release_to_ref("kolla", "X", cfg) == "stable/X"
+    assert len(calls) == first  # served from cache, no new probes
+    assert cfg.ref_cache[("kolla", "X")] == "stable/X"
