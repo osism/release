@@ -127,9 +127,56 @@ def test_summary_line_counts(tmp_path):
         (ln for ln in r.stdout.splitlines() if ln.startswith("Summary:")), None
     )
     assert summary is not None, f"no Summary: line in output:\n{r.stdout}"
-    # 9 total findings, 1 allowlisted → 8 to act on, 0 stale
-    assert "8 to act on" in summary, summary
+    assert "5 to act on" in summary, summary
+    assert "3 advisory" in summary, summary
     assert "1 allowlisted" in summary, summary
+
+
+_AL_ADVISORY_ONLY = """\
+allow:
+  - plugin: role_shadows
+    image: floatdemo
+    reason: test
+  - plugin: role_shadows
+    image: redis
+    alias: netbox_redis
+    reason: test
+"""
+
+
+def test_advisory_only_exits_0(tmp_path):
+    cfg, al = _setup(tmp_path)
+    al.write_text(_AL_ADVISORY_ONLY)
+    r = _run("--base-dir", str(FIXT), "--plugin", "role_shadows", cfg=cfg, al=al)
+    assert r.returncode == 0, r.stdout
+    summary = next(
+        (ln for ln in r.stdout.splitlines() if ln.startswith("Summary:")), None
+    )
+    assert summary is not None, r.stdout
+    assert "0 to act on" in summary, summary
+    assert "3 advisory" in summary, summary
+    # advisory findings still render in the report body
+    assert "adminer" in r.stdout, r.stdout
+
+
+def test_advisory_finding_in_default_json(tmp_path):
+    cfg, al = _setup(tmp_path)
+    al.write_text(_AL_ADVISORY_ONLY)
+    r = _run(
+        "--base-dir",
+        str(FIXT),
+        "--plugin",
+        "role_shadows",
+        "--format",
+        "json",
+        "-q",
+        cfg=cfg,
+        al=al,
+    )
+    assert r.returncode == 0, r.stdout
+    objs = [json.loads(ln) for ln in r.stdout.splitlines() if ln.strip()]
+    assert objs, "expected advisory findings in default JSON output"
+    assert all(o["severity"] == "advisory" for o in objs), objs
 
 
 def test_missing_group_errors(tmp_path):

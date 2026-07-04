@@ -22,6 +22,7 @@ class DriftEntry:  # pylint: disable=too-many-instance-attributes  # data record
     # When None the report falls back to the plugin-level constants.
     summary: Optional[str] = None
     remediation: Optional[str] = None
+    severity: str = "actionable"  # "actionable" | "advisory"
 
     def as_allowlisted(self, reason: str) -> "DriftEntry":
         """Return a copy marked allowlisted, carrying the match reason."""
@@ -37,6 +38,7 @@ class DriftEntry:  # pylint: disable=too-many-instance-attributes  # data record
             reason=reason,
             summary=self.summary,
             remediation=self.remediation,
+            severity=self.severity,
         )
 
     def to_dict(self) -> dict:

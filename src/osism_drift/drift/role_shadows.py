@@ -32,14 +32,15 @@ _DORMANT_SUMMARY = "{n} DORMANT — overridden by the rendered images.yml; the r
 _DORMANT_REMEDIATION = "lower priority; sync when convenient."
 
 
-def _advice(alias: str, override_aliases: set) -> tuple[str, str]:
-    """Return (summary, remediation) for the drift's advice class: dormant or live."""
-    # Two classes only: dormant or live. Stream-resolved aliases (ceph_ansible,
-    # kolla_ansible, the osism family) are skipped in role_scan before they reach
-    # here.
+def _advice(alias: str, override_aliases: set) -> tuple[str, str, str]:
+    """Return (summary, remediation, severity) for the drift's advice class.
+
+    Dormant (overridden by images.yml) is advisory — the release pin wins at
+    deploy, so it is sync-when-convenient, not act-now. Live is actionable.
+    """
     if alias in override_aliases:
-        return _DORMANT_SUMMARY, _DORMANT_REMEDIATION
-    return _LIVE_SUMMARY, _LIVE_REMEDIATION
+        return _DORMANT_SUMMARY, _DORMANT_REMEDIATION, "advisory"
+    return _LIVE_SUMMARY, _LIVE_REMEDIATION, "actionable"
 
 
 def run(config, allowlist, verbose: bool = False) -> list:
@@ -56,7 +57,7 @@ def run(config, allowlist, verbose: bool = False) -> list:
         expected = docker_images.get(pin.release_key)
         if expected is None or expected == pin.found:
             continue
-        summary, remediation = _advice(pin.alias, override_aliases)
+        summary, remediation, severity = _advice(pin.alias, override_aliases)
         d = DriftEntry(
             plugin=NAME,
             image=pin.release_key,
@@ -67,6 +68,7 @@ def run(config, allowlist, verbose: bool = False) -> list:
             found_src=pin.found_src,
             summary=summary,
             remediation=remediation,
+            severity=severity,
         )
         drifts.append(allowlist.apply(d))
     return drifts

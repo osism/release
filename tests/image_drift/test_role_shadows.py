@@ -95,3 +95,15 @@ def test_stream_resolved_not_emitted(cfg):
     """osism_ansible is stream-resolved; not emitted even when role default disagrees."""
     drifts = _by_alias(role_shadows.run(cfg, Allowlist(())))
     assert "osism_ansible" not in drifts
+
+
+def test_dormant_findings_are_advisory(cfg):
+    drifts = _by_alias(role_shadows.run(cfg, Allowlist(())))
+    for alias in ("adminer", "ara_server_mariadb", "manager_redis"):
+        assert drifts[alias].severity == "advisory", alias
+
+
+def test_live_findings_are_actionable(cfg):
+    drifts = _by_alias(role_shadows.run(cfg, Allowlist(())))
+    for alias in ("netbox_redis", "floatdemo"):
+        assert drifts[alias].severity == "actionable", alias

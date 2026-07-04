@@ -37,7 +37,7 @@ def run(
     plugins = _candidate_plugins(args.group, plugin_groups)
     if args.demo:
         drifts = demo.build_demo_drifts(plugins)
-        _emit(args, drifts, plugins, drifts, [], [], plugin_groups, report_headers)
+        _emit(args, drifts, plugins, drifts, [], [], [], plugin_groups, report_headers)
         return 0
     try:
         config, allowlist = _load_runtime(args)
@@ -92,7 +92,9 @@ def run(
         print(f"source error: {e}", file=sys.stderr)
         return 2
 
-    actionable = [d for d in drifts if not d.allowlisted]
+    non_allowlisted = [d for d in drifts if not d.allowlisted]
+    advisory = [d for d in non_allowlisted if d.severity == "advisory"]
+    actionable = [d for d in non_allowlisted if d.severity != "advisory"]
     allowlisted = [d for d in drifts if d.allowlisted]
     ran = {p.NAME for p in selected}
     stale = allowlist.stale(drifts, ran)
@@ -102,6 +104,7 @@ def run(
         drifts,
         plugins,
         actionable,
+        advisory,
         allowlisted,
         stale,
         plugin_groups,
@@ -215,7 +218,9 @@ def _format_plugin_groups(plugin_groups) -> str:
 def _exit_codes_help() -> str:
     return (
         "Exit codes:\n"
-        "  0   no actionable drift and no stale allowlist entries\n"
+        "  0   no actionable drift and no stale allowlist entries; benign\n"
+        "      advisory findings (e.g. dormant role-default lags) may be\n"
+        "      present and are reported but do not fail\n"
         "  1   actionable drift or stale allowlist entries found\n"
         "  2   input error (missing file, unparseable, bad config)"
     )
@@ -257,6 +262,7 @@ def _emit(
     drifts,
     plugins,
     actionable,
+    advisory,
     allowlisted,
     stale,
     plugin_groups,
@@ -264,7 +270,8 @@ def _emit(
 ):
     """Print the findings and stale-allowlist report in the chosen format."""
     if args.format == "json":
-        for d in drifts if args.verbose else actionable:
+        default = [d for d in drifts if not d.allowlisted]
+        for d in drifts if args.verbose else default:
             print(json.dumps(d.to_dict()))
         for e in stale:
             print(
@@ -302,7 +309,7 @@ def _emit(
     if not args.quiet:
         plural = "entry" if len(stale) == 1 else "entries"
         print(
-            f"Summary: {len(actionable)} to act on, {len(allowlisted)} "
-            f"allowlisted, {len(stale)} stale allowlist {plural} "
+            f"Summary: {len(actionable)} to act on, {len(advisory)} advisory, "
+            f"{len(allowlisted)} allowlisted, {len(stale)} stale {plural} "
             f"({len(drifts)} total)"
         )
