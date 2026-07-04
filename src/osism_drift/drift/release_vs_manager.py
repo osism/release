@@ -13,7 +13,13 @@ INPUT_FILES = [
     ("testbed", "environments/manager/images.yml"),
 ]
 SUMMARY = "{n} image tags in the rendered manager images.yml disagree with the release base.yml pins:"
-REMEDIATION = "re-render environments/manager/images.yml from the current release, or allowlist the entry if the divergence is intentional (e.g. a rolling-release image pinned to 'latest')."
+REMEDIATION = (
+    "the update-manager-images GitHub Action renders this file daily and opens "
+    "a 'chore: update versions' PR in osism/testbed, so the usual fix is to "
+    "merge that open PR; otherwise re-render environments/manager/images.yml "
+    "from the current release, or allowlist the entry if the divergence is "
+    "intentional (e.g. a rolling-release image pinned to 'latest')."
+)
 
 
 def run(config, allowlist, verbose: bool = False) -> list:
