@@ -34,3 +34,30 @@ def test_drift_entry_to_dict_for_json():
     assert d["plugin"] == "role_shadows"
     assert d["alias"] == "adminer"
     assert "expected_src" in d
+
+
+def test_default_severity_is_actionable():
+    d = DriftEntry(
+        plugin="p",
+        image="i",
+        alias="a",
+        expected="1",
+        found="2",
+        expected_src="s",
+        found_src="f",
+    )
+    assert d.severity == "actionable"
+
+
+def test_as_allowlisted_preserves_severity():
+    d = DriftEntry(
+        plugin="p",
+        image="i",
+        alias="a",
+        expected="1",
+        found="2",
+        expected_src="s",
+        found_src="f",
+        severity="advisory",
+    )
+    assert d.as_allowlisted("because").severity == "advisory"
