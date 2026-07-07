@@ -97,6 +97,27 @@ def _http_error(action: str, url: str, r) -> SourceError:
     return SourceError(msg)
 
 
+_GH_JSON = {"Accept": "application/vnd.github.v3+json"}
+
+
+def _get(action: str, url: str, *, json_api: bool = False, ok=()):
+    """GET `url` with auth + a 30s timeout; return the Response.
+
+    `json_api` sends the GitHub REST Accept header. A transport failure, or a
+    non-ok status whose code is not in `ok`, raises SourceError (with a
+    rate-limit hint via _http_error); the caller keeps its own handling for the
+    codes it whitelists (e.g. a 404 that means "absent", not "failed").
+    """
+    extra = _GH_JSON if json_api else None
+    try:
+        r = requests.get(url, timeout=30, headers=_auth_headers(url, extra))
+    except requests.RequestException as e:
+        raise SourceError(f"network error {action} {url}: {e}") from e
+    if not r.ok and r.status_code not in ok:
+        raise _http_error(action, url, r)
+    return r
+
+
 def _source(repo: str, config):
     return config.sources.get(repo)
 
@@ -239,14 +260,9 @@ def read(repo: str, rel_path: str, config) -> bytes:
             raise SourceError(f"{rel_path} not found in local {repo} ({d})")
         return p.read_bytes()
     url = _remote_url(repo, rel_path, config)
-    try:
-        r = requests.get(url, timeout=30, headers=_auth_headers(url))
-    except requests.RequestException as e:
-        raise SourceError(f"network error fetching {url}: {e}") from e
+    r = _get("fetching", url, ok=(404,))
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
-    if not r.ok:
-        raise _http_error("fetching", url, r)
     return r.content
 
 
@@ -259,14 +275,9 @@ def read_optional(repo: str, rel_path: str, config) -> bytes | None:
         p = d / rel_path
         return p.read_bytes() if p.exists() else None
     url = _remote_url(repo, rel_path, config)
-    try:
-        r = requests.get(url, timeout=30, headers=_auth_headers(url))
-    except requests.RequestException as e:
-        raise SourceError(f"network error fetching {url}: {e}") from e
+    r = _get("fetching", url, ok=(404,))
     if r.status_code == 404:
         return None
-    if not r.ok:
-        raise _http_error("fetching", url, r)
     return r.content
 
 
@@ -307,20 +318,11 @@ def list_tree(repo: str, rel_path: str, config, missing_ok: bool = False) -> lis
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"git/trees/{_ref(repo, config)}?recursive=1"
     )
-    try:
-        r = requests.get(
-            url,
-            timeout=30,
-            headers=_auth_headers(url, {"Accept": "application/vnd.github.v3+json"}),
-        )
-    except requests.RequestException as e:
-        raise SourceError(f"network error listing tree {url}: {e}") from e
+    r = _get("listing tree", url, json_api=True, ok=(404,))
     if r.status_code == 404:
         if missing_ok:
             return []
         raise SourceError(f"404 not found: {url}")
-    if not r.ok:
-        raise _http_error("listing tree", url, r)
     prefix = rel_path.rstrip("/") + "/"
     return [
         item["path"]
@@ -344,18 +346,9 @@ def list_dir(repo: str, rel_path: str, config, dirs_only: bool = False) -> list[
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"contents/{rel_path}?ref={_ref(repo, config)}"
     )
-    try:
-        r = requests.get(
-            url,
-            timeout=30,
-            headers=_auth_headers(url, {"Accept": "application/vnd.github.v3+json"}),
-        )
-    except requests.RequestException as e:
-        raise SourceError(f"network error listing {url}: {e}") from e
+    r = _get("listing", url, json_api=True, ok=(404,))
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
-    if not r.ok:
-        raise _http_error("listing", url, r)
     items = r.json()
     if dirs_only:
         items = [it for it in items if it.get("type") == "dir"]
@@ -381,18 +374,9 @@ def list_dir_at_ref(
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"contents/{rel_path}?ref={ref}"
     )
-    try:
-        r = requests.get(
-            url,
-            timeout=30,
-            headers=_auth_headers(url, {"Accept": "application/vnd.github.v3+json"}),
-        )
-    except requests.RequestException as e:
-        raise SourceError(f"network error listing {url}: {e}") from e
+    r = _get("listing", url, json_api=True, ok=(404,))
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
-    if not r.ok:
-        raise _http_error("listing", url, r)
     items = r.json()
     if dirs_only:
         items = [it for it in items if it.get("type") == "dir"]
@@ -407,20 +391,11 @@ def ref_exists(repo: str, ref: str, config) -> bool:
         return _git_ref_exists(d, ref)
     owner = _owner(repo, config)
     url = f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/commits/{ref}"
-    try:
-        r = requests.get(
-            url,
-            timeout=30,
-            headers=_auth_headers(url, {"Accept": "application/vnd.github.v3+json"}),
-        )
-    except requests.RequestException as e:
-        raise SourceError(f"network error checking ref {url}: {e}") from e
+    r = _get("checking ref", url, json_api=True, ok=(404, 422))
     # GitHub's commits API returns 422 (not 404) for a ref that does not
     # resolve; treat both as "absent" so the resolver probes the next candidate.
     if r.status_code in (404, 422):
         return False
-    if not r.ok:
-        raise _http_error("checking ref", url, r)
     return True
 
 
@@ -474,16 +449,11 @@ def read_at_ref(
         f"{config.remote.github_raw}{owner}/{repo.replace('_', '-')}/"
         f"{ref}/{rel_path}"
     )
-    try:
-        r = requests.get(url, timeout=30, headers=_auth_headers(url))
-    except requests.RequestException as e:
-        raise SourceError(f"network error fetching {url}: {e}") from e
+    r = _get("fetching", url, ok=(404,))
     if r.status_code == 404:
         if optional:
             return None
         raise SourceError(f"404 not found: {url}")
-    if not r.ok:
-        raise _http_error("fetching", url, r)
     return r.content
 
 
