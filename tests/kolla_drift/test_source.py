@@ -854,6 +854,77 @@ def test_release_to_ref_memoizes_probes(monkeypatch):
     assert cfg.ref_cache[("kolla", "X")] == "stable/X"
 
 
+@responses.activate
+def test_read_remote_rate_limit_403_gives_helpful_error(tmp_path, monkeypatch):
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/osism/release/main/latest/base.yml",
+        status=403,
+        headers={"X-RateLimit-Remaining": "0", "X-RateLimit-Limit": "60"},
+    )
+    cfg = _cfg(tmp_path)
+    with pytest.raises(SourceError) as exc:
+        read("release", "latest/base.yml", cfg)
+    msg = str(exc.value)
+    assert "HTTP 403" in msg
+    assert "rate limit" in msg
+    assert "60/hr" in msg
+    assert "GITHUB_TOKEN" in msg  # unauthenticated -> advise setting a token
+
+
+@responses.activate
+def test_rate_limit_error_when_authenticated_omits_token_advice(tmp_path, monkeypatch):
+    monkeypatch.setenv("GITHUB_TOKEN", "tok")
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/osism/release/main/latest/base.yml",
+        status=429,
+        headers={"X-RateLimit-Remaining": "0", "X-RateLimit-Limit": "5000"},
+    )
+    cfg = _cfg(tmp_path)
+    with pytest.raises(SourceError) as exc:
+        read("release", "latest/base.yml", cfg)
+    msg = str(exc.value)
+    assert "rate limit" in msg and "5000/hr" in msg
+    assert "authenticated" in msg
+    assert "GITHUB_TOKEN" not in msg  # already have one; don't tell them to set it
+
+
+@responses.activate
+def test_secondary_rate_limit_retry_after_gives_hint(tmp_path, monkeypatch):
+    # Secondary limit: 403 with Retry-After but no X-RateLimit-Remaining marker.
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/osism/acs/contents/roles?ref=main",
+        status=403,
+        headers={"Retry-After": "42"},
+    )
+    cfg = _cfg(tmp_path)
+    with pytest.raises(SourceError, match="Retry after 42s"):
+        list_dir("acs", "roles", cfg)
+
+
+@responses.activate
+def test_plain_403_is_not_mistaken_for_rate_limiting(tmp_path):
+    # A 403 without any rate-limit marker (e.g. a permission refusal) must stay a
+    # plain HTTP error with no misleading rate-limit hint.
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/osism/release/main/latest/base.yml",
+        status=403,
+    )
+    cfg = _cfg(tmp_path)
+    with pytest.raises(SourceError) as exc:
+        read("release", "latest/base.yml", cfg)
+    msg = str(exc.value)
+    assert "HTTP 403" in msg
+    assert "rate limit" not in msg
+
+
 def test_auth_headers_adds_bearer_for_github_host(monkeypatch):
     from osism_drift import source
 
