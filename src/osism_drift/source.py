@@ -5,6 +5,7 @@ A set `branch` *pins* the repo: it is always read remotely at that ref, so the
 result is deterministic regardless of any local checkout's current branch.
 """
 
+import datetime
 import os
 import subprocess
 from pathlib import Path
@@ -41,6 +42,59 @@ def _auth_headers(url: str, extra: dict | None = None) -> dict:
     if token and (urlparse(url).hostname or "") in _GITHUB_HOSTS:
         headers["Authorization"] = f"Bearer {token}"
     return headers
+
+
+def _rate_limit_hint(r) -> str | None:
+    """A helpful hint when response `r` is a GitHub rate-limit rejection, else None.
+
+    GitHub reports its primary rate limit as HTTP 403 (or, more recently, 429)
+    with X-RateLimit-Remaining: 0, and secondary limits as 403/429 with a
+    Retry-After header. Unauthenticated requests share a low per-IP hourly
+    budget that a full remote drift run can exhaust; a token lifts it (see
+    _auth_headers), so the actionable advice differs by auth state. The exact
+    quotas are not hardcoded here (GitHub changes them, and this string is read
+    whenever the script runs, not when it was written): the actual limit in
+    effect is echoed from the response's X-RateLimit-Limit header. A 403 without
+    those markers is some other refusal (auth/permission), not throttling, and
+    gets no hint.
+    """
+    if r.status_code not in (403, 429):
+        return None
+    retry_after = r.headers.get("Retry-After")
+    if r.headers.get("X-RateLimit-Remaining") != "0" and retry_after is None:
+        return None
+    parts = ["GitHub API rate limit hit."]
+    limit = r.headers.get("X-RateLimit-Limit")
+    quota = f" (limit in effect: {limit}/hr)" if limit and limit.isdigit() else ""
+    reset = r.headers.get("X-RateLimit-Reset")
+    if retry_after and retry_after.isdigit():
+        parts.append(f"Retry after {retry_after}s.")
+    elif reset and reset.isdigit():
+        when = datetime.datetime.fromtimestamp(
+            int(reset), datetime.timezone.utc
+        ).strftime("%Y-%m-%d %H:%M UTC")
+        parts.append(f"Limit resets at {when}.")
+    if os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN"):
+        parts.append(
+            f"This run is authenticated{quota}; wait for the reset or reduce "
+            "concurrency."
+        )
+    else:
+        parts.append(
+            f"This run is unauthenticated{quota}; set GITHUB_TOKEN (or GH_TOKEN) "
+            "to use the much higher authenticated limit."
+        )
+    return " ".join(parts)
+
+
+def _http_error(action: str, url: str, r) -> SourceError:
+    """SourceError for a non-ok HTTP response, with a rate-limit hint appended
+    when the response looks like GitHub throttling rather than a plain failure."""
+    msg = f"HTTP {r.status_code} {action} {url}"
+    hint = _rate_limit_hint(r)
+    if hint:
+        msg = f"{msg} — {hint}"
+    return SourceError(msg)
 
 
 def _source(repo: str, config):
@@ -192,7 +246,7 @@ def read(repo: str, rel_path: str, config) -> bytes:
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
     if not r.ok:
-        raise SourceError(f"HTTP {r.status_code} fetching {url}")
+        raise _http_error("fetching", url, r)
     return r.content
 
 
@@ -212,7 +266,7 @@ def read_optional(repo: str, rel_path: str, config) -> bytes | None:
     if r.status_code == 404:
         return None
     if not r.ok:
-        raise SourceError(f"HTTP {r.status_code} fetching {url}")
+        raise _http_error("fetching", url, r)
     return r.content
 
 
@@ -266,7 +320,7 @@ def list_tree(repo: str, rel_path: str, config, missing_ok: bool = False) -> lis
             return []
         raise SourceError(f"404 not found: {url}")
     if not r.ok:
-        raise SourceError(f"HTTP {r.status_code} listing tree {url}")
+        raise _http_error("listing tree", url, r)
     prefix = rel_path.rstrip("/") + "/"
     return [
         item["path"]
@@ -301,7 +355,7 @@ def list_dir(repo: str, rel_path: str, config, dirs_only: bool = False) -> list[
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
     if not r.ok:
-        raise SourceError(f"HTTP {r.status_code} listing {url}")
+        raise _http_error("listing", url, r)
     items = r.json()
     if dirs_only:
         items = [it for it in items if it.get("type") == "dir"]
@@ -338,7 +392,7 @@ def list_dir_at_ref(
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
     if not r.ok:
-        raise SourceError(f"HTTP {r.status_code} listing {url}")
+        raise _http_error("listing", url, r)
     items = r.json()
     if dirs_only:
         items = [it for it in items if it.get("type") == "dir"]
@@ -366,7 +420,7 @@ def ref_exists(repo: str, ref: str, config) -> bool:
     if r.status_code in (404, 422):
         return False
     if not r.ok:
-        raise SourceError(f"HTTP {r.status_code} checking ref {url}")
+        raise _http_error("checking ref", url, r)
     return True
 
 
@@ -429,7 +483,7 @@ def read_at_ref(
             return None
         raise SourceError(f"404 not found: {url}")
     if not r.ok:
-        raise SourceError(f"HTTP {r.status_code} fetching {url}")
+        raise _http_error("fetching", url, r)
     return r.content
 
 
