@@ -65,6 +65,15 @@ def run(
         )
         for line in resolution:
             print(line, file=sys.stderr)
+        # Remote reads go through the GitHub API, which is slow: a full run makes
+        # dozens of requests over several minutes. Warn up front and stream one
+        # line per request, so the wait looks like progress rather than a hang.
+        if any(" remote " in line for line in resolution):
+            print(
+                "GitHub API reads can take several minutes; progress follows.",
+                file=sys.stderr,
+            )
+            source.set_progress(lambda line: print(line, file=sys.stderr, flush=True))
 
     drifts = []
     try:

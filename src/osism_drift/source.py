@@ -18,6 +18,32 @@ class SourceError(Exception):
     """Raised on any read/list failure that should abort the run."""
 
 
+# Progress sink for remote reads. A remote drift run makes dozens of GitHub
+# requests over minutes with no other output, which reads as "hung" and invites
+# an impatient Ctrl-C. The driver installs a sink (unless --quiet) so each read
+# prints a short activity line; the default is a no-op, keeping library and test
+# callers silent. Only remote branches reach _note(), so local runs stay quiet.
+_progress = None
+_calls = 0
+
+
+def set_progress(sink) -> None:
+    """Install a callable(line:str) to receive one line per remote read."""
+    global _progress, _calls
+    _progress = sink
+    _calls = 0
+
+
+def _note(kind: str, repo: str, ref: str, detail: str = "") -> None:
+    """Emit one short progress line for a remote read (no-op without a sink)."""
+    global _calls
+    _calls += 1
+    if _progress is None:
+        return
+    loc = f"{repo}:{detail}" if detail else repo
+    _progress(f"  [{_calls:>3}] {kind:<5} {loc} @ {ref}")
+
+
 # Hosts the GitHub bearer token may be sent to. github_raw/github_api are
 # configurable (a mirror, proxy, or test server), so the token is attached only
 # when the actual request host is public GitHub -- an ambient GITHUB_TOKEN must
@@ -260,6 +286,7 @@ def read(repo: str, rel_path: str, config) -> bytes:
             raise SourceError(f"{rel_path} not found in local {repo} ({d})")
         return p.read_bytes()
     url = _remote_url(repo, rel_path, config)
+    _note("raw", repo, _ref(repo, config), rel_path)
     r = _get("fetching", url, ok=(404,))
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
@@ -275,6 +302,7 @@ def read_optional(repo: str, rel_path: str, config) -> bytes | None:
         p = d / rel_path
         return p.read_bytes() if p.exists() else None
     url = _remote_url(repo, rel_path, config)
+    _note("raw", repo, _ref(repo, config), rel_path)
     r = _get("fetching", url, ok=(404,))
     if r.status_code == 404:
         return None
@@ -318,6 +346,7 @@ def list_tree(repo: str, rel_path: str, config, missing_ok: bool = False) -> lis
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"git/trees/{_ref(repo, config)}?recursive=1"
     )
+    _note("tree", repo, _ref(repo, config), rel_path)
     r = _get("listing tree", url, json_api=True, ok=(404,))
     if r.status_code == 404:
         if missing_ok:
@@ -346,6 +375,7 @@ def list_dir(repo: str, rel_path: str, config, dirs_only: bool = False) -> list[
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"contents/{rel_path}?ref={_ref(repo, config)}"
     )
+    _note("list", repo, _ref(repo, config), rel_path)
     r = _get("listing", url, json_api=True, ok=(404,))
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
@@ -374,6 +404,7 @@ def list_dir_at_ref(
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"contents/{rel_path}?ref={ref}"
     )
+    _note("list", repo, ref, rel_path)
     r = _get("listing", url, json_api=True, ok=(404,))
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
@@ -391,6 +422,7 @@ def ref_exists(repo: str, ref: str, config) -> bool:
         return _git_ref_exists(d, ref)
     owner = _owner(repo, config)
     url = f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/commits/{ref}"
+    _note("ref?", repo, ref)
     r = _get("checking ref", url, json_api=True, ok=(404, 422))
     # GitHub's commits API returns 422 (not 404) for a ref that does not
     # resolve; treat both as "absent" so the resolver probes the next candidate.
@@ -449,6 +481,7 @@ def read_at_ref(
         f"{config.remote.github_raw}{owner}/{repo.replace('_', '-')}/"
         f"{ref}/{rel_path}"
     )
+    _note("raw", repo, ref, rel_path)
     r = _get("fetching", url, ok=(404,))
     if r.status_code == 404:
         if optional:
