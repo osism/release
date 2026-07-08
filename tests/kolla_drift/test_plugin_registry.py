@@ -67,10 +67,15 @@ def test_default_config_enables_every_registered_plugin():
         assert entry.enabled, f"{p.NAME} not enabled in default config"
 
 
+def test_kolla_mirror_verbatim_plugin_registered():
+    assert "kolla_mirror_verbatim" in [p.NAME for p in KOLLA_PLUGINS]
+
+
 def test_plugins_in_lifecycle_order():
     assert [p.NAME for p in KOLLA_PLUGINS] == [
         "kolla_enablement_orphan",
         "kolla_groupvars_missing",
+        "kolla_mirror_verbatim",
         "kolla_orphan_config",
         "kolla_image_orphan",
         "kolla_secrets_orphan",
