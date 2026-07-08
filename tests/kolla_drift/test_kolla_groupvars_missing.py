@@ -174,3 +174,38 @@ def test_empty_release_range_raises(tmp_path):
     (tmp_path / "release" / "latest").mkdir(parents=True)
     with pytest.raises(SourceError, match="empty supported release range"):
         plugin.run(_cfg(tmp_path, releases=()), Allowlist(()))
+
+
+@responses.activate
+def test_missing_key_at_newest_routes_to_001(tmp_path):
+    # missing_var is defined at the newest release (B) -> remediation names 001.
+    _write_defaults(tmp_path, {"001-kolla-defaults.yml": "other: 1\n"})
+    _mock_release("stable/A", {"other", "missing_var"})
+    _mock_release("stable/B", {"other", "missing_var"})
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    entry = next(d for d in drifts if d.image == "missing_var")
+    assert "all/001-kolla-defaults.yml" in entry.remediation
+
+
+@responses.activate
+def test_missing_key_dropped_by_newest_routes_to_010(tmp_path):
+    # missing_var is defined at older release A but not at newest B -> all/010-A.yml.
+    _write_defaults(tmp_path, {"001-kolla-defaults.yml": "other: 1\n"})
+    _mock_release("stable/A", {"other", "missing_var"})
+    _mock_release("stable/B", {"other"})
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    entry = next(d for d in drifts if d.image == "missing_var")
+    assert "all/010-A.yml" in entry.remediation
+
+
+@responses.activate
+def test_two_keys_with_different_homes_have_distinct_remediations(tmp_path):
+    # key1 defined at newest B -> 001; key2 defined only at A -> 010-A.
+    # Different homes -> distinct (summary, remediation) -> separate report blocks.
+    _write_defaults(tmp_path, {"001-kolla-defaults.yml": "other: 1\n"})
+    _mock_release("stable/A", {"other", "key1", "key2"})
+    _mock_release("stable/B", {"other", "key1"})
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    by_image = {d.image: d for d in drifts}
+    d1, d2 = by_image["key1"], by_image["key2"]
+    assert (d1.summary, d1.remediation) != (d2.summary, d2.remediation)

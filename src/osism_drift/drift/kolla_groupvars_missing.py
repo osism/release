@@ -83,8 +83,37 @@ def missing_keys(config) -> set:
 
 def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     """Return missing-var drifts: upstream defines it, osism/defaults does not."""
+    keys = sorted(missing_keys(config))  # raises SourceError on empty release range
+    newest = sorted(enablement.release_range(config))[-1]
+    up_keys = enablement.upstream_groupvars_keys(newest, config)
+    dropped = enablement.dropped_key_release_map(config)
     drifts = []
-    for key in sorted(missing_keys(config)):
+    for key in keys:
+        dest = enablement.groupvars_home(key, newest, up_keys, dropped)
+        if dest is not None:
+            path, _ = dest
+            if path == "all/001-kolla-defaults.yml":
+                per_summary = (
+                    f"{{n}} upstream kolla-ansible group_vars defined at {newest} "
+                    "that OSISM never mirrored:"
+                )
+                per_remediation = (
+                    f"mirror each into all/001-kolla-defaults.yml "
+                    f"(upstream defines it at newest release {newest})."
+                )
+            else:
+                L = dropped.get(key)
+                per_summary = (
+                    f"{{n}} upstream kolla-ansible group_vars last defined at {L} "
+                    "that OSISM never mirrored:"
+                )
+                per_remediation = (
+                    f"add each to {path} "
+                    f"(upstream dropped by {newest}; self-retires when {L} EOLs)."
+                )
+        else:
+            per_summary = SUMMARY
+            per_remediation = REMEDIATION
         d = DriftEntry(
             plugin=NAME,
             image=key,
@@ -96,6 +125,8 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
             found="absent from osism/defaults all/*.yml (undefined at deploy/upgrade)",
             expected_src="openstack/kolla-ansible group_vars/all @ supported refs",
             found_src="osism/defaults all/*.yml",
+            summary=per_summary,
+            remediation=per_remediation,
         )
         drifts.append(allowlist.apply(d))
     return drifts
