@@ -132,12 +132,13 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
             # different L carry different summary/remediation, so the report groups
             # them by destination file. NOT 099, NOT the allowlist.
             L = dropped[k]
+            path = enablement.groupvars_home(k, newest, up_keys, dropped)[0]
             summary = (
                 f"{{n}} key(s) in 001 that upstream dropped by {newest}, "
                 f"kept for release {L}:"
             )
             remediation = (
-                f"move each to all/010-{L}.yml (upstream-vanilla value; "
+                f"move each to {path} (upstream-vanilla value; "
                 f"self-retires when {L} EOLs). NOT 099, NOT the allowlist "
                 "(parent spec D8)."
             )
