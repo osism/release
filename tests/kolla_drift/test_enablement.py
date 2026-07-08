@@ -363,6 +363,28 @@ def _mock_roles(ref, roles):
         )
 
 
+def test_groupvars_home_in_newest_keys():
+    path, note = enablement.groupvars_home("k", "2025.2", {"k"}, {})
+    assert path == "all/001-kolla-defaults.yml"
+    assert "2025.2" in note
+
+
+def test_groupvars_home_dropped_only():
+    path, note = enablement.groupvars_home("k", "2025.2", set(), {"k": "2024.1"})
+    assert path == "all/010-2024.1.yml"
+    assert "2024.1" in note
+
+
+def test_groupvars_home_newest_wins_over_dropped():
+    # key in both newest_keys and dropped_map: newest takes priority -> 001
+    path, _ = enablement.groupvars_home("k", "2025.2", {"k"}, {"k": "2024.1"})
+    assert path == "all/001-kolla-defaults.yml"
+
+
+def test_groupvars_home_neither_returns_none():
+    assert enablement.groupvars_home("k", "2025.2", set(), {}) is None
+
+
 @responses.activate
 def test_upstream_image_tag_keys_collects_both_suffixes():
     _mock_roles(
