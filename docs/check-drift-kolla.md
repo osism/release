@@ -151,6 +151,40 @@ verbatim (an Ansible var name is an exact identifier).
   (metalbox enables ironic, so `enable_ironic_pxe_filter` bites there). Other
   cases: a var OSISM supplies another way, or an upstream typo.
 
+### Plugin: kolla_mirror_verbatim
+
+**Enabled — `001` must stay a verbatim mirror of upstream-newest.** Enforces
+Convention X: `osism/defaults` `all/001-kolla-defaults.yml` must equal upstream
+kolla-ansible `group_vars/all` at the **newest** supported release
+(`release_range[-1]`, `stable/2025.2` today), compared as parsed YAML values
+(jinja lives in string values and compares as strings). Every OSISM opinion lives
+in a `099-*` file, never in `001`, and the allowlist is never a home for a
+group_var. The sibling `kolla_groupvars_missing` only proves the upstream *union*
+is *supplied somewhere* — it cannot see values or which file a key sits in, so it
+cannot keep `001` pure; this check does.
+
+Each deviation is one of three shapes, and the finding prints the exact
+destination to move the key to:
+
+- **absent from `001`** (upstream-newest defines it) → mirror the upstream
+  key+value verbatim into `001`.
+- **value differs** → restore the upstream value in `001`; put OSISM's value in
+  `099-*` (plain, or an `openstack_version` gate if it varies by release).
+- **in `001`, not upstream-newest** → remove from `001` and route it: **delete**
+  if another OSISM layer (`099-*` / overlay / `versions.yml.j2`) already supplies
+  it; **`010-<L>.yml`** (self-retiring, `L` = newest older release still defining
+  it) if an older supported release still has it — parent spec D8, not `099`, not
+  the allowlist; **`099-*` custom-features** if OSISM-invented.
+
+    python3 src/check-drift.py --group kolla --plugin kolla_mirror_verbatim
+
+- **Reads:** `osism/defaults` `all/001-kolla-defaults.yml`; `openstack/kolla-ansible`
+  `group_vars/all` at the newest release's resolved ref (plus each older release's
+  keys, to classify a dropped key and pick its `010-<L>` home).
+- **Fix:** as printed per shape — mirror into `001`, or move the OSISM delta to
+  `099-*` (opinions) / `010-<L>.yml` (dropped upstream keys). Never allowlist a
+  group_var (Convention X).
+
 ### Plugin: kolla_orphan_config
 
 **Enabled — companion config must not outlive its service.** For each service
