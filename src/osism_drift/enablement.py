@@ -260,3 +260,77 @@ def osism_enable_ids(flags, scope) -> set:
     if scope == "explicit":
         return {canon(k) for k in flags}
     raise ValueError(f"unknown scope {scope!r}")
+
+
+def groupvars_values(bodies) -> dict:
+    """Merge yaml.safe_load_all of each body into one {str key: parsed value}
+    map (later docs/files win). Non-mapping documents contribute nothing.
+
+    Value-aware counterpart to top_level_keys: kolla_mirror_verbatim compares
+    001's values against upstream, so keys alone are insufficient. safe_load_all
+    handles a multi-document file harmlessly (001 is single-document today)."""
+    out = {}
+    for body in bodies:
+        for doc in yaml.safe_load_all(body):
+            if isinstance(doc, dict):
+                out.update({k: v for k, v in doc.items() if isinstance(k, str)})
+    return out
+
+
+def upstream_groupvars_values(release, config) -> dict:
+    """{key: parsed value} of upstream kolla-ansible group_vars/all at `release`'s
+    resolved ref. Reuses _upstream_groupvars_bodies, so the monolithic all.yml
+    (<=2025.1) vs split all/ dir (2025.2+) layout is handled transparently."""
+    return groupvars_values(_upstream_groupvars_bodies(release, config))
+
+
+_MIRROR_FILE = "all/001-kolla-defaults.yml"
+
+
+def osism_mirror_values(config) -> dict:
+    """{key: parsed value} of osism/defaults all/001-kolla-defaults.yml ONLY.
+
+    Scoped to the single mirror file (not the all/*.yml union) because
+    kolla_mirror_verbatim enforces 001 purity specifically: a key OSISM supplies
+    from 099-* must not count as "in the mirror"."""
+    return groupvars_values([source.read("defaults", _MIRROR_FILE, config)])
+
+
+def osism_supply_excluding_mirror(config) -> set:
+    """Top-level keys OSISM supplies from every layer EXCEPT 001 — the other
+    all/*.yml files + the rendered versions.yml.j2 + the per-release overlays.
+
+    Same three-path logic as osism_groupvars_keys, minus the 001 file: lets
+    kolla_mirror_verbatim tell "a 001-only key that another layer already
+    supplies" (delete from 001) from "a 001-only key nothing else supplies"."""
+    keys = set()
+    for fn in sorted(source.list_dir("defaults", _OSISM_DEFAULTS_DIR, config)):
+        if fn.endswith(".yml") and f"{_OSISM_DEFAULTS_DIR}/{fn}" != _MIRROR_FILE:
+            keys |= top_level_keys(
+                source.read("defaults", f"{_OSISM_DEFAULTS_DIR}/{fn}", config)
+            )
+    repo, path = _VERSIONS_TEMPLATE
+    keys |= secrets_map.parse_secret_keys(source.read(repo, path, config))
+    for body in _osism_overlay_bodies(config):
+        keys |= top_level_keys(body)
+    return keys
+
+
+def dropped_key_release_map(config) -> dict:
+    """{key: L} over every upstream group_vars/all key defined by some supported
+    release BELOW the newest, where L is the NEWEST such release still defining the
+    key. kolla_mirror_verbatim routes a dropped 001 key to all/010-<L>.yml (parent
+    spec D8): L is exactly the release whose EOL retires that file. A key's presence
+    in this map also classifies it as backward-compat rather than OSISM-invented.
+
+    Sort before slicing: release_range returns an explicit config.releases override
+    in caller order, so sorted(...)[:-1] drops the true newest, consistent with the
+    plugin's sorted(...)[-1]; a bare [:-1] on an out-of-order override would slice
+    off the wrong release and misclassify every dropped key as OSISM-invented.
+    Iterating the older releases ascending, last-writer-wins yields the newest
+    release still carrying each key. Empty when only one release is supported."""
+    m = {}
+    for r in sorted(release_range(config))[:-1]:  # ascending -> newest overwrites
+        for k in upstream_groupvars_keys(r, config):
+            m[k] = r
+    return m
