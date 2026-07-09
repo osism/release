@@ -77,12 +77,6 @@ allow:
   - {plugin: kolla_enablement_orphan, image: chrony, reason: "OSISM host-level NTP (ansible-collection-services/roles/chrony consumes chrony_servers/chrony_allowed_subnets); not the kolla chrony container removed upstream in Xena"}
   - {plugin: kolla_enablement_orphan, image: openstack_exporter, reason: "OSISM k8s openstack-exporter (osism-kubernetes/roles/monitoring); OSISM invention, distinct from upstream prometheus_openstack_exporter"}
   - {plugin: kolla_enablement_orphan, image: auditd, reason: "OSISM host-level auditd (ansible-collection-services/roles/auditd, gated by generic/auditd.yml + bootstrap/maintenance playbooks); never an upstream kolla service. enable_auditd is false by default, but explicit scope flags it by name regardless of value"}
-  # --- kolla_groupvars_missing ---
-  # Upstream typo for neutron_external_interface (which OSISM defines correctly),
-  # so it must not be mirrored. Waiting for the upstream fix to merge:
-  # https://review.opendev.org/c/openstack/kolla-ansible/+/985031
-  # Remove this entry once that lands (the check will then report it as stale).
-  - {plugin: kolla_groupvars_missing, image: eutron_external_interface, reason: "upstream typo for neutron_external_interface; awaiting upstream fix https://review.opendev.org/c/openstack/kolla-ansible/+/985031"}
   # --- kolla_image_orphan: OSISM-built / no upstream kolla-ansible role ---
   - {plugin: kolla_image_orphan, image: mariabackup_image, reason: "OSISM-built mariadb backup image; no upstream role"}
   - {plugin: kolla_image_orphan, image: mariabackup_tag, reason: "OSISM-built mariadb backup image; no upstream role"}
