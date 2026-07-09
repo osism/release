@@ -46,6 +46,34 @@ def _note(kind: str, repo: str, ref: str, detail: str = "") -> None:
     _progress(f"  [{_calls:>3}] {kind:<5} {loc} @ {ref}")
 
 
+def _dir_read(d, rel_path, where):
+    p = d / rel_path
+    if not p.exists():
+        raise SourceError(f"{rel_path} not found in {where}")
+    return p.read_bytes()
+
+
+def _dir_read_optional(d, rel_path):
+    p = d / rel_path
+    return p.read_bytes() if p.exists() else None
+
+
+def _dir_list_tree(d, rel_path, where, missing_ok=False):
+    p = d / rel_path
+    if not p.is_dir():
+        if missing_ok:
+            return []
+        raise SourceError(f"{rel_path} not a directory in {where}")
+    return sorted(str(f.relative_to(d)) for f in p.rglob("*") if f.is_file())
+
+
+def _dir_list(d, rel_path, where, dirs_only=False):
+    p = d / rel_path
+    if not p.is_dir():
+        raise SourceError(f"{rel_path} not a directory in {where}")
+    return [x.name for x in p.iterdir() if (not dirs_only or x.is_dir())]
+
+
 def _source(repo: str, config):
     return config.sources.get(repo)
 
@@ -183,10 +211,7 @@ def read(repo: str, rel_path: str, config) -> bytes:
     if where == "local":
         if _is_pinned(repo, config):
             return _git_show(d, _ref(repo, config), rel_path)
-        p = d / rel_path
-        if not p.exists():
-            raise SourceError(f"{rel_path} not found in local {repo} ({d})")
-        return p.read_bytes()
+        return _dir_read(d, rel_path, f"local {repo} ({d})")
     url = _remote_url(repo, rel_path, config)
     _note("raw", repo, _ref(repo, config), rel_path)
     r = _get("fetching", url, ok=(404,))
@@ -201,8 +226,7 @@ def read_optional(repo: str, rel_path: str, config) -> bytes | None:
     if where == "local":
         if _is_pinned(repo, config):
             return _git_show(d, _ref(repo, config), rel_path, optional=True)
-        p = d / rel_path
-        return p.read_bytes() if p.exists() else None
+        return _dir_read_optional(d, rel_path)
     url = _remote_url(repo, rel_path, config)
     _note("raw", repo, _ref(repo, config), rel_path)
     r = _get("fetching", url, ok=(404,))
@@ -236,12 +260,7 @@ def list_tree(repo: str, rel_path: str, config, missing_ok: bool = False) -> lis
                 _meta, _, path = line.partition("\t")
                 out.append(path)
             return out
-        p = d / rel_path
-        if not p.is_dir():
-            if missing_ok:
-                return []
-            raise SourceError(f"{rel_path} not a directory in local {repo} ({d})")
-        return sorted(str(f.relative_to(d)) for f in p.rglob("*") if f.is_file())
+        return _dir_list_tree(d, rel_path, f"local {repo} ({d})", missing_ok)
     # Remote: GitHub git trees API — one request, recursive
     owner = _owner(repo, config)
     url = (
@@ -268,10 +287,7 @@ def list_dir(repo: str, rel_path: str, config, dirs_only: bool = False) -> list[
     if where == "local":
         if _is_pinned(repo, config):
             return _git_ls_tree(d, _ref(repo, config), rel_path, dirs_only)
-        p = d / rel_path
-        if not p.is_dir():
-            raise SourceError(f"{rel_path} not a directory in local {repo} ({d})")
-        return [x.name for x in p.iterdir() if (not dirs_only or x.is_dir())]
+        return _dir_list(d, rel_path, f"local {repo} ({d})", dirs_only)
     owner = _owner(repo, config)
     url = (
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
