@@ -63,6 +63,10 @@ class Config:  # pylint: disable=too-many-instance-attributes  # data record
     ref_cache: dict = field(
         default_factory=dict
     )  # per-run release_to_ref memo (runtime state)
+    archive: bool = False  # driver sets True (archive reads); --use-raw-get keeps False
+    snapshot_cache: dict = field(
+        default_factory=dict
+    )  # per-run (github_api, owner, slug, ref) -> extracted Path
 
 
 def load_config(path) -> Config:

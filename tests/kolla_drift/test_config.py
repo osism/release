@@ -357,3 +357,22 @@ plugins: {}
     )
     assert cfg.releases == ()
     assert cfg.release_refs == {}
+
+
+def test_archive_and_snapshot_cache_defaults(tmp_path):
+    import dataclasses
+
+    cfg = load_config(
+        _write_cfg(
+            tmp_path,
+            """
+remote: {github_raw: "https://raw/", github_api: "https://api/", branch: main}
+release_version: latest
+plugins: {}
+""",
+        )
+    )
+    assert cfg.archive is False
+    assert cfg.snapshot_cache == {}
+    replaced = dataclasses.replace(cfg, archive=True)
+    assert replaced.archive is True
