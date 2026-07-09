@@ -99,6 +99,22 @@ def test_group_all_runs_both_groups(tmp_path, capsys):
     assert "fake_kolla" in out
 
 
+def test_archive_mode_preamble_not_misleading(tmp_path, capsys):
+    # Default (archive) remote run: the heads-up must not claim slow per-file API
+    # reads -- archive mode makes a handful of tarball fetches, not dozens.
+    assert _run(tmp_path, "--group", "all") == 1
+    err = capsys.readouterr().err
+    assert "several minutes" not in err
+    assert "archive" in err.lower()
+
+
+def test_use_raw_get_preamble_warns_slow(tmp_path, capsys):
+    # --use-raw-get restores the per-file API path, where the slow warning is apt.
+    assert _run(tmp_path, "--group", "all", "--use-raw-get") == 1
+    err = capsys.readouterr().err
+    assert "several minutes" in err
+
+
 def test_missing_group_errors(tmp_path):
     # --group is required: argparse aborts with exit 2 (no run).
     with pytest.raises(SystemExit) as exc:

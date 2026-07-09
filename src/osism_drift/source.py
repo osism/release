@@ -8,6 +8,7 @@ result is deterministic regardless of any local checkout's current branch.
 import subprocess
 from pathlib import Path
 
+from osism_drift import archive
 from osism_drift.http import SourceError, _get
 
 # Re-exported so callers/tests reach the transport layer via osism_drift.source
@@ -212,8 +213,12 @@ def read(repo: str, rel_path: str, config) -> bytes:
         if _is_pinned(repo, config):
             return _git_show(d, _ref(repo, config), rel_path)
         return _dir_read(d, rel_path, f"local {repo} ({d})")
-    url = _remote_url(repo, rel_path, config)
     _note("raw", repo, _ref(repo, config), rel_path)
+    if config.archive:
+        ref = _ref(repo, config)
+        d = archive.snapshot_dir(_owner(repo, config), repo, ref, config)
+        return _dir_read(d, rel_path, f"{repo}@{ref} snapshot")
+    url = _remote_url(repo, rel_path, config)
     r = _get("fetching", url, ok=(404,))
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
@@ -227,8 +232,12 @@ def read_optional(repo: str, rel_path: str, config) -> bytes | None:
         if _is_pinned(repo, config):
             return _git_show(d, _ref(repo, config), rel_path, optional=True)
         return _dir_read_optional(d, rel_path)
-    url = _remote_url(repo, rel_path, config)
     _note("raw", repo, _ref(repo, config), rel_path)
+    if config.archive:
+        ref = _ref(repo, config)
+        d = archive.snapshot_dir(_owner(repo, config), repo, ref, config)
+        return _dir_read_optional(d, rel_path)
+    url = _remote_url(repo, rel_path, config)
     r = _get("fetching", url, ok=(404,))
     if r.status_code == 404:
         return None
@@ -263,11 +272,15 @@ def list_tree(repo: str, rel_path: str, config, missing_ok: bool = False) -> lis
         return _dir_list_tree(d, rel_path, f"local {repo} ({d})", missing_ok)
     # Remote: GitHub git trees API — one request, recursive
     owner = _owner(repo, config)
+    _note("tree", repo, _ref(repo, config), rel_path)
+    if config.archive:
+        ref = _ref(repo, config)
+        d = archive.snapshot_dir(owner, repo, ref, config)
+        return _dir_list_tree(d, rel_path, f"{repo}@{ref} snapshot", missing_ok)
     url = (
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"git/trees/{_ref(repo, config)}?recursive=1"
     )
-    _note("tree", repo, _ref(repo, config), rel_path)
     r = _get("listing tree", url, json_api=True, ok=(404,))
     if r.status_code == 404:
         if missing_ok:
@@ -289,11 +302,15 @@ def list_dir(repo: str, rel_path: str, config, dirs_only: bool = False) -> list[
             return _git_ls_tree(d, _ref(repo, config), rel_path, dirs_only)
         return _dir_list(d, rel_path, f"local {repo} ({d})", dirs_only)
     owner = _owner(repo, config)
+    _note("list", repo, _ref(repo, config), rel_path)
+    if config.archive:
+        ref = _ref(repo, config)
+        d = archive.snapshot_dir(owner, repo, ref, config)
+        return _dir_list(d, rel_path, f"{repo}@{ref} snapshot", dirs_only)
     url = (
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"contents/{rel_path}?ref={_ref(repo, config)}"
     )
-    _note("list", repo, _ref(repo, config), rel_path)
     r = _get("listing", url, json_api=True, ok=(404,))
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
@@ -318,11 +335,14 @@ def list_dir_at_ref(
     if where == "local" and _is_pinned(repo, config):
         return _git_ls_tree(d, ref, rel_path, dirs_only)
     owner = _owner(repo, config)
+    _note("list", repo, ref, rel_path)
+    if config.archive:
+        d = archive.snapshot_dir(owner, repo, ref, config)
+        return _dir_list(d, rel_path, f"{repo}@{ref} snapshot", dirs_only)
     url = (
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"contents/{rel_path}?ref={ref}"
     )
-    _note("list", repo, ref, rel_path)
     r = _get("listing", url, json_api=True, ok=(404,))
     if r.status_code == 404:
         raise SourceError(f"404 not found: {url}")
@@ -395,11 +415,18 @@ def read_at_ref(
     if where == "local" and _is_pinned(repo, config):
         return _git_show(d, ref, rel_path, optional=optional)
     owner = _owner(repo, config)
+    _note("raw", repo, ref, rel_path)
+    if config.archive:
+        d = archive.snapshot_dir(owner, repo, ref, config)
+        return (
+            _dir_read_optional(d, rel_path)
+            if optional
+            else _dir_read(d, rel_path, f"{repo}@{ref} snapshot")
+        )
     url = (
         f"{config.remote.github_raw}{owner}/{repo.replace('_', '-')}/"
         f"{ref}/{rel_path}"
     )
-    _note("raw", repo, ref, rel_path)
     r = _get("fetching", url, ok=(404,))
     if r.status_code == 404:
         if optional:
