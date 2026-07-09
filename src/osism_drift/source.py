@@ -83,11 +83,29 @@ def _rate_limit_hint(r) -> str | None:
     effect is echoed from the response's X-RateLimit-Limit header. A 403 without
     those markers is some other refusal (auth/permission), not throttling, and
     gets no hint.
+
+    Separately, raw.githubusercontent.com (a Fastly CDN serving file bytes, the
+    bulk of a remote run) throttles per-IP and returns 429 with none of those
+    headers; that markerless 429 gets its own hint pointing at --base-dir, since
+    a token does not draw the raw host from the API budget.
     """
     if r.status_code not in (403, 429):
         return None
     retry_after = r.headers.get("Retry-After")
     if r.headers.get("X-RateLimit-Remaining") != "0" and retry_after is None:
+        # No GitHub-API rate-limit markers. raw.githubusercontent.com is a Fastly
+        # CDN that throttles per-IP and returns 429 with none of these headers, so
+        # a markerless 429 is CDN throttling (the API path always carries a marker)
+        # and still deserves an actionable hint. A markerless 403, by contrast, is
+        # an ordinary auth/permission refusal, not throttling, and gets none.
+        if r.status_code == 429:
+            return (
+                "raw.githubusercontent.com throttled this request. Its rate limit "
+                "is per-IP, intermittent, and separate from the GitHub API budget "
+                "(a token may raise the anonymous tier but won't guarantee relief). "
+                "Prefer local checkouts (--base-dir) to avoid remote fetches, retry "
+                "later, or run from a different network."
+            )
         return None
     parts = ["GitHub API rate limit hit."]
     limit = r.headers.get("X-RateLimit-Limit")

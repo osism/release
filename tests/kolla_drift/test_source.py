@@ -909,6 +909,29 @@ def test_secondary_rate_limit_retry_after_gives_hint(tmp_path, monkeypatch):
 
 
 @responses.activate
+def test_raw_cdn_429_without_headers_gives_raw_specific_hint(tmp_path, monkeypatch):
+    # raw.githubusercontent.com is a Fastly CDN that throttles per-IP and returns
+    # 429 with NONE of the X-RateLimit-*/Retry-After headers the API sends. That
+    # markerless 429 must still yield an actionable hint, distinct from the
+    # api.github.com rate-limit message (which the reset/quota text is for).
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/osism/release/main/latest/base.yml",
+        status=429,
+    )
+    cfg = _cfg(tmp_path)
+    with pytest.raises(SourceError) as exc:
+        read("release", "latest/base.yml", cfg)
+    msg = str(exc.value)
+    assert "HTTP 429" in msg
+    assert "--base-dir" in msg  # the actionable advice for the raw CDN
+    assert "per-IP" in msg
+    assert "GitHub API rate limit hit" not in msg  # not the API-quota message
+
+
+@responses.activate
 def test_plain_403_is_not_mistaken_for_rate_limiting(tmp_path):
     # A 403 without any rate-limit marker (e.g. a permission refusal) must stay a
     # plain HTTP error with no misleading rate-limit hint.
