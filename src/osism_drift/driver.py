@@ -65,14 +65,23 @@ def run(
         )
         for line in resolution:
             print(line, file=sys.stderr)
-        # Remote reads go through the GitHub API, which is slow: a full run makes
-        # dozens of requests over several minutes. Warn up front and stream one
-        # line per request, so the wait looks like progress rather than a hang.
+        # Remote reads either download one archive per (repo, ref) and serve
+        # files locally (the default), or -- with --use-raw-get -- fetch each
+        # file via the GitHub API, which is slow: dozens of requests over several
+        # minutes. Either way, stream one line per read so the wait looks like
+        # progress rather than a hang, with a mode-appropriate heads-up.
         if any(" remote " in line for line in resolution):
-            print(
-                "GitHub API reads can take several minutes; progress follows.",
-                file=sys.stderr,
-            )
+            if config.archive:
+                print(
+                    "Downloading one repo archive per repo/ref; "
+                    "reads then run locally.",
+                    file=sys.stderr,
+                )
+            else:
+                print(
+                    "GitHub API reads can take several minutes.",
+                    file=sys.stderr,
+                )
             source.set_progress(lambda line: print(line, file=sys.stderr, flush=True))
 
     drifts = []

@@ -1,11 +1,26 @@
 import dataclasses
+import io
 import subprocess as _sub
+import tarfile
 
 import pytest
 import requests
 import responses
 from osism_drift.source import read, SourceError, read_optional, list_dir
 from osism_drift.config import load_config, SourceCfg
+
+
+def _targz(files, *, top="osism-release-abc123", extra_members=None):
+    """files: {relpath: bytes} placed under a single top-level dir."""
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        for rel, data in files.items():
+            info = tarfile.TarInfo(f"{top}/{rel}")
+            info.size = len(data)
+            tar.addfile(info, io.BytesIO(data))
+        for m in extra_members or []:
+            tar.addfile(m, io.BytesIO(b""))
+    return buf.getvalue()
 
 
 def _cfg(tmp_path, base_dirs=(), remote_fallback=False):
@@ -1025,3 +1040,100 @@ def test_get_does_not_send_auth_to_non_github_mirror(monkeypatch):
     )
     source.read("release", "x.yml", cfg)
     assert "Authorization" not in responses.calls[0].request.headers
+
+
+@responses.activate
+def test_read_uses_archive_when_enabled(tmp_path):
+    cfg = dataclasses.replace(_cfg(tmp_path), archive=True)
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/osism/release/tarball/main",
+        body=_targz({"latest/base.yml": b"payload\n"}, top="osism-release-abc"),
+        status=200,
+    )
+    assert read("release", "latest/base.yml", cfg) == b"payload\n"
+
+
+@responses.activate
+def test_archive_snapshot_shared_across_reads(tmp_path):
+    # Two reads from the same (repo, ref) trigger exactly one tarball fetch.
+    cfg = dataclasses.replace(_cfg(tmp_path), archive=True)
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/osism/release/tarball/main",
+        body=_targz({"a.yml": b"1", "b.yml": b"2"}, top="osism-release-abc"),
+        status=200,
+    )
+    assert read("release", "a.yml", cfg) == b"1"
+    assert read("release", "b.yml", cfg) == b"2"
+    assert len(responses.calls) == 1
+
+
+@responses.activate
+def test_list_dir_uses_archive(tmp_path):
+    cfg = dataclasses.replace(_cfg(tmp_path), archive=True)
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/osism/release/tarball/main",
+        body=_targz(
+            {"conf/a.yml": b"1", "conf/sub/b.yml": b"2", "conf/d/keep": b""},
+            top="osism-release-x",
+        ),
+        status=200,
+    )
+    assert sorted(list_dir("release", "conf", cfg)) == ["a.yml", "d", "sub"]
+    assert sorted(list_dir("release", "conf", cfg, dirs_only=True)) == ["d", "sub"]
+
+
+@responses.activate
+def test_list_tree_uses_archive(tmp_path):
+    from osism_drift.source import list_tree
+
+    cfg = dataclasses.replace(_cfg(tmp_path), archive=True)
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/osism/release/tarball/main",
+        body=_targz(
+            {"conf/a.yml": b"1", "conf/sub/b.yml": b"2"}, top="osism-release-x"
+        ),
+        status=200,
+    )
+    # repo-relative paths of files only (dirs excluded), sorted.
+    assert list_tree("release", "conf", cfg) == ["conf/a.yml", "conf/sub/b.yml"]
+
+
+@responses.activate
+def test_list_dir_at_ref_uses_archive(tmp_path):
+    from osism_drift.source import list_dir_at_ref
+
+    cfg = dataclasses.replace(_cfg(tmp_path), archive=True)
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/osism/release/tarball/stable/2025.2",
+        body=_targz({"d/x.yml": b"1", "d/y.yml": b"2"}, top="osism-release-x"),
+        status=200,
+    )
+    assert sorted(list_dir_at_ref("release", "d", "stable/2025.2", cfg)) == [
+        "x.yml",
+        "y.yml",
+    ]
+
+
+@responses.activate
+def test_read_at_ref_uses_archive(tmp_path):
+    from osism_drift.source import read_at_ref
+
+    cfg = dataclasses.replace(_cfg(tmp_path), archive=True)
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/osism/release/tarball/stable/2025.2",
+        body=_targz({"latest/base.yml": b"v"}, top="osism-release-x"),
+        status=200,
+    )
+    assert read_at_ref("release", "latest/base.yml", "stable/2025.2", cfg) == b"v"
+    # A missing file with optional=True returns None, served from the same
+    # memoized snapshot (no second fetch).
+    assert (
+        read_at_ref("release", "nope.yml", "stable/2025.2", cfg, optional=True) is None
+    )
+    assert len(responses.calls) == 1
