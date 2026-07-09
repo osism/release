@@ -172,6 +172,12 @@ def _build_parser(plugin_groups, description, default_config, default_allowlist)
             "of erroring"
         ),
     )
+    p.add_argument(
+        "--use-raw-get",
+        action="store_true",
+        help="fetch repo files one raw GET at a time instead of per-(repo,ref) "
+        "archive tarballs (slower; more requests; only if the archive backend misbehaves)",
+    )
     p.add_argument("-v", "--verbose", action="store_true")
     p.add_argument("-q", "--quiet", action="store_true")
     return p
@@ -229,6 +235,7 @@ def _load_runtime(args):
         config,
         base_dirs=tuple(args.base_dir or ()),
         remote_fallback=args.remote_fallback,
+        archive=not args.use_raw_get,
     )
     allowlist = (
         Allowlist(entries=()) if args.no_allowlist else load_allowlist(args.allowlist)
