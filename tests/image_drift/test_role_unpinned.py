@@ -54,6 +54,22 @@ def test_stream_resolved_not_emitted(cfg):
     assert "ceph_ansible" not in drifts
 
 
+def test_input_files_declare_container_template():
+    """iter_role_pins reads the container override template to credit its
+    stream-resolved aliases, so the plugin must declare that repo or the driver
+    won't resolve it when role_unpinned runs alone in remote mode."""
+    repos = {repo for repo, _ in role_unpinned.INPUT_FILES}
+    assert "container_image_osism_ansible" in repos
+
+
+def test_container_stream_resolved_not_emitted(cfg):
+    """trainclient is stream-resolved only in the container images.yml.j2 (not the
+    generics manager template) — its <name>_version|default anchor still means the
+    release train governs, so a role-default pin must not surface as unpinned."""
+    drifts = _by_alias(role_unpinned.run(cfg, Allowlist(())))
+    assert "trainclient" not in drifts
+
+
 def test_allowlist_marks_ciinternal_allowlisted(cfg):
     al = Allowlist(
         (
