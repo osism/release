@@ -13,6 +13,7 @@ INPUT_FILES = [
     ("release", "<release_version>/base.yml"),
     ("generics", "environments/manager/images.yml"),
     ("ansible_collection_services", "roles/*/defaults/main.yml"),
+    ("container_image_osism_ansible", "files/src/templates/images.yml.j2"),
 ]
 SUMMARY = "{n} <alias>_tag pins in role defaults with no release base.yml pin:"
 REMEDIATION = (

@@ -13,6 +13,8 @@ from osism_drift import manager_template, role_defaults, source
 
 _ROLES_REPO = "ansible_collection_services"
 _IMAGES = "environments/manager/images.yml"
+_OVERRIDE_REPO = "container_image_osism_ansible"
+_OVERRIDE_TEMPLATE = "files/src/templates/images.yml.j2"
 
 
 @dataclass(frozen=True)
@@ -32,6 +34,12 @@ def iter_role_pins(config):
     template_bytes = source.read("generics", _IMAGES, config)
     alias_map = manager_template.extract_alias_map(template_bytes)
     stream_resolved = manager_template.extract_stream_resolved(template_bytes)
+    # The generics manager template omits some aliases (e.g. cephclient,
+    # openstackclient) that the authoritative container render template pins to a
+    # <name>_version release-stream variable. Credit that template too, so those
+    # aliases are recognised as stream-resolved rather than role-pinned.
+    override_bytes = source.read(_OVERRIDE_REPO, _OVERRIDE_TEMPLATE, config)
+    stream_resolved |= manager_template.extract_stream_resolved(override_bytes)
     role_names = source.list_dir(_ROLES_REPO, "roles", config, dirs_only=True)
 
     for role in sorted(role_names):

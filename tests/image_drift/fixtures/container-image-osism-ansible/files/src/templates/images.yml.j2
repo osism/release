@@ -9,3 +9,7 @@ ara_server_mariadb_image: "{{ '{{' }} docker_registry {{ '}}' }}/{{ images['mari
 
 manager_redis_tag: "{{ versions['redis'] }}"
 manager_redis_image: "{{ '{{' }} docker_registry {{ '}}' }}/{{ images['redis'] }}:{{ '{{' }} manager_redis_tag {{ '}}' }}"
+
+# stream-resolved only in this container template, not the generics manager images.yml
+trainclient_tag: "{{ '{{' }} trainclient_version|default(train_version) {{ '}}' }}"
+trainclient_image: "{{ '{{' }} docker_registry {{ '}}' }}/{{ images['trainclient'] }}:{{ '{{' }} trainclient_tag {{ '}}' }}"
