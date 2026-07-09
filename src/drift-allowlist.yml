@@ -34,6 +34,9 @@ allow:
   # rsync import sidecar (disabled by default) that tracks latest by design.
   - {plugin: role_unpinned, image: httpd, reason: "OSISM httpd role (Apache static/proxy); role-managed rolling 'alpine' tag by design, not release-pinned"}
   - {plugin: role_unpinned, image: httpd_data, reason: "one-shot rsync data-import sidecar (httpd_data_enable off by default); tracks registry.osism.tech/osism/rsync:latest by design"}
+  - plugin: role_unpinned
+    image: kepler
+    reason: "energy exporter; role-managed via registry.osism.tech/quay, Renovate-tracked in the kepler role, not release-pinned (osism/issues#1403)"
   # Not deployed in this OSISM series (cf. inventory IGNORE_NOT_DEPLOYED).
   - {plugin: kolla_version_chain_upstream, image: cyborg, reason: "not deployed in this series"}
   - {plugin: kolla_version_chain_upstream, image: tacker, reason: "not deployed in this series"}
