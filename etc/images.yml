@@ -10,7 +10,6 @@ osism: osism/osism
 osism_ansible: osism/osism-ansible
 osism_frontend: osism/osism-frontend
 osism_kubernetes: osism/osism-kubernetes
-osism_netbox: osism/osism-netbox
 redis: library/redis
 vault: hashicorp/vault
 sonic_vs: osism/sonic-vs
@@ -18,8 +17,6 @@ sonic_vs: osism/sonic-vs
 # mirror
 
 nexus: osism/nexus
-nginx: library/nginx
-registry: library/registry
 
 # ceph
 

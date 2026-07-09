@@ -56,8 +56,6 @@ docker_images:
   netbox: 'v4.3.5'
   # renovate: datasource=docker depName=registry.osism.tech/osism/nexus
   nexus: '3.93.1'
-  # renovate: datasource=docker depName=nginx
-  nginx: '1.29.3-alpine'
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism
   osism: '0.20260615.0'
   # renovate: datasource=docker depName=registry.osism.tech/osism/osism-ansible
@@ -76,8 +74,6 @@ docker_images:
   postgres: '16.11-alpine'
   # renovate: datasource=docker depName=redis
   redis: '7.4.7-alpine'
-  # renovate: datasource=docker depName=registry
-  registry: '3.0'
   # renovate: datasource=docker depName=hubblo/scaphandre
   scaphandre: '1.0.2'
   # renovate: datasource=docker depName=ubuntu/squid
