@@ -42,14 +42,40 @@ def _safe_extract(data, dest):
             except tarfile.FilterError as e:
                 raise SourceError(f"unsafe archive member: {e}") from e
         else:
+            root = dest.resolve()
+
+            def _within(p):
+                return p == root or root in p.parents
+
             for m in tar.getmembers():
                 target = (dest / m.name).resolve()
-                root = dest.resolve()
-                if target != root and root not in target.parents:
+                if not _within(target):
                     raise SourceError(f"unsafe archive member path: {m.name}")
-                if not (m.isfile() or m.isdir()):
-                    raise SourceError(f"unsafe archive member (link/special): {m.name}")
-            tar.extractall(dest)
+                # Emulate the 'data' filter for older Pythons: permit links
+                # whose target stays inside the extraction root (the release
+                # repo aliases per-version ceph.yml/openstack.yml this way),
+                # reject links that escape and any other special member.
+                if m.issym():
+                    link = (target.parent / m.linkname).resolve()
+                    if not _within(link):
+                        raise SourceError(
+                            f"unsafe archive member (link escapes): {m.name}"
+                        )
+                elif m.islnk():
+                    link = (dest / m.linkname).resolve()
+                    if not _within(link):
+                        raise SourceError(
+                            f"unsafe archive member (link escapes): {m.name}"
+                        )
+                elif not (m.isfile() or m.isdir()):
+                    raise SourceError(f"unsafe archive member (special): {m.name}")
+            # Members are already validated above. Old Pythons (no data_filter)
+            # extract fully-trusted by default; newer ones need it stated so
+            # they don't consult the (absent) default filter.
+            try:
+                tar.extractall(dest, filter="fully_trusted")
+            except TypeError:
+                tar.extractall(dest)
 
 
 def _extract_snapshot(data, repo, ref):

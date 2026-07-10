@@ -118,8 +118,9 @@ def test_unsafe_traversal_member_rejected():
 
 
 @responses.activate
-def test_symlink_member_rejected_on_fallback(monkeypatch):
-    # Force the no-data_filter fallback path and confirm it rejects a link member.
+def test_absolute_symlink_member_rejected_on_fallback(monkeypatch):
+    # Force the no-data_filter fallback path and confirm it rejects a link
+    # whose target escapes the extraction dir (absolute path).
     monkeypatch.delattr(tarfile, "data_filter", raising=False)
     cfg = _stub()
     link = tarfile.TarInfo("osism-r-abc/link")
@@ -133,3 +134,27 @@ def test_symlink_member_rejected_on_fallback(monkeypatch):
     )
     with pytest.raises(SourceError):
         archive.snapshot_dir("osism", "r", "main", cfg)
+
+
+@responses.activate
+def test_safe_relative_symlink_extracted_on_fallback(monkeypatch):
+    # Force the no-data_filter fallback path. A relative symlink that stays
+    # inside the extraction dir (as the release repo uses for its per-version
+    # ceph.yml / openstack.yml aliases) must be extracted, not rejected.
+    monkeypatch.delattr(tarfile, "data_filter", raising=False)
+    cfg = _stub()
+    link = tarfile.TarInfo("osism-release-abc/1.0.0/ceph.yml")
+    link.type = tarfile.SYMTYPE
+    link.linkname = "ceph-pacific.yml"
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/osism/release/tarball/main",
+        body=_targz(
+            {"1.0.0/ceph-pacific.yml": b"pacific\n"},
+            top="osism-release-abc",
+            extra_members=[link],
+        ),
+        status=200,
+    )
+    d = archive.snapshot_dir("osism", "release", "main", cfg)
+    assert (d / "1.0.0/ceph.yml").read_bytes() == b"pacific\n"
