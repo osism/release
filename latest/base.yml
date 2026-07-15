@@ -92,7 +92,7 @@ docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/sonic-vs
   sonic_vs: 'latest'
   # renovate: datasource=docker depName=ghcr.io/cloudnull/substation/substation
-  substation: 'latest'
+  substation: '1774452086'
   # renovate: datasource=docker depName=hashicorp/vault
   vault: '1.21.4'
 
