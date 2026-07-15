@@ -16,6 +16,7 @@ from osism_drift.drift import (
     release_vs_manager,
     role_shadows,
     role_unpinned,
+    rolling_pin,
 )
 
 KOLLA_PLUGINS = [
@@ -31,7 +32,13 @@ KOLLA_PLUGINS = [
     kolla_inventory,
 ]
 
-IMAGE_PLUGINS = [release_vs_manager, role_shadows, role_unpinned, image_orphan]
+IMAGE_PLUGINS = [
+    release_vs_manager,
+    role_shadows,
+    role_unpinned,
+    rolling_pin,
+    image_orphan,
+]
 
 PLUGIN_GROUPS = {"image": IMAGE_PLUGINS, "kolla": KOLLA_PLUGINS}
 
