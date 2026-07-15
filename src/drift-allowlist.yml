@@ -37,6 +37,13 @@ allow:
   - plugin: role_unpinned
     image: kepler
     reason: "energy exporter; role-managed via registry.osism.tech/quay, Renovate-tracked in the kepler role, not release-pinned (osism/issues#1403)"
+  # --- rolling_pin ---
+  # base.yml pins whose value is a rolling tag but are rolling by design or not
+  # deployed. substation is deliberately NOT here: it deploys 'latest' on a live
+  # service and upstream publishes immutable tags, so it is a live finding to be
+  # pinned + wired (osism/issues#1404).
+  - {plugin: rolling_pin, image: tempest, reason: "kolla-built test image; 'latest' by design, not a deployed reproducible service"}
+  - {plugin: rolling_pin, image: sonic_vs, reason: "testbed/mirror-only image (not deployed via a role or the manager render); 'latest' by design"}
   # Not deployed in this OSISM series (cf. inventory IGNORE_NOT_DEPLOYED).
   - {plugin: kolla_version_chain_upstream, image: cyborg, reason: "not deployed in this series"}
   - {plugin: kolla_version_chain_upstream, image: tacker, reason: "not deployed in this series"}

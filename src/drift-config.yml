@@ -19,6 +19,7 @@ plugins:
   release_vs_manager: {enabled: true}
   role_shadows: {enabled: true}
   role_unpinned: {enabled: true}
+  rolling_pin: {enabled: true}
   image_orphan: {enabled: true}
   kolla_version_chain_inner: {enabled: true}
   kolla_version_chain_upstream: {enabled: true}
