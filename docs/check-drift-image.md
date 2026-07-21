@@ -169,6 +169,29 @@ role path then alias:
            allowlist it if the image is intentionally role-managed.
       Refs: release/latest/base.yml
 
+### `rolling_pin`
+
+Flags `docker_images` pins in `release/<version>/base.yml` whose **value** is a
+rolling (mutable) tag — `latest`, `main`, `master`, `stable`, `edge`,
+`nightly`, `rolling`, `dev`, `devel`, `develop`, `head`, `current` — matched
+case-insensitively. A rolling tag in the release pin deploys a non-reproducible
+image: two deploys of the same release can pull different bytes.
+
+The match is a **curated denylist**, not a "not valid semver" heuristic, so an
+odd-but-immutable tag like `6.1-23.10_beta` is never mistaken for rolling.
+
+Unlike the other image plugins this reads a single file — the release
+`base.yml` — and does not consult the manager template or role defaults.
+
+**Inputs**: release `<release_version>/base.yml` only.
+
+**Fix**: replace the rolling tag with a concrete, immutable version in
+`base.yml` (and wire `<alias>_tag` into the manager render template if the image
+deploys via a role default), or allowlist the entry if the image is rolling by
+design — e.g. a kolla-built test image (`tempest`) or a mirror-only image
+(`sonic_vs`). A rolling tag on a *deployed* service is a real finding to fix,
+not to allowlist (cf. `substation`, osism/issues#1404).
+
 ### `image_orphan`
 
 Reports image aliases **emitted** by the generics manager render template
