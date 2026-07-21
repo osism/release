@@ -193,6 +193,8 @@ The script:
 4. Merges batch results into a single entry following
    [Keep a Changelog](https://keepachangelog.com/) format
 5. Auto-inserts the entry into `CHANGELOG.md`
+6. Deletes the generated `changelog-input-*.md` working files again
+   (`--keep-input` keeps them; with `-n` they are always kept)
 
 ## CI
 
