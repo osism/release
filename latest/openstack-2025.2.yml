@@ -12,7 +12,7 @@ defaults_version: 'v0.20260712.0'
 # renovate: datasource=github-tags depName=osism/generics
 generics_version: 'v0.20260712.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
-playbooks_version: 'v0.20260615.0'
+playbooks_version: 'v0.20260721.0'
 
 docker_images:
   openstackclient: "2025.2"
