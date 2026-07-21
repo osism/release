@@ -82,7 +82,7 @@ stage or the transition into it:
    versions template and the producer's SBOM map.
 4. **deployed** — the service has ansible inventory groups to deploy into.
 
-The eight plugins run in that order, and the report renders them the same way.
+The plugins run in that order, and the report renders them the same way.
 Each opens with the stage it guards. Each is independent and can be run alone
 with `--plugin <name>`; every finding can be suppressed with an allowlist entry
 (see "Allowlist"). Service names are compared as **key spaces**, normalising
@@ -201,6 +201,33 @@ otherwise dangle after the flag is removed.
   `kolla_enablement_orphan`).
 - **Fix:** remove these vars from the listed `osism/defaults` file, or allowlist
   any intentionally kept (an OSISM invention with no upstream service).
+
+### Plugin: kolla_image_orphan
+
+**Built — an image-catalogue entry must not outlive its upstream role.** The
+image-catalogue-driven complement to the enable-flag-driven
+`kolla_enablement_orphan` → `kolla_orphan_config` path. That path only flags a
+removed service's companion vars while OSISM still defines its `enable_<svc>`
+flag; a service upstream removed for which OSISM never had an enable flag leaves
+its `<svc>_image` / `<svc>_tag` catalogue entries undetected. This check keys off
+the catalogue instead: for each OSISM kolla `*_image` (excluding `*_image_full`)
+and `*_tag` var in `osism/defaults` `all/*images-kolla*.yml`, it flags the var
+when its **name** is absent from upstream kolla-ansible role defaults across
+**every** supported release. It is a pure variable-name set-diff over the union
+of supported refs — no image-name resolution or alias chains — and both suffixes
+are tested independently. Restricting to the `*images-kolla*` catalogue glob
+keeps non-kolla images (ceph, cilium, k3s) out of the comparison. An empty OSISM
+catalogue match or an empty upstream union is a hard error, since either would
+turn the set-diff into a silent all-clear or a mass false positive.
+
+    python3 src/check-drift.py --group kolla --plugin kolla_image_orphan
+
+- **Reads:** `osism/defaults` `all/*images-kolla*.yml`; `openstack/kolla-ansible`
+  `ansible/roles/*/defaults/main.yml` (`*_image` / `*_tag`) per resolved release
+  ref, unioned across the supported range.
+- **Fix:** remove the orphaned `<svc>_image` / `<svc>_tag` var from the listed
+  catalogue file, or allowlist any intentionally kept (an OSISM-built image with
+  no upstream kolla-ansible role, e.g. mariabackup, tempest).
 
 ### Plugin: kolla_secrets_orphan
 
