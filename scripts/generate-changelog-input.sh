@@ -14,6 +14,11 @@
 # then processes all tags after it (including a virtual tag for today
 # if there are unreleased commits).
 #
+# With --tags-only, no virtual tag is added in --auto/--from mode: only
+# tags that already exist are processed, commits beyond the last tag are
+# ignored. Use this to catch up on missing changelog entries for existing
+# tags without assuming that a release will be tagged today.
+#
 # For large releases, commits are processed in batches to avoid prompt
 # length limits. Batching is based on diff size, not commit count.
 #
@@ -44,6 +49,7 @@
 # Options:
 #   -a, --auto         Auto-detect: read last tag from CHANGELOG.md, process all after it
 #   -f, --from         Process all tags from this tag onwards
+#   -t, --tags-only    Only process existing tags, never add a virtual tag for today
 #   -n, --no-run       Only generate the input file(s), do not run Claude
 #   -o, --output       Specify output file (default: changelog-input-<tag>.md)
 #   -s, --max-size     Max lines per batch (default: 2000)
@@ -56,6 +62,7 @@
 #   ./scripts/generate-changelog-input.sh v0.20251130.1       # Use specific tag, run Claude
 #   ./scripts/generate-changelog-input.sh v9.20251205.0       # Prepare new release (tag doesn't exist yet)
 #   ./scripts/generate-changelog-input.sh --auto              # Auto-detect from CHANGELOG.md
+#   ./scripts/generate-changelog-input.sh --auto --tags-only  # Only existing tags, ignore unreleased commits
 #   ./scripts/generate-changelog-input.sh --from v0.20260301.0  # All tags from v0.20260301.0 onwards
 #   ./scripts/generate-changelog-input.sh -n                  # Only generate file
 #   ./scripts/generate-changelog-input.sh -s 3000             # 3000 lines per batch
@@ -68,6 +75,7 @@ set -e
 LATEST_TAG=""
 FROM_TAG=""
 AUTO_MODE=false
+TAGS_ONLY=false
 OUTPUT_FILE=""
 RUN_CLAUDE=true
 MAX_BATCH_SIZE=2000
@@ -84,6 +92,7 @@ show_help() {
     echo "Options:"
     echo "  -a, --auto         Auto-detect: read last tag from CHANGELOG.md, process all after it"
     echo "  -f, --from         Process all tags from this tag onwards"
+    echo "  -t, --tags-only    Only process existing tags, never add a virtual tag for today"
     echo "  -n, --no-run       Only generate the input file(s), do not run Claude"
     echo "  -o, --output       Specify output file (default: changelog-input-<tag>.md)"
     echo "  -s, --max-size     Max lines per batch (default: 2000)"
@@ -95,6 +104,7 @@ show_help() {
     echo "  $0                          # Use latest tag, run Claude"
     echo "  $0 v0.20251130.1            # Use specific tag, run Claude"
     echo "  $0 --auto                   # Auto-detect from CHANGELOG.md"
+    echo "  $0 --auto --tags-only       # Only existing tags, ignore unreleased commits"
     echo "  $0 --from v0.20260301.0     # All tags from v0.20260301.0 onwards"
     echo "  $0 -n                       # Only generate file"
     echo "  $0 -s 3000                  # 3000 lines per batch"
@@ -123,6 +133,10 @@ while [ $# -gt 0 ]; do
         -f|--from)
             FROM_TAG="$2"
             shift 2
+            ;;
+        -t|--tags-only)
+            TAGS_ONLY=true
+            shift
             ;;
         -c|--commit)
             DO_COMMIT=true
@@ -158,6 +172,11 @@ if [ "$DO_PR" = true ] && ! command -v gh >/dev/null 2>&1; then
     exit 1
 fi
 
+if [ "$TAGS_ONLY" = true ] && [ "$AUTO_MODE" = false ] && [ -z "$FROM_TAG" ]; then
+    echo "Error: --tags-only requires --auto or --from"
+    exit 1
+fi
+
 # Handle --auto mode: read last tag from CHANGELOG.md
 if [ "$AUTO_MODE" = true ]; then
     if [ -n "$FROM_TAG" ] || [ -n "$LATEST_TAG" ]; then
@@ -190,10 +209,14 @@ if [ "$AUTO_MODE" = true ]; then
         LAST_EXISTING_TAG="${AUTO_TAGS[${#AUTO_TAGS[@]}-1]}"
         COMMITS_AFTER=$(git rev-list --count "$LAST_EXISTING_TAG"..HEAD)
         if [ "$COMMITS_AFTER" -gt 0 ]; then
-            TODAY_TAG="v0.$(date +%Y%m%d).0"
-            if [ "$LAST_EXISTING_TAG" != "$TODAY_TAG" ]; then
-                echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, adding $TODAY_TAG"
-                AUTO_TAGS+=("$TODAY_TAG")
+            if [ "$TAGS_ONLY" = true ]; then
+                echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, ignoring (--tags-only)"
+            else
+                TODAY_TAG="v0.$(date +%Y%m%d).0"
+                if [ "$LAST_EXISTING_TAG" != "$TODAY_TAG" ]; then
+                    echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, adding $TODAY_TAG"
+                    AUTO_TAGS+=("$TODAY_TAG")
+                fi
             fi
         fi
     else
@@ -232,10 +255,14 @@ if [ "$AUTO_MODE" = true ]; then
 
         COMMITS_AFTER=$(git rev-list --count "$LAST_EXISTING_TAG"..HEAD)
         if [ "$COMMITS_AFTER" -gt 0 ]; then
-            TODAY_TAG="v0.$(date +%Y%m%d).0"
-            if [ "$LAST_EXISTING_TAG" != "$TODAY_TAG" ]; then
-                echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, adding $TODAY_TAG"
-                AUTO_TAGS+=("$TODAY_TAG")
+            if [ "$TAGS_ONLY" = true ]; then
+                echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, ignoring (--tags-only)"
+            else
+                TODAY_TAG="v0.$(date +%Y%m%d).0"
+                if [ "$LAST_EXISTING_TAG" != "$TODAY_TAG" ]; then
+                    echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, adding $TODAY_TAG"
+                    AUTO_TAGS+=("$TODAY_TAG")
+                fi
             fi
         fi
     fi
@@ -286,10 +313,14 @@ elif [ -n "$FROM_TAG" ]; then
     LAST_EXISTING_TAG="${TAGS_TO_PROCESS[${#TAGS_TO_PROCESS[@]}-1]}"
     COMMITS_AFTER=$(git rev-list --count "$LAST_EXISTING_TAG"..HEAD)
     if [ "$COMMITS_AFTER" -gt 0 ]; then
-        TODAY_TAG="v0.$(date +%Y%m%d).0"
-        if [ "$LAST_EXISTING_TAG" != "$TODAY_TAG" ]; then
-            echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, adding $TODAY_TAG"
-            TAGS_TO_PROCESS+=("$TODAY_TAG")
+        if [ "$TAGS_ONLY" = true ]; then
+            echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, ignoring (--tags-only)"
+        else
+            TODAY_TAG="v0.$(date +%Y%m%d).0"
+            if [ "$LAST_EXISTING_TAG" != "$TODAY_TAG" ]; then
+                echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, adding $TODAY_TAG"
+                TAGS_TO_PROCESS+=("$TODAY_TAG")
+            fi
         fi
     fi
 
