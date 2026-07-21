@@ -22,6 +22,13 @@
 # For large releases, commits are processed in batches to avoid prompt
 # length limits. Batching is based on diff size, not commit count.
 #
+# Commits that touch only CHANGELOG.md are changelog housekeeping — in
+# particular the release-notes commits/PRs created by this script itself
+# via --commit/--pr (e.g. "changelog: add release notes for ..."). They
+# are excluded deterministically before any prompt is built and must
+# never be listed in later changelogs. They are also ignored when
+# deciding whether unreleased commits warrant a virtual today tag.
+#
 # Every commit in a release range is resolved to a reference: #N from the
 # commit subject (squash-merge convention), otherwise the pull request
 # associated with the commit according to the GitHub API (gh), otherwise
@@ -177,6 +184,26 @@ if [ "$TAGS_ONLY" = true ] && [ "$AUTO_MODE" = false ] && [ -z "$FROM_TAG" ]; th
     exit 1
 fi
 
+# A commit that touches only CHANGELOG.md is changelog housekeeping (e.g.
+# a release-notes commit created by this script with --commit/--pr) and
+# must never show up in later changelogs. Merge commits report no files
+# here and are therefore never classified as housekeeping.
+is_changelog_only_commit() {
+    [ "$(git diff-tree --no-commit-id --name-only -r "$1")" = "CHANGELOG.md" ]
+}
+
+# Count the commits in a range that are relevant for release notes, i.e.
+# everything except changelog housekeeping commits
+count_releasable_commits() {
+    local count=0 commit
+    while IFS= read -r commit; do
+        if ! is_changelog_only_commit "$commit"; then
+            count=$((count + 1))
+        fi
+    done < <(git rev-list "$1".."$2")
+    echo "$count"
+}
+
 # Handle --auto mode: read last tag from CHANGELOG.md
 if [ "$AUTO_MODE" = true ]; then
     if [ -n "$FROM_TAG" ] || [ -n "$LATEST_TAG" ]; then
@@ -207,7 +234,7 @@ if [ "$AUTO_MODE" = true ]; then
 
         # Check for unreleased commits
         LAST_EXISTING_TAG="${AUTO_TAGS[${#AUTO_TAGS[@]}-1]}"
-        COMMITS_AFTER=$(git rev-list --count "$LAST_EXISTING_TAG"..HEAD)
+        COMMITS_AFTER=$(count_releasable_commits "$LAST_EXISTING_TAG" HEAD)
         if [ "$COMMITS_AFTER" -gt 0 ]; then
             if [ "$TAGS_ONLY" = true ]; then
                 echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, ignoring (--tags-only)"
@@ -253,7 +280,7 @@ if [ "$AUTO_MODE" = true ]; then
             LAST_EXISTING_TAG="$LAST_CHANGELOG_TAG"
         fi
 
-        COMMITS_AFTER=$(git rev-list --count "$LAST_EXISTING_TAG"..HEAD)
+        COMMITS_AFTER=$(count_releasable_commits "$LAST_EXISTING_TAG" HEAD)
         if [ "$COMMITS_AFTER" -gt 0 ]; then
             if [ "$TAGS_ONLY" = true ]; then
                 echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, ignoring (--tags-only)"
@@ -311,7 +338,7 @@ elif [ -n "$FROM_TAG" ]; then
 
     # Check if HEAD has commits beyond last existing tag
     LAST_EXISTING_TAG="${TAGS_TO_PROCESS[${#TAGS_TO_PROCESS[@]}-1]}"
-    COMMITS_AFTER=$(git rev-list --count "$LAST_EXISTING_TAG"..HEAD)
+    COMMITS_AFTER=$(count_releasable_commits "$LAST_EXISTING_TAG" HEAD)
     if [ "$COMMITS_AFTER" -gt 0 ]; then
         if [ "$TAGS_ONLY" = true ]; then
             echo "Note: Found $COMMITS_AFTER commit(s) after $LAST_EXISTING_TAG, ignoring (--tags-only)"
@@ -442,22 +469,35 @@ else
     TAG_DATE=$(git for-each-ref --format='%(creatordate:short)' "refs/tags/$LATEST_TAG")
 fi
 
-# Get list of commits (oldest first for logical order)
+# Get list of commits (oldest first for logical order), excluding
+# changelog housekeeping commits (see is_changelog_only_commit)
 COMMITS=()
+SKIPPED_CHANGELOG_COMMITS=0
 if [ "$FIRST_TAG" = true ]; then
     # Include all commits from the beginning of the repo up to COMMIT_REF
-    while IFS= read -r commit; do
-        COMMITS+=("$commit")
-    done < <(git log --reverse --format="%h" "$COMMIT_REF")
+    COMMIT_RANGE="$COMMIT_REF"
 else
-    while IFS= read -r commit; do
-        COMMITS+=("$commit")
-    done < <(git log --reverse --format="%h" "$PREVIOUS_TAG".."$COMMIT_REF")
+    COMMIT_RANGE="$PREVIOUS_TAG..$COMMIT_REF"
 fi
+while IFS= read -r commit; do
+    if is_changelog_only_commit "$commit"; then
+        SKIPPED_CHANGELOG_COMMITS=$((SKIPPED_CHANGELOG_COMMITS + 1))
+        continue
+    fi
+    COMMITS+=("$commit")
+done < <(git log --reverse --format="%h" "$COMMIT_RANGE")
 TOTAL_COMMITS=${#COMMITS[@]}
 
 echo "  Total commits: $TOTAL_COMMITS"
+if [ "$SKIPPED_CHANGELOG_COMMITS" -gt 0 ]; then
+    echo "  Skipped changelog housekeeping commit(s): $SKIPPED_CHANGELOG_COMMITS"
+fi
 echo "  Max batch size: $MAX_BATCH_SIZE lines"
+
+if [ "$TOTAL_COMMITS" -eq 0 ]; then
+    echo "  No releasable commits in this range, skipping $LATEST_TAG"
+    continue
+fi
 
 # Resolve the reference(s) of every commit in the release range. Order of
 # precedence: #N references in the commit subject (squash-merge convention),

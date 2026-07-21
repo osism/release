@@ -184,7 +184,10 @@ Generate CHANGELOG entries from git commits using Claude:
 ```
 
 The script:
-1. Collects commits and diffs between consecutive tags
+1. Collects commits and diffs between consecutive tags; changelog
+   housekeeping commits (touching only `CHANGELOG.md`, e.g. the
+   release-notes PRs created by this script) are excluded and never
+   appear in later changelogs
 2. Batches them by diff size (default: 2000 lines per batch) to stay within prompt limits
 3. Sends each batch to Claude for structured changelog generation
 4. Merges batch results into a single entry following
