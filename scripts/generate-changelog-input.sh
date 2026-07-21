@@ -26,6 +26,11 @@
 # last resort, repaired or appended deterministically. Entries without any
 # reference are removed.
 #
+# The final entry is reduced to pure changelog content (version header,
+# category headers, entries, blank lines); any other line — e.g. model
+# commentary like "Note: ..." about batches or its own corrections — is
+# stripped deterministically before CHANGELOG.md is touched.
+#
 # For release preparation: If a tag with today's date is specified but
 # doesn't exist yet, the script will use HEAD as reference and collect
 # commits from the last existing tag to HEAD.
@@ -505,6 +510,8 @@ Important notes:
 - Copy references EXACTLY as given in the References lines; never alter the org/repo part
 - Do NOT include a version header (## [v...]) — start directly with ### Added, ### Changed, etc.
 - Do NOT include any preamble, explanation, or commentary — output ONLY the raw markdown
+- Do NOT add notes or remarks about the input, the batch, or your own decisions — not before, between, or after the entries
+- Every non-empty line of your output must be either a category header (### ...) or an entry starting with "- "; each entry is a single line
 
 ---
 
@@ -646,12 +653,14 @@ if [ "$RUN_CLAUDE" = true ]; then
     echo ""
 
     # Process each batch
+    BATCH_RESULTS=()
     for (( batch=0; batch<NUM_BATCHES; batch++ )); do
         BATCH_FILE="${BATCH_FILES[$batch]}"
         echo "Processing batch $((batch+1)) of $NUM_BATCHES..."
 
         # Run Claude and append output to main file
         RESULT=$(claude --model "$CLAUDE_MODEL" --effort "$CLAUDE_EFFORT" -p "$(cat "$BATCH_FILE")" 2>&1) || true
+        BATCH_RESULTS+=("$RESULT")
 
         echo "" >> "$OUTPUT_FILE"
         echo "## Batch $((batch+1))" >> "$OUTPUT_FILE"
@@ -659,6 +668,15 @@ if [ "$RUN_CLAUDE" = true ]; then
         echo "$RESULT" >> "$OUTPUT_FILE"
         echo "" >> "$OUTPUT_FILE"
     done
+
+    if [ "$NUM_BATCHES" -eq 1 ]; then
+        # A single batch needs no merge: prepend the version header
+        # deterministically. This also avoids a merge pass that has
+        # nothing to merge and is tempted to comment on that fact.
+        echo ""
+        echo "Single batch, skipping merge step..."
+        FINAL_RESULT="## [$LATEST_TAG] - $TAG_DATE"$'\n\n'"$(echo "${BATCH_RESULTS[0]}" | grep -v '^## \[' || true)"
+    else
 
     echo ""
     echo "All batches processed. Now merging results..."
@@ -679,11 +697,15 @@ Rules:
 - Every entry in the merged result MUST carry at least one reference
 - Your response MUST start with ## [$LATEST_TAG] - $TAG_DATE
 - Do NOT include any preamble, explanation, or commentary — output ONLY the raw markdown
+- Do NOT add notes or remarks about the merge process, the batches, or corrections you made — not before, between, or after the entries
+- Apart from the version header, every non-empty line must be either a category header (### ...) or an entry starting with \"- \"
 
 $(cat "$OUTPUT_FILE")"
 
     # Run final merge
     FINAL_RESULT=$(claude --model "$CLAUDE_MODEL" --effort "$CLAUDE_EFFORT" -p "$MERGE_PROMPT" 2>&1) || true
+
+    fi  # NUM_BATCHES
 
     # Strip any preamble before the first ## [v line
     CLEAN_RESULT=$(echo "$FINAL_RESULT" | sed -n '/^## \[v/,$p')
@@ -744,6 +766,7 @@ Rules:
 - Entries without any reference are not allowed: attach the correct reference or, if the entry does not correspond to any change of this release, remove it
 - Your response MUST start with ## [$LATEST_TAG] - $TAG_DATE
 - Do NOT include any preamble, explanation, or commentary — output ONLY the raw markdown
+- Do NOT add notes or remarks about the corrections you made — not before, between, or after the entries
 
 Changelog entry:
 $CLEAN_RESULT"
@@ -784,6 +807,18 @@ $CLEAN_RESULT"
         else
             echo "All missing references were added"
         fi
+    fi
+
+    # The final entry may only consist of the version header, category
+    # headers, entries and blank lines. Anything else is model commentary
+    # (e.g. "Note: ..." remarks about batches or its own corrections) and
+    # must never end up in CHANGELOG.md.
+    STRAY_LINES=$(echo "$CLEAN_RESULT" | grep -vE '^(## \[|### |- |[[:space:]]*$)' || true)
+    if [ -n "$STRAY_LINES" ]; then
+        echo ""
+        echo "Warning: Removing lines that are not changelog content:"
+        echo "$STRAY_LINES" | sed 's/^/  /'
+        CLEAN_RESULT=$(echo "$CLEAN_RESULT" | grep -E '^(## \[|### |- |[[:space:]]*$)' | cat -s)
     fi
 
     # Reverse check: no entry may remain without a reference. All real
