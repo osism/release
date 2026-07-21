@@ -17,6 +17,15 @@
 # For large releases, commits are processed in batches to avoid prompt
 # length limits. Batching is based on diff size, not commit count.
 #
+# Every commit in a release range is resolved to a reference: #N from the
+# commit subject (squash-merge convention), otherwise the pull request
+# associated with the commit according to the GitHub API (gh), otherwise
+# the commit hash itself. Every generated entry must carry its reference
+# as (org/repo#N) or (org/repo@hash). This is verified after the merge
+# step; missing references are fixed with an extra Claude pass and, as a
+# last resort, repaired or appended deterministically. Entries without any
+# reference are removed.
+#
 # For release preparation: If a tag with today's date is specified but
 # doesn't exist yet, the script will use HEAD as reference and collect
 # commits from the last existing tag to HEAD.
@@ -303,6 +312,20 @@ if [ -z "$GITHUB_REPO" ]; then
     GITHUB_REPO="osism/unknown"
 fi
 
+# GITHUB_REPO with regex metacharacters escaped, for use in grep patterns
+GITHUB_REPO_RE=$(printf '%s' "$GITHUB_REPO" | sed 's/[.[\*^$]/\\&/g')
+
+# The GitHub API is used to find the pull request of commits that carry no
+# #N reference in their subject (e.g. rebase-merged PRs). Without gh those
+# commits fall back to their commit hash as reference.
+GH_AVAILABLE=false
+if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+    GH_AVAILABLE=true
+else
+    echo "Warning: GitHub CLI (gh) not available or not authenticated;"
+    echo "         commits without a PR reference in the subject will be referenced by commit hash"
+fi
+
 _USER_OUTPUT_FILE="$OUTPUT_FILE"
 
 # Process each tag
@@ -400,6 +423,49 @@ TOTAL_COMMITS=${#COMMITS[@]}
 echo "  Total commits: $TOTAL_COMMITS"
 echo "  Max batch size: $MAX_BATCH_SIZE lines"
 
+# Resolve the reference(s) of every commit in the release range. Order of
+# precedence: #N references in the commit subject (squash-merge convention),
+# then the pull request associated with the commit according to the GitHub
+# API, then the commit hash itself. Pure merge commits without a subject
+# reference get no reference and are ignored by the changelog.
+#
+# COMMIT_REFS holds one line per commit: "<hash> <ref>[ <ref>...]" where a
+# ref is "#N" or "@hash". REF_SUBJECTS maps each ref to the subject of the
+# first commit carrying it: "<ref>\t<subject>".
+echo "  Resolving PR/issue references..."
+COMMIT_REFS=""
+REF_SUBJECTS=""
+for commit in "${COMMITS[@]}"; do
+    SUBJECT=$(git log -1 --format='%s' "$commit")
+    REFS=$(echo "$SUBJECT" | grep -oE '#[0-9]+' | sort -u | tr '\n' ' ')
+    REFS="${REFS% }"
+
+    if [ -z "$REFS" ]; then
+        PARENT_COUNT=$(git log -1 --format='%P' "$commit" | wc -w)
+        if [ "$PARENT_COUNT" -gt 1 ]; then
+            continue
+        fi
+
+        if [ "$GH_AVAILABLE" = true ]; then
+            PR_NUM=$(gh api "repos/${GITHUB_REPO}/commits/$(git rev-parse "$commit")/pulls" --jq '.[0].number' 2>/dev/null || true)
+            if [ -n "$PR_NUM" ]; then
+                REFS="#${PR_NUM}"
+            fi
+        fi
+
+        if [ -z "$REFS" ]; then
+            REFS="@${commit}"
+        fi
+    fi
+
+    COMMIT_REFS+="${commit} ${REFS}"$'\n'
+    for ref in $REFS; do
+        if ! echo "$REF_SUBJECTS" | grep -q "^${ref}	"; then
+            REF_SUBJECTS+="${ref}	${SUBJECT}"$'\n'
+        fi
+    done
+done
+
 # Create the prompt template
 PROMPT_TEMPLATE='# Changelog Generation Prompt
 
@@ -432,7 +498,11 @@ Important notes:
 - Do not use periods at the end of entries
 - Include dependency updates from Renovate in the "Dependencies" section
 - Format dependency updates as: "package-name old_version → new_version" (use → arrow, lowercase package name)
-- If a commit message contains a PR reference like (#123), append it to the changelog entry as ('"$GITHUB_REPO"'#123) — this makes it a clickable link on GitHub
+- Each commit below carries a **References:** line; every entry MUST end with the reference(s) of the commit(s) it covers, in parentheses: ('"$GITHUB_REPO"'#123) — this makes it a clickable link on GitHub
+- Commits without an associated PR/issue are referenced by commit hash: ('"$GITHUB_REPO"'@abc1234)
+- If one entry covers several commits/PRs, append all references at the end of the entry: ('"$GITHUB_REPO"'#123, '"$GITHUB_REPO"'#456)
+- NEVER output an entry without a reference; commits without a References line (pure merge commits) must be ignored
+- Copy references EXACTLY as given in the References lines; never alter the org/repo part
 - Do NOT include a version header (## [v...]) — start directly with ### Added, ### Changed, etc.
 - Do NOT include any preamble, explanation, or commentary — output ONLY the raw markdown
 
@@ -452,6 +522,18 @@ get_commit_content() {
 
     content+="## Commit: $commit"$'\n\n'
     content+=$(git log -1 --format="**Author:** %an%n**Date:** %ci%n%n**Message:**%n%s%n%n%b" "$commit")
+
+    # Reference(s) resolved for this commit (see COMMIT_REFS above)
+    local refs formatted ref
+    refs=$(echo "$COMMIT_REFS" | grep "^${commit} " | cut -d' ' -f2- || true)
+    if [ -n "$refs" ]; then
+        formatted=""
+        for ref in $refs; do
+            formatted+="${GITHUB_REPO}${ref} "
+        done
+        content+=$'\n\n'"**References:** ${formatted% }"
+    fi
+
     content+=$'\n\n### Diff\n\n```diff\n'
 
     # Get diff and truncate if too large
@@ -507,7 +589,9 @@ for commit in "${COMMITS[@]}"; do
         CURRENT_SIZE=0
     fi
 
-    CURRENT_BATCH+="$COMMIT_CONTENT"
+    # Command substitution strips the trailing newlines of the commit
+    # content, so re-add the separator between commit blocks here
+    CURRENT_BATCH+="$COMMIT_CONTENT"$'\n\n'
     CURRENT_SIZE=$((CURRENT_SIZE + COMMIT_SIZE))
 done
 
@@ -589,7 +673,10 @@ Rules:
 - Group by category (Added, Changed, Fixed, Removed, Dependencies)
 - Remove empty categories
 - Keep the format consistent
-- Preserve all PR references in the format (org/repo#number) at the end of each entry
+- Preserve ALL references in the format (org/repo#number) or (org/repo@hash) at the end of each entry — no reference from the batches may be lost or altered
+- When combining duplicate or related entries, merge their references into one list: (org/repo#123, org/repo#456)
+- An entry that has a reference in a batch MUST NOT appear without a reference in the merged result
+- Every entry in the merged result MUST carry at least one reference
 - Your response MUST start with ## [$LATEST_TAG] - $TAG_DATE
 - Do NOT include any preamble, explanation, or commentary — output ONLY the raw markdown
 
@@ -602,6 +689,113 @@ $(cat "$OUTPUT_FILE")"
     CLEAN_RESULT=$(echo "$FINAL_RESULT" | sed -n '/^## \[v/,$p')
     if [ -z "$CLEAN_RESULT" ]; then
         CLEAN_RESULT="$FINAL_RESULT"
+    fi
+
+    # Ensure that every reference resolved for this release (subject, GitHub
+    # API or commit hash, see COMMIT_REFS) appears in the generated entry in
+    # its full form org/repo#N or org/repo@hash. The full form is required so
+    # that garbled repository names are detected as well.
+    EXPECTED_REFS=$(echo "$COMMIT_REFS" | cut -d' ' -f2- | tr ' ' '\n' | grep -v '^$' | sort -u || true)
+
+    ref_subject() {
+        echo "$REF_SUBJECTS" | awk -F'\t' -v r="$1" '$1 == r { print $2; exit }'
+    }
+
+    find_missing_refs() {
+        local ref num
+        for ref in $EXPECTED_REFS; do
+            case "$ref" in
+                \#*)
+                    num="${ref#\#}"
+                    if ! echo "$CLEAN_RESULT" | grep -qE "${GITHUB_REPO_RE}#${num}([^0-9]|\$)"; then
+                        echo "$ref"
+                    fi
+                    ;;
+                @*)
+                    if ! echo "$CLEAN_RESULT" | grep -qF "${GITHUB_REPO}${ref}"; then
+                        echo "$ref"
+                    fi
+                    ;;
+            esac
+        done
+    }
+
+    MISSING_REFS=$(find_missing_refs)
+
+    if [ -n "$MISSING_REFS" ]; then
+        echo ""
+        echo "Warning: Generated entry is missing PR/issue references:"
+        MISSING_LIST=""
+        for ref in $MISSING_REFS; do
+            SUBJECT=$(ref_subject "$ref")
+            echo "  - ${GITHUB_REPO}${ref}: $SUBJECT"
+            MISSING_LIST+="- ${GITHUB_REPO}${ref}: ${SUBJECT}"$'\n'
+        done
+        echo "Asking Claude to add the missing references..."
+
+        FIX_PROMPT="The following changelog entry is missing references. Every entry MUST end with its reference(s) in parentheses, in the exact format (${GITHUB_REPO}#number) for PRs/issues or (${GITHUB_REPO}@hash) for direct commits. If one entry covers several PRs, list all references: (${GITHUB_REPO}#123, ${GITHUB_REPO}#456).
+
+The following references of this release are missing or malformed (e.g. a wrong org/repo part) in the entry:
+$MISSING_LIST
+For each missing reference: if an entry describing this change already exists, append or correct the reference on that entry; otherwise add a new entry with the reference to the appropriate category.
+
+Rules:
+- Do not reword existing entries and do not drop any existing references
+- Entries without any reference are not allowed: attach the correct reference or, if the entry does not correspond to any change of this release, remove it
+- Your response MUST start with ## [$LATEST_TAG] - $TAG_DATE
+- Do NOT include any preamble, explanation, or commentary — output ONLY the raw markdown
+
+Changelog entry:
+$CLEAN_RESULT"
+
+        FIX_RESULT=$(claude --model "$CLAUDE_MODEL" --effort "$CLAUDE_EFFORT" -p "$FIX_PROMPT" 2>&1) || true
+        FIX_CLEAN=$(echo "$FIX_RESULT" | sed -n '/^## \[v/,$p')
+        if [ -n "$FIX_CLEAN" ]; then
+            CLEAN_RESULT="$FIX_CLEAN"
+        fi
+
+        MISSING_REFS=$(find_missing_refs)
+        if [ -n "$MISSING_REFS" ]; then
+            # Last resort: repair or append the missing references
+            # deterministically so that no change ends up in the changelog
+            # without its reference
+            echo "Warning: References still missing after fix attempt, repairing directly:"
+            FALLBACK_ENTRIES=""
+            for ref in $MISSING_REFS; do
+                SUBJECT=$(ref_subject "$ref")
+                NUM="${ref#\#}"
+                if [ "${ref:0:1}" = "#" ] && echo "$CLEAN_RESULT" | grep -qE "#${NUM}([^0-9]|\$)"; then
+                    # The number is present but with a wrong or missing
+                    # org/repo part (e.g. a garbled repository name):
+                    # normalize it in place
+                    CLEAN_RESULT=$(echo "$CLEAN_RESULT" | sed -E \
+                        -e "s|[A-Za-z0-9._/-]*#${NUM}([^0-9])|${GITHUB_REPO}#${NUM}\1|g" \
+                        -e "s|[A-Za-z0-9._/-]*#${NUM}\$|${GITHUB_REPO}#${NUM}|")
+                    echo "  - ${GITHUB_REPO}${ref} (normalized malformed reference)"
+                else
+                    SUBJECT=$(echo "$SUBJECT" | sed -E "s/ *\(#${NUM}\)//")
+                    echo "  - ${GITHUB_REPO}${ref} (appended entry)"
+                    FALLBACK_ENTRIES+="- ${SUBJECT} (${GITHUB_REPO}${ref})"$'\n'
+                fi
+            done
+            if [ -n "$FALLBACK_ENTRIES" ]; then
+                CLEAN_RESULT="$CLEAN_RESULT"$'\n\n### Changed\n\n'"${FALLBACK_ENTRIES%$'\n'}"
+            fi
+        else
+            echo "All missing references were added"
+        fi
+    fi
+
+    # Reverse check: no entry may remain without a reference. All real
+    # changes are covered by the reference checks above, so a reference-less
+    # entry is a duplicate or hallucinated and can be dropped safely.
+    UNREFERENCED=$(echo "$CLEAN_RESULT" | grep -E '^- ' | grep -vE "${GITHUB_REPO_RE}[#@]" || true)
+    if [ -n "$UNREFERENCED" ]; then
+        echo ""
+        echo "Warning: Removing entries without any reference:"
+        echo "$UNREFERENCED" | sed 's/^/  /'
+        CLEAN_RESULT=$(echo "$CLEAN_RESULT" | awk -v repo="$GITHUB_REPO" \
+            '!/^- / || index($0, repo "#") || index($0, repo "@")')
     fi
 
     # Write final result
