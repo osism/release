@@ -26,7 +26,8 @@ changelogs.
 ├── etc/                 # Reference metadata
 │   ├── images.yml       # Docker image name → registry path mapping
 │   ├── collections.yml  # Ansible Galaxy collections
-│   └── roles.yml        # Ansible roles
+│   ├── roles.yml        # Ansible roles
+│   └── changelog-repositories.yml  # Component name → GitHub source repository
 ├── scripts/             # Release automation scripts
 │   ├── create-tags.sh
 │   ├── generate-changelog-input.sh
@@ -34,6 +35,7 @@ changelogs.
 └── src/                 # Python utilities
     ├── create-version.py
     ├── git-diff-log.py
+    ├── release-notes.py
     └── remove-images-from-quay.py
 ```
 
@@ -195,6 +197,75 @@ The script:
 5. Auto-inserts the entry into `CHANGELOG.md`
 6. Deletes the generated `changelog-input-*.md` working files again
    (`--keep-input` keeps them; with `-n` they are always kept)
+
+### 5. Release notes generation (per release)
+
+Generate the release notes section for a follow-up release as published at
+https://osism.tech/docs/release-notes/ :
+
+```bash
+# Generate the section only (written to release-notes-10.1.0.md)
+./scripts/generate-release-changelog.sh 10.1.0
+
+# Generate only the input file, review or edit it, then reuse it
+# (skips the changelog fetches and the upstream analysis)
+./scripts/generate-release-changelog.sh -n 10.1.0
+./scripts/generate-release-changelog.sh -i release-notes-input-10.1.0.md 10.1.0
+
+# Insert it into an existing checkout of osism.github.io
+./scripts/generate-release-changelog.sh --site-dir ../osism.github.io 10.1.0
+
+# Clone osism.github.io, insert, commit and open a pull request
+./scripts/generate-release-changelog.sh --pr 10.1.0
+```
+
+Requires [uv](https://docs.astral.sh/uv/) (fallback: a `python3` with
+`requests` and `PyYAML` installed), the `claude` CLI, and an authenticated
+GitHub CLI (`gh`); with `-n` (input file only) neither `claude` nor `gh`
+is needed.
+
+The script:
+1. Diffs `<version>/base.yml` against the previous release
+2. Fetches the CHANGELOG.md sections of all changed OSISM components for the
+   version range (mapping: `etc/changelog-repositories.yml`); this includes
+   derived components whose version is pinned in a requirements file of
+   another component (e.g. netbox-manager in python-osism)
+3. When `docker_images.kolla_ansible` changed, collects the upstream
+   [openstack/kolla-ansible](https://github.com/openstack/kolla-ansible)
+   changes pulled in by the image rebuild: the image is built from the
+   branch of the OpenStack version in use (resolved via the
+   `kolla-ansible-v<version>` tag of this repository and its
+   `latest/openstack.yml` symlink), so the commit subjects and reno release
+   notes between the build times of the two image versions are included in
+   the input for a dedicated "OpenStack services" subsection. The added and
+   removed downstream patches (`patches/<openstack_version>`) of the
+   kolla-ansible image and, when `docker_images.kolla` changed, of the
+   kolla service images are included as well: a removed patch whose change
+   landed upstream is neither reported as a removal nor presented again as
+   a new feature. The effective OSISM kolla defaults
+   ([osism/defaults](https://github.com/osism/defaults), pinned as
+   `defaults_version`) are included as a reference: configuration advice is
+   checked against what OSISM actually sets, changes only affecting
+   distributions other than Ubuntu are ignored, and kolla-ansible commands
+   are written as their `osism apply` equivalents (there is no
+   `kolla-ansible` command in OSISM)
+4. Derives the recurring "images have been rebuilt" bullets deterministically
+   from the `docker_images.kolla` version (never model-generated)
+5. Lets Claude write an operator-focused release notes body; for entries
+   whose changelog line alone does not tell an operator anything, Claude
+   looks up the referenced pull requests via read-only `gh pr view`/
+   `gh pr diff` calls (chores and Renovate bumps are skipped). The body is
+   sanitized deterministically before use
+6. Inserts the section into `docs/release-notes/osism-<major>.md` of
+   [osism.github.io](https://github.com/osism/osism.github.io) following the
+   `osism-10.md` layout: a plain row in the release table and a
+   `## <version>` section (no date suffix), inserted before the first
+   existing release section or directly after the release table if the page
+   has none yet
+
+The component CHANGELOGs are the content source: run
+`generate-changelog-input.sh --auto` in the component repositories first so
+that their CHANGELOG.md files cover the new component versions.
 
 ## CI
 
