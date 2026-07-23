@@ -73,7 +73,7 @@ docker_images:
   # renovate: datasource=docker depName=postgres
   postgres: '16.14-alpine'
   # renovate: datasource=docker depName=redis
-  redis: '7.4.9-alpine'
+  redis: '8.8.0-alpine'
   # renovate: datasource=docker depName=hubblo/scaphandre
   scaphandre: '1.0.3'
   # renovate: datasource=docker depName=ubuntu/squid
