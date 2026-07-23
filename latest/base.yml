@@ -2,9 +2,9 @@
 manager_version: latest
 
 # renovate: datasource=pypi depName=ansible
-ansible_version: '12.2.0'
+ansible_version: '12.3.0'
 # renovate: datasource=pypi depName=ansible-core
-ansible_core_version: '2.19.11'
+ansible_core_version: '2.21.2'
 
 # renovate: datasource=github-tags depName=osism/defaults
 defaults_version: 'v0.20260712.0'
