@@ -132,6 +132,31 @@
         "latest/base.yml"
       ],
       "groupName": "osism"
+    },
+    {
+      "description": [
+        "The ansible containers share one Redis fact cache, and ansible-core 2.19",
+        "namespaces cache entries with an s1_ key prefix, so a core that crosses",
+        "2.19 writes where kolla-ansible and ceph-ansible cannot read. Those two",
+        "cap ansible-core at <2.19 and <2.17 respectively, and cloud.common 5.0.0",
+        "declares requires_ansible >=2.15.0,<2.19. Blocking minor is deliberate:",
+        "for ansible-core, 2.18 -> 2.19 is a minor bump. The per-release files",
+        "already have this policy; base.yml was the only ansible pin left",
+        "floating. Lift once kolla-ansible gathers its own facts or the cache is",
+        "split per container. See osism/issues#1420."
+      ],
+      "matchDepNames": [
+        "ansible",
+        "ansible-core"
+      ],
+      "matchFileNames": [
+        "latest/base.yml"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor"
+      ],
+      "enabled": false
     }
   ]
 }
