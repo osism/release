@@ -43,25 +43,25 @@ infrastructure_projects:
   tgtd:
 
 openstack_projects:
-  aodh: stable-2024.1
-  barbican: stable-2024.1
-  blazar: stable-2024.1
-  ceilometer: stable-2024.1
-  cinder: stable-2024.1
-  designate: stable-2024.1
-  glance: stable-2024.1
+  aodh: unmaintained-2024.1
+  barbican: unmaintained-2024.1
+  blazar: unmaintained-2024.1
+  ceilometer: unmaintained-2024.1
+  cinder: unmaintained-2024.1
+  designate: unmaintained-2024.1
+  glance: unmaintained-2024.1
   gnocchi: stable/4.6
-  horizon: stable-2024.1
-  ironic: stable-2024.1
-  keystone: stable-2024.1
-  magnum: stable-2024.1
-  manila: stable-2024.1
-  masakari: stable-2024.1
-  neutron-dynamic-routing: stable-2024.1
-  neutron-vpnaas: stable-2024.1
-  neutron: stable-2024.1
-  nova: stable-2024.1
-  octavia: stable-2024.1
-  placement: stable-2024.1
-  skyline-apiserver: stable-2024.1
-  skyline-console: stable-2024.1
+  horizon: unmaintained-2024.1
+  ironic: unmaintained-2024.1
+  keystone: unmaintained-2024.1
+  magnum: unmaintained-2024.1
+  manila: unmaintained-2024.1
+  masakari: unmaintained-2024.1
+  neutron-dynamic-routing: unmaintained-2024.1
+  neutron-vpnaas: unmaintained-2024.1
+  neutron: unmaintained-2024.1
+  nova: unmaintained-2024.1
+  octavia: unmaintained-2024.1
+  placement: unmaintained-2024.1
+  skyline-apiserver: unmaintained-2024.1
+  skyline-console: unmaintained-2024.1
