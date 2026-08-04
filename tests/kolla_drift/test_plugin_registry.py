@@ -78,6 +78,7 @@ def test_plugins_in_lifecycle_order():
         "kolla_groupvars_missing",
         "kolla_mirror_verbatim",
         "kolla_orphan_config",
+        "kolla_version_gate_orphan",
         "kolla_image_orphan",
         "kolla_secrets_orphan",
         "kolla_enablement_build",

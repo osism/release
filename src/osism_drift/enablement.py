@@ -6,6 +6,8 @@ split between key spaces (enable_* uses underscores; docker/ dirs and release
 build keys use hyphens) so every cross-space comparison is on one form.
 """
 
+import re
+
 import yaml
 
 from osism_drift import secrets_map, source
@@ -14,6 +16,78 @@ from osism_drift import secrets_map, source
 def canon(name: str) -> str:
     """Canonical id for cross-key-space compares: hyphens -> underscores."""
     return name.replace("-", "_")
+
+
+# The one idiom osism/defaults uses to make a value depend on the release. The
+# `not in` form is matched too: whether a named release is still supported does
+# not depend on the sense of the test.
+_VERSION_GATE = re.compile(r"openstack_version\s+(?:not\s+)?in\s*\[([^\]]*)\]")
+_GATE_LITERAL = re.compile(r"""['"]\s*([^'"]+?)\s*['"]""")
+
+
+def _value_strings(value):
+    """Yield every string inside `value`, walking mappings and lists.
+
+    A gate can sit anywhere in a var's value, not only in a scalar: the defaults
+    carry nested structures (container-dimension maps, option lists).
+    """
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for item in value.values():
+            yield from _value_strings(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from _value_strings(item)
+
+
+def parse_version_gates(body: bytes) -> dict:
+    """{var: [release, ...]} for every openstack_version gate in a defaults file.
+
+    Jinja lives only in values, which safe_load returns as strings, so the gate
+    is matched textually inside them rather than evaluated. Only the literals
+    inside the bracket list are returned; everything else in the expression --
+    other conditions, filters, nested parentheses -- is ignored on purpose,
+    keeping the parse to one stable construct instead of trying to understand
+    jinja. A var whose value holds no gate is absent from the result.
+    """
+    data = yaml.safe_load(body) or {}
+    if not isinstance(data, dict):
+        return {}
+    gates = {}
+    for key, value in data.items():
+        if not isinstance(key, str):
+            continue
+        releases = []
+        for text in _value_strings(value):
+            for listed in _VERSION_GATE.findall(text):
+                releases.extend(_GATE_LITERAL.findall(listed))
+        if releases:
+            gates[key] = list(dict.fromkeys(releases))
+    return gates
+
+
+_PER_RELEASE_PREFIX = "010-"
+
+
+def per_release_file(release: str) -> str:
+    """The all/ path holding backward-compat keys for `release` (parent spec D8).
+
+    One definition of the convention, so the check that fills these files
+    (groupvars_home) and the check that retires them cannot disagree about the
+    name.
+    """
+    return f"all/{_PER_RELEASE_PREFIX}{release}.yml"
+
+
+def per_release_file_target(filename: str) -> str | None:
+    """The release an all/ `filename` carries compat keys for, else None.
+
+    Inverse of per_release_file, over a bare filename as list_dir yields it.
+    """
+    if not filename.startswith(_PER_RELEASE_PREFIX) or not filename.endswith(".yml"):
+        return None
+    return filename[len(_PER_RELEASE_PREFIX) : -len(".yml")] or None
 
 
 def parse_enable_flags(body: bytes) -> dict:
@@ -340,7 +414,7 @@ def groupvars_home(key, newest, newest_keys, dropped_map):
         return ("all/001-kolla-defaults.yml", f"upstream defines it at {newest}")
     L = dropped_map.get(key)
     if L:
-        return (f"all/010-{L}.yml", f"upstream dropped by {newest}; last in {L}")
+        return (per_release_file(L), f"upstream dropped by {newest}; last in {L}")
     return None
 
 
