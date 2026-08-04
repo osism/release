@@ -32,3 +32,4 @@ plugins:
   kolla_image_orphan: {enabled: true}
   kolla_secrets_orphan: {enabled: true}
   kolla_source_ref_phase: {enabled: true}
+  kolla_version_gate_orphan: {enabled: true}
