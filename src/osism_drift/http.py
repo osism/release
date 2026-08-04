@@ -33,8 +33,16 @@ def _auth_headers(url: str, extra: dict | None = None) -> dict:
     return headers
 
 
-def _rate_limit_hint(r) -> str | None:
+def _rate_limit_hint(r, url: str) -> str | None:
     """A helpful hint when response `r` is a GitHub rate-limit rejection, else None.
+
+    Hints are host-scoped, because everything below describes GitHub's limits
+    specifically. A non-GitHub host gets at most a generic Retry-After echo:
+    naming raw.githubusercontent.com in a failure that came from some other
+    service would send the reader chasing the wrong one, and the --base-dir
+    advice need not apply there at all. Reachable today through a non-GitHub
+    github_raw/github_api override -- the same case _auth_headers already keeps
+    a token from leaking into.
 
     GitHub reports its primary rate limit as HTTP 403 (or, more recently, 429)
     with X-RateLimit-Remaining: 0, and secondary limits as 403/429 with a
@@ -55,6 +63,10 @@ def _rate_limit_hint(r) -> str | None:
     if r.status_code not in (403, 429):
         return None
     retry_after = r.headers.get("Retry-After")
+    if (urlparse(url).hostname or "") not in _GITHUB_HOSTS:
+        if retry_after and retry_after.isdigit():
+            return f"The host asked for a {retry_after}s wait before retrying."
+        return None
     if r.headers.get("X-RateLimit-Remaining") != "0" and retry_after is None:
         # No GitHub-API rate-limit markers. raw.githubusercontent.com is a Fastly
         # CDN that throttles per-IP and returns 429 with none of these headers, so
@@ -98,7 +110,7 @@ def _http_error(action: str, url: str, r) -> SourceError:
     """SourceError for a non-ok HTTP response, with a rate-limit hint appended
     when the response looks like GitHub throttling rather than a plain failure."""
     msg = f"HTTP {r.status_code} {action} {url}"
-    hint = _rate_limit_hint(r)
+    hint = _rate_limit_hint(r, url)
     if hint:
         msg = f"{msg} — {hint}"
     return SourceError(msg)
