@@ -154,6 +154,18 @@ def parse_build_set(body: bytes) -> set:
     return keys
 
 
+def parse_source_refs(body: bytes) -> dict:
+    """openstack_projects as {project: ref}, project names verbatim.
+
+    Unlike parse_build_set the keys are not canonicalised: they index the
+    upstream source tarball names, where the real project name (e.g.
+    neutron-dynamic-routing) is what resolves. A key with no value maps to None
+    so the caller can skip it.
+    """
+    data = yaml.safe_load(body) or {}
+    return dict(data.get("openstack_projects") or {})
+
+
 def release_range(config) -> list:
     """Supported releases: config.releases override, else derived from the
     osism/release latest/openstack-*.yml file set (sorted)."""

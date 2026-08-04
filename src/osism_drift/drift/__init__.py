@@ -11,6 +11,7 @@ from osism_drift.drift import (
     kolla_mirror_verbatim,
     kolla_orphan_config,
     kolla_secrets_orphan,
+    kolla_source_ref_phase,
     kolla_version_chain_inner,
     kolla_version_chain_upstream,
     release_vs_manager,
@@ -20,6 +21,7 @@ from osism_drift.drift import (
 )
 
 KOLLA_PLUGINS = [
+    kolla_source_ref_phase,
     kolla_enablement_orphan,
     kolla_groupvars_missing,
     kolla_mirror_verbatim,
