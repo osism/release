@@ -7,7 +7,7 @@ import pytest
 import requests
 import responses
 from osism_drift.source import read, SourceError, read_optional, list_dir
-from osism_drift.config import load_config, SourceCfg
+from osism_drift.config import load_config, Remote, SourceCfg
 
 
 def _targz(files, *, top="osism-release-abc123", extra_members=None):
@@ -961,6 +961,51 @@ def test_plain_403_is_not_mistaken_for_rate_limiting(tmp_path):
     msg = str(exc.value)
     assert "HTTP 403" in msg
     assert "rate limit" not in msg
+
+
+@responses.activate
+def test_non_github_host_does_not_get_the_github_hint(tmp_path, monkeypatch):
+    # A github_raw override pointing somewhere other than GitHub -- the same case
+    # _auth_headers keeps a token from leaking into. A markerless 429 from that
+    # host is not raw.githubusercontent.com CDN throttling, so naming it would
+    # send the reader chasing the wrong service, and --base-dir advice that is
+    # about GitHub's per-IP limit need not apply there at all.
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    responses.add(
+        responses.GET,
+        "https://mirror.example.net/osism/release/main/latest/base.yml",
+        status=429,
+    )
+    cfg = dataclasses.replace(
+        _cfg(tmp_path),
+        remote=Remote("https://mirror.example.net/", "https://api/", "main", "osism"),
+    )
+    with pytest.raises(SourceError) as exc:
+        read("release", "latest/base.yml", cfg)
+    msg = str(exc.value)
+    assert "HTTP 429" in msg
+    assert "raw.githubusercontent.com" not in msg
+    assert "--base-dir" not in msg
+
+
+@responses.activate
+def test_non_github_host_echoes_retry_after_when_offered(tmp_path, monkeypatch):
+    # The one piece of advice that is not GitHub-specific: the host's own ask.
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    responses.add(
+        responses.GET,
+        "https://mirror.example.net/osism/release/main/latest/base.yml",
+        status=429,
+        headers={"Retry-After": "30"},
+    )
+    cfg = dataclasses.replace(
+        _cfg(tmp_path),
+        remote=Remote("https://mirror.example.net/", "https://api/", "main", "osism"),
+    )
+    with pytest.raises(SourceError, match="30s"):
+        read("release", "latest/base.yml", cfg)
 
 
 def test_auth_headers_adds_bearer_for_github_host(monkeypatch):

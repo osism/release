@@ -2,13 +2,24 @@
 
 import datetime
 import os
+import time
 from urllib.parse import urlparse
 
 import requests
 
 
 class SourceError(Exception):
-    """Raised on any read/list failure that should abort the run."""
+    """Raised on any read/list failure that should abort the run.
+
+    `status` carries the HTTP status when the failure was an HTTP response, and
+    is None for transport failures and non-HTTP read errors. A caller that
+    treats some failures as inconclusive rather than fatal classifies on it
+    instead of parsing the message (see drift/kolla_source_ref_phase.py).
+    """
+
+    def __init__(self, message, *, status: int | None = None):
+        super().__init__(message)
+        self.status = status
 
 
 _GITHUB_HOSTS = frozenset({"github.com", "api.github.com", "raw.githubusercontent.com"})
@@ -33,8 +44,16 @@ def _auth_headers(url: str, extra: dict | None = None) -> dict:
     return headers
 
 
-def _rate_limit_hint(r) -> str | None:
+def _rate_limit_hint(r, url: str) -> str | None:
     """A helpful hint when response `r` is a GitHub rate-limit rejection, else None.
+
+    Hints are host-scoped, because everything below describes GitHub's limits
+    specifically. A non-GitHub host gets at most a generic Retry-After echo:
+    naming raw.githubusercontent.com in a failure that came from some other
+    service would send the reader chasing the wrong one, and the --base-dir
+    advice need not apply there at all. Reachable today through a non-GitHub
+    github_raw/github_api override -- the same case _auth_headers already keeps
+    a token from leaking into.
 
     GitHub reports its primary rate limit as HTTP 403 (or, more recently, 429)
     with X-RateLimit-Remaining: 0, and secondary limits as 403/429 with a
@@ -55,6 +74,10 @@ def _rate_limit_hint(r) -> str | None:
     if r.status_code not in (403, 429):
         return None
     retry_after = r.headers.get("Retry-After")
+    if (urlparse(url).hostname or "") not in _GITHUB_HOSTS:
+        if retry_after and retry_after.isdigit():
+            return f"The host asked for a {retry_after}s wait before retrying."
+        return None
     if r.headers.get("X-RateLimit-Remaining") != "0" and retry_after is None:
         # No GitHub-API rate-limit markers. raw.githubusercontent.com is a Fastly
         # CDN that throttles per-IP and returns 429 with none of these headers, so
@@ -98,10 +121,10 @@ def _http_error(action: str, url: str, r) -> SourceError:
     """SourceError for a non-ok HTTP response, with a rate-limit hint appended
     when the response looks like GitHub throttling rather than a plain failure."""
     msg = f"HTTP {r.status_code} {action} {url}"
-    hint = _rate_limit_hint(r)
+    hint = _rate_limit_hint(r, url)
     if hint:
         msg = f"{msg} — {hint}"
-    return SourceError(msg)
+    return SourceError(msg, status=r.status_code)
 
 
 _GH_JSON = {"Accept": "application/vnd.github.v3+json"}
@@ -123,3 +146,52 @@ def _get(action: str, url: str, *, json_api: bool = False, ok=(), timeout: int =
     if not r.ok and r.status_code not in ok:
         raise _http_error(action, url, r)
     return r
+
+
+# Statuses worth one more attempt: throttling, and the server-side blips a
+# static file server emits while a backend hiccups or a maintenance window
+# starts. Everything else is a settled answer and is raised on the first try.
+_TRANSIENT_STATUS = frozenset({429, 500, 502, 503, 504})
+_HEAD_ATTEMPTS = 2
+_HEAD_BACKOFF = 2.0
+
+
+def head(
+    action: str,
+    url: str,
+    *,
+    ok=(),
+    timeout: int = 30,
+    attempts: int = _HEAD_ATTEMPTS,
+    sleep=time.sleep,
+):
+    """HEAD `url` with auth + a timeout; return the Response.
+
+    For existence probes. Same contract as _get: a transport failure, or a
+    non-ok status whose code is not in `ok`, raises SourceError. The caller
+    whitelists the codes that carry meaning for it (typically 404 for "absent")
+    so that an outage or a throttled response cannot be mistaken for one.
+
+    A transport failure or a transient status is retried up to `attempts` times
+    with a linear backoff, because a probe sweep makes many small requests and
+    one blip should not decide the outcome. The retry is insurance against a
+    blip, not a throttling strategy: a host that keeps refusing still raises,
+    and the caller decides what an unanswered probe means.
+    """
+    attempt = 0
+    while True:
+        attempt += 1
+        final = attempt >= attempts
+        try:
+            r = requests.head(
+                url, timeout=timeout, headers=_auth_headers(url), allow_redirects=True
+            )
+        except requests.RequestException as e:
+            if final:
+                raise SourceError(f"network error {action} {url}: {e}") from e
+        else:
+            if r.ok or r.status_code in ok:
+                return r
+            if final or r.status_code not in _TRANSIENT_STATUS:
+                raise _http_error(action, url, r)
+        sleep(_HEAD_BACKOFF * attempt)

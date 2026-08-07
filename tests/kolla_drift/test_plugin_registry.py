@@ -73,6 +73,7 @@ def test_kolla_mirror_verbatim_plugin_registered():
 
 def test_plugins_in_lifecycle_order():
     assert [p.NAME for p in KOLLA_PLUGINS] == [
+        "kolla_source_ref_phase",
         "kolla_enablement_orphan",
         "kolla_groupvars_missing",
         "kolla_mirror_verbatim",

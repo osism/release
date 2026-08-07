@@ -53,6 +53,11 @@ def run(
         and config.plugins[p.NAME].enabled
     ]
 
+    blocked = _network_blocked(selected, config)
+    if blocked:
+        print(f"source error: {blocked}", file=sys.stderr)
+        return 2
+
     repos = {repo for p in selected for repo, _ in p.INPUT_FILES}
     try:
         resolution = source.describe_resolution(repos, config)
@@ -111,6 +116,38 @@ def run(
         report_headers,
     )
     return 1 if (actionable or stale) else 0
+
+
+def _network_blocked(selected, config) -> str | None:
+    """Message when a local-only run selected plugins that must reach the network.
+
+    --base-dir without --remote-fallback is a local-only run: source._resolve
+    errors rather than fetching a repo remotely. A plugin declaring
+    EXTERNAL_HOSTS reads something no checkout can stand in for -- what upstream
+    publishes right now, say -- so it cannot honour that mode. Refuse before any
+    comparison runs and list every such plugin at once, the way
+    source.describe_resolution reports every unresolvable repo, instead of
+    reaching the network behind the operator's back.
+    """
+    if not config.base_dirs or config.remote_fallback:
+        return None
+    needing = [
+        f"  {p.NAME:<32} needs {', '.join(hosts)}"
+        for p in selected
+        for hosts in (getattr(p, "EXTERNAL_HOSTS", ()),)
+        if hosts
+    ]
+    if not needing:
+        return None
+    return "\n".join(
+        [
+            "these plugins read hosts that no --base-dir can serve, but this is "
+            "a local-only run (--base-dir without --remote-fallback):",
+            *needing,
+            "pass --remote-fallback to allow network access, or deselect them "
+            "with --plugin.",
+        ]
+    )
 
 
 def _candidate_plugins(group, plugin_groups):
