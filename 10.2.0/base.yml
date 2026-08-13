@@ -1,0 +1,80 @@
+---
+manager_version: 10.2.0
+ansible_version: 11.10.0
+ansible_core_version: 2.18.18
+defaults_version: v0.20260712.0
+generics_version: v0.20260808.0
+manager_playbooks_version: v0.20260721.0
+operations_version: v0.20250530.0
+playbooks_version: v0.20260721.0
+osism_projects:
+  ara: 1.8.0
+  docker: 5:27.5.1
+  osism: 0.20260808.0
+  k3s: v1.36.3+k3s1
+docker_images:
+  adminer: 5.5.1
+  alerta: 9.1.0
+  ara_server: 1.8.0-r1
+  cgit: 1.2.3
+  dnsdist: 1.9.8
+  dnsmasq: '2.91'
+  homer: v26.4.2
+  inventory_reconciler: 0.20260810.0
+  fleet: v4.90.0
+  gnmic: 0.41.0
+  mariadb: 11.8.8
+  memcached: 1.6.45-alpine
+  netbox: v4.3.5
+  nexus: 3.95.0
+  osism: 0.20260808.0
+  osism_ansible: 0.20260811.0
+  osism_kubernetes: 0.20260811.0
+  opentelemetry_collector: 0.158.0
+  pgautoupgrade: 16-alpine
+  phpmyadmin: 5.2.3
+  pushgateway: v1.11.3
+  postgres: 16.14-alpine
+  redis: 7.4.10-alpine
+  scaphandre: 1.0.3
+  squid: 6.1-23.10_beta
+  stepca: 0.30.2
+  syft: v1.50.0
+  openstack_database_exporter: v1.1.0
+  tempest: latest
+  traefik: v3.7.10
+  sonic_vs: latest
+  substation: '1774452086'
+  vault: 1.21.4
+  kolla_ansible: 0.20260813.0
+  ceph_ansible: 0.20260811.0
+  kolla: 0.20260813.0
+ansible_roles:
+  geerlingguy.certbot: master
+  geerlingguy.dotfiles: master
+  hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
+  pdns_recursor: v1.8.1
+  ubuntu22_cis: 3.0.0
+ansible_collections:
+  ansible.netcommon: 8.6.1
+  ansible.posix: 2.2.2
+  ansible.utils: 6.0.3
+  cloud.common: 5.0.0
+  community.crypto: 3.3.0
+  community.docker: 5.2.2
+  community.general: 13.2.0
+  community.grafana: 2.3.0
+  community.hashi_vault: 7.1.0
+  community.mysql: 5.0.2
+  community.network: 5.1.0
+  community.rabbitmq: 1.7.0
+  community.zabbix: 4.2.0
+  containers.podman: 1.20.2
+  debops.debops: 3.3.0
+  fortinet.fortios: 2.5.1
+  netbox.netbox: 3.23.0
+  openstack.cloud: 2.6.0
+  osism.commons: 0.20260724.0
+  osism.services: 0.20260806.0
+  osism.validations: 0.20260729.0
+  purestorage.flasharray: 1.45.0
