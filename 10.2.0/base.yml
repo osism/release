@@ -46,9 +46,9 @@ docker_images:
   sonic_vs: latest
   substation: '1774452086'
   vault: 1.21.4
-  kolla_ansible: 0.20260813.0
+  kolla_ansible: 0.20260814.0
   ceph_ansible: 0.20260811.0
-  kolla: 0.20260813.0
+  kolla: 0.20260814.0
 ansible_roles:
   geerlingguy.certbot: master
   geerlingguy.dotfiles: master
