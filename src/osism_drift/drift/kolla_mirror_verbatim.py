@@ -1,12 +1,12 @@
-"""kolla_mirror_verbatim: 001-kolla-defaults.yml must mirror upstream-newest.
+"""kolla_mirror_verbatim: all/001-* must mirror upstream-newest.
 
-osism/defaults all/001-kolla-defaults.yml is meant to be a VERBATIM copy of
-upstream kolla-ansible group_vars/all at the newest supported release; every
-OSISM opinion lives in a 099-* file. Nothing enforced that, so 001 drifts
-(it currently carries keys upstream dropped in 2025.2). This is the enforcement
-arm of Convention X: it flags every way 001 deviates from upstream-newest and,
-for each deviation, prints the exact destination to move the key to. It never
-tells anyone to allowlist a group_var (Convention X forbids it).
+osism/defaults all/001-*.yml files together form a VERBATIM copy of upstream
+kolla-ansible group_vars/all at the newest supported release; every OSISM opinion
+lives in a 099-* file. Nothing enforced that, so 001 drifts (it currently carries
+keys upstream dropped in 2025.2). This is the enforcement arm of Convention X: it
+flags every way the 001 layer deviates from upstream-newest and, for each deviation,
+prints the exact destination to move the key to. It never tells anyone to allowlist
+a group_var (Convention X forbids it).
 
 Companion to kolla_groupvars_missing, which only proves the upstream union is
 supplied SOMEWHERE (it cannot see values or which file a key sits in). This
@@ -18,12 +18,12 @@ from osism_drift.model import DriftEntry
 
 NAME = "kolla_mirror_verbatim"
 DESCRIPTION = (
-    "Flag any all/001-kolla-defaults.yml key or value that differs from upstream "
-    "kolla-ansible group_vars/all at the newest supported release, so 001 stays a "
-    "verbatim mirror and OSISM opinions live in 099-*."
+    "Flag any all/001-*.yml key or value that differs from upstream "
+    "kolla-ansible group_vars/all at the newest supported release, so the 001 layer "
+    "stays a verbatim mirror and OSISM opinions live in 099-*."
 )
 INPUT_FILES = [
-    ("defaults", "all/001-kolla-defaults.yml"),
+    ("defaults", "all/001-*.yml"),
     ("kolla_ansible", "ansible/group_vars/all[.yml|/*.yml] (newest resolved ref)"),
 ]
 # Module-level fallbacks (the registry test requires SUMMARY to contain "{n}").
@@ -59,7 +59,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     ref = source.release_to_ref("kolla_ansible", newest, config)
 
     expected_src = f"openstack/kolla-ansible group_vars/all @ {ref}"
-    found_src = "osism/defaults all/001-kolla-defaults.yml"
+    found_src = "osism/defaults all/001-*.yml"
 
     def _mk(key, *, expected, found, summary, remediation):
         return DriftEntry(
@@ -91,7 +91,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
                 ),
                 remediation=(
                     f"mirror the upstream {newest} key and value verbatim into "
-                    "all/001-kolla-defaults.yml."
+                    "all/001-*.yml."
                 ),
             )
         )
@@ -122,7 +122,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
         if k in non001:
             summary = "{n} key(s) in 001 that another OSISM layer already supplies:"
             remediation = (
-                "delete each from all/001-kolla-defaults.yml — 001 mirrors upstream "
+                "delete each from all/001-*.yml — the 001 layer mirrors upstream "
                 f"{newest}, which does not define it, and 099-*/overlay/versions "
                 "already supplies it."
             )

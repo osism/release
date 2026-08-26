@@ -365,7 +365,7 @@ def _mock_roles(ref, roles):
 
 def test_groupvars_home_in_newest_keys():
     path, note = enablement.groupvars_home("k", "2025.2", {"k"}, {})
-    assert path == "all/001-kolla-defaults.yml"
+    assert path == enablement.MIRROR_LAYER
     assert "2025.2" in note
 
 
@@ -378,7 +378,7 @@ def test_groupvars_home_dropped_only():
 def test_groupvars_home_newest_wins_over_dropped():
     # key in both newest_keys and dropped_map: newest takes priority -> 001
     path, _ = enablement.groupvars_home("k", "2025.2", {"k"}, {"k": "2024.1"})
-    assert path == "all/001-kolla-defaults.yml"
+    assert path == enablement.MIRROR_LAYER
 
 
 def test_groupvars_home_neither_returns_none():

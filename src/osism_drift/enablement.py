@@ -357,13 +357,13 @@ def osism_supply_excluding_mirror(config) -> set:
 def groupvars_home(key, newest, newest_keys, dropped_map):
     """Return (path, note) for where a group_var key belongs, or None.
 
-    key in newest_keys  -> ("all/001-kolla-defaults.yml", note with newest)
+    key in newest_keys  -> (MIRROR_LAYER, note with newest)
     else key in dropped -> (f"all/010-{L}.yml", note with L)    if L
     else                -> None  (caller falls back to static text)
 
     Pure: takes precomputed sets/maps, no I/O."""
     if key in newest_keys:
-        return ("all/001-kolla-defaults.yml", f"upstream defines it at {newest}")
+        return (MIRROR_LAYER, f"upstream defines it at {newest}")
     L = dropped_map.get(key)
     if L:
         return (f"all/010-{L}.yml", f"upstream dropped by {newest}; last in {L}")
