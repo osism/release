@@ -1,5 +1,6 @@
 import pytest
 import responses
+from osism_drift import enablement
 from osism_drift.config import (
     Config,
     Remote,
@@ -184,7 +185,7 @@ def test_missing_key_at_newest_routes_to_001(tmp_path):
     _mock_release("stable/B", {"other", "missing_var"})
     drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
     entry = next(d for d in drifts if d.image == "missing_var")
-    assert "all/001-kolla-defaults.yml" in entry.remediation
+    assert enablement.MIRROR_LAYER in entry.remediation
 
 
 @responses.activate

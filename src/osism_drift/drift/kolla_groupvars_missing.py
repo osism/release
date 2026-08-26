@@ -25,7 +25,7 @@ role-defaults/tasks/tests, matching kolla_enablement_orphan; keys are compared
 verbatim (an Ansible var name is an exact identifier).
 
 A missing key is supplied, not judged: OSISM mirrors the full upstream union, so a
-missing var is added to osism/defaults — to 001-kolla-defaults.yml if upstream
+missing var is added to osism/defaults — to all/001-*.yml if upstream
 defines it at the newest supported release, else to a self-retiring
 010-<last-release>.yml carrying it for the older releases that still define it
 (deleted when that release ages out). OSISM does NOT decide "the service is not
@@ -56,8 +56,8 @@ SUMMARY = (
     "undefined in the deploy var context and aborts any role task that uses it:"
 )
 REMEDIATION = (
-    "mirror the missing var: into all/001-kolla-defaults.yml if upstream defines it "
-    "at the newest supported release, else into a self-retiring "
+    "mirror the missing var: into the all/001-*.yml mirror layer if upstream defines "
+    "it at the newest supported release, else into a self-retiring "
     "all/010-<last-release>.yml (labelled for the newest supported release that "
     "still defines it, deleted when it ages out). Allowlist only if OSISM already "
     "supplies the var another way the detector cannot see."
@@ -92,13 +92,13 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
         dest = enablement.groupvars_home(key, newest, up_keys, dropped)
         if dest is not None:
             path, _ = dest
-            if path == "all/001-kolla-defaults.yml":
+            if path == enablement.MIRROR_LAYER:
                 per_summary = (
                     f"{{n}} upstream kolla-ansible group_vars defined at {newest} "
                     "that OSISM never mirrored:"
                 )
                 per_remediation = (
-                    f"mirror each into all/001-kolla-defaults.yml "
+                    f"mirror each into the {enablement.MIRROR_LAYER} mirror layer "
                     f"(upstream defines it at newest release {newest})."
                 )
             else:
