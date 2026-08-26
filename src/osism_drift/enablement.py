@@ -296,28 +296,54 @@ def upstream_groupvars_values(release, config) -> dict:
     return groupvars_values(_upstream_groupvars_bodies(release, config))
 
 
-_MIRROR_FILE = "all/001-kolla-defaults.yml"
+_MIRROR_PREFIX = "001-"
+
+# User-facing label for the mirror layer. One definition, so the plugin that
+# routes keys into the layer and the plugin that reports on it cannot disagree
+# about what to call it.
+MIRROR_LAYER = f"{_OSISM_DEFAULTS_DIR}/{_MIRROR_PREFIX}*.yml"
+
+
+def _mirror_filenames(config) -> list[str]:
+    """Sorted all/ filenames forming the 001 mirror layer.
+
+    Sorted because the caller merges them: all/ is loaded in lexical filename
+    order with later files winning, and the GitHub contents API makes no
+    ordering promise. Upstream itself relies on this (it defines the same
+    database_* keys in both common.yml and database.yml, and database.yml wins),
+    so an unsorted listing would silently pick the wrong value.
+    """
+    return sorted(
+        fn
+        for fn in source.list_dir("defaults", _OSISM_DEFAULTS_DIR, config)
+        if fn.startswith(_MIRROR_PREFIX) and fn.endswith(".yml")
+    )
 
 
 def osism_mirror_values(config) -> dict:
-    """{key: parsed value} of osism/defaults all/001-kolla-defaults.yml ONLY.
+    """{key: parsed value} of the osism/defaults all/001-* mirror layer ONLY.
 
-    Scoped to the single mirror file (not the all/*.yml union) because
+    Scoped to the mirror layer (not the all/*.yml union) because
     kolla_mirror_verbatim enforces 001 purity specifically: a key OSISM supplies
-    from 099-* must not count as "in the mirror"."""
-    return groupvars_values([source.read("defaults", _MIRROR_FILE, config)])
+    from 099-* must not count as "in the mirror". A layer rather than one file so
+    the mirror can be split per upstream service without touching this code."""
+    return groupvars_values(
+        source.read("defaults", f"{_OSISM_DEFAULTS_DIR}/{fn}", config)
+        for fn in _mirror_filenames(config)
+    )
 
 
 def osism_supply_excluding_mirror(config) -> set:
-    """Top-level keys OSISM supplies from every layer EXCEPT 001 — the other
-    all/*.yml files + the rendered versions.yml.j2 + the per-release overlays.
+    """Top-level keys OSISM supplies from every layer EXCEPT the 001-* mirror
+    layer — the other all/*.yml files + the rendered versions.yml.j2 + the
+    per-release overlays.
 
     Same three-path logic as osism_groupvars_keys, minus the 001 file: lets
     kolla_mirror_verbatim tell "a 001-only key that another layer already
     supplies" (delete from 001) from "a 001-only key nothing else supplies"."""
     keys = set()
     for fn in sorted(source.list_dir("defaults", _OSISM_DEFAULTS_DIR, config)):
-        if fn.endswith(".yml") and f"{_OSISM_DEFAULTS_DIR}/{fn}" != _MIRROR_FILE:
+        if fn.endswith(".yml") and not fn.startswith(_MIRROR_PREFIX):
             keys |= top_level_keys(
                 source.read("defaults", f"{_OSISM_DEFAULTS_DIR}/{fn}", config)
             )
