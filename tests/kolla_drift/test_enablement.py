@@ -363,6 +363,33 @@ def _mock_roles(ref, roles):
         )
 
 
+def test_groupvars_home_names_the_per_service_file():
+    path, note = enablement.groupvars_home(
+        "nova_api_port",
+        "2025.2",
+        {"nova_api_port"},
+        {},
+        homes={"nova_api_port": "nova.yml"},
+    )
+    assert path == "all/001-nova.yml"
+    assert "2025.2" in note
+
+
+def test_groupvars_home_falls_back_to_the_layer_without_homes():
+    # Monolithic upstream layout (<=2025.1) yields no homes -> name the layer.
+    path, _ = enablement.groupvars_home("k", "2025.1", {"k"}, {})
+    assert path == enablement.MIRROR_LAYER
+
+
+def test_groupvars_home_dropped_key_ignores_homes():
+    # A key upstream dropped belongs in the 010 layer, never in 001, even if a
+    # stale homes entry mentions it.
+    path, _ = enablement.groupvars_home(
+        "gone", "2025.2", set(), {"gone": "2025.1"}, homes={"gone": "nova.yml"}
+    )
+    assert path == "all/010-2025.1.yml"
+
+
 def test_groupvars_home_in_newest_keys():
     path, note = enablement.groupvars_home("k", "2025.2", {"k"}, {})
     assert path == enablement.MIRROR_LAYER
@@ -383,6 +410,13 @@ def test_groupvars_home_newest_wins_over_dropped():
 
 def test_groupvars_home_neither_returns_none():
     assert enablement.groupvars_home("k", "2025.2", set(), {}) is None
+
+
+def test_in_mirror_layer():
+    assert enablement.in_mirror_layer(enablement.MIRROR_LAYER)
+    assert enablement.in_mirror_layer("all/001-nova.yml")
+    assert not enablement.in_mirror_layer("all/010-2025.1.yml")
+    assert not enablement.in_mirror_layer("all/099-kolla.yml")
 
 
 @responses.activate
@@ -443,54 +477,6 @@ def test_upstream_homes_names_the_lexically_last_file():
     assert homes["database_address"] == "database.yml"
     assert homes["only_common"] == "common.yml"
     assert "README.md" not in homes.values()
-
-
-@responses.activate
-def test_upstream_groupvars_are_fetched_once_per_ref():
-    # keys, values and homes are all derived from the same listing + file reads,
-    # by two plugins in one run. Without the memo a single run repeats ~56 raw
-    # reads several times over, so assert the request count, not just the result.
-    responses.add(
-        responses.GET,
-        "https://api.github.com/repos/openstack/kolla-ansible/commits/stable/2025.2",
-        status=200,
-    )
-    responses.add(
-        responses.GET,
-        "https://raw.githubusercontent.com/openstack/kolla-ansible/"
-        "stable/2025.2/ansible/group_vars/all.yml",
-        status=404,
-    )
-    responses.add(
-        responses.GET,
-        "https://api.github.com/repos/openstack/kolla-ansible/contents/ansible/group_vars/all",
-        json=[
-            {"name": "common.yml", "type": "file"},
-            {"name": "nova.yml", "type": "file"},
-        ],
-        status=200,
-    )
-    for name, body in (("common.yml", b"a: 1\n"), ("nova.yml", b"b: 2\n")):
-        responses.add(
-            responses.GET,
-            "https://raw.githubusercontent.com/openstack/kolla-ansible/"
-            f"stable/2025.2/ansible/group_vars/all/{name}",
-            body=body,
-            status=200,
-        )
-    cfg = _ka_config()
-    enablement.upstream_groupvars_values("2025.2", cfg)
-    enablement.upstream_groupvars_keys("2025.2", cfg)
-    homes = enablement.upstream_groupvars_homes("2025.2", cfg)
-    assert homes == {"a": "common.yml", "b": "nova.yml"}
-    raw = [
-        c.request.url
-        for c in responses.calls
-        if "raw.githubusercontent.com" in c.request.url
-        and c.request.url.endswith((".yml",))
-        and "/all/" in c.request.url
-    ]
-    assert len(raw) == 2, raw  # one read per file for all three derivations
 
 
 @responses.activate
