@@ -67,6 +67,9 @@ class Config:  # pylint: disable=too-many-instance-attributes  # data record
     snapshot_cache: dict = field(
         default_factory=dict
     )  # per-run (github_api, owner, slug, ref) -> extracted Path
+    groupvars_cache: dict = field(
+        default_factory=dict
+    )  # per-run ref -> [(filename, body)] of upstream group_vars/all
 
 
 def load_config(path) -> Config:

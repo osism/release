@@ -180,33 +180,79 @@ def release_range(config) -> list:
     return sorted(rels)
 
 
+def _upstream_groupvars_named_bodies(release, config) -> list:
+    """[(filename, bytes)] of upstream kolla-ansible group_vars/all at `release`.
+
+    Sorted by filename, which is Ansible's own merge order for a group_vars
+    directory, so a caller building a {key: file} map records the file that
+    actually wins. The monolithic layout (<=2025.1) yields the single pair
+    ("all.yml", body). Top-level group_vars only. Always remote.
+
+    Memoized on config.groupvars_cache, keyed by the resolved ref. The split
+    layout costs one listing plus ~56 file reads, and keys, values and homes are
+    all derived from it, by two plugins, in one run: without the memo a single
+    run repeats those reads several times over. Keyed by ref rather than release
+    because the ref is what determines the content.
+    """
+    ref = source.release_to_ref("kolla_ansible", release, config)
+    cached = config.groupvars_cache.get(ref)
+    if cached is not None:
+        return cached
+    mono = source.read_at_ref(
+        "kolla_ansible", "ansible/group_vars/all.yml", ref, config, optional=True
+    )
+    if mono is not None:
+        config.groupvars_cache[ref] = [("all.yml", mono)]
+        return config.groupvars_cache[ref]
+    out = []
+    for name in sorted(
+        source.list_dir_at_ref("kolla_ansible", "ansible/group_vars/all", ref, config)
+    ):
+        if name.endswith(".yml"):
+            out.append(
+                (
+                    name,
+                    source.read_at_ref(
+                        "kolla_ansible", f"ansible/group_vars/all/{name}", ref, config
+                    ),
+                )
+            )
+    config.groupvars_cache[ref] = out
+    return out
+
+
 def _upstream_groupvars_bodies(release, config) -> list:
     """Bytes of upstream kolla-ansible group_vars/all at `release`'s resolved ref.
 
     The group_vars layer moves between releases: a monolithic
     ansible/group_vars/all.yml (2024.1/2024.2/2025.1) or a split
-    ansible/group_vars/all/*.yml dir (2025.2+). Probe the monolithic file first;
-    on a 404 fall through to the split dir. Top-level group_vars only — never
-    role-defaults/tasks/tests/releasenotes — so a reference-only mention is not
-    counted as a definition. Always remote.
+    ansible/group_vars/all/*.yml dir (2025.2+); both are handled transparently.
+    Names are dropped here — use _upstream_groupvars_named_bodies when the file a
+    key came from matters. Top-level group_vars only. Always remote.
     """
-    ref = source.release_to_ref("kolla_ansible", release, config)
-    mono = source.read_at_ref(
-        "kolla_ansible", "ansible/group_vars/all.yml", ref, config, optional=True
-    )
-    if mono is not None:
-        return [mono]
-    bodies = []
-    for name in source.list_dir_at_ref(
-        "kolla_ansible", "ansible/group_vars/all", ref, config
-    ):
-        if name.endswith(".yml"):
-            bodies.append(
-                source.read_at_ref(
-                    "kolla_ansible", f"ansible/group_vars/all/{name}", ref, config
-                )
-            )
-    return bodies
+    return [body for _, body in _upstream_groupvars_named_bodies(release, config)]
+
+
+def upstream_groupvars_homes(release, config) -> dict:
+    """{key: upstream filename} at `release`, lexically-last file winning.
+
+    Ansible merges group_vars/all in lexical filename order, so the file whose
+    value takes effect is the LAST one defining the key. Upstream relies on that:
+    the seven database_* keys sit in both common.yml and database.yml, and
+    database.yml wins. Iterating sorted() (see _upstream_groupvars_named_bodies)
+    is what makes the recorded home the winning one rather than whichever the
+    GitHub listing happened to yield last.
+
+    Empty for the monolithic layout, where there is no per-service home to name.
+    """
+    named = _upstream_groupvars_named_bodies(release, config)
+    if len(named) == 1 and named[0][0] == "all.yml":
+        return {}
+    homes = {}
+    for name, body in named:  # already sorted -> last wins
+        for key in top_level_keys(body):
+            homes[key] = name
+    return homes
 
 
 def upstream_enable_keys(release, config) -> set:
