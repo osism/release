@@ -87,18 +87,19 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     newest = sorted(enablement.release_range(config))[-1]
     up_keys = enablement.upstream_groupvars_keys(newest, config)
     dropped = enablement.dropped_key_release_map(config)
+    homes = enablement.upstream_groupvars_homes(newest, config)
     drifts = []
     for key in keys:
-        dest = enablement.groupvars_home(key, newest, up_keys, dropped)
+        dest = enablement.groupvars_home(key, newest, up_keys, dropped, homes)
         if dest is not None:
             path, _ = dest
-            if path == enablement.MIRROR_LAYER:
+            if enablement.in_mirror_layer(path):
                 per_summary = (
                     f"{{n}} upstream kolla-ansible group_vars defined at {newest} "
                     "that OSISM never mirrored:"
                 )
                 per_remediation = (
-                    f"mirror each into the {enablement.MIRROR_LAYER} mirror layer "
+                    f"mirror each into {path} "
                     f"(upstream defines it at newest release {newest})."
                 )
             else:
