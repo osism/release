@@ -397,3 +397,152 @@ def test_upstream_image_tag_keys_collects_both_suffixes():
     images, tags = enablement.upstream_image_tag_keys("A", _cfg_ka())
     assert images == {"nova_api_image", "glance_image"}  # *_image_full excluded
     assert tags == {"nova_tag", "nova_api_tag", "glance_tag"}
+
+
+@responses.activate
+def test_upstream_homes_names_the_lexically_last_file():
+    # database_address is defined in BOTH common.yml and database.yml, exactly as
+    # upstream does it. Ansible merges lexically and database.yml wins, so the
+    # home must be database.yml regardless of the listing order below.
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/openstack/kolla-ansible/commits/stable/2025.2",
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/openstack/kolla-ansible/"
+        "stable/2025.2/ansible/group_vars/all.yml",
+        status=404,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/openstack/kolla-ansible/contents/ansible/group_vars/all",
+        json=[
+            {"name": "database.yml", "type": "file"},  # deliberately first
+            {"name": "common.yml", "type": "file"},
+            {"name": "README.md", "type": "file"},
+        ],
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/openstack/kolla-ansible/"
+        "stable/2025.2/ansible/group_vars/all/common.yml",
+        body=b'database_address: "from_common"\nonly_common: 1\n',
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/openstack/kolla-ansible/"
+        "stable/2025.2/ansible/group_vars/all/database.yml",
+        body=b'database_address: "from_database"\n',
+        status=200,
+    )
+    homes = enablement.upstream_groupvars_homes("2025.2", _ka_config())
+    assert homes["database_address"] == "database.yml"
+    assert homes["only_common"] == "common.yml"
+    assert "README.md" not in homes.values()
+
+
+@responses.activate
+def test_upstream_groupvars_are_fetched_once_per_ref():
+    # keys, values and homes are all derived from the same listing + file reads,
+    # by two plugins in one run. Without the memo a single run repeats ~56 raw
+    # reads several times over, so assert the request count, not just the result.
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/openstack/kolla-ansible/commits/stable/2025.2",
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/openstack/kolla-ansible/"
+        "stable/2025.2/ansible/group_vars/all.yml",
+        status=404,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/openstack/kolla-ansible/contents/ansible/group_vars/all",
+        json=[
+            {"name": "common.yml", "type": "file"},
+            {"name": "nova.yml", "type": "file"},
+        ],
+        status=200,
+    )
+    for name, body in (("common.yml", b"a: 1\n"), ("nova.yml", b"b: 2\n")):
+        responses.add(
+            responses.GET,
+            "https://raw.githubusercontent.com/openstack/kolla-ansible/"
+            f"stable/2025.2/ansible/group_vars/all/{name}",
+            body=body,
+            status=200,
+        )
+    cfg = _ka_config()
+    enablement.upstream_groupvars_values("2025.2", cfg)
+    enablement.upstream_groupvars_keys("2025.2", cfg)
+    homes = enablement.upstream_groupvars_homes("2025.2", cfg)
+    assert homes == {"a": "common.yml", "b": "nova.yml"}
+    raw = [
+        c.request.url
+        for c in responses.calls
+        if "raw.githubusercontent.com" in c.request.url
+        and c.request.url.endswith((".yml",))
+        and "/all/" in c.request.url
+    ]
+    assert len(raw) == 2, raw  # one read per file for all three derivations
+
+
+@responses.activate
+def test_upstream_groupvars_are_read_once_per_ref():
+    # keys, values and homes are all derived from the same listing + file reads,
+    # by two plugins in one run. Without the memo a single run repeats ~56 raw
+    # reads several times over, so assert the read count, not just the result.
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/openstack/kolla-ansible/commits/stable/2025.2",
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        "https://raw.githubusercontent.com/openstack/kolla-ansible/"
+        "stable/2025.2/ansible/group_vars/all.yml",
+        status=404,
+    )
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/openstack/kolla-ansible/contents/ansible/group_vars/all",
+        json=[
+            {"name": "common.yml", "type": "file"},
+            {"name": "nova.yml", "type": "file"},
+        ],
+        status=200,
+    )
+    for name, body in (("common.yml", b"a: 1\n"), ("nova.yml", b"b: 2\n")):
+        responses.add(
+            responses.GET,
+            "https://raw.githubusercontent.com/openstack/kolla-ansible/"
+            f"stable/2025.2/ansible/group_vars/all/{name}",
+            body=body,
+            status=200,
+        )
+    cfg = _ka_config()
+    assert enablement.upstream_groupvars_values("2025.2", cfg) == {"a": 1, "b": 2}
+    assert enablement.upstream_groupvars_keys("2025.2", cfg) == {"a", "b"}
+    assert enablement.upstream_groupvars_homes("2025.2", cfg) == {
+        "a": "common.yml",
+        "b": "nova.yml",
+    }
+    per_file = [
+        c.request.url
+        for c in responses.calls
+        if "/ansible/group_vars/all/" in c.request.url
+    ]
+    # three derivations, one read per file -> two, not six
+    assert len(per_file) == 2, per_file
+    listings = [
+        c.request.url
+        for c in responses.calls
+        if "/contents/ansible/group_vars/all" in c.request.url
+    ]
+    assert len(listings) == 1, listings
