@@ -100,7 +100,6 @@ KOLLA_IMAGES_REPO = "osism/container-images-kolla"
 # files are applied in lexicographic order, later files win.
 OSISM_DEFAULTS_REPO = "osism/defaults"
 OSISM_KOLLA_DEFAULTS_FILES = [
-    "all/001-kolla-defaults.yml",
     "all/099-kolla.yml",
 ]
 
@@ -382,6 +381,47 @@ def list_patch_files(repo, image_version, openstack_version):
     )
 
 
+def list_mirror_layer_files(repo, version):
+    """List the all/001-* kolla defaults mirror layer of `repo` at `version`.
+
+    The layer may be split per upstream service, so list it from the tree rather
+    than hardcoding names.
+    Sorted, because all/ is merged in lexical filename order and later files win.
+
+    Returns None if the listing fails or is truncated, and [] only when the
+    listing succeeded and found no 001-* file. The caller must treat None as
+    fatal: this section is labelled "the effective kolla defaults" and every
+    configuration recommendation is checked against it, so publishing it without
+    the mirror layer is worse than not publishing it at all.
+    """
+    url = f"https://api.github.com/repos/{repo}/git/trees/{version}?recursive=1"
+    try:
+        response = requests.get(url, headers=github_headers(), timeout=30)
+    except requests.RequestException as e:
+        warn(f"Fetching {url} failed: {e}")
+        return None
+    if response.status_code != 200:
+        warn(
+            f"Could not list the tree of {repo} at {version} "
+            f"(HTTP {response.status_code})"
+        )
+        return None
+    data = response.json()
+    if data.get("truncated"):
+        # Not the partial tree: a short layer would render a plausible but
+        # incomplete "effective defaults" section. None, not [], so the caller
+        # drops the whole section rather than publishing it without the layer.
+        warn(f"Tree listing of {repo} at {version} is truncated")
+        return None
+    return sorted(
+        entry["path"]
+        for entry in data.get("tree", [])
+        if entry.get("type") == "blob"
+        and entry["path"].startswith("all/001-")
+        and entry["path"].endswith(".yml")
+    )
+
+
 def downstream_patch_lines(repo, old, old_release, new, new_release):
     """Markdown lines for the downstream patch changes of an image.
 
@@ -533,12 +573,21 @@ def osism_kolla_defaults_section(previous, current):
         f"The effective kolla defaults of this release ({OSISM_DEFAULTS_REPO} "
         f"{version}). They override the upstream kolla-ansible defaults; "
         "within this list, later files override earlier ones "
-        "(all/099-kolla.yml wins over all/001-kolla-defaults.yml). Check "
+        "(all/099-kolla.yml wins over the all/001-*.yml mirror layer). Check "
         "every configuration recommendation against these values.",
         "",
     ]
+    layer = list_mirror_layer_files(OSISM_DEFAULTS_REPO, version)
+    if layer is None:
+        warn(
+            "Could not list the all/001-* mirror layer; omitting the OSISM kolla "
+            "defaults section rather than publishing it without the layer"
+        )
+        return None
+    if not layer:
+        warn(f"No all/001-* mirror layer found in {OSISM_DEFAULTS_REPO} at {version}")
     found = False
-    for path in OSISM_KOLLA_DEFAULTS_FILES:
+    for path in layer + OSISM_KOLLA_DEFAULTS_FILES:
         info(f"Fetching {path} of {OSISM_DEFAULTS_REPO} at {version}...")
         url = (
             f"https://raw.githubusercontent.com/{OSISM_DEFAULTS_REPO}/"
@@ -547,11 +596,15 @@ def osism_kolla_defaults_section(previous, current):
         try:
             response = requests.get(url, timeout=30)
         except requests.RequestException as e:
-            warn(f"Fetching {url} failed: {e}")
-            continue
+            # Fatal, not skippable: a section missing one of the files it claims
+            # to list is indistinguishable from a complete one to a reader.
+            warn(f"Fetching {url} failed: {e}; omitting the section")
+            return None
         if response.status_code != 200:
-            warn(f"Could not fetch {url} (HTTP {response.status_code})")
-            continue
+            warn(
+                f"Could not fetch {url} (HTTP {response.status_code}); omitting the section"
+            )
+            return None
         found = True
         out.append(f"### {path}")
         out.append("")
