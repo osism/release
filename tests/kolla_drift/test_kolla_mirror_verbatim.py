@@ -9,6 +9,7 @@ from osism_drift.config import (
     Allowlist,
     AllowEntry,
 )
+from osism_drift import enablement
 from osism_drift.drift import kolla_mirror_verbatim as plugin
 
 API = "https://api.github.com/repos"
@@ -230,3 +231,44 @@ def test_layer_later_file_wins_on_duplicate_key(tmp_path):
     _mock_release("stable/A", {"dup": "winner"})
     _mock_release("stable/B", {"dup": "winner"})
     assert plugin.run(_cfg(tmp_path), Allowlist(())) == []
+
+
+def _mock_release_split(ref, files):
+    # Split upstream layout: 404 on the monolith, then list the dir and serve
+    # each file. files: {basename: {key: value}}.
+    responses.add(
+        responses.GET, f"{API}/openstack/kolla-ansible/commits/{ref}", status=200
+    )
+    responses.add(
+        responses.GET,
+        f"{RAW}/openstack/kolla-ansible/{ref}/ansible/group_vars/all.yml",
+        status=404,
+    )
+    responses.add(
+        responses.GET,
+        f"{API}/openstack/kolla-ansible/contents/ansible/group_vars/all",
+        json=[{"name": n, "type": "file"} for n in sorted(files)],
+        status=200,
+    )
+    for name, mapping in files.items():
+        responses.add(
+            responses.GET,
+            f"{RAW}/openstack/kolla-ansible/{ref}/ansible/group_vars/all/{name}",
+            body=_mirror(mapping).encode(),
+            status=200,
+        )
+
+
+@responses.activate
+def test_missing_upstream_key_names_its_per_service_file(tmp_path):
+    # Shape C (upstream defines it, the mirror lacks it) under the split layout:
+    # the remediation must name the exact file, not the layer.
+    _write_defaults(tmp_path, {"001-common.yml": _mirror({"have": 1})})
+    _mock_release("stable/A", {"have": 1})
+    _mock_release_split(
+        "stable/B", {"common.yml": {"have": 1}, "nova.yml": {"nova_thing": 2}}
+    )
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    entry = next(d for d in drifts if d.image == "nova_thing")
+    assert "all/001-nova.yml" in entry.remediation
+    assert enablement.MIRROR_LAYER not in entry.remediation

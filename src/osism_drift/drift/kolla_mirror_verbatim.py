@@ -76,6 +76,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
         )
 
     up_keys, local_keys = set(up), set(local)
+    homes = enablement.upstream_groupvars_homes(newest, config)
     drifts = []
 
     # Shape C — upstream-newest defines it, 001 lacks it.
@@ -91,7 +92,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
                 ),
                 remediation=(
                     f"mirror the upstream {newest} key and value verbatim into "
-                    "all/001-*.yml."
+                    f"{enablement.groupvars_home(k, newest, up_keys, dropped, homes)[0]}."
                 ),
             )
         )

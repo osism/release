@@ -200,6 +200,39 @@ def test_missing_key_dropped_by_newest_routes_to_010(tmp_path):
 
 
 @responses.activate
+def test_missing_key_names_its_per_service_file(tmp_path):
+    # Split upstream layout at the newest release -> remediation names the exact
+    # mirror file, not the layer.
+    _write_defaults(tmp_path, {"001-common.yml": "other: 1\n"})
+    _mock_release("stable/A", {"other"})
+    responses.add(
+        responses.GET,
+        f"{API}/openstack/kolla-ansible/commits/stable/B",
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{RAW}/openstack/kolla-ansible/stable/B/ansible/group_vars/all.yml",
+        status=404,
+    )
+    responses.add(
+        responses.GET,
+        f"{API}/openstack/kolla-ansible/contents/ansible/group_vars/all",
+        json=[{"name": "nova.yml", "type": "file"}],
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"{RAW}/openstack/kolla-ansible/stable/B/ansible/group_vars/all/nova.yml",
+        body=b"other: 1\nmissing_var: 2\n",
+        status=200,
+    )
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    entry = next(d for d in drifts if d.image == "missing_var")
+    assert "all/001-nova.yml" in entry.remediation
+
+
+@responses.activate
 def test_two_keys_with_different_homes_have_distinct_remediations(tmp_path):
     # key1 defined at newest B -> 001; key2 defined only at A -> 010-A.
     # Different homes -> distinct (summary, remediation) -> separate report blocks.
