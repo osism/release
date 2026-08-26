@@ -235,6 +235,17 @@ def _upstream_groupvars_bodies(release, config) -> list:
     return [body for _, body in _upstream_groupvars_named_bodies(release, config)]
 
 
+def upstream_groupvars_files(release, config) -> list:
+    """[(filename, bytes)] of upstream group_vars/all at `release`.
+
+    Public face of _upstream_groupvars_named_bodies for sync-mirror, which needs
+    the raw bytes and their names to write a verbatim per-service mirror. Reads at
+    whatever release_to_ref() resolves, so a caller that needs a pinned snapshot
+    must pin the ref through config.release_refs first.
+    """
+    return _upstream_groupvars_named_bodies(release, config)
+
+
 def upstream_groupvars_homes(release, config) -> dict:
     """{key: upstream filename} at `release`, lexically-last file winning.
 
@@ -345,6 +356,7 @@ def upstream_groupvars_values(release, config) -> dict:
 
 
 _MIRROR_PREFIX = "001-"
+MIRROR_PREFIX = _MIRROR_PREFIX  # public: sync-mirror builds filenames from it
 
 # User-facing label for the mirror layer. One definition, so the plugin that
 # routes keys into the layer and the plugin that reports on it cannot disagree
@@ -381,25 +393,38 @@ def osism_mirror_values(config) -> dict:
     )
 
 
-def osism_supply_excluding_mirror(config) -> set:
-    """Top-level keys OSISM supplies from every layer EXCEPT the 001-* mirror
-    layer — the other all/*.yml files + the rendered versions.yml.j2 + the
-    per-release overlays.
+def osism_supply_excluding(config, skip_prefixes=(_MIRROR_PREFIX,)) -> set:
+    """Top-level keys OSISM supplies from every all/*.yml layer whose basename does
+    not start with one of `skip_prefixes`, plus the rendered versions.yml.j2 and
+    the per-release overlays.
 
-    Same three-path logic as osism_groupvars_keys, minus the 001 file: lets
-    kolla_mirror_verbatim tell "a 001-only key that another layer already
-    supplies" (delete from 001) from "a 001-only key nothing else supplies"."""
+    Parameterised because two callers need different exclusions: the mirror check
+    wants everything but the 001 layer, while sync-mirror deciding whether a
+    dropped key needs a 010 entry must also exclude the 010 layer itself -- else a
+    key already written there counts as supplied and the layer erases itself on the
+    next run.
+    """
     keys = set()
     for fn in sorted(source.list_dir("defaults", _OSISM_DEFAULTS_DIR, config)):
-        if fn.endswith(".yml") and not fn.startswith(_MIRROR_PREFIX):
-            keys |= top_level_keys(
-                source.read("defaults", f"{_OSISM_DEFAULTS_DIR}/{fn}", config)
-            )
+        if not fn.endswith(".yml") or fn.startswith(tuple(skip_prefixes)):
+            continue
+        keys |= top_level_keys(
+            source.read("defaults", f"{_OSISM_DEFAULTS_DIR}/{fn}", config)
+        )
     repo, path = _VERSIONS_TEMPLATE
     keys |= secrets_map.parse_secret_keys(source.read(repo, path, config))
     for body in _osism_overlay_bodies(config):
         keys |= top_level_keys(body)
     return keys
+
+
+def osism_supply_excluding_mirror(config) -> set:
+    """Top-level keys OSISM supplies from every layer EXCEPT the 001-* mirror.
+
+    Lets kolla_mirror_verbatim tell "a 001-only key that another layer already
+    supplies" (delete from 001) from "a 001-only key nothing else supplies".
+    """
+    return osism_supply_excluding(config)
 
 
 def groupvars_home(key, newest, newest_keys, dropped_map, homes=None):
