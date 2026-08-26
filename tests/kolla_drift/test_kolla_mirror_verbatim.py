@@ -198,3 +198,35 @@ def test_empty_release_range_raises(tmp_path):
     (tmp_path / "release" / "latest").mkdir(parents=True)  # empty -> empty range
     with pytest.raises(SourceError, match="empty supported release range"):
         plugin.run(_cfg(tmp_path, releases=()), Allowlist(()))
+
+
+@responses.activate
+def test_layer_split_across_files_is_a_clean_mirror(tmp_path):
+    # The mirror spread over two 001-* files, together matching upstream exactly,
+    # must produce no drift — the check sees the layer, not a single file.
+    _write_defaults(
+        tmp_path,
+        {
+            "001-common.yml": _mirror({"foo": 1}),
+            "001-database.yml": _mirror({"bar": "two"}),
+        },
+    )
+    _mock_release("stable/A", {"foo": 1, "bar": "two"})
+    _mock_release("stable/B", {"foo": 1, "bar": "two"})
+    assert plugin.run(_cfg(tmp_path), Allowlist(())) == []
+
+
+@responses.activate
+def test_layer_later_file_wins_on_duplicate_key(tmp_path):
+    # Upstream itself defines some keys twice across files and the lexically last
+    # one wins; the layer must resolve duplicates the same way Ansible does.
+    _write_defaults(
+        tmp_path,
+        {
+            "001-common.yml": _mirror({"dup": "loser"}),
+            "001-database.yml": _mirror({"dup": "winner"}),
+        },
+    )
+    _mock_release("stable/A", {"dup": "winner"})
+    _mock_release("stable/B", {"dup": "winner"})
+    assert plugin.run(_cfg(tmp_path), Allowlist(())) == []
