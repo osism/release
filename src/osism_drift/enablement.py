@@ -188,22 +188,24 @@ def _upstream_groupvars_named_bodies(release, config) -> list:
     actually wins. The monolithic layout (<=2025.1) yields the single pair
     ("all.yml", body). Top-level group_vars only. Always remote.
 
-    Memoized on config.groupvars_cache, keyed by the resolved ref. The split
+    Memoized on config.groupvars_cache, keyed by (repo, resolved ref). The split
     layout costs one listing plus ~56 file reads, and keys, values and homes are
-    all derived from it, by two plugins, in one run: without the memo a single
-    run repeats those reads several times over. Keyed by ref rather than release
-    because the ref is what determines the content.
+    all derived from it, by two plugins, in a single run: without the memo one run
+    repeats those reads several times over. Keyed by the ref rather than the
+    release because the ref is what determines the content, and by the repo too so
+    the key stays correct if another repo is ever read this way.
     """
     ref = source.release_to_ref("kolla_ansible", release, config)
-    cached = config.groupvars_cache.get(ref)
+    key = ("kolla_ansible", ref)
+    cached = config.groupvars_cache.get(key)
     if cached is not None:
         return cached
     mono = source.read_at_ref(
         "kolla_ansible", "ansible/group_vars/all.yml", ref, config, optional=True
     )
     if mono is not None:
-        config.groupvars_cache[ref] = [("all.yml", mono)]
-        return config.groupvars_cache[ref]
+        config.groupvars_cache[key] = [("all.yml", mono)]
+        return config.groupvars_cache[key]
     out = []
     for name in sorted(
         source.list_dir_at_ref("kolla_ansible", "ansible/group_vars/all", ref, config)
@@ -217,7 +219,7 @@ def _upstream_groupvars_named_bodies(release, config) -> list:
                     ),
                 )
             )
-    config.groupvars_cache[ref] = out
+    config.groupvars_cache[key] = out
     return out
 
 
@@ -400,20 +402,40 @@ def osism_supply_excluding_mirror(config) -> set:
     return keys
 
 
-def groupvars_home(key, newest, newest_keys, dropped_map):
+def groupvars_home(key, newest, newest_keys, dropped_map, homes=None):
     """Return (path, note) for where a group_var key belongs, or None.
 
-    key in newest_keys  -> (MIRROR_LAYER, note with newest)
+    key in newest_keys  -> ("all/001-<service>.yml", note with newest) when
+                           `homes` names the key's upstream file, else
+                           (MIRROR_LAYER, note with newest)
     else key in dropped -> (f"all/010-{L}.yml", note with L)    if L
     else                -> None  (caller falls back to static text)
 
+    `homes` is {key: upstream filename} from upstream_groupvars_homes; it is
+    empty for the monolithic upstream layout, where no per-service file exists
+    to name. Checked only for keys the newest release defines: a dropped key
+    belongs in the 010 layer whatever an upstream file map says about it.
+
     Pure: takes precomputed sets/maps, no I/O."""
     if key in newest_keys:
-        return (MIRROR_LAYER, f"upstream defines it at {newest}")
+        home = (homes or {}).get(key)
+        path = f"{_OSISM_DEFAULTS_DIR}/{_MIRROR_PREFIX}{home}" if home else MIRROR_LAYER
+        return (path, f"upstream defines it at {newest}")
     L = dropped_map.get(key)
     if L:
         return (f"all/010-{L}.yml", f"upstream dropped by {newest}; last in {L}")
     return None
+
+
+def in_mirror_layer(path: str) -> bool:
+    """True if `path` is the mirror layer label or a file inside the layer.
+
+    Lets a plugin classify a groupvars_home() result without reaching for the
+    module's private prefix constant.
+    """
+    return path == MIRROR_LAYER or path.startswith(
+        f"{_OSISM_DEFAULTS_DIR}/{_MIRROR_PREFIX}"
+    )
 
 
 def dropped_key_release_map(config) -> dict:
