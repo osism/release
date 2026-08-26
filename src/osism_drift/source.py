@@ -5,6 +5,7 @@ A set `branch` *pins* the repo: it is always read remotely at that ref, so the
 result is deterministic regardless of any local checkout's current branch.
 """
 
+import re
 import subprocess
 from pathlib import Path
 
@@ -398,6 +399,174 @@ def release_to_ref(repo: str, release: str, config) -> str:
         f"no upstream ref for {repo} release {release}: tried {tried} "
         f"(set release_refs to override)"
     )
+
+
+_SHA40 = re.compile(r"^[0-9a-f]{40}$")
+
+
+def _checked_sha(repo: str, ref: str, sha: str) -> str:
+    """Enforce resolve_commit's documented contract at its own boundary.
+
+    Callers pin refs from this value, so an abbreviated or malformed id must not
+    escape just because the current call sites happen to re-validate later.
+    """
+    if not _SHA40.match(sha):
+        raise SourceError(
+            f"{repo}: resolving {ref!r} gave {sha!r}, not a 40-hex commit"
+        )
+    return sha
+
+
+def local_checkout(repo: str, config):
+    """The local git dir backing `repo`, or None when this run reads remotely.
+
+    Lets callers branch on locality (attribution needs `git log`) without reaching
+    into _resolve from another module.
+    """
+    where, d = _resolve(repo, config)
+    return d if (where == "local" and _is_pinned(repo, config)) else None
+
+
+def _resolve_upstream_ref(repo, d, ref):
+    """Resolve an upstream release ref, preferring remote-tracking over local.
+
+    _resolve_local_ref() tries the bare ref first, which is right for a consumer
+    repo read as a working tree but wrong for a pinned upstream read at a release
+    ref: a stale local branch of the same name then silently wins. Observed in a
+    real checkout -- refs/heads/stable/2025.2 sat five commits behind
+    refs/remotes/origin/stable/2025.2, and sync-mirror proposed reverting an
+    upstream fix that had landed in between.
+
+    Remotes are tried in name order for determinism. A local head is used only
+    when no remote carries the ref, and a disagreement is announced rather than
+    resolved quietly.
+    """
+    # Enumerate the refs that exist rather than the configured remotes: a clone can
+    # carry refs/remotes/<r>/<ref> without <r> being listed by `git remote`.
+    found = (
+        _git(d, "for-each-ref", "--format=%(refname)", f"refs/remotes/*/{ref}")
+        .stdout.decode()
+        .split()
+    )
+    if found:
+        cand = sorted(found)[0]
+        local = _git(d, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")
+        if local.returncode == 0:
+            lo = local.stdout.decode().strip()
+            hi = _git(d, "rev-parse", f"{cand}^{{commit}}").stdout.decode().strip()
+            if lo != hi:
+                _note(
+                    "stale local ref",
+                    repo,
+                    ref,
+                    f"local {lo[:12]} != {cand} {hi[:12]}; using {cand}",
+                )
+        return cand
+    if _git(d, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}").returncode == 0:
+        return ref
+    raise SourceError(f"cannot resolve {ref!r} to a commit in {repo}")
+
+
+def resolve_commit(repo: str, ref: str, config) -> str:
+    """Peel `ref` to a 40-hex commit id in the upstream repo.
+
+    release_to_ref() yields a ref NAME (stable/<r>, unmaintained/<r>, <r>-eol,
+    <r>-eom); a verbatim mirror has to record the commit, because those branches
+    take backports and a name is not a reproducible snapshot. Local reads use the
+    clone's own resolution (which also tries <remote>/<ref>); remote reads take
+    .sha from the same commits endpoint ref_exists() already calls.
+    """
+    d = local_checkout(repo, config)
+    if d is not None:
+        cand = _resolve_upstream_ref(repo, d, ref)
+        out = _git(d, "rev-parse", "--verify", "--quiet", f"{cand}^{{commit}}")
+        if out.returncode != 0:
+            raise SourceError(f"cannot resolve {ref!r} to a commit in {repo}")
+        return _checked_sha(repo, ref, out.stdout.decode().strip())
+    owner = _owner(repo, config)
+    url = f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/commits/{ref}"
+    _note("commit?", repo, ref)
+    r = _get("resolving commit", url, json_api=True, ok=(404, 422))
+    if r.status_code in (404, 422):
+        raise SourceError(f"cannot resolve {ref!r} to a commit in {repo}")
+    sha = (r.json() or {}).get("sha")
+    if not sha:
+        raise SourceError(f"commits API returned no sha for {repo} {ref!r}")
+    return _checked_sha(repo, ref, sha)
+
+
+def _require_objects(repo, d, *shas):
+    for sha in shas:
+        if _git(d, "cat-file", "-e", f"{sha}^{{commit}}").returncode != 0:
+            raise SourceError(
+                f"{repo}: {sha[:12]} not present locally (shallow clone?); "
+                "cannot compare history"
+            )
+
+
+def is_ancestor(repo: str, ancestor: str, descendant: str, config) -> bool:
+    """True if `ancestor` is reachable from `descendant`.
+
+    `git merge-base --is-ancestor` exits 0 for yes, 1 for a valid "no", and
+    anything else (128 for an unknown commit) for an operational failure. Mapping
+    every non-zero to False would report "not an ancestor" for a broken comparison
+    and let a wrong pin through, so only 0 and 1 are treated as answers.
+    """
+    d = local_checkout(repo, config)
+    if d is not None:
+        _require_objects(repo, d, ancestor, descendant)
+        rc = _git(d, "merge-base", "--is-ancestor", ancestor, descendant).returncode
+        if rc == 0:
+            return True
+        if rc == 1:
+            return False
+        raise SourceError(
+            f"{repo}: cannot compare {ancestor[:12]}..{descendant[:12]} "
+            f"(git exit {rc})"
+        )
+    owner = _owner(repo, config)
+    url = (
+        f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}"
+        f"/compare/{ancestor}...{descendant}"
+    )
+    _note("compare", repo, f"{ancestor[:12]}..{descendant[:12]}")
+    r = _get("comparing refs", url, json_api=True, ok=(404, 422))
+    if r.status_code in (404, 422):
+        raise SourceError(f"{repo}: cannot compare {ancestor[:12]}..{descendant[:12]}")
+    return (r.json() or {}).get("status") in ("identical", "ahead")
+
+
+def merge_base(repo: str, a: str, b: str, config):
+    """Best common ancestor of `a` and `b`, or None if they share no history.
+
+    Public because sync-mirror needs it in both modes: locally `git merge-base`,
+    remotely merge_base_commit.sha from the same compare endpoint is_ancestor uses.
+    Only exit 1 means "no merge base"; anything else is a failure, because a caller
+    that reads a failure as "none" would silently skip a bound it depends on.
+    """
+    d = local_checkout(repo, config)
+    if d is not None:
+        _require_objects(repo, d, a, b)
+        r = _git(d, "merge-base", a, b)
+        if r.returncode == 0:
+            return r.stdout.decode().strip()
+        if r.returncode == 1:
+            return None
+        raise SourceError(
+            f"{repo}: merge-base {a[:12]}..{b[:12]} failed (git exit {r.returncode})"
+        )
+    owner = _owner(repo, config)
+    url = (
+        f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/compare/{a}...{b}"
+    )
+    _note("merge-base", repo, f"{a[:12]}..{b[:12]}")
+    r = _get("finding merge base", url, json_api=True, ok=(404, 422))
+    if r.status_code in (404, 422):
+        raise SourceError(f"{repo}: cannot compare {a[:12]}..{b[:12]}")
+    sha = ((r.json() or {}).get("merge_base_commit") or {}).get("sha")
+    if sha is not None and not _SHA40.match(sha):
+        raise SourceError(f"{repo}: compare returned a bad merge base {sha!r}")
+    return sha
 
 
 def read_at_ref(
