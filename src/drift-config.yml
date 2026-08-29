@@ -21,6 +21,7 @@ plugins:
   role_unpinned: {enabled: true}
   rolling_pin: {enabled: true}
   image_orphan: {enabled: true}
+  role_registry_orphan: {enabled: true}
   kolla_version_chain_inner: {enabled: true}
   kolla_version_chain_upstream: {enabled: true}
   kolla_inventory: {enabled: true}

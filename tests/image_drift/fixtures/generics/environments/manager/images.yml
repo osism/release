@@ -15,3 +15,4 @@ ceph_ansible_tag: "{{ versions['ceph_ansible'] }}"
 {% else -%}
 ceph_ansible_tag: "{{ '{{' }} ceph_version|default(manager_version) {{ '}}' }}"
 {% endif -%}
+gen_image: "{{ '{{' }} docker_registry_gen|default('registry.example') {{ '}}' }}/gen:1"

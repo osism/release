@@ -1,3 +1,9 @@
 ara_server_mariadb_tag: '11.8.3'
 manager_redis_tag: '7.4.6-alpine'
 ara_server_tag: "{{ lookup('vars', 'ara_server_tag', default=Undefined) }}"
+docker_registry: registry.example/dockerhub
+docker_registry_ansible: registry.example
+docker_registry_osism: "{{ docker_registry_ansible }}"
+docker_registry_osism_frontend: "{{ docker_registry_ansible }}"
+docker_registry_pb: "{{ docker_registry_ansible }}"
+docker_registry_gen: "{{ docker_registry_ansible }}"

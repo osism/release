@@ -9,3 +9,6 @@
       community.docker.docker_image:
         name: "{{ pbonly_image }}"
         source: pull
+    - name: Log in to the pull registry
+      community.docker.docker_login:
+        registry_url: "{{ docker_registry_pb }}"

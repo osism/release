@@ -246,6 +246,64 @@ deploys them), so skipping on that criterion would mask the signal.
 **Inputs**: generics manager template, and the `.yml`/`.yaml`/`.j2` files under
 ansible-collection-services/roles/ and ansible-playbooks-manager/playbooks/.
 
+### `role_registry_orphan`
+
+Reports `docker_registry_<alias>` variables **defined** in a role's
+`defaults/main.yml` that **nothing references** — no role, no manager
+playbook, and not the generics manager render template.
+
+This closes the gap `image_orphan` cannot reach. `image_orphan` starts from
+the aliases the manager template *emits*; once an obsolete emit is deleted,
+the role-default remnants that pointed at it leave that plugin's field of
+view entirely. `docker_registry_osism_netbox` is the worked example: the
+`osism_netbox` emit was removed from generics, and with it the only handle
+`image_orphan` had on the leftover registry override. The two plugins meet
+in the middle — `image_orphan` walks forward from the render, this one walks
+backward from the role default.
+
+An orphaned `docker_registry_<alias>` is not merely untidy: it is an
+operator-facing knob that silently does nothing. Someone setting it is
+overriding the registry for an image the collection no longer resolves.
+
+#### Definitions and consumer scan
+
+Definitions are the top-level `docker_registry_<alias>:` keys in each
+`ansible-collection-services/roles/<role>/defaults/main.yml`. Bare
+`docker_registry` is the base override, outside the per-image family, and is
+not scanned.
+
+A variable counts as consumed when its name appears anywhere in a
+`.yml`/`.yaml`/`.j2` file under `ansible-collection-services/roles/`,
+`ansible-playbooks-manager/playbooks/`, or
+`generics/environments/manager/` — **outside its own definition line**. A
+definition still consumes the vars in its *value*, so
+`docker_registry_x: "{{ docker_registry_ansible }}"` defines `x` and
+references `ansible` in one line.
+
+Two details the match deliberately gets right:
+
+- **Bare names count, not just `{{ ... }}`.** `docker_registry_mirrors` is
+  consumed as a loop source in `roles/docker/templates/daemon.json.j2`
+  (`{% for mirror in docker_registry_mirrors %}`). A `{{ var }}`-only
+  pattern would report it as dead.
+- **A longer name does not mask its prefix.** `_` is a word character, so
+  the `\b`-anchored match keeps `docker_registry_osism` from being counted
+  as referenced by an occurrence of `docker_registry_osism_frontend`.
+
+The generics manager template is scanned as a consumer because it renders
+`docker_registry_<alias>` into every deployed `images.yml` — a variable used
+only there is genuinely consumed.
+
+Any occurrence of the name outside a definition counts, comments included.
+That is deliberately conservative: for a checker whose finding is "delete
+this line", a false orphan is the costlier error.
+
+**Inputs**: `ansible-collection-services/roles/*/defaults/main.yml` for
+definitions, and the `.yml`/`.yaml`/`.j2` files under
+`ansible-collection-services/roles/`,
+`ansible-playbooks-manager/playbooks/` and
+`generics/environments/manager/` for consumers.
+
 ### Stream-resolved tags
 
 Some `<alias>_tag` lines in the generics manager template resolve at deploy
