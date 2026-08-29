@@ -1,3 +1,5 @@
 adminer_tag: '4.7'
 adminer_namespace: library
 adminer_image: "{{ adminer_image }}"
+docker_registry_adminer: registry.example
+adminer_registry_url: "{{ docker_registry_adminer }}/adminer"

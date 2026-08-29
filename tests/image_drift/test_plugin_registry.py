@@ -15,6 +15,7 @@ def test_image_plugins_registered():
     assert "role_unpinned" in names
     assert "rolling_pin" in names
     assert "image_orphan" in names
+    assert "role_registry_orphan" in names
 
 
 def test_image_plugin_group_matches_registry():
@@ -29,6 +30,11 @@ def test_role_unpinned_enabled_in_config():
 def test_image_orphan_enabled_in_config():
     cfg = yaml.safe_load(_CONFIG_PATH.read_text())
     assert cfg["plugins"]["image_orphan"]["enabled"] is True
+
+
+def test_role_registry_orphan_enabled_in_config():
+    cfg = yaml.safe_load(_CONFIG_PATH.read_text())
+    assert cfg["plugins"]["role_registry_orphan"]["enabled"] is True
 
 
 def test_rolling_pin_enabled_in_config():

@@ -1,1 +1,2 @@
 widget_tag: '2.0'
+docker_registry_widget: "{{ docker_registry_ansible }}"
