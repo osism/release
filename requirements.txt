@@ -6,6 +6,6 @@ dictdiffer==0.10.0
 docker==7.2.0
 pytest==9.1.1
 requests==2.34.2
-responses==0.26.2
+responses==0.26.3
 ruamel.yaml==0.19.1
 tabulate==0.10.0
