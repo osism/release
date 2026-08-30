@@ -220,18 +220,17 @@ is host/OS setup with no container images, so it is intentionally not scanned.
 Each source is read via
 `source.list_tree(repo, root, config)`, which recursively enumerates every
 file in a single call — a working-tree walk for a local checkout (these
-consumer repos are unpinned), one `git/trees?recursive=1` GitHub API call for
-remote. Only `.yml`, `.yaml`, and `.j2` files are then read: a
-`{{ <alias>_image }}` reference lives only in ansible YAML or a jinja template,
-so every other file is skipped without a read — which in remote mode avoids one
-HTTP request each. The files that are read are decoded with `errors="ignore"`
-so a non-UTF-8 blob is skipped without error.
+consumer repos are unpinned) or for the extracted archive of a remote one,
+and one `git/trees?recursive=1` GitHub API call only under `--use-raw-get`.
+Only `.yml`, `.yaml`, and `.j2` files are then read: a `{{ <alias>_image }}`
+reference lives only in ansible YAML or a jinja template, so every other file
+is skipped without a read. The files that are read are decoded with
+`errors="ignore"` so a non-UTF-8 blob is skipped without error.
 
-**`--base-dir` vs remote**: with a local checkout enumeration and reads are
-cheap (a filesystem walk plus local file reads). A remote read fetches the tree
-index first and then issues one HTTP request per scanned `.yml`/`.yaml`/`.j2`
-file, which is significantly slower for a large collection. Pass `--base-dir`
-with the local checkout when iterating on this check.
+**Cost**: cheap in every default mode — a filesystem walk plus local file
+reads, whether the tree came from `--base-dir` or from a fetched archive (see
+[Archive backend](check-drift-kolla.md#archive-backend)). Only `--use-raw-get` makes this scan
+expensive, turning each of the ~500 scanned files into its own HTTP request.
 
 **A missing consumer root is a hard error**: an absent
 `ansible-collection-services/roles/` or `ansible-playbooks-manager/playbooks/`
@@ -332,6 +331,10 @@ under each base dir.
 A repo not found under any `--base-dir` is a **hard error** (all missing
 repos are listed at once). Pass `--remote-fallback` to fetch not-found repos
 remotely instead. To fetch everything from GitHub, just omit `--base-dir`.
+
+Remote repos are fetched as one tarball per `(repo, ref)` and read locally
+from the extracted tree, not one HTTP request per file — see the kolla doc's
+[Archive backend](check-drift-kolla.md#archive-backend).
 
 ## Output
 

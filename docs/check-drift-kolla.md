@@ -57,6 +57,29 @@ pinned repo whose `--base-dir` dir is not a git clone falls back to remote (with
 `--remote-fallback`) or is a hard error. With no local clone they are read
 remotely at their refs.
 
+### Archive backend
+
+Remote repos are **not** read one file at a time. For each `(repo, ref)` the
+tool downloads a single tarball
+(`{github_api}/{owner}/{repo}/tarball/{ref}`), extracts it to a temporary
+directory, and serves every subsequent `read`, `read_optional` and `list_tree`
+from that extracted tree as an ordinary local file access. The temp directory
+is removed at exit.
+
+The extracted path is memoized on `config.snapshot_cache`, and the driver
+builds **one** `config` and passes it to every plugin in the run. So a repo is
+fetched once per run no matter how many plugins read it, and no matter how many
+files each one reads. A plugin that walks a whole role tree — several hundred
+`.yml`/`.yaml`/`.j2` files — therefore costs no additional requests once any
+earlier plugin has caused that repo to be fetched, which is what lets several
+plugins scan the same tree cheaply in one run.
+
+`--use-raw-get` opts out, fetching each file with its own raw GET and each
+tree with its own API call. It is a fallback for when the archive backend
+misbehaves, and it is much slower: dozens of requests over several minutes,
+and far more than that for a plugin that scans a whole role tree. The
+periodic `release-tox-drift` job does not pass it.
+
 ### Per-repo source overrides (`sources:`)
 
 By default every repo is read from `default_owner` (osism) at `remote.branch`. A
