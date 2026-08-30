@@ -43,20 +43,14 @@ def test_playbook_consumed_alias_not_detected(cfg):
     assert "pbonly" not in drifts
 
 
-def test_non_text_files_are_not_read(cfg, monkeypatch):
-    """Only .yml/.yaml/.j2 files can hold a {{ x_image }} ref; every other file
-    in the listed trees must be skipped (one remote GET each in remote mode)."""
-    read_paths = []
-    real = image_orphan.source.read_optional
-
-    def spy(repo, path, config):
-        read_paths.append(path)
-        return real(repo, path, config)
-
-    monkeypatch.setattr(image_orphan.source, "read_optional", spy)
-    image_orphan.run(cfg, Allowlist(()))
-    assert read_paths, "expected some consumer files to be read"
-    assert all(p.endswith((".yml", ".yaml", ".j2")) for p in read_paths)
+def test_consumer_in_an_unfiltered_file_is_found(cfg):
+    """shellcons is emitted and its only {{ shellcons_image }} consumer lives
+    in roles/shellcons/files/entrypoint.sh — not a .yml/.yaml/.j2 file. The
+    scan must read it. Skipping such files to save reads would report a
+    deployed image as an orphan, and this plugin's remediation is to delete
+    the image definition."""
+    drifts = _by_alias(image_orphan.run(cfg, Allowlist(())))
+    assert "shellcons" not in drifts
 
 
 def test_allowlist_suppresses_orphan(cfg):

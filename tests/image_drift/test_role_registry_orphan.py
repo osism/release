@@ -94,21 +94,12 @@ def test_base_docker_registry_var_is_not_reported(cfg):
     assert "docker_registry" not in drifts
 
 
-def test_non_text_files_are_not_read(cfg, monkeypatch):
-    """A docker_registry_<alias> reference lives only in ansible YAML or a
-    jinja template; every other file must be skipped unread (one remote GET
-    each in remote mode)."""
-    read_paths = []
-    real = role_registry_orphan.source.read_optional
-
-    def spy(repo, path, config):
-        read_paths.append(path)
-        return real(repo, path, config)
-
-    monkeypatch.setattr(role_registry_orphan.source, "read_optional", spy)
-    role_registry_orphan.run(cfg, Allowlist(()))
-    assert read_paths, "expected some consumer files to be read"
-    assert all(p.endswith((".yml", ".yaml", ".j2")) for p in read_paths)
+def test_consumer_in_an_unfiltered_file_is_found(cfg):
+    """docker_registry_shellcons is referenced only in
+    roles/shellcons/files/entrypoint.sh — not a .yml/.yaml/.j2 file. The scan
+    must read it, or a live registry override is reported for deletion."""
+    drifts = _by_image(role_registry_orphan.run(cfg, Allowlist(())))
+    assert "docker_registry_shellcons" not in drifts
 
 
 def test_allowlist_suppresses_orphan(cfg):

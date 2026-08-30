@@ -16,3 +16,4 @@ ceph_ansible_tag: "{{ versions['ceph_ansible'] }}"
 ceph_ansible_tag: "{{ '{{' }} ceph_version|default(manager_version) {{ '}}' }}"
 {% endif -%}
 gen_image: "{{ '{{' }} docker_registry_gen|default('registry.example') {{ '}}' }}/gen:1"
+shellcons_tag: "{{ versions['shellcons'] }}"

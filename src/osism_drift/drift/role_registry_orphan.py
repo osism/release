@@ -38,7 +38,6 @@ _CONSUMER_SOURCES = [
     ("ansible_playbooks_manager", "playbooks"),
     ("generics", "environments/manager"),
 ]
-_CONSUMER_EXTS = (".yml", ".yaml", ".j2")
 
 # Bare \b match, not {{ ... }}: docker_registry_mirrors is consumed as a loop
 # source ({% for m in docker_registry_mirrors %}) and would false-flag under a
@@ -84,8 +83,8 @@ def run(config, allowlist, verbose: bool = False) -> list:
     consumed = set()
     for repo, root in _CONSUMER_SOURCES:
         for path in source.list_tree(repo, root, config):
-            if not path.endswith(_CONSUMER_EXTS):
-                continue
+            # Every file, no extension filter: see image_orphan. A missed
+            # consumer here reports a live registry override for deletion.
             body = source.read_optional(repo, path, config)
             if body is None:
                 continue
