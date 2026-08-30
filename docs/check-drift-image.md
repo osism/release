@@ -222,15 +222,19 @@ Each source is read via
 file in a single call — a working-tree walk for a local checkout (these
 consumer repos are unpinned) or for the extracted archive of a remote one,
 and one `git/trees?recursive=1` GitHub API call only under `--use-raw-get`.
-Only `.yml`, `.yaml`, and `.j2` files are then read: a `{{ <alias>_image }}`
-reference lives only in ansible YAML or a jinja template, so every other file
-is skipped without a read. The files that are read are decoded with
-`errors="ignore"` so a non-UTF-8 blob is skipped without error.
+**Every file is read — no extension filter.** A `{{ <alias>_image }}`
+reference usually lives in ansible YAML or a jinja template, but nothing
+guarantees it: a shell script under `files/` or an extension-less template can
+carry one too. Skipping those would make a deployed image look unconsumed, and
+this plugin's remediation is to delete the image definition — so the scan reads
+everything and lets non-matching content simply not match. Files are decoded
+with `errors="ignore"`, so a binary blob is inert rather than an error.
 
 **Cost**: cheap in every default mode — a filesystem walk plus local file
 reads, whether the tree came from `--base-dir` or from a fetched archive (see
-[Archive backend](check-drift-kolla.md#archive-backend)). Only `--use-raw-get` makes this scan
-expensive, turning each of the ~500 scanned files into its own HTTP request.
+[Archive backend](check-drift-kolla.md#archive-backend)). The scanned trees are
+under 600 files and under a megabyte in total. Only `--use-raw-get` makes this
+scan expensive, turning each file into its own HTTP request.
 
 **A missing consumer root is a hard error**: an absent
 `ansible-collection-services/roles/` or `ansible-playbooks-manager/playbooks/`
@@ -242,7 +246,7 @@ No stream-resolved skip is applied: aliases like `osism_netbox` are
 themselves stream-resolved yet can still be genuine orphans (nothing
 deploys them), so skipping on that criterion would mask the signal.
 
-**Inputs**: generics manager template, and the `.yml`/`.yaml`/`.j2` files under
+**Inputs**: generics manager template, and every file under
 ansible-collection-services/roles/ and ansible-playbooks-manager/playbooks/.
 
 ### `role_registry_orphan`
@@ -271,10 +275,13 @@ Definitions are the top-level `docker_registry_<alias>:` keys in each
 `docker_registry` is the base override, outside the per-image family, and is
 not scanned.
 
-A variable counts as consumed when its name appears anywhere in a
-`.yml`/`.yaml`/`.j2` file under `ansible-collection-services/roles/`,
+A variable counts as consumed when its name appears anywhere in any file
+under `ansible-collection-services/roles/`,
 `ansible-playbooks-manager/playbooks/`, or
-`generics/environments/manager/` — **outside its own definition line**. A
+`generics/environments/manager/` — **outside its own definition line**. As in
+`image_orphan`, no extension filter is applied: a reference in a shell script
+under `files/` counts, and missing it would report a live registry override
+for deletion. A
 definition still consumes the vars in its *value*, so
 `docker_registry_x: "{{ docker_registry_ansible }}"` defines `x` and
 references `ansible` in one line.
@@ -298,7 +305,7 @@ That is deliberately conservative: for a checker whose finding is "delete
 this line", a false orphan is the costlier error.
 
 **Inputs**: `ansible-collection-services/roles/*/defaults/main.yml` for
-definitions, and the `.yml`/`.yaml`/`.j2` files under
+definitions, and every file under
 `ansible-collection-services/roles/`,
 `ansible-playbooks-manager/playbooks/` and
 `generics/environments/manager/` for consumers.

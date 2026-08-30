@@ -37,12 +37,6 @@ _CONSUMER_SOURCES = [
     ("ansible_playbooks_manager", "playbooks"),
 ]
 
-# A {{ <alias>_image }} reference only ever lives in ansible YAML or a jinja
-# template; restricting the scan to these extensions avoids one remote read per
-# non-text file (LICENSE, .md, binaries) in the recursively-listed role/playbook
-# trees, which in remote mode is one HTTP GET each.
-_CONSUMER_EXTS = (".yml", ".yaml", ".j2")
-
 _TAG_RE = re.compile(r"^(\w+)_tag:", re.M)
 _IMAGE_REF_RE = re.compile(r"\{\{\s*(\w+)_image\s*\}\}")
 
@@ -55,8 +49,9 @@ def run(config, allowlist, verbose: bool = False) -> list:
     consumed = set()
     for repo, root in _CONSUMER_SOURCES:
         for path in source.list_tree(repo, root, config):
-            if not path.endswith(_CONSUMER_EXTS):
-                continue
+            # Every file, no extension filter: a consumer in a shell script or
+            # an extension-less template would otherwise read as an orphan, and
+            # this plugin's remediation is to delete the image definition.
             body = source.read_optional(repo, path, config)
             if body is None:
                 continue
