@@ -7,3 +7,6 @@ __pycache__/
 .pytest_cache/
 .tox/
 release-notes-*.md
+
+# sync-mirror detail reports
+sync-mirror-*.txt

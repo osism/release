@@ -3,7 +3,7 @@
 osism/defaults all/001-*.yml files together form a VERBATIM copy of upstream
 kolla-ansible group_vars/all at the newest supported release; every OSISM opinion
 lives in a 099-* file. Nothing enforced that, so 001 drifts (it currently carries
-keys upstream dropped in 2025.2). This is the enforcement arm of Convention X: it
+keys upstream dropped in 2025.2). This is the enforcement side of Convention X: it
 flags every way the 001 layer deviates from upstream-newest and, for each deviation,
 prints the exact destination to move the key to. It never tells anyone to allowlist
 a group_var (Convention X forbids it).
