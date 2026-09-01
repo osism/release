@@ -24,6 +24,7 @@ infrastructure_projects:
   grafana:
   hacluster:
   haproxy:
+  httpd:
   iscsid:
   keepalived:
   kolla-toolbox:
