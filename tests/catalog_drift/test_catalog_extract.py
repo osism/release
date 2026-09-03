@@ -140,6 +140,43 @@ MAP_ROLE2ROLE = {}
 
 
 @responses.activate
+def test_validate_playbooks_non_dict_literal_raises(cfg):
+    # A VALIDATE_PLAYBOOKS that became a list literal still passes
+    # ast.literal_eval -- only raw.items() would fail, with a bare
+    # AttributeError, if not guarded ahead of it.
+    _serve_enums(b"""
+class Role:
+    def __init__(self, name, dependencies=None):
+        pass
+
+VALIDATE_PLAYBOOKS = ["not", "a", "dict"]
+
+MAP_ROLE2ROLE = {}
+""")
+    with pytest.raises(SourceError, match="VALIDATE_PLAYBOOKS"):
+        catalog.validators(cfg)
+
+
+@responses.activate
+def test_validator_entry_non_dict_raises(cfg):
+    # A string entry would make "runtime" not in entry a substring test
+    # rather than a key-membership one, silently passing "runtime" strings.
+    _serve_enums(b"""
+class Role:
+    def __init__(self, name, dependencies=None):
+        pass
+
+VALIDATE_PLAYBOOKS = {
+    "weird": "runtime is in here as a substring",
+}
+
+MAP_ROLE2ROLE = {}
+""")
+    with pytest.raises(SourceError, match="weird"):
+        catalog.validators(cfg)
+
+
+@responses.activate
 def test_non_literal_collection_key_raises(cfg):
     _serve_enums(b"""
 class Role:

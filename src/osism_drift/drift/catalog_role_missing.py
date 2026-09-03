@@ -65,6 +65,24 @@ REMEDIATION = (
 _INTERFACE_SRC = "osism runtime images /interface/playbooks (reconstructed)"
 _ENUMS_SRC = "osism/python-osism osism/data/enums.py"
 
+
+def _interface_src(releases, config) -> str:
+    """expected_src for a MAP_ROLE2ROLE finding, naming the refs it was
+    reconstructed at (spec's entry-shape table: `(reconstructed) @ <refs>`).
+
+    Of the four runtime sources runtime_interface() merges, kolla-ansible is
+    the only one whose ref varies by OpenStack release -- playbooks.kolla_files()
+    resolves it per release via source.release_to_ref(), the same call this
+    reuses (memoized on config.ref_cache, so it costs nothing extra here).
+    Naming that ref for every release checked is what lets a reader reproduce
+    the exact comparison a finding's `found`/`ok` release lists ran against.
+    """
+    refs = ", ".join(
+        f"{r}={source.release_to_ref('kolla_ansible', r, config)}" for r in releases
+    )
+    return f"{_INTERFACE_SRC} @ kolla-ansible {refs}"
+
+
 # A VALIDATE_PLAYBOOKS finding is a malformed/stale validator entry, not a
 # collection membership problem -- validate.py never consults the merged
 # interface at all (see module docstring), so "drop it from the collection"
@@ -117,7 +135,12 @@ def _checks(config, releases):
     under one collection (none exist in the real catalog today) must not
     surface as two identical findings.
     """
-    for collection, roles in catalog.collections(config).items():
+    collections = catalog.collections(config)
+    # Computed once per run, not per (collection, role): the same releases
+    # are checked for every MAP_ROLE2ROLE entry, so the ref list is identical
+    # across all of them.
+    interface_src = _interface_src(releases, config) if collections else _INTERFACE_SRC
+    for collection, roles in collections.items():
         for role in dict.fromkeys(roles):
             ok, bad = [], []
             for release in releases:
@@ -128,7 +151,7 @@ def _checks(config, releases):
                 "alias": collection,
                 "ok": ok,
                 "bad": bad,
-                "expected_src": _INTERFACE_SRC,
+                "expected_src": interface_src,
                 "found_src": f"{_ENUMS_SRC} MAP_ROLE2ROLE[{collection}]",
                 "remediation": None,  # falls back to the module-level REMEDIATION
             }
