@@ -1,0 +1,1 @@
+UNSUPPORTED_ROLES = ["mariadb"]

@@ -290,6 +290,48 @@ def test_list_dir_remote_404_errors(tmp_path):
 
 
 @responses.activate
+def test_list_dir_remote_404_missing_ok_returns_empty(tmp_path):
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/osism/acs/contents/roles?ref=main",
+        status=404,
+    )
+    cfg = _cfg(tmp_path)
+    assert list_dir("acs", "roles", cfg, missing_ok=True) == []
+
+
+@responses.activate
+def test_list_dir_remote_rate_limit_missing_ok_still_raises(tmp_path, monkeypatch):
+    # missing_ok papers over genuine absence (a 404) only. A throttled run
+    # must not collapse into the same empty result as a directory that was
+    # never there -- that would silently drop real content.
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.delenv("GH_TOKEN", raising=False)
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/osism/acs/contents/roles?ref=main",
+        status=403,
+        headers={"X-RateLimit-Remaining": "0", "X-RateLimit-Limit": "60"},
+    )
+    cfg = _cfg(tmp_path)
+    with pytest.raises(SourceError, match="rate limit"):
+        list_dir("acs", "roles", cfg, missing_ok=True)
+
+
+def test_list_dir_local_missing_ok_returns_empty(tmp_path):
+    (tmp_path / "acs").mkdir()
+    cfg = _cfg(tmp_path, base_dirs=(tmp_path,))
+    assert list_dir("acs", "nonexistent", cfg, missing_ok=True) == []
+
+
+def test_list_dir_local_absent_raises_by_default(tmp_path):
+    (tmp_path / "acs").mkdir()
+    cfg = _cfg(tmp_path, base_dirs=(tmp_path,))
+    with pytest.raises(SourceError):
+        list_dir("acs", "nonexistent", cfg)
+
+
+@responses.activate
 def test_list_dir_underscore_repo_translates_to_hyphen(tmp_path):
     responses.add(
         responses.GET,
