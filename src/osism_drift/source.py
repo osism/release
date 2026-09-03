@@ -68,9 +68,11 @@ def _dir_list_tree(d, rel_path, where, missing_ok=False):
     return sorted(str(f.relative_to(d)) for f in p.rglob("*") if f.is_file())
 
 
-def _dir_list(d, rel_path, where, dirs_only=False):
+def _dir_list(d, rel_path, where, dirs_only=False, missing_ok=False):
     p = d / rel_path
     if not p.is_dir():
+        if missing_ok:
+            return []
         raise SourceError(f"{rel_path} not a directory in {where}")
     return [x.name for x in p.iterdir() if (not dirs_only or x.is_dir())]
 
@@ -175,7 +177,7 @@ def _git_show(d, ref, rel_path, optional=False):
     return r.stdout
 
 
-def _git_ls_tree(d, ref, rel_path, dirs_only=False):
+def _git_ls_tree(d, ref, rel_path, dirs_only=False, missing_ok=False):
     rref = _resolve_local_ref(d, ref)
     if rref is None:
         raise SourceError(
@@ -185,6 +187,8 @@ def _git_ls_tree(d, ref, rel_path, dirs_only=False):
     # Colon (subtree) form lists DIRECT CHILDREN by BASENAME (not full paths).
     r = _git(d, "ls-tree", f"{rref}:{rel_path}")
     if r.returncode != 0:
+        if missing_ok:
+            return []
         raise SourceError(f"cannot list {rel_path} at {ref} in {d}")
     out = []
     for line in r.stdout.decode().splitlines():
@@ -294,25 +298,40 @@ def list_tree(repo: str, rel_path: str, config, missing_ok: bool = False) -> lis
     ]
 
 
-def list_dir(repo: str, rel_path: str, config, dirs_only: bool = False) -> list[str]:
-    """List entries under `rel_path` in `repo` (directories only if `dirs_only`)."""
+def list_dir(
+    repo: str,
+    rel_path: str,
+    config,
+    dirs_only: bool = False,
+    missing_ok: bool = False,
+) -> list[str]:
+    """List entries under `rel_path` in `repo` (directories only if `dirs_only`).
+
+    Absent `rel_path` raises SourceError by default; with missing_ok=True,
+    genuine absence -- no such local directory, or a remote 404 -- returns []
+    instead. Every other failure (network error, rate limit, 5xx) still
+    raises: a throttled unauthenticated run must never collapse into the same
+    result as a directory that was never there.
+    """
     where, d = _resolve(repo, config)
     if where == "local":
         if _is_pinned(repo, config):
-            return _git_ls_tree(d, _ref(repo, config), rel_path, dirs_only)
-        return _dir_list(d, rel_path, f"local {repo} ({d})", dirs_only)
+            return _git_ls_tree(d, _ref(repo, config), rel_path, dirs_only, missing_ok)
+        return _dir_list(d, rel_path, f"local {repo} ({d})", dirs_only, missing_ok)
     owner = _owner(repo, config)
     _note("list", repo, _ref(repo, config), rel_path)
     if config.archive:
         ref = _ref(repo, config)
         d = archive.snapshot_dir(owner, repo, ref, config)
-        return _dir_list(d, rel_path, f"{repo}@{ref} snapshot", dirs_only)
+        return _dir_list(d, rel_path, f"{repo}@{ref} snapshot", dirs_only, missing_ok)
     url = (
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"contents/{rel_path}?ref={_ref(repo, config)}"
     )
     r = _get("listing", url, json_api=True, ok=(404,))
     if r.status_code == 404:
+        if missing_ok:
+            return []
         raise SourceError(f"404 not found: {url}")
     items = r.json()
     if dirs_only:
@@ -321,7 +340,12 @@ def list_dir(repo: str, rel_path: str, config, dirs_only: bool = False) -> list[
 
 
 def list_dir_at_ref(
-    repo: str, rel_path: str, ref: str, config, dirs_only: bool = False
+    repo: str,
+    rel_path: str,
+    ref: str,
+    config,
+    dirs_only: bool = False,
+    missing_ok: bool = False,
 ) -> list[str]:
     """List a repo directory at an explicit git ref.
 
@@ -330,21 +354,29 @@ def list_dir_at_ref(
     case (an unpinned repo, or no local checkout) uses the GitHub contents API
     at `ref`. This mirrors read_at_ref/ref_exists. Either way the explicit `ref`
     is read, not the per-repo pin's branch, so a range check is deterministic.
+
+    Absent `rel_path` raises SourceError by default; with missing_ok=True,
+    genuine absence (no such local tree entry, or a remote 404) returns []
+    instead, mirroring list_dir's missing_ok contract -- e.g. an environment
+    directory an upstream ansible-playbooks tree hasn't populated yet is a
+    legitimate absence, not a corrupt input.
     """
     where, d = _resolve(repo, config)
     if where == "local" and _is_pinned(repo, config):
-        return _git_ls_tree(d, ref, rel_path, dirs_only)
+        return _git_ls_tree(d, ref, rel_path, dirs_only, missing_ok)
     owner = _owner(repo, config)
     _note("list", repo, ref, rel_path)
     if config.archive:
         d = archive.snapshot_dir(owner, repo, ref, config)
-        return _dir_list(d, rel_path, f"{repo}@{ref} snapshot", dirs_only)
+        return _dir_list(d, rel_path, f"{repo}@{ref} snapshot", dirs_only, missing_ok)
     url = (
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"contents/{rel_path}?ref={ref}"
     )
     r = _get("listing", url, json_api=True, ok=(404,))
     if r.status_code == 404:
+        if missing_ok:
+            return []
         raise SourceError(f"404 not found: {url}")
     items = r.json()
     if dirs_only:

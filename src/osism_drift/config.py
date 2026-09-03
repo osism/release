@@ -70,6 +70,9 @@ class Config:  # pylint: disable=too-many-instance-attributes  # data record
     groupvars_cache: dict = field(
         default_factory=dict
     )  # per-run ref -> [(filename, body)] of upstream group_vars/all
+    playbooks_cache: dict = field(
+        default_factory=dict
+    )  # per-run release -> {role: frozenset(environments)}
 
 
 def load_config(path) -> Config:
