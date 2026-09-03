@@ -1,0 +1,3 @@
+---
+ceph_ansible_version: stable-9.0
+ceph_version: squid

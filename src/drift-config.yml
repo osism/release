@@ -12,6 +12,8 @@ remote:
 sources:
   kolla: {owner: openstack, branch: stable/2025.2}
   kolla_ansible: {owner: openstack, branch: stable/2025.2}
+  ceph_ansible: {owner: ceph, branch: main}
+  ansible_playbooks: {owner: osism, branch: main}
 
 release_version: latest
 
