@@ -66,7 +66,7 @@ def test_site_roles_minus_unsupported(cfg):
     # UNSUPPORTED_ROLES only cuts mariadb from source 2 (the split site.yml
     # roles) in isolation, as tested here -- the real image still ships
     # kolla-mariadb.yml, via the top-level ansible/*.yml copy (source 3) and
-    # OSISM's own per-release override (source 1).
+    # OSISM's own per-release override (source 4).
     assert "kolla-mariadb.yml" not in files
     assert "kolla-rabbitmq-outward.yml" in files  # rabbitmq (outward) rename
 

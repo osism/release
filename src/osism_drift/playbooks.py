@@ -210,12 +210,11 @@ def osism_files(config) -> frozenset:
     directory is empty today (a placeholder since 2019) but a real COPY step,
     so a future file there is still picked up -- and would need a name already
     matching one of render-playbooks.py's PREFIXES to reach the interface,
-    exactly like a same-shaped ansible-playbooks file would. Unlike the
-    per-release override directory in kolla_files(), this directory's absence
-    would not be legitimate: it exists in the repo today (holding only a
-    placeholder), and COPY --link with a wildcard fails the image build
-    outright if the source directory is gone, so its listing is not
-    missing_ok.
+    exactly like a same-shaped ansible-playbooks file would. Both this
+    directory and the per-release override directory in kolla_files() are
+    wildcard COPY --link sources whose absence fails the image build, so
+    neither listing is missing_ok. This directory holds only a placeholder
+    today, but a future file there would still be picked up.
     """
     body = source.read(_CONTAINER_IMAGE_OSISM_ANSIBLE, _SYMLINK_SCRIPT, config)
     skip = load_const(body, "SKIP")
