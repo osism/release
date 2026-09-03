@@ -11,6 +11,7 @@ this module exists to detect.
 
 import ast
 import re
+from types import MappingProxyType
 
 import yaml
 
@@ -390,3 +391,112 @@ def playbook_files(runtime: str, release: str, config) -> frozenset:
     except KeyError:
         raise SourceError(f"unknown runtime {runtime!r}") from None
     return fn(release, config)
+
+
+def runtime_interface(release, config) -> dict:
+    """role -> frozenset of environments advertising it, merged across runtimes.
+
+    python-osism builds its single MAP_ROLE2ENVIRONMENT from an unsorted
+    Path.glob over /interface/playbooks/*.yml (osism/data/playbooks.py:29),
+    one file per runtime image, with plain dict-union so a name two runtimes
+    both advertise resolves to whichever file the glob happened to visit
+    last -- filesystem order, not something this static check can know or
+    should pretend to. Keeping every environment a role appears under (not
+    just a winner) is deliberately a *superset* of what any single running
+    python-osism process would report: every check this module supports
+    (`resolves`, `validate_resolves`) only needs membership, never a winner,
+    so collapsing to one here would encode an order that does not exist and
+    could not be verified anyway.
+
+    Memoized per release on `config.playbooks_cache`, mirroring the other
+    per-run caches on Config (ref_cache, groupvars_cache, snapshot_cache):
+    this walks all four runtimes' sources and callers ask repeatedly per run.
+    Returned as a `MappingProxyType` view over the cached dict -- every other
+    producer in this module hands back an immutable frozenset/dict-of-frozensets
+    shape, and a caller mutating the live cached dict would corrupt it for
+    every later call this run, not just its own.
+    """
+    cached = config.playbooks_cache.get(release)
+    if cached is not None:
+        return cached
+    merged = {}
+    for part in (
+        kolla_interface(release, config),
+        osism_interface(config),
+        ceph_interface(config),
+        kubernetes_interface(config),
+    ):
+        for role, env in part.items():
+            merged[role] = merged.get(role, frozenset()) | {env}
+    view = MappingProxyType(merged)
+    config.playbooks_cache[release] = view
+    return view
+
+
+def resolves(role: str, interface: dict) -> bool:
+    """Whether `osism apply <role>` finds a playbook to run for `role`.
+
+    Mirrors apply.py's role resolution (apply.py:300-380), which is a
+    lookup into MAP_ROLE2ENVIRONMENT (== the map `runtime_interface` merges)
+    under two cases, checked here as plain membership since only presence,
+    never the winning environment, is meaningful to this check:
+
+    1. role == "ceph": apply.py hardcodes environment="ceph" and never
+       strips a "ceph-" prefix off the literal string "ceph" (it does not
+       have one), so it always runs the ceph runtime's own "ceph-ceph.yml" --
+       present in the interface iff the ceph runtime ships "ceph-ceph".
+    2. role is exactly a key of the interface: the plain MAP_ROLE2ENVIRONMENT
+       lookup apply.py performs whenever no --environment override is given.
+
+    Deliberately no "kolla-"/"ceph-" prefix handling: apply.py's prefix strip
+    (apply.py:338, :318) runs strictly AFTER this dict lookup, once the
+    environment is already known, on whatever string the lookup already
+    matched -- it reconstructs the on-disk filename for the runtime call, it
+    does not widen what counts as a hit. A "kolla-"-prefixed role only ever
+    reaches that strip by first succeeding as an exact key (e.g. "kolla-facts"
+    when KEEP_PREFIX keeps that name), or via an explicit --environment
+    override that bypasses the dict lookup entirely -- a manual escape hatch
+    this catalog check cannot know about and must not credit as resolving.
+    Stripping the prefix before checking membership, as an earlier version of
+    this function did, only ever turns real drift into a false pass: e.g. if
+    kolla-ansible stopped shipping "kolla-facts" (KEEP_PREFIX-kept) while
+    osism-ansible still advertised bare "facts" under "generic", a
+    prefix-stripped check would answer True from the wrong runtime's entry
+    while `osism apply kolla-facts` (no override) actually falls through to
+    environment "custom" and fails.
+    """
+    if role == "ceph":
+        return "ceph-ceph" in interface  # apply.py's explicit special case
+    return role in interface
+
+
+def validate_resolves(runtime, environment, playbook, release, config) -> bool:
+    """Whether `osism validate <key>` finds a playbook file to run.
+
+    Mirrors validate.py:87-105: it never consults MAP_ROLE2ENVIRONMENT (the
+    map `runtime_interface` merges) at all -- it reads the entry's own
+    `runtime` and dispatches straight to ceph.run / kolla.run / ansible.run,
+    each of which resolves a playbook FILE inside that one runtime's own
+    image, named by that runtime's own convention (kolla-/ceph-/<environment>-
+    prefix). So this is a per-runtime file-existence question, answered
+    against `playbook_files`, never against the merged interface -- building
+    one shared resolver for `resolves` and `validate_resolves` would be wrong
+    in both directions (accepting a validate entry some other runtime's
+    prefix rules happen to also produce; rejecting one whose own runtime
+    ships it under a name the merged map's collision-handling obscures).
+    """
+    files = playbook_files(runtime, release, config)
+    if runtime == "kolla-ansible":
+        return f"kolla-{playbook}.yml" in files
+    if runtime == "ceph-ansible":
+        return f"ceph-{playbook}.yml" in files
+    if runtime == "osism-ansible":
+        # validate.py:102 reads VALIDATE_PLAYBOOKS[validator]["environment"]
+        # unconditionally and raises KeyError if it is absent -- a missing
+        # environment is a malformed catalog entry, never a legitimate "no
+        # environment" case, so this must fail loud the same way rather than
+        # silently probe a "None-<playbook>.yml" file that can never exist.
+        if environment is None:
+            raise SourceError(f"osism-ansible entry {playbook!r} has no environment")
+        return f"{environment}-{playbook}.yml" in files
+    raise SourceError(f"unknown runtime {runtime!r}")
