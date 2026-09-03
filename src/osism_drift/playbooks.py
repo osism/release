@@ -133,17 +133,19 @@ def kolla_files(release, config) -> frozenset:
     # Containerfile:176 -- these two collide with names kolla-ansible itself
     # already uses as a "kolla-" prefix, so the build removes the copies.
     files -= {"kolla-kolla-host.yml", "kolla-post-deploy.yml"}
-    # Containerfile:224 -- OSISM's per-release playbooks, copied in last. Not
-    # every release has an override directory; that is a legitimate absence,
-    # not a corrupt input -- but any other failure (outage, rate limit) must
-    # still raise rather than be mistaken for one.
+    # Containerfile:224 -- OSISM's per-release playbooks, copied in last via
+    # `COPY --link files/playbooks/$OPENSTACK_VERSION/kolla-*.yml /ansible/`,
+    # the same wildcard-COPY construct osism_files() (above) already argues
+    # fails the image build outright if the source directory is gone. This
+    # directory's absence is therefore not legitimate here either: not
+    # missing_ok, so a missing directory raises SourceError rather than
+    # silently shrinking the interface.
     files |= {
         n
         for n in source.list_dir(
             _CONTAINER_IMAGE_KOLLA_ANSIBLE,
             f"files/playbooks/{release}",
             config,
-            missing_ok=True,
         )
         if n.startswith("kolla-") and n.endswith(".yml")
     }
@@ -155,6 +157,15 @@ def kolla_interface(release, config) -> dict:
     body = source.read(_CONTAINER_IMAGE_KOLLA_ANSIBLE, _RENDER_SCRIPT, config)
     hide = load_const(body, "HIDE")
     keep = load_const(body, "KEEP_PREFIX")
+    prefix = load_const(body, "PREFIX")
+    if f"{prefix}-" != "kolla-":
+        # kolla_files() hardcodes the "kolla-" filter independently of this
+        # script's own PREFIX; a rename here must raise, not silently shrink
+        # the interface to empty.
+        raise SourceError(
+            f"render-playbooks.py PREFIX changed to {prefix!r} but "
+            "kolla_files() still filters on 'kolla-'"
+        )
     out = {}
     for fname in kolla_files(release, config):
         name = fname[len("kolla-") : -len(".yml")]
@@ -210,6 +221,17 @@ def osism_files(config) -> frozenset:
     skip = load_const(body, "SKIP")
     envs = load_const(body, "ENVIRONMENTS")
     ref = _pin("base.yml", "playbooks_version", config)
+    # GitHub's contents API 404s identically for a missing directory and for a
+    # bad ref (source.py's list_dir_at_ref). missing_ok=True below is needed
+    # for the former (some ENVIRONMENTS entries have no upstream directory),
+    # but that same 404 would silently swallow the latter across all nine
+    # environments too, returning an empty interface with no error. Checking
+    # the ref once up front closes that hole without a per-environment request.
+    if not source.ref_exists(_ANSIBLE_PLAYBOOKS, ref, config):
+        raise SourceError(
+            f"playbooks_version={ref!r} (latest/base.yml) does not exist in "
+            f"{_ANSIBLE_PLAYBOOKS}"
+        )
     files = {
         n
         for n in source.list_dir(
@@ -339,6 +361,14 @@ def ceph_interface(config) -> dict:
     prefix = load_const(
         source.read(_CONTAINER_IMAGE_CEPH_ANSIBLE, _RENDER_SCRIPT, config), "PREFIX"
     )
+    if f"{prefix}-" != "ceph-":
+        # ceph_files() hardcodes the "ceph-" filter independently of this
+        # script's own PREFIX; a rename here must raise, not silently shrink
+        # the interface to empty.
+        raise SourceError(
+            f"render-playbooks.py PREFIX changed to {prefix!r} but "
+            "ceph_files() still filters on 'ceph-'"
+        )
     return {fname[: -len(".yml")]: prefix for fname in ceph_files(config)}
 
 
@@ -362,6 +392,14 @@ def kubernetes_interface(config) -> dict:
     prefix = load_const(
         source.read(_OSISM_KUBERNETES, _RENDER_SCRIPT, config), "PREFIX"
     )
+    if f"{prefix}-" != "kubernetes-":
+        # kubernetes_files() hardcodes the "kubernetes-" filter independently
+        # of this script's own PREFIX; a rename here must raise, not silently
+        # shrink the interface to empty.
+        raise SourceError(
+            f"render-playbooks.py PREFIX changed to {prefix!r} but "
+            "kubernetes_files() still filters on 'kubernetes-'"
+        )
     return {
         fname[len(prefix) + 1 : -len(".yml")]: prefix
         for fname in kubernetes_files(config)

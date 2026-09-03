@@ -76,6 +76,13 @@ def _serve(
     """
     monkeypatch.setattr(plugin.catalog, "collections", lambda config: collections or {})
     monkeypatch.setattr(plugin.catalog, "validators", lambda config: validators or {})
+    # _interface_src() calls source.release_to_ref("kolla_ansible", ...) to
+    # name the ref each release's finding was reconstructed at; stubbed here
+    # since these tests' fake releases ("A", "B") have no real kolla-ansible
+    # ref to resolve.
+    monkeypatch.setattr(
+        plugin.source, "release_to_ref", lambda repo, release, config: f"ref-{release}"
+    )
 
     iface = iface or {}
     monkeypatch.setattr(
@@ -128,6 +135,11 @@ def test_release_differential_is_one_entry_per_collection(cfg, monkeypatch):
     assert "resolves at A" in drifts[0].summary
     assert "MAP_ROLE2ROLE[cloudpod]" in drifts[0].found_src
     assert drifts[0].severity == "actionable"
+    # expected_src must name the refs the interface was reconstructed at
+    # (spec's `(reconstructed) @ <refs>` entry shape), not just say
+    # "reconstructed" with no way to reproduce the comparison.
+    assert "ref-A" in drifts[0].expected_src
+    assert "ref-B" in drifts[0].expected_src
 
 
 def test_dead_everywhere_gets_its_own_summary(cfg, monkeypatch):

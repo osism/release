@@ -16,9 +16,11 @@ from osism_drift.drift import catalog_role_missing as plugin
 
 CLEAN_RELEASES = ("2024.1", "2024.2", "2025.1")
 
-# Same two roots the end-to-end CLI invocation in docs/check-drift-catalog.md
-# uses: OSISM repos (release, python-osism, the container-image-* repos,
-# osism-kubernetes, ansible-playbooks) and, for kolla-ansible, openstack.
+# This workspace's actual local checkout roots -- docs/check-drift-catalog.md's
+# own example command uses the generic ~/src/osism, ~/src/openstack instead;
+# both lay out the same two org checkouts (OSISM repos: release, python-osism,
+# the container-image-* repos, osism-kubernetes, ansible-playbooks -- and, for
+# kolla-ansible, openstack) under a single parent, just not the same parent.
 _OSISM_BASE = Path("~/data/rcs/osism").expanduser()
 _OPENSTACK_BASE = Path("~/data/rcs/openstack").expanduser()
 
@@ -59,6 +61,10 @@ def test_no_findings_below_the_differential(real_cfg):
 def test_redis_is_found_from_2025_2(real_cfg):
     cfg = _cfg_for(real_cfg, releases=("2025.2",))
     found = {(d.image, d.alias) for d in plugin.run(cfg, Allowlist(()))}
-    assert ("redis", "nutshell") in found
-    assert ("redis", "collection-infrastructure") in found
-    assert ("redis", "cloudpod-infrastructure") in found
+    # Set equality, not membership: the issue names exactly these three
+    # collections, so a spurious extra finding at 2025.2 must fail this test.
+    assert found == {
+        ("redis", "nutshell"),
+        ("redis", "collection-infrastructure"),
+        ("redis", "cloudpod-infrastructure"),
+    }

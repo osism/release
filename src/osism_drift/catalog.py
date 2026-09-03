@@ -85,6 +85,12 @@ def _validator_entry(key: str, entry: dict) -> dict:
     the same way everywhere else a catalog is malformed) rather than
     surfacing as a bare KeyError traceback the caller has no path to handle.
     """
+    if not isinstance(entry, dict):
+        # A string entry would make "runtime" not in entry a substring test,
+        # not a key-membership one -- checked before the membership test so a
+        # malformed entry shape fails through SourceError, never a wrong-
+        # reason False negative.
+        raise SourceError(f"VALIDATE_PLAYBOOKS[{key!r}] is not a dict entry: {entry!r}")
     if "runtime" not in entry:
         raise SourceError(f'VALIDATE_PLAYBOOKS[{key!r}] has no "runtime"')
     return {
@@ -111,4 +117,6 @@ def validators(config) -> dict:
         raw = ast.literal_eval(value)
     except ValueError as exc:
         raise SourceError(f"VALIDATE_PLAYBOOKS is not a literal: {exc}") from exc
+    if not isinstance(raw, dict):
+        raise SourceError("VALIDATE_PLAYBOOKS is no longer a dict literal")
     return {key: _validator_entry(key, entry) for key, entry in raw.items()}

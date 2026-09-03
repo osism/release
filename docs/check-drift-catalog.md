@@ -245,3 +245,11 @@ for how the supported-release range is derived and why range-aware checks
 compare across it — this plugin is range-aware in both catalogs, and its
 "resolves at some releases, not others" finding shape is exactly that model
 made visible per role.
+
+## Adding a plugin
+
+See the kolla doc's [Adding a plugin](check-drift-kolla.md#adding-a-plugin)
+section for the full recipe. For catalog-group plugins, register the module
+in `CATALOG_PLUGINS = [...]` in `src/osism_drift/drift/__init__.py` **and**
+add a `plugins.<NAME>: {enabled: true}` stanza to `src/drift-config.yml`.
+Mirror the test pattern in `tests/catalog_drift/`.

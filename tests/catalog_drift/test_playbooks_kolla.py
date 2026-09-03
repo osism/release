@@ -6,6 +6,7 @@ import responses
 
 from osism_drift import playbooks
 from osism_drift.config import Config, Remote, PluginCfg, SourceCfg
+from osism_drift.source import SourceError
 
 FIXT = Path(__file__).parent / "fixtures"
 API = "https://api.github.com/repos"
@@ -61,8 +62,12 @@ def test_site_roles_minus_unsupported(cfg):
     _mock_kolla("stable/A", ["nova.yml", "roles"])
     files = playbooks.kolla_files("A", cfg)
     assert "kolla-redis.yml" in files  # source 2: Apply role
-    assert "kolla-nova.yml" in files  # source 1: top-level ansible/*.yml
-    assert "kolla-mariadb.yml" not in files  # UNSUPPORTED_ROLES
+    assert "kolla-nova.yml" in files  # source 3: top-level ansible/*.yml
+    # UNSUPPORTED_ROLES only cuts mariadb from source 2 (the split site.yml
+    # roles) in isolation, as tested here -- the real image still ships
+    # kolla-mariadb.yml, via the top-level ansible/*.yml copy (source 3) and
+    # OSISM's own per-release override (source 1).
+    assert "kolla-mariadb.yml" not in files
     assert "kolla-rabbitmq-outward.yml" in files  # rabbitmq (outward) rename
 
 
@@ -111,14 +116,16 @@ def test_mariadb_backup_recovery_get_hyphenated_aliases(cfg):
 
 
 @responses.activate
-def test_release_without_override_dir_is_not_an_error(cfg):
-    # Release "C" has no files/playbooks/C/ in the fixture tree at all. A
-    # missing override directory is a legitimate absence (not every release
-    # carries OSISM-side overrides), so it must yield an empty set rather
-    # than raise SourceError. release_refs pins "C" straight to the already
-    # mocked stable/A ref, so only the files/playbooks/C/ lookup is at stake.
+def test_release_without_override_dir_raises(cfg):
+    # Release "C" has no files/playbooks/C/ in the fixture tree at all.
+    # Containerfile:224 is `COPY --link files/playbooks/$OPENSTACK_VERSION/
+    # kolla-*.yml /ansible/` -- the same wildcard-COPY construct osism_files()
+    # already argues fails the image build outright when its source
+    # directory is gone -- so a missing override directory here must raise
+    # SourceError too, not be mistaken for a legitimate absence. release_refs
+    # pins "C" straight to the already mocked stable/A ref, so only the
+    # files/playbooks/C/ lookup is at stake.
     _mock_kolla("stable/A", [])
     c = dataclasses.replace(cfg, release_refs={"kolla_ansible": {"C": "stable/A"}})
-    files = playbooks.kolla_files("C", c)
-    assert "kolla-common.yml" not in files
-    assert "kolla-facts.yml" in files  # still gets the shared files/playbooks/
+    with pytest.raises(SourceError):
+        playbooks.kolla_files("C", c)

@@ -98,6 +98,12 @@ def _mock_all(kolla_releases=("A",)):
     # osism-ansible / ansible-playbooks: fixture's generate-playbook-symlinks.py
     # ENVIRONMENTS lists ceph/generic/manager/state/kubernetes; "kubernetes" has
     # no matching upstream directory today, a genuine 404 (legitimate absence).
+    responses.add(
+        responses.GET,
+        f"{API}/osism/ansible-playbooks/commits/v1",
+        json={"sha": "deadbeef"},
+        status=200,
+    )
     for env, names in _AP_ENV_FILES.items():
         responses.add(
             responses.GET,

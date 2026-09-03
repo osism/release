@@ -46,6 +46,12 @@ def cfg():
 
 
 def _mock_ansible_playbooks(ref="v1"):
+    responses.add(
+        responses.GET,
+        f"{API}/osism/ansible-playbooks/commits/{ref}",
+        json={"sha": "deadbeef"},
+        status=200,
+    )
     for env, names in _AP_ENV_FILES.items():
         responses.add(
             responses.GET,
@@ -79,6 +85,30 @@ def _mock_ceph_ansible(ref="stable-9.0", names=None):
 
 
 # ---------------------------------------------------------------- osism-ansible
+
+
+@responses.activate
+def test_osism_files_raises_on_bad_playbooks_version_pin(cfg):
+    """A stale/bad playbooks_version pin 404s the commits API for every
+    ENVIRONMENTS entry alike (GitHub's contents API can't tell a missing ref
+    from a missing directory), so without the up-front ref check this would
+    silently return an empty set instead of raising. The env listings are
+    also mocked 404 so the test fails for the ref check, not for absent
+    listings.
+    """
+    responses.add(
+        responses.GET,
+        f"{API}/osism/ansible-playbooks/commits/v1",
+        status=404,
+    )
+    for env in _AP_ENV_FILES:
+        responses.add(
+            responses.GET,
+            f"{API}/osism/ansible-playbooks/contents/playbooks/{env}",
+            status=404,
+        )
+    with pytest.raises(SourceError, match="v1"):
+        playbooks.osism_files(cfg)
 
 
 @responses.activate
