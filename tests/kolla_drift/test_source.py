@@ -443,6 +443,46 @@ def test_list_dir_at_ref_404_raises(tmp_path):
         list_dir_at_ref("kolla", "docker", "stable/2099.1", cfg)
 
 
+@responses.activate
+def test_list_dir_at_ref_404_missing_ok_returns_empty(tmp_path):
+    cfg = load_config(_make_cfg(tmp_path, sources={"kolla": {"owner": "openstack"}}))
+    responses.add(
+        responses.GET,
+        "https://api.github.com/repos/openstack/kolla/contents/nope",
+        status=404,
+    )
+    from osism_drift.source import list_dir_at_ref
+
+    assert list_dir_at_ref("kolla", "nope", "stable/2099.1", cfg, missing_ok=True) == []
+
+
+def test_list_dir_at_ref_local_pinned_missing_ok_returns_empty(tmp_path):
+    # Local pinned repo: a ref that resolves but a subtree that doesn't exist
+    # at it is a legitimate absence too (e.g. an environment directory an
+    # upstream tree hasn't populated yet), not a corrupt input.
+    repo_dir = tmp_path / "kolla"
+    repo_dir.mkdir()
+    _sub.run(["git", "-C", str(repo_dir), "init", "-q"])
+    _sub.run(["git", "-C", str(repo_dir), "config", "user.email", "t@example.com"])
+    _sub.run(["git", "-C", str(repo_dir), "config", "user.name", "t"])
+    (repo_dir / "docker").mkdir()
+    (repo_dir / "docker" / "nova.yml").write_text("x")
+    _sub.run(["git", "-C", str(repo_dir), "add", "docker"])
+    _sub.run(["git", "-C", str(repo_dir), "commit", "-q", "-m", "init"])
+
+    cfg = load_config(
+        _make_cfg(tmp_path, sources={"kolla": {"owner": "openstack", "branch": "main"}})
+    )
+    cfg = dataclasses.replace(cfg, base_dirs=(str(tmp_path),))
+    from osism_drift.source import list_dir_at_ref
+
+    assert (
+        list_dir_at_ref("kolla", "docker/nonexistent", "main", cfg, missing_ok=True)
+        == []
+    )
+    assert list_dir_at_ref("kolla", "docker", "main", cfg) == ["nova.yml"]
+
+
 def _commits_url(owner, repo, ref):
     return f"https://api.github.com/repos/{owner}/{repo}/commits/{ref}"
 

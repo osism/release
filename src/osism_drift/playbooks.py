@@ -19,7 +19,25 @@ from osism_drift.source import SourceError
 
 _CONTAINER_IMAGE_KOLLA_ANSIBLE = "container_image_kolla_ansible"
 _SPLIT_SCRIPT = "files/scripts/split-kolla-ansible-site.py"
-_KOLLA_RENDER = "files/src/render-playbooks.py"
+
+_CONTAINER_IMAGE_OSISM_ANSIBLE = "container_image_osism_ansible"
+_CONTAINER_IMAGE_CEPH_ANSIBLE = "container_image_ceph_ansible"
+_OSISM_KUBERNETES = "osism_kubernetes"
+_ANSIBLE_PLAYBOOKS = "ansible_playbooks"
+_CEPH_ANSIBLE = "ceph_ansible"
+
+_SYMLINK_SCRIPT = "files/src/generate-playbook-symlinks.py"
+_RENDER_SCRIPT = "files/src/render-playbooks.py"
+
+# Containerfile:25-26/161-162 (container-image-ceph-ansible): rm -f wipes every
+# ceph-purge-*.yml this build has produced so far -- OSISM's own flavour-dir
+# copies (Containerfile:21) and any upstream ceph-ansible purge-*.yml alike
+# (Containerfile:151) -- then only these two explicitly staged files are moved
+# back. Anything else matching ceph-purge-*.yml never survives, regardless of
+# where it came from.
+_CEPH_PURGE_SURVIVORS = frozenset(
+    {"ceph-purge-storage-node.yml", "ceph-purge-cluster.yml"}
+)
 
 
 def load_const(body: bytes, name: str):
@@ -133,7 +151,7 @@ def kolla_files(release, config) -> frozenset:
 
 def kolla_interface(release, config) -> dict:
     """role -> 'kolla', as the image's render-playbooks.py would write it."""
-    body = source.read(_CONTAINER_IMAGE_KOLLA_ANSIBLE, _KOLLA_RENDER, config)
+    body = source.read(_CONTAINER_IMAGE_KOLLA_ANSIBLE, _RENDER_SCRIPT, config)
     hide = load_const(body, "HIDE")
     keep = load_const(body, "KEEP_PREFIX")
     out = {}
@@ -143,3 +161,232 @@ def kolla_interface(release, config) -> dict:
             continue
         out[f"kolla-{name}" if name in keep else name] = "kolla"
     return out
+
+
+def _pin(release_file: str, key: str, config) -> str:
+    """A *_version pin read from release/latest/<release_file>, or SourceError.
+
+    These pins (playbooks_version, ceph_ansible_version, ...) are what each
+    Containerfile's `git checkout "$(yq ... /release/latest/<file>)"` resolves
+    at build time, so reading them is how a release/flavour ref is discovered
+    rather than assumed.
+    """
+    data = (
+        yaml.safe_load(source.read("release", f"latest/{release_file}", config)) or {}
+    )
+    if key not in data:
+        raise SourceError(f"{key} missing from latest/{release_file}")
+    return str(data[key])
+
+
+def osism_files(config) -> frozenset:
+    """/ansible/<env>-<name>.yml basenames the osism-ansible image ships.
+
+    Containerfile:151 (`cp -r /playbooks/playbooks/* /ansible`) lands
+    ansible-playbooks' playbooks/<env>/*.yml under /ansible/<env>/;
+    Containerfile:163 (generate-playbook-symlinks.py) then symlinks each as
+    /ansible/<env>-<name>.yml for every ENVIRONMENTS entry not in SKIP. That
+    script's leftover "not name.startswith('_')" guard tests the *env-prefixed*
+    name, which can never start with "_" -- it filters nothing today, so an
+    underscore-prefixed source file (e.g. generic/_gather-facts-limit.yml) is
+    symlinked and appears like any other. Mirrored here rather than the
+    filename convention the guard was presumably meant to enforce, since
+    fidelity to the actual (buggy) build is the point.
+
+    Containerfile:19 (`COPY files/playbooks/* /ansible/`) also lands this
+    image's own top-level playbooks straight into /ansible, unprefixed; that
+    directory is empty today (a placeholder since 2019) but a real COPY step,
+    so a future file there is still picked up -- and would need a name already
+    matching one of render-playbooks.py's PREFIXES to reach the interface,
+    exactly like a same-shaped ansible-playbooks file would. Unlike the
+    per-release override directory in kolla_files(), this directory's absence
+    would not be legitimate: it exists in the repo today (holding only a
+    placeholder), and COPY --link with a wildcard fails the image build
+    outright if the source directory is gone, so its listing is not
+    missing_ok.
+    """
+    body = source.read(_CONTAINER_IMAGE_OSISM_ANSIBLE, _SYMLINK_SCRIPT, config)
+    skip = load_const(body, "SKIP")
+    envs = load_const(body, "ENVIRONMENTS")
+    ref = _pin("base.yml", "playbooks_version", config)
+    files = {
+        n
+        for n in source.list_dir(
+            _CONTAINER_IMAGE_OSISM_ANSIBLE, "files/playbooks", config
+        )
+        if n.endswith(".yml")
+    }
+    for env in envs:
+        # A listed ENVIRONMENTS entry with no matching directory upstream
+        # (e.g. "kubernetes" today) is a legitimate absence: the Containerfile's
+        # glob over a nonexistent /ansible/<env>/ simply yields nothing.
+        for name in source.list_dir_at_ref(
+            _ANSIBLE_PLAYBOOKS, f"playbooks/{env}", ref, config, missing_ok=True
+        ):
+            if not name.endswith(".yml"):
+                continue
+            fname = f"{env}-{name}"
+            if fname in skip or fname.startswith("_"):
+                continue
+            files.add(fname)
+    return frozenset(files)
+
+
+def osism_interface(config) -> dict:
+    """role -> environment, as the image's render-playbooks.py would write it.
+
+    Iterates PREFIXES in order, exactly as render-playbooks.py's own
+    `for prefix in PREFIXES: for path in Path("/ansible").glob(f"{prefix}-*.yml")`
+    does, rather than over the frozenset osism_files() returns. Two different
+    env prefixes can strip to the same role name -- e.g. today
+    infrastructure-traefik.yml and manager-traefik.yml both strip to
+    "traefik", and generic-configuration.yml and manager-configuration.yml
+    both strip to "configuration" -- and the build's own dict assignment
+    means the LAST prefix in PREFIXES order wins. Iterating a frozenset
+    instead would make the winner depend on Python's set hash order, which
+    varies with PYTHONHASHSEED: a non-deterministic map that can also be
+    silently wrong, not just unstable.
+
+    HIDE/KEEP_PREFIX are indexed directly (`hide[prefix]`, not
+    `hide.get(prefix, [])`): the real script does the same, so a PREFIXES
+    entry missing from either dict crashes the real build, and this must
+    fail the same way rather than silently treat it as an empty list.
+    """
+    body = source.read(_CONTAINER_IMAGE_OSISM_ANSIBLE, _RENDER_SCRIPT, config)
+    prefixes = load_const(body, "PREFIXES")
+    hide = load_const(body, "HIDE")
+    keep = load_const(body, "KEEP_PREFIX")
+    files = osism_files(config)
+    out = {}
+    for prefix in prefixes:
+        for fname in files:
+            if not fname.startswith(f"{prefix}-"):
+                continue
+            name = fname[len(prefix) + 1 : -len(".yml")]
+            if name in hide[prefix]:
+                continue
+            out[f"{prefix}-{name}" if name in keep[prefix] else name] = prefix
+    return out
+
+
+def _ceph_flavours(config) -> list:
+    """Ceph flavour names from release/latest/ceph-<flavour>.yml basenames.
+
+    latest/ceph.yml is a symlink alias (e.g. to ceph-reef.yml), not a flavour
+    of its own; it is excluded for free because "ceph.yml" itself never
+    matches the "ceph-*.yml" prefix match below.
+    """
+    names = source.list_dir("release", "latest", config)
+    return sorted(
+        n[len("ceph-") : -len(".yml")]
+        for n in names
+        if n.startswith("ceph-") and n.endswith(".yml")
+    )
+
+
+def ceph_files(config) -> frozenset:
+    """/ansible/ceph-*.yml basenames the ceph-ansible image ships, unioned
+    across every ceph flavour built today (quincy, reef, squid).
+
+    Containerfile:22 lands OSISM's flavour-independent playbooks;
+    Containerfile:21 lands OSISM's own per-flavour playbooks (already named
+    ceph-*.yml in the source tree, purge pair included). Containerfile:151
+    adds every top-level ceph/ceph-ansible infrastructure-playbook,
+    ceph-prefixed, at that flavour's own ceph_ansible_version pin
+    (release/latest/ceph-<flavour>.yml -- a different upstream ref per
+    flavour). Containerfile:158 unconditionally symlinks
+    ceph-rolling_update.yml to ceph-upgrade.yml regardless of whether the
+    source exists, so that name always appears. Finally the purge survivors
+    fixup below mirrors Containerfile:161-162 (see _CEPH_PURGE_SURVIVORS).
+    """
+    files = {
+        n
+        for n in source.list_dir(
+            _CONTAINER_IMAGE_CEPH_ANSIBLE, "files/playbooks", config
+        )
+        if n.startswith("ceph-") and n.endswith(".yml")
+    }
+    for flavour in _ceph_flavours(config):
+        files |= {
+            n
+            for n in source.list_dir(
+                _CONTAINER_IMAGE_CEPH_ANSIBLE, f"files/playbooks/{flavour}", config
+            )
+            if n.startswith("ceph-") and n.endswith(".yml")
+        }
+        ref = _pin(f"ceph-{flavour}.yml", "ceph_ansible_version", config)
+        files |= {
+            f"ceph-{n[: -len('.yml')]}.yml"
+            for n in source.list_dir_at_ref(
+                _CEPH_ANSIBLE, "infrastructure-playbooks", ref, config
+            )
+            if n.endswith(".yml")
+        }
+    files.add("ceph-upgrade.yml")
+    files = {f for f in files if not f.startswith("ceph-purge-")}
+    files |= _CEPH_PURGE_SURVIVORS
+    return frozenset(files)
+
+
+def ceph_interface(config) -> dict:
+    """role -> ceph-ansible's PREFIX, full stem retained.
+
+    Unlike kolla/osism-ansible, ceph-ansible's render-playbooks.py has no
+    HIDE/KEEP_PREFIX transform: every ceph-*.yml basename becomes a role keyed
+    by its full stem (prefix kept), valued by PREFIX itself.
+    """
+    prefix = load_const(
+        source.read(_CONTAINER_IMAGE_CEPH_ANSIBLE, _RENDER_SCRIPT, config), "PREFIX"
+    )
+    return {fname[: -len(".yml")]: prefix for fname in ceph_files(config)}
+
+
+def kubernetes_files(config) -> frozenset:
+    """/ansible/kubernetes-*.yml basenames the osism-kubernetes image ships.
+
+    Containerfile:16 (`COPY playbooks/* /ansible/`) copies this repo's own
+    playbooks/ directory straight into /ansible -- unlike osism-ansible and
+    ceph-ansible, there is no separate ansible-playbooks clone/checkout, so
+    there is no release/flavour ref to resolve here.
+    """
+    return frozenset(
+        n
+        for n in source.list_dir(_OSISM_KUBERNETES, "playbooks", config)
+        if n.startswith("kubernetes-") and n.endswith(".yml")
+    )
+
+
+def kubernetes_interface(config) -> dict:
+    """role -> osism-kubernetes's PREFIX, prefix stripped."""
+    prefix = load_const(
+        source.read(_OSISM_KUBERNETES, _RENDER_SCRIPT, config), "PREFIX"
+    )
+    return {
+        fname[len(prefix) + 1 : -len(".yml")]: prefix
+        for fname in kubernetes_files(config)
+    }
+
+
+_RUNTIME_FILES = {
+    "kolla-ansible": lambda release, config: kolla_files(release, config),
+    "osism-ansible": lambda release, config: osism_files(config),
+    "ceph-ansible": lambda release, config: ceph_files(config),
+    "osism-kubernetes": lambda release, config: kubernetes_files(config),
+}
+
+
+def playbook_files(runtime: str, release: str, config) -> frozenset:
+    """Dispatch to `runtime`'s own *_files(); raises SourceError for an
+    unknown runtime name so a typo fails loud instead of silently matching
+    nothing.
+
+    `release` is accepted uniformly across all four runtimes but only
+    kolla-ansible's build actually keys its playbook set by OSISM release;
+    the other three ignore it (ceph-ansible keys by ceph flavour instead,
+    osism-ansible and osism-kubernetes don't key their playbook set at all).
+    """
+    try:
+        fn = _RUNTIME_FILES[runtime]
+    except KeyError:
+        raise SourceError(f"unknown runtime {runtime!r}") from None
+    return fn(release, config)

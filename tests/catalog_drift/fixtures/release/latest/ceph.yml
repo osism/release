@@ -1,0 +1,7 @@
+---
+# release/latest/ceph.yml is a symlink alias to a flavour file in the real
+# repo (e.g. -> ceph-reef.yml); a plain file suffices here since the point
+# under test is that "ceph.yml" itself never matches the "ceph-*.yml" prefix
+# filter _ceph_flavours() applies, so it is excluded regardless of its type.
+ceph_ansible_version: stable-8.0
+ceph_version: reef

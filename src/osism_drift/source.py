@@ -340,7 +340,12 @@ def list_dir(
 
 
 def list_dir_at_ref(
-    repo: str, rel_path: str, ref: str, config, dirs_only: bool = False
+    repo: str,
+    rel_path: str,
+    ref: str,
+    config,
+    dirs_only: bool = False,
+    missing_ok: bool = False,
 ) -> list[str]:
     """List a repo directory at an explicit git ref.
 
@@ -349,21 +354,29 @@ def list_dir_at_ref(
     case (an unpinned repo, or no local checkout) uses the GitHub contents API
     at `ref`. This mirrors read_at_ref/ref_exists. Either way the explicit `ref`
     is read, not the per-repo pin's branch, so a range check is deterministic.
+
+    Absent `rel_path` raises SourceError by default; with missing_ok=True,
+    genuine absence (no such local tree entry, or a remote 404) returns []
+    instead, mirroring list_dir's missing_ok contract -- e.g. an environment
+    directory an upstream ansible-playbooks tree hasn't populated yet is a
+    legitimate absence, not a corrupt input.
     """
     where, d = _resolve(repo, config)
     if where == "local" and _is_pinned(repo, config):
-        return _git_ls_tree(d, ref, rel_path, dirs_only)
+        return _git_ls_tree(d, ref, rel_path, dirs_only, missing_ok)
     owner = _owner(repo, config)
     _note("list", repo, ref, rel_path)
     if config.archive:
         d = archive.snapshot_dir(owner, repo, ref, config)
-        return _dir_list(d, rel_path, f"{repo}@{ref} snapshot", dirs_only)
+        return _dir_list(d, rel_path, f"{repo}@{ref} snapshot", dirs_only, missing_ok)
     url = (
         f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/"
         f"contents/{rel_path}?ref={ref}"
     )
     r = _get("listing", url, json_api=True, ok=(404,))
     if r.status_code == 404:
+        if missing_ok:
+            return []
         raise SourceError(f"404 not found: {url}")
     items = r.json()
     if dirs_only:
