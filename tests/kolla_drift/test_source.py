@@ -462,7 +462,9 @@ def test_list_dir_at_ref_local_pinned_missing_ok_returns_empty(tmp_path):
     # upstream tree hasn't populated yet), not a corrupt input.
     repo_dir = tmp_path / "kolla"
     repo_dir.mkdir()
-    _sub.run(["git", "-C", str(repo_dir), "init", "-q"])
+    _sub.run(
+        ["git", "-C", str(repo_dir), "init", "-q", "-b", "main"]
+    )  # Explicit branch name; test reads this repo at named ref "main"
     _sub.run(["git", "-C", str(repo_dir), "config", "user.email", "t@example.com"])
     _sub.run(["git", "-C", str(repo_dir), "config", "user.name", "t"])
     (repo_dir / "docker").mkdir()
