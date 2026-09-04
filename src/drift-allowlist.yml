@@ -74,6 +74,7 @@ allow:
   - {plugin: kolla_inventory, image: tacker, match: prefix, reason: "not deployed in this series"}
   - {plugin: kolla_inventory, image: telegraf, match: prefix, reason: "not deployed in this series"}
   - {plugin: kolla_inventory, image: collectd, match: prefix, reason: "not deployed in this series"}
+  - {plugin: kolla_inventory, image: venus, match: prefix, reason: "not deployed in this series; enable_venus is no and upstream dropped it after 2025.1"}
   # --- kolla_enablement_orphan ---
   # OSISM-invented enable flags with no upstream counterpart by design (not a
   # removed-upstream service). The check uses explicit scope -- it flags every
