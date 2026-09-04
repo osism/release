@@ -39,6 +39,10 @@ DESCRIPTION = (
 )
 INPUT_FILES = [
     ("kolla_ansible", "ansible/inventory/multinode (per resolved release ref)"),
+    # The supported release range comes from the release manifests, so this repo
+    # has to resolve too: undeclared, the pre-flight check passes and the run
+    # dies mid-comparison on a repo it never announced it needed.
+    ("release", "latest/openstack-*.yml (supported release range)"),
     ("generics", "inventory/50-kolla"),
     ("generics", "inventory/51-kolla"),
 ]

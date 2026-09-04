@@ -151,3 +151,33 @@ def test_empty_release_range_raises(tmp_path):
     cfg = _cfg(releases=(), base_dirs=(str(tmp_path), str(FIXT)))
     with pytest.raises(SourceError, match="empty supported release range"):
         plugin.run(cfg, Allowlist(()))
+
+
+def test_declares_the_release_repo_it_reads(tmp_path):
+    from osism_drift.source import SourceError
+
+    # The release range is read from the release manifests, so `release` must be
+    # in INPUT_FILES: the driver's pre-flight resolution keys off that list, and
+    # an undeclared repo turns a clean "not found under any --base-dir" into a
+    # failure mid-comparison.
+    assert (
+        "release",
+        "latest/openstack-*.yml (supported release range)",
+    ) in plugin.INPUT_FILES
+
+    inv = tmp_path / "generics" / "inventory"
+    inv.mkdir(parents=True)
+    (inv / "50-kolla").write_text("[control]\nctl01\n")
+    (inv / "51-kolla").write_text("[control]\nctl01\n")
+    # remote_fallback stays off so the missing repo raises offline instead of
+    # reaching for the network.
+    cfg = Config(
+        remote=Remote(f"{RAW}/", f"{API}/", "main", "osism"),
+        base_dirs=(str(tmp_path),),
+        release_version="latest",
+        plugins={"kolla_inventory": PluginCfg(enabled=True)},
+        sources={},
+        releases=(),
+    )
+    with pytest.raises(SourceError, match="repo 'release' not found"):
+        plugin.run(cfg, Allowlist(()))
