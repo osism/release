@@ -327,20 +327,32 @@ at the repo to edit.
 ### Plugin: kolla_inventory
 
 **Deployed — a deployed service must have inventory groups.** Compares the ansible group names (INI section headers) of upstream
-`openstack/kolla-ansible` `ansible/inventory/multinode` (at the pinned
-kolla-ansible ref, `stable/2025.2` by default)
-against the union of group names in the OSISM inventory files
-`generics/inventory/50-kolla` and `51-kolla`. A group present upstream but absent
-locally is flagged (one-way, upstream → local) — the failure mode behind
-generics#599 (neutron 2025.2 groups) and #601 (ironic-dnsmasq). Each flagged
-group's upstream **members** (child groups or hosts) ride in the `expected` field,
-so a red line tells a maintainer what to add. Subsumes the retired
-`check-kolla-inventory.py`.
+`openstack/kolla-ansible` `ansible/inventory/multinode` against the union of
+group names in the OSISM inventory files `generics/inventory/50-kolla` and
+`51-kolla`. A group present upstream but absent locally is flagged (one-way,
+upstream → local) — the failure mode behind generics#599 (neutron 2025.2 groups)
+and #601 (ironic-dnsmasq). Each flagged group's upstream **members** (child
+groups or hosts) ride in the `expected` field, so a red line tells a maintainer
+what to add. Subsumes the retired `check-kolla-inventory.py`.
+
+**Range-aware:** multinode is read at **every** supported release's resolved ref
+(`stable/<release>` → `unmaintained/` → `-eol` → `-eom`), not at the single
+pinned kolla-ansible ref, because OSISM ships one inventory for every release it
+builds while upstream renames groups per release. 2026.1 renamed
+`kolla-toolbox` → `kolla_toolbox` and `kolla-logs` → `kolla_logs`; the OSISM
+inventory keeps the hyphenated spelling, so those two 2026.1 plays select no
+hosts and deploy nothing — silently, with no failed task. A check pinned to one
+ref cannot see it. So the finding set is the **union** over the range: a group
+missing at *any* supported release is flagged, and a renamed group needs both
+spellings in the OSISM inventory for as long as both releases are supported.
+One entry per group (not per group-and-release, so the shipped allowlist keeps
+matching by bare group name), with the releases that want it named in
+`expected`; **members** come from the last release in the range order.
 
     python3 src/check-drift.py --group kolla --plugin kolla_inventory
 
-- **Reads:** `openstack/kolla-ansible` `ansible/inventory/multinode`;
-  `generics/inventory/50-kolla` and `51-kolla`.
+- **Reads:** `openstack/kolla-ansible` `ansible/inventory/multinode` (per
+  resolved release ref); `generics/inventory/50-kolla` and `51-kolla`.
 - **Fix:** add the group and its members to `50/51-kolla`; if the service is
   intentionally not deployed, add an allowlist entry with a reason (often
   `match: prefix` — see below). Base-infra groups the OSISM overlay assumes exist
@@ -403,6 +415,10 @@ reasons:
 - **Add direction** (e.g. `kolla_groupvars_missing`): a var is missing if
   upstream defines it at **any** supported release and OSISM lacks it — because
   that one defaults tip has to satisfy every supported release at once.
+
+`osism/generics` is single-tip in exactly the same way — one inventory serves
+every supported release — so `kolla_inventory` reads it at its tip and takes the
+same add-direction union over the per-release upstream `multinode`.
 
 ## Adding a plugin
 
