@@ -202,7 +202,7 @@ verbatim (an Ansible var name is an exact identifier).
 ### Plugin: kolla_mirror_verbatim
 
 **Enabled — `001` must stay a verbatim mirror of upstream-newest.** Enforces
-Convention X: `osism/defaults` `all/001-kolla-defaults.yml` must equal upstream
+Convention X: the `osism/defaults` `all/001-*.yml` **layer** must equal upstream
 kolla-ansible `group_vars/all` at the **newest** supported release
 (`release_range[-1]`, `stable/2025.2` today), compared as parsed YAML values
 (jinja lives in string values and compares as strings). Every OSISM opinion lives
@@ -211,11 +211,23 @@ group_var. The sibling `kolla_groupvars_missing` only proves the upstream *union
 is *supplied somewhere* — it cannot see values or which file a key sits in, so it
 cannot keep `001` pure; this check does.
 
+The mirror is a **layer, not a file**: `001-aodh.yml`, `001-common.yml`,
+`001-database.yml` … mirror upstream's own split `group_vars/all/*.yml` names,
+and the layer is read as their merge in lexical filename order with the last
+file defining a key winning — Ansible's own group_vars merge order, which
+upstream itself relies on (it defines the seven `database_*` keys in both
+`common.yml` and `database.yml`, and `database.yml` wins). Comparing the merged
+layer rather than one file is what lets the mirror be split per upstream service
+without the check having to know how it was split.
+
 Each deviation is one of three shapes, and the finding prints the exact
 destination to move the key to:
 
 - **absent from `001`** (upstream-newest defines it) → mirror the upstream
-  key+value verbatim into `001`.
+  key+value verbatim into the `001` file matching the upstream file the key
+  lives in (`all/001-<upstream group_vars file>`), or into the layer
+  (`all/001-*.yml`) when upstream has no per-service home to name — the
+  monolithic `group_vars/all.yml` layout of 2025.1 and earlier.
 - **value differs** → restore the upstream value in `001`; put OSISM's value in
   `099-*` (plain, or an `openstack_version` gate if it varies by release).
 - **in `001`, not upstream-newest** → remove from `001` and route it: **delete**
@@ -226,9 +238,11 @@ destination to move the key to:
 
     python3 src/check-drift.py --group kolla --plugin kolla_mirror_verbatim
 
-- **Reads:** `osism/defaults` `all/001-kolla-defaults.yml`; `openstack/kolla-ansible`
-  `group_vars/all` at the newest release's resolved ref (plus each older release's
-  keys, to classify a dropped key and pick its `010-<L>` home).
+- **Reads:** `osism/defaults` `all/001-*.yml` (the whole layer, merged in
+  filename order); `openstack/kolla-ansible` `group_vars/all` at the newest
+  release's resolved ref, with the filename each key comes from (to name the
+  destination file), plus each older release's keys (to classify a dropped key
+  and pick its `010-<L>` home).
 - **Fix:** as printed per shape — mirror into `001`, or move the OSISM delta to
   `099-*` (opinions) / `010-<L>.yml` (dropped upstream keys). Never allowlist a
   group_var (Convention X).
