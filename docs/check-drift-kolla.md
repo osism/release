@@ -287,6 +287,66 @@ otherwise dangle after the flag is removed.
 - **Fix:** remove these vars from the listed `osism/defaults` file, or allowlist
   any intentionally kept (an OSISM invention with no upstream service).
 
+### Plugin: kolla_version_gate_orphan
+
+**Enabled — defaults must not keep content for a retired release.** The
+release-lifecycle counterpart to `kolla_orphan_config`: both report dead content
+in `osism/defaults`, that one for a service upstream removed, this one for a
+release OSISM no longer supports. Two kinds of reference outlive a retirement
+without anything failing on them, and both are compared against the supported
+range (`release_range`, the `latest/openstack-*.yml` file set):
+
+- a **version gate** — `openstack_version in ['A', 'B']` — selecting a value for
+  particular releases. Once a listed release leaves the range that branch can
+  never be taken again. `parse_version_gates` matches the single idiom the
+  repository uses (`in` and its `not in` form over a bracketed list of quoted
+  literals) inside `safe_load`ed values, walking maps and lists since a gate can
+  sit anywhere in a value; the rest of the expression is ignored on purpose
+  rather than trying to evaluate jinja.
+- a **per-release compat file** — `all/010-<release>.yml`, the layer
+  `kolla_mirror_verbatim` routes upstream-dropped keys into (parent spec D8).
+  Its own header says to delete it once that release leaves the range, and
+  nothing checked that it was. The name has one definition,
+  `enablement.per_release_file`, shared by the check that fills these files and
+  this one that retires them, so the two cannot disagree about it.
+
+No other check sees this. The rest of the defaults-reading checks ask whether a
+var *name* exists upstream (`kolla_image_orphan`, `kolla_enablement_orphan`),
+whether an orphaned enable flag anchors it (`kolla_orphan_config`), or whether a
+*value* matches upstream and only inside the `001` mirror
+(`kolla_mirror_verbatim`). The staleness here is in neither the name nor the
+value but in the gate condition, which nothing read — a `victoria` gate sat in
+the image catalogue for years unnoticed. It is the mirror image of
+`kolla_source_ref_phase`: that check catches a reference that should have moved
+*forward* when a release changed phase, this one a reference that should have
+been *dropped* when a release was retired.
+
+Findings are **advisory** and do not fail the run. A gate on a release that can
+no longer be deployed may still be load-bearing for an upgrade *from* it — the
+deploy scripts read the release from the running kolla-ansible image label
+precisely to handle the mid-upgrade state — so "outside the supported range"
+means *confirm this is still needed*, not *this is a defect*. The two shapes
+render as separate blocks: deleting a whole file is a different action from
+editing an expression. Scope is `osism/defaults` only; the same release gating
+exists in shell `case` statements in `testbed`, `metalbox` and
+`container-image-kolla-ansible`, which the retirement checklist in the docs
+guide covers by naming each file instead — a `case` parser would have to handle
+`;;&`, `;&`, nested `case`, arms sharing a line, quoting and heredocs, and a
+subtle mis-parse yields a silent false negative, the very failure this check
+exists to prevent.
+
+    python3 src/check-drift.py --group kolla --plugin kolla_version_gate_orphan
+
+- **Reads:** `osism/defaults` `all/*.yml` (gate expressions, and the `010-*`
+  filenames from the directory listing); `osism/release`
+  `latest/openstack-*.yml` (the supported range). Both inputs are OSISM
+  repositories, so the plugin declares no `EXTERNAL_HOSTS` and runs unchanged
+  under `--base-dir` without `--remote-fallback`.
+- **Fix:** drop the retired release from the gate — if that leaves the condition
+  matching nothing, remove the conditional and keep the value that remains — or
+  delete the `010-<release>.yml` whose release has left the range. Allowlist a
+  gate deliberately kept for an upgrade from that release.
+
 ### Plugin: kolla_image_orphan
 
 **Built — an image-catalogue entry must not outlive its upstream role.** The
