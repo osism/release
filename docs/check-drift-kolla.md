@@ -493,3 +493,10 @@ test guards that every registered plugin is enabled). A new repo needs no config
 it is fetched remotely by default, or discovered by name under a `--base-dir`.
 Mirror the test pattern in `tests/kolla_drift/`: synthetic fixtures laid out as
 `fixtures/<repo-dir>/...` plus a `Config(..., base_dirs=(str(FIXT),))`.
+
+Then **document it in the group's doc**: a section of its own alongside the
+other plugins, opening with the stage it guards, then the command, then the
+**Reads:** and **Fix:** bullets. This is part of adding a plugin, not a
+follow-up. `kolla_source_ref_phase` merged without a section, which left its
+module docstring as the only description of a check an operator meets as a red
+line in a nightly report — and nothing about the run points at that docstring.

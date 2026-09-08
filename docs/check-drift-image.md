@@ -355,4 +355,6 @@ See the kolla doc's [Adding a plugin](check-drift-kolla.md#adding-a-plugin)
 section for the full recipe. For image-group plugins, register the module in
 `IMAGE_PLUGINS = [...]` in `src/osism_drift/drift/__init__.py` **and** add a
 `plugins.<NAME>: {enabled: true}` stanza to `src/drift-config.yml`.
-Mirror the test pattern in `tests/image_drift/`.
+Mirror the test pattern in `tests/image_drift/`, and give the plugin a section
+of its own in this doc's [Plugins](#plugins) — that is part of adding it, not a
+follow-up.
