@@ -252,4 +252,6 @@ See the kolla doc's [Adding a plugin](check-drift-kolla.md#adding-a-plugin)
 section for the full recipe. For catalog-group plugins, register the module
 in `CATALOG_PLUGINS = [...]` in `src/osism_drift/drift/__init__.py` **and**
 add a `plugins.<NAME>: {enabled: true}` stanza to `src/drift-config.yml`.
-Mirror the test pattern in `tests/catalog_drift/`.
+Mirror the test pattern in `tests/catalog_drift/`, and give the plugin a
+section of its own in this doc alongside `catalog_role_missing` — that is
+part of adding it, not a follow-up.
