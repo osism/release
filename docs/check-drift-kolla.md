@@ -82,11 +82,59 @@ stage or the transition into it:
    versions template and the producer's SBOM map.
 4. **deployed** — the service has ansible inventory groups to deploy into.
 
+One check sits ahead of the stages: `kolla_source_ref_phase` asks whether the
+sources a build consumes are still maintained upstream, which is a property of
+the release manifest rather than of any one service.
+
 The plugins run in that order, and the report renders them the same way.
 Each opens with the stage it guards. Each is independent and can be run alone
 with `--plugin <name>`; every finding can be suppressed with an allowlist entry
 (see "Allowlist"). Service names are compared as **key spaces**, normalising
 `-`↔`_`; the checks never derive keys from output-variable or image names.
+
+### Plugin: kolla_source_ref_phase
+
+**Sourced — a build must consume sources upstream still regenerates.** For every
+supported release, compares each `openstack_projects` ref in `osism/release`
+`latest/openstack-<release>.yml` against the latest lifecycle phase opendev
+actually publishes a tarball for. Upstream renames `stable/<release>` to
+`unmaintained/<release>` and deletes the branch at EOL, but
+tarballs.opendev.org goes on **serving** a retired name while it stops
+**regenerating** it: a build still asking for
+`<project>-stable-<release>.tar.gz` keeps succeeding, with its sources frozen at
+the moment of the rename. Nothing fails, so nothing prompts the move.
+
+The check is artifact-driven rather than branch-driven. The question is which
+tarball the build consumes, and probing the published set answers it directly:
+no upstream repository owner is needed per project, and the check self-limits at
+EOL, where no later artifact exists and the frozen tarball is the only option.
+Existence is one HEAD per candidate phase rather than a read of the per-project
+index, because those listings are large (nova's is ~1.4 MB and 10k entries) and
+timed out intermittently in practice, which for a nightly check means noise. A
+ref that does not name the release is skipped: a project on its own branch
+scheme (e.g. gnocchi at `stable/4.6`) does not follow the release lifecycle.
+
+A probe that neither confirms nor denies — an outage, a throttled response —
+leaves that ref **unverified** rather than clean, reported in its own block with
+the failure kind. Reading "could not find out" as "no later phase is published"
+would silently reinstate the blind spot this check closes; marking the affected
+refs instead of aborting keeps one upstream hiccup from discarding every other
+finding in the run.
+
+Because the answer is what upstream publishes right now, no `--base-dir` can
+stand in for it: the plugin declares `tarballs.opendev.org` in `EXTERNAL_HOSTS`,
+and the driver refuses a local-only run that selects this plugin rather than
+reaching the network unannounced.
+
+    python3 src/check-drift.py --group kolla --plugin kolla_source_ref_phase
+
+- **Reads:** `osism/release` `latest/openstack-<release>.yml` per supported
+  release; `tarballs.opendev.org/openstack/<project>/` (one HEAD per candidate
+  phase).
+- **Fix:** set the ref to the latest published phase in
+  `latest/openstack-<release>.yml`, and drop any downstream patch the newer
+  sources already carry. Allowlist a project deliberately pinned to a frozen
+  tarball.
 
 ### Plugin: kolla_enablement_orphan
 
