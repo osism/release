@@ -387,19 +387,39 @@ def list_dir_at_ref(
 
 def ref_exists(repo: str, ref: str, config) -> bool:
     """True if `ref` (branch/tag/sha) resolves in the upstream repo (local clone
-    when it resolves under a --base-dir, else the GitHub commits API)."""
+    when it resolves under a --base-dir, else the GitHub commits API).
+
+    Remote answers are memoized on config.ref_exists_cache, keyed by (repo, ref),
+    because callers re-ask the same question many times in one run: osism_files()
+    re-checks playbooks_version on every call, and runtime_interface() is
+    memoized per release while osism_interface() is release-independent, so the
+    same probe is repeated per caller. Each probe is one request against the
+    GitHub core API budget -- 60/hr unauthenticated -- and that is what a run
+    crossed, spending 70 of its 86 budgeted requests re-asking whether one
+    playbooks_version tag exists, then aborting mid-run before it reported any
+    drift.
+
+    Absence is memoized too, so that release_to_ref()'s walk through its
+    candidate list does not pay for its misses again on a later resolve (only
+    the hit is memoized there). Local checkouts are not memoized: they answer
+    from the clone at no request cost, and stay live for a caller that reads a
+    working tree.
+    """
     where, d = _resolve(repo, config)
     if where == "local" and _is_pinned(repo, config):
         return _git_ref_exists(d, ref)
+    key = (repo, ref)
+    if key in config.ref_exists_cache:
+        return config.ref_exists_cache[key]
     owner = _owner(repo, config)
     url = f"{config.remote.github_api}{owner}/{repo.replace('_', '-')}/commits/{ref}"
     _note("ref?", repo, ref)
     r = _get("checking ref", url, json_api=True, ok=(404, 422))
     # GitHub's commits API returns 422 (not 404) for a ref that does not
     # resolve; treat both as "absent" so the resolver probes the next candidate.
-    if r.status_code in (404, 422):
-        return False
-    return True
+    exists = r.status_code not in (404, 422)
+    config.ref_exists_cache[key] = exists
+    return exists
 
 
 _REF_CANDIDATES = ("stable/{r}", "unmaintained/{r}", "{r}-eol", "{r}-eom")
