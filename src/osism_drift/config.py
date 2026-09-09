@@ -73,6 +73,9 @@ class Config:  # pylint: disable=too-many-instance-attributes  # data record
     playbooks_cache: dict = field(
         default_factory=dict
     )  # per-run release -> {role: frozenset(environments)}
+    ref_exists_cache: dict = field(
+        default_factory=dict
+    )  # per-run (repo, ref) -> bool memo of remote existence probes
 
 
 def load_config(path) -> Config:

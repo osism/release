@@ -1266,3 +1266,59 @@ def test_read_at_ref_uses_archive(tmp_path):
         read_at_ref("release", "nope.yml", "stable/2025.2", cfg, optional=True) is None
     )
     assert len(responses.calls) == 1
+
+
+@responses.activate
+def test_ref_exists_memoizes_probes(tmp_path):
+    """A repeated existence probe costs one request, not one per call.
+
+    Callers re-ask the same question many times per run -- osism_files()
+    re-checks playbooks_version on every call (playbooks.py) -- and each probe
+    is one request against GitHub's core budget, which is 60/hr
+    unauthenticated.
+    """
+    cfg = load_config(_make_cfg(tmp_path, sources={"kolla": {"owner": "openstack"}}))
+    responses.add(
+        responses.GET, _commits_url("openstack", "kolla", "stable/2025.2"), status=200
+    )
+    from osism_drift.source import ref_exists
+
+    assert ref_exists("kolla", "stable/2025.2", cfg) is True
+    assert ref_exists("kolla", "stable/2025.2", cfg) is True
+    assert len(responses.calls) == 1
+
+
+@responses.activate
+def test_ref_exists_memoizes_absence_too(tmp_path):
+    """An absent ref is cached as well, not re-probed.
+
+    release_to_ref() walks four candidates per (repo, release) and only the
+    hit is memoized upstream, so caching the misses is what keeps a resolve
+    that falls through to a late candidate from costing its probes twice.
+    """
+    cfg = load_config(_make_cfg(tmp_path, sources={"kolla": {"owner": "openstack"}}))
+    responses.add(
+        responses.GET, _commits_url("openstack", "kolla", "stable/2099.1"), status=404
+    )
+    from osism_drift.source import ref_exists
+
+    assert ref_exists("kolla", "stable/2099.1", cfg) is False
+    assert ref_exists("kolla", "stable/2099.1", cfg) is False
+    assert len(responses.calls) == 1
+
+
+@responses.activate
+def test_ref_exists_cache_is_per_ref(tmp_path):
+    """Distinct refs are distinct questions and are each probed."""
+    cfg = load_config(_make_cfg(tmp_path, sources={"kolla": {"owner": "openstack"}}))
+    responses.add(
+        responses.GET, _commits_url("openstack", "kolla", "stable/2025.1"), status=200
+    )
+    responses.add(
+        responses.GET, _commits_url("openstack", "kolla", "stable/2099.1"), status=404
+    )
+    from osism_drift.source import ref_exists
+
+    assert ref_exists("kolla", "stable/2025.1", cfg) is True
+    assert ref_exists("kolla", "stable/2099.1", cfg) is False
+    assert len(responses.calls) == 2
