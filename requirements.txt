@@ -1,4 +1,4 @@
-GitPython==3.1.61
+GitPython==3.1.62
 PyDriller==2.11
 PyGithub==2.10.0
 PyYAML==6.0.3
