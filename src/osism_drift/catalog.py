@@ -9,11 +9,33 @@ checker to whatever version happens to be installed instead of that ref.
 """
 
 import ast
+from typing import NamedTuple, Optional
 
 from osism_drift import source
 from osism_drift.source import SourceError
 
 _ENUMS = "osism/data/enums.py"
+
+# Role(...) keywords this reader understands. Anything else -- another
+# keyword, or any of these passed positionally -- is a semantic addition in
+# enums.py that the checker would otherwise ignore; see _role_names'
+# fail-loud contract.
+_ROLE_KEYWORDS = frozenset({"dependencies", "since", "until"})
+
+
+class CatalogRole(NamedTuple):
+    """A MAP_ROLE2ROLE role and the release range it is deployed on.
+
+    `since`/`until` are the inclusive bounds as they appear in enums.py
+    (e.g. "2025.2"), or None for an unbounded role. python-osism reads them
+    as collection membership, not availability: a role outside its bounds is
+    one the collection should not deploy at that release, so checking whether
+    a runtime advertises it there asks the wrong question.
+    """
+
+    name: str
+    since: Optional[str] = None
+    until: Optional[str] = None
 
 
 def _assignment(body: bytes, name: str):
@@ -46,22 +68,66 @@ def _role_names(node, collection: str) -> list:
     the fail-loud contract exists to rule out, just scoped to one role rather
     than the whole catalog. SourceError names both `collection` and the
     source line so the failure points straight at the offending Role(...).
+
+    The same contract covers everything after the name. A Role(...) keyword
+    outside _ROLE_KEYWORDS, a `since`/`until` that is not a string literal,
+    or any second positional argument stops the run rather than being
+    ignored: an unread argument is a semantic addition in enums.py that
+    silently changes what the catalog means, and ignoring one is how
+    release-bounded roles came to be reported as drift on 2026-09-11. Better
+    a red job naming the source line than a plausible finding that tells the
+    reader to add a gate that already exists.
+
+    Positional arguments are refused rather than parsed by position. Role's
+    signature is (name, dependencies, since, until), so Role("valkey", None,
+    "2025.2") is legal python-osism and would otherwise read back unbounded
+    -- the 2026-09-11 defect exactly. enums.py writes every call as
+    Role("name") or Role("name", dependencies=[...]) and documents only
+    those two forms, so refusing costs nothing today and keeps this reader
+    from carrying a position-to-name mapping for a style the source does not
+    use.
     """
-    names = []
+    roles = []
     if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "Role":
         if not node.args or not isinstance(node.args[0], ast.Constant):
             raise SourceError(
                 f"{collection!r}: Role(...) with a non-literal or missing name "
                 f"at {_ENUMS}:{node.lineno}"
             )
-        names.append(node.args[0].value)
+        if len(node.args) > 1:
+            raise SourceError(
+                f"{collection!r}: Role({node.args[0].value!r}) passes "
+                f"{len(node.args) - 1} argument(s) after the name positionally "
+                f"at {_ENUMS}:{node.lineno} -- this reader takes "
+                f"{sorted(_ROLE_KEYWORDS)} as keywords only"
+            )
+        bounds = {}
+        for kw in node.keywords:
+            if kw.arg not in _ROLE_KEYWORDS:
+                raise SourceError(
+                    f"{collection!r}: Role({node.args[0].value!r}) has "
+                    f"unknown keyword {kw.arg!r} at {_ENUMS}:{node.lineno} -- "
+                    f"teach {__name__} what it means before trusting this catalog"
+                )
+            if kw.arg == "dependencies":
+                continue
+            if not isinstance(kw.value, ast.Constant) or not isinstance(
+                kw.value.value, str
+            ):
+                raise SourceError(
+                    f"{collection!r}: Role({node.args[0].value!r}) has a "
+                    f"non-literal {kw.arg}= at {_ENUMS}:{node.lineno}"
+                )
+            bounds[kw.arg] = kw.value.value
+        roles.append(CatalogRole(node.args[0].value, **bounds))
     for child in ast.iter_child_nodes(node):
-        names.extend(_role_names(child, collection))
-    return names
+        roles.extend(_role_names(child, collection))
+    return roles
 
 
 def collections(config) -> dict:
-    """collection name -> every Role(...) name reachable in it, at any depth.
+    """collection name -> every Role(...) reachable in it, at any depth,
+    as CatalogRole(name, since, until).
 
     Reads MAP_ROLE2ROLE as an AST rather than a literal: it holds Role(...)
     constructor calls, which ast.literal_eval cannot evaluate.

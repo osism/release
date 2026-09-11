@@ -66,7 +66,11 @@ def _serve_enums(body: bytes, ref: str = "main") -> None:
 @responses.activate
 def test_collections_collect_nested_roles(cfg):
     _serve_enums(ENUMS)
-    assert catalog.collections(cfg) == {"nutshell": ["a", "b", "c", "d"]}
+    # Depth-first, source order. Compared on names alone: the nesting order is
+    # what this test is about, and the bounds have their own test below.
+    got = catalog.collections(cfg)
+    assert [r.name for r in got["nutshell"]] == ["a", "b", "c", "d"]
+    assert list(got) == ["nutshell"]
 
 
 @responses.activate
@@ -190,4 +194,110 @@ MAP_ROLE2ROLE = {
 }
 """)
     with pytest.raises(SourceError, match="non-literal collection name"):
+        catalog.collections(cfg)
+
+
+# --- release-bounded roles -------------------------------------------------
+#
+# python-osism gave Role() `since`/`until` bounds (osism/python-osism#2688) to
+# express the redis -> valkey cut-over at 2025.2. The reader must carry them
+# through: a bound dropped here becomes a role checked at releases it is not
+# meant to deploy on, which is a false finding the report tells the reader to
+# "fix" by adding the gate that already exists.
+
+BOUNDED_ENUMS = b"""
+class Role:
+    def __init__(self, name, dependencies=None, since=None, until=None):
+        pass
+
+VALIDATE_PLAYBOOKS = {}
+
+MAP_ROLE2ROLE = {
+    "nutshell": [
+        Role("common"),
+        Role("redis", until="2025.1"),
+        Role("valkey", since="2025.2"),
+    ],
+}
+"""
+
+
+@responses.activate
+def test_collections_carry_release_bounds(cfg):
+    _serve_enums(BOUNDED_ENUMS)
+    assert catalog.collections(cfg) == {
+        "nutshell": [
+            catalog.CatalogRole("common", None, None),
+            catalog.CatalogRole("redis", None, "2025.1"),
+            catalog.CatalogRole("valkey", "2025.2", None),
+        ]
+    }
+
+
+@responses.activate
+def test_role_with_unknown_keyword_raises(cfg):
+    # The failure this file exists to prevent, one step removed from a
+    # non-literal name: a keyword the reader does not understand is a
+    # semantic addition in enums.py it is silently ignoring. Ignoring
+    # `since`/`until` is exactly how the 2026-09-11 false findings arose, so
+    # the next such addition must stop the run and name its source line
+    # rather than quietly change what the plugin checks.
+    _serve_enums(b"""
+class Role:
+    def __init__(self, name, dependencies=None, flavour=None):
+        pass
+
+VALIDATE_PLAYBOOKS = {}
+
+MAP_ROLE2ROLE = {
+    "broken": [
+        Role("a", flavour="new"),
+    ],
+}
+""")
+    with pytest.raises(SourceError, match="flavour"):
+        catalog.collections(cfg)
+
+
+@responses.activate
+def test_role_with_positional_bound_raises(cfg):
+    # Role's signature is (name, dependencies, since, until), so this is a
+    # legal way to write Role("valkey", since="2025.2") -- and the reader,
+    # which looks at args[0] and the keywords, would read it back as an
+    # unbounded role checked against every release: the 2026-09-11 false
+    # findings again. Refused rather than parsed by position: enums.py
+    # documents only Role("name") and Role("name", dependencies=[...]).
+    _serve_enums(b"""
+class Role:
+    def __init__(self, name, dependencies=None, since=None, until=None):
+        pass
+
+VALIDATE_PLAYBOOKS = {}
+
+MAP_ROLE2ROLE = {
+    "broken": [
+        Role("valkey", None, "2025.2"),
+    ],
+}
+""")
+    with pytest.raises(SourceError, match="positionally"):
+        catalog.collections(cfg)
+
+
+@responses.activate
+def test_role_with_non_literal_bound_raises(cfg):
+    _serve_enums(b"""
+class Role:
+    def __init__(self, name, dependencies=None, since=None, until=None):
+        pass
+
+VALIDATE_PLAYBOOKS = {}
+
+MAP_ROLE2ROLE = {
+    "broken": [
+        Role("a", since=SOME_RELEASE),
+    ],
+}
+""")
+    with pytest.raises(SourceError, match="broken"):
         catalog.collections(cfg)

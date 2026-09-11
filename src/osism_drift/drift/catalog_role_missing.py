@@ -17,6 +17,7 @@ one set of strings stretched to cover both.
 
 from osism_drift import catalog, enablement, playbooks, source
 from osism_drift.model import DriftEntry
+from osism_drift.source import SourceError
 
 NAME = "catalog_role_missing"
 DESCRIPTION = (
@@ -118,6 +119,64 @@ def _summary(ok: list, bad: list) -> str:
     )
 
 
+def _dead_bounds_summary(releases: list) -> str:
+    """A role whose since/until exclude every supported release.
+
+    Distinct from the no-runtime-advertises-it case: the catalog entry is
+    unreachable by its own bounds, so nothing about the runtime images is
+    wrong and the remediation is to fix or drop the gate.
+    """
+    return (
+        f"{{n}} catalog entries whose release bounds exclude every supported "
+        f"release ({', '.join(releases)}), so the role can never deploy:"
+    )
+
+
+def _release_key(value: str, whose: str):
+    """("2025.1") -> (2025, 1), for ordering a bound against the release range.
+
+    Mirrors python-osism's osism/data/releases.py parse_release rather than
+    importing it: this module reads python-osism as source at a given ref and
+    must not bind itself to whatever version happens to be installed. A value
+    that does not parse raises instead of being ignored -- an unorderable
+    bound silently treated as "unbounded" would put the role back under the
+    every-release check this function exists to prevent.
+    """
+    year, _, minor = value.partition(".")
+    if not year.isdigit() or not minor.isdigit():
+        raise SourceError(
+            f"{whose}: release bound {value!r} is not a YYYY.N release -- "
+            "cannot order it against the supported range"
+        )
+    return (int(year), int(minor))
+
+
+def _deployed_releases(role, releases):
+    """The supported releases `role` is actually deployed on.
+
+    python-osism reads Role(since=, until=) as collection membership, not
+    availability (enums.py says so explicitly): outside its bounds the
+    collection does not deploy the role, so asking whether a runtime
+    advertises it there is the wrong question and its answer is a false
+    finding. An unbounded role -- every role before osism/python-osism#2688,
+    and most since -- takes the whole range and never parses anything.
+    """
+    if role.since is None and role.until is None:
+        return list(releases)
+    whose = f"Role({role.name!r})"
+    since = _release_key(role.since, whose) if role.since else None
+    until = _release_key(role.until, whose) if role.until else None
+    kept = []
+    for release in releases:
+        key = _release_key(release, whose)
+        if since is not None and key < since:
+            continue
+        if until is not None and key > until:
+            continue
+        kept.append(release)
+    return kept
+
+
 def _checks(config, releases):
     """Yield one dict per entry in both python-osism catalogs, checked over the
     full release range: {subject, alias, ok, bad, expected_src, found_src,
@@ -143,11 +202,19 @@ def _checks(config, releases):
     for collection, roles in collections.items():
         for role in dict.fromkeys(roles):
             ok, bad = [], []
-            for release in releases:
+            # Only the releases this role is deployed on. A role whose bounds
+            # admit none of them leaves ok and bad both empty and falls
+            # through to the dead-entry branch below, rather than passing
+            # silently for having been checked nowhere.
+            deployed = _deployed_releases(role, releases)
+            for release in deployed:
                 interface = playbooks.runtime_interface(release, config)
-                (ok if playbooks.resolves(role, interface) else bad).append(release)
+                (ok if playbooks.resolves(role.name, interface) else bad).append(
+                    release
+                )
             yield {
-                "subject": role,
+                "subject": role.name,
+                "dead_bounds": not deployed,
                 "alias": collection,
                 "ok": ok,
                 "bad": bad,
@@ -169,6 +236,7 @@ def _checks(config, releases):
             (ok if resolved else bad).append(release)
         yield {
             "subject": entry["playbook"],
+            "dead_bounds": False,
             "alias": key,
             "ok": ok,
             "bad": bad,
@@ -198,7 +266,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
 
     drifts = []
     for check in _checks(config, releases):
-        if not check["bad"]:
+        if not check["bad"] and not check["dead_bounds"]:
             continue
         drifts.append(
             allowlist.apply(
@@ -210,7 +278,9 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
                         "advertised by a runtime image at every supported release"
                     ),
                     found=(
-                        f"unresolvable at {', '.join(check['bad'])}"
+                        "deployed on no supported release"
+                        if check["dead_bounds"]
+                        else f"unresolvable at {', '.join(check['bad'])}"
                         + (
                             f" (resolves at {', '.join(check['ok'])})"
                             if check["ok"]
@@ -219,7 +289,11 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
                     ),
                     expected_src=check["expected_src"],
                     found_src=check["found_src"],
-                    summary=_summary(check["ok"], check["bad"]),
+                    summary=(
+                        _dead_bounds_summary(releases)
+                        if check["dead_bounds"]
+                        else _summary(check["ok"], check["bad"])
+                    ),
                     remediation=check["remediation"],
                 )
             )
