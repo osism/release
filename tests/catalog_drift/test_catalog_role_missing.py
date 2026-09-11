@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pytest
 
+from osism_drift import catalog
 from osism_drift.config import Allowlist, AllowEntry, Config, PluginCfg, Remote
 from osism_drift.drift import catalog_role_missing as plugin
 from osism_drift.source import SourceError
@@ -74,7 +75,17 @@ def _serve(
     roles resolving, so a test only has to spell out the releases it cares
     about.
     """
-    monkeypatch.setattr(plugin.catalog, "collections", lambda config: collections or {})
+    # A bare name is shorthand for an unbounded role, which is what every
+    # role was before osism/python-osism#2688 and what most still are. Tests
+    # about release bounds build catalog.CatalogRole values explicitly.
+    coerced = {
+        name: [
+            r if isinstance(r, catalog.CatalogRole) else catalog.CatalogRole(r)
+            for r in roles
+        ]
+        for name, roles in (collections or {}).items()
+    }
+    monkeypatch.setattr(plugin.catalog, "collections", lambda config: coerced)
     monkeypatch.setattr(plugin.catalog, "validators", lambda config: validators or {})
     # _interface_src() calls source.release_to_ref("kolla_ansible", ...) to
     # name the ref each release's finding was reconstructed at; stubbed here
@@ -242,3 +253,124 @@ def test_allowlist_is_applied(cfg, monkeypatch):
 def test_empty_release_range_raises(cfg_no_releases):
     with pytest.raises(SourceError, match="empty supported release range"):
         plugin.run(cfg_no_releases, Allowlist(()))
+
+
+# --- release-bounded roles -------------------------------------------------
+#
+# These use real catalog.CatalogRole values rather than the bare strings the
+# older _serve() calls above pass, because the defect they guard against is
+# precisely that the plugin consumed a role as an opaque name and checked it
+# at every release regardless of the bounds attached to it. They also use real
+# "YYYY.N" release identifiers rather than this file's "A"/"B" placeholders:
+# a bound is a statement about release ordering, so testing it against strings
+# that carry no order would test a fiction.
+
+
+@pytest.fixture
+def cfg_real(cfg):
+    return Config(
+        remote=cfg.remote,
+        base_dirs=cfg.base_dirs,
+        release_version=cfg.release_version,
+        plugins=cfg.plugins,
+        sources=cfg.sources,
+        releases=("2024.1", "2025.1", "2025.2", "2026.1"),
+    )
+
+
+def _role(name, since=None, until=None):
+    return catalog.CatalogRole(name, since, until)
+
+
+def test_bounded_role_is_not_checked_outside_its_bounds(cfg_real, monkeypatch):
+    """The redis -> valkey cut-over, as python-osism#2688 actually writes it.
+
+    kolla replaced redis with valkey at 2025.2, so the catalog carries both
+    with complementary bounds and each resolves exactly where it is deployed.
+    Checking either at a release it is not deployed on asks whether a runtime
+    advertises a role the collection would never request there -- the six
+    false findings of 2026-09-11.
+    """
+    _serve(
+        monkeypatch,
+        collections={
+            "nutshell": [
+                _role("redis", until="2025.1"),
+                _role("valkey", since="2025.2"),
+            ]
+        },
+        iface={
+            "2024.1": {"redis"},
+            "2025.1": {"redis"},
+            "2025.2": {"valkey"},
+            "2026.1": {"valkey"},
+        },
+    )
+    assert plugin.run(cfg_real, Allowlist(())) == []
+
+
+def test_bounded_role_still_reports_inside_its_bounds(cfg_real, monkeypatch):
+    """Narrowing the checked range must not become a way to miss real drift:
+    a role deployed through 2025.2 that resolves nowhere in that range is
+    still dead and must still report."""
+    _serve(
+        monkeypatch,
+        collections={"nutshell": [_role("redis", until="2025.2")]},
+        iface={},
+    )
+    drifts = plugin.run(cfg_real, Allowlist(()))
+    assert [(d.alias, d.image) for d in drifts] == [("nutshell", "redis")]
+    assert "no runtime has advertised" in drifts[0].summary
+
+
+def test_bounded_role_reports_only_the_releases_it_is_deployed_on(
+    cfg_real, monkeypatch
+):
+    """A role deployed from 2025.2 onwards and missing at 2026.1 reports
+    2026.1 alone. The releases below its `since` are out of scope, and listing
+    them would pad the finding with releases the collection never asks about
+    -- which is what made the redis finding read as a real portability gap."""
+    _serve(
+        monkeypatch,
+        collections={"nutshell": [_role("valkey", since="2025.2")]},
+        iface={"2025.2": {"valkey"}},
+    )
+    drifts = plugin.run(cfg_real, Allowlist(()))
+    assert len(drifts) == 1
+    assert "unresolvable at 2026.1" in drifts[0].found
+    assert "resolves at 2025.2" in drifts[0].found
+    assert "2024.1" not in drifts[0].found
+    assert "2025.1" not in drifts[0].found
+
+
+def test_role_deployed_on_no_supported_release_is_a_finding(cfg_real, monkeypatch):
+    """An empty admitted range is a dead catalog entry, not a pass. A role
+    whose bounds exclude every supported release can never deploy, so
+    checking nothing and reporting nothing would hide it -- the same
+    under-report the reader's fail-loud contract rules out upstream."""
+    _serve(
+        monkeypatch,
+        collections={"nutshell": [_role("ancient", until="2023.2")]},
+        iface={r: {"ancient"} for r in cfg_real.releases},
+    )
+    drifts = plugin.run(cfg_real, Allowlist(()))
+    assert len(drifts) == 1
+    assert drifts[0].image == "ancient"
+    # The bounds-dead summary, not the no-runtime-advertises-it one: nothing
+    # is wrong with the runtime images here, so pointing the reader at them
+    # would send them looking in the wrong repo.
+    assert "bounds exclude every supported release" in drifts[0].summary
+    assert "no runtime has advertised" not in drifts[0].summary
+
+
+def test_unparseable_release_bound_raises(cfg_real, monkeypatch):
+    """A bound the plugin cannot order against the release range stops the
+    run. Silently treating it as unbounded would resurrect the exact defect
+    this change fixes, one layer down."""
+    _serve(
+        monkeypatch,
+        collections={"nutshell": [_role("redis", until="stable/queens")]},
+        iface={},
+    )
+    with pytest.raises(SourceError, match="redis"):
+        plugin.run(cfg_real, Allowlist(()))
