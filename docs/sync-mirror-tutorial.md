@@ -190,9 +190,40 @@ the gate makes the claim checkable, it does not remove the decision.
 A `--retain` that merely recorded your intent would let the re-sync report "all
 dispositioned" while the old value quietly disappeared.
 
-In this re-sync all fifteen were accepted upstream: the re-wraps and the
-ansible-lint truthy sweep are intended, zun and influxdb are gone, and the
-rabbitmq prefetch bump is an upstream default OSISM does not override.
+In this re-sync all fifteen were accepted upstream, and **one of those
+acceptances was wrong**: `openstack_auth`. It was accepted because 2026.1 reads
+five of its six keys from a templated `clouds.yaml` — true, and true of 2026.1
+alone. Older releases have no such file, lost `auth_url`, and failed keystone
+registration (osism/defaults#307). The tool flagged the key and demanded a
+decision; the decision was made on a rationale that never mentioned the older
+releases. See
+[Rationales](sync-mirror.md#rationales-discharge-the-claim-the-flag-makes).
+
+**A second regression came from the same round and is not a disposition
+problem at all.** `designate_backend_external` went `'no' -> False`. That is a
+`representation` change — the two values are equivalent under `| bool` — so it
+was carried through
+with no decision needed, and never appeared in the flag list above.
+`validate_dispositions()` would in fact *reject* a flag naming it. But the
+2025.2 role guards on `designate_backend_external == 'no'`, and
+`False == 'no'` is `False`, so bind9 stopped being configured
+(osism/defaults#309).
+
+The two failures share a cause and not a remedy:
+
+- **Shared cause** — the value is shared across releases, the roles are not.
+  Each release's roles come from its own kolla-ansible image, so an upstream
+  commit that changes a value *and* its consumer together arrives here as the
+  new value meeting the old consumer.
+- **Different remedies** — a rationale that discharges its claim would have
+  caught the first and **would not have touched the second**, which was never
+  up for decision. What covers the second is inspecting consumers for a
+  key in the `representation` class; see
+  [representation](sync-mirror.md#representation).
+
+So detection was not uniformly fine either: `openstack_auth` was flagged and
+then accepted, while `designate_backend_external` passed through a class the
+tool treats as needing no review.
 
 ## Step 5: apply
 
@@ -219,6 +250,11 @@ ends at `exit 1: changes ready to apply; re-run with --apply`. Writing takes
         --accept-upstream ssl_intermediate_settings \
         --accept-upstream ssl_modern_settings \
         --apply
+
+**Do not copy that flag list as a template.** It is this round's dispositions,
+reproduced so the walkthrough is honest about what was run — and one of them,
+`openstack_auth`, was wrong (see step 4). A disposition list is per-round by
+definition; the tool recomputes it every time.
 
 The report now ends differently:
 
