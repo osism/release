@@ -233,7 +233,11 @@ rather than assumed.
 
 ### representation
 
-A bool-ish token whose truth value did not change. Two kinds occur:
+A bool-ish token that converts to the same value under Ansible's `| bool`.
+That is narrower than plain Jinja truthiness, where the non-empty string
+`"no"` is *truthy* — it is the filter that makes `"no"` and `False` agree, and
+the consumer check below is about consumers that never apply it. Two kinds
+occur:
 
 - a **type** change — `'no'` (string) becomes `False` (bool), because upstream
   rewrote the token and YAML now parses it as a boolean;
@@ -248,10 +252,23 @@ value rather than passing it through `| bool` sees `"no"` versus `"False"`. It i
 very likely harmless, and sync-mirror cannot demonstrate that it is — so it says
 so instead of claiming otherwise.
 
-**There is nothing to do about it.** The `001` layer is a byte copy, so the tool
-cannot rewrite `False` back to `'no'` even if you wanted it to; upstream's
-spelling is carried as-is. The class exists so that if a template breaks later,
-you can see which keys changed spelling and in which re-sync.
+**There is nothing the tool can do about it.** The `001` layer is a byte copy,
+so it cannot rewrite `False` back to `'no'` even if you wanted it to; upstream's
+spelling is carried as-is.
+
+**There is something you can do, and it is worth doing.** This class is not
+theoretical: `designate_backend_external` went `'no' -> False` in the 2026.1
+re-sync, the 2025.2 role guards on `designate_backend_external == 'no'`, and
+`False == 'no'` is `False` — so bind9 stopped being configured on every release
+below the target (osism/defaults#309). Note the roles are *not* shared: each
+release's come from its own kolla-ansible image, so a value and its consumer can
+change together upstream and arrive apart here.
+
+So for each key in this class, search the older supported releases' roles for a
+comparison against it — `== 'yes'`, `== 'no'`, and the other forms — and where
+you find one, evaluate it against both the old and the new value. Most will not
+invert. In the 2026.1 re-sync three keys had such a consumer and one did, which
+is what makes it easy to miss.
 
 ### overridden
 
@@ -270,7 +287,9 @@ unconditional.
 A semantic key takes exactly one of three flags; giving a key two is an error.
 
 - **`--accept-upstream KEY`** — take the new value for every supported release.
-  Nothing to check.
+  The tool validates that the flag names a semantic row in *this* plan, but
+  **does not check compatibility across supported releases**; the rationale has
+  to. See *Rationales* below.
 - **`--retain KEY`** — keep the OSISM value. The `099` gate is **verified**: it
   must exist, and carry the right value on the right release.
 - **`--retain-unverified KEY`** — keep the OSISM value where the gate exists but
@@ -308,6 +327,33 @@ dispositioned" while the old value silently vanished.
 
 Use `--retain-unverified` only after reading the gate yourself. It is for a gate
 whose shape the validator cannot parse — not for a gate you have not written.
+
+### Rationales: discharge the claim the flag makes
+
+Record a reason per dispositioned key in the commit message. One rule governs
+what the reason has to say:
+
+> **A rationale must justify the claim its disposition makes.**
+
+`--accept-upstream` claims the value is right for *every supported release*. So
+a sentence about why **upstream** changed it does not discharge that claim — it
+is an explanation of the diff, not of the decision. Say why the new value is
+correct on, or cannot reach, each release below the target.
+
+The test is mechanical: **if a rationale's only subject is an upstream commit,
+it is not an `--accept-upstream` rationale.** Compare:
+
+    # does not discharge -- true of the target release, silent on the others
+    openstack_auth: a80b14c1e templates clouds.yaml and reads the rest from there
+
+    # discharges -- states the older releases' position
+    kolla_base_distro_version_default_map: not deploy-consumed by OSISM;
+        002-images-kolla.yml overrides every <service>_tag
+
+The first is from the 2026.1 re-sync. It is accurate, and it is accurate *about
+2026.1 only* — releases below it have no `clouds.yaml`, so they lost
+`auth_url` and keystone registration failed on every one of them
+(osism/defaults#307).
 
 ## The generator marker
 
