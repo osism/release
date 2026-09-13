@@ -393,6 +393,117 @@ release with no OSISM template is skipped, not an error.
 - **Fix:** remove the orphaned secret from the cfg-cookiecutter template (and
   regenerate environments), or allowlist it if it is an OSISM-invented secret.
 
+### Plugin: kolla_retired_patch_orphan
+
+**Retired-patch orphan — a 099-kolla.yml key whose only consumer was a
+carried patch that has been dropped for the newest release.**
+Three conditions must all hold for a key to be reported:
+
+1. **Patch-consumed** — the key appears (word-boundary match) in at least one
+   file under `container-image-kolla-ansible patches/<older-release>/` for some
+   older supported release.
+2. **Patch-absent** — the key appears in _no_ file under
+   `patches/<newest-release>/`.  A `.disabled` patch at the newest release
+   **counts as a consumer** and prevents a report: `.disabled` is the
+   bring-up parking state, not retirement.  This rule is evidence-based:
+   `Add 2025.1 build` (osism/container-image-kolla-ansible#808) created
+   `patches/2025.1/` with five patches parked as `.disabled`, and
+   osism/container-image-kolla-ansible#809–#812 ("fix `<patch>`") adapted
+   and re-enabled four of them within the same cycle.  The check fires only when
+   a file _disappears_ from the newest release directory.  There is
+   deliberately no "disabled for N consecutive releases" heuristic: it would
+   accept the latency of `kolla-operations.patch`, which was parked for two
+   cycles, as the right trade for avoiding false positives during bring-up.
+3. **Upstream-absent** — upstream kolla-ansible does not define the key as a
+   top-level default at _any_ supported release, in either
+   `ansible/group_vars/all` **or** `ansible/roles/*/defaults/main.yml`.
+
+**Why neither `group_vars/all` alone nor a whole-tree textual scan is correct:**
+The upstream test is definition-based over two locations.  `group_vars/all`
+alone misses keys defined only in a role's defaults (`horizon_listen_port`,
+`octavia_certs_work_dir`).  A textual search of the whole `ansible/` tree
+counts references in template values or task bodies as definitions, silently
+suppressing real findings; it also misses nothing that `top_level_keys()` would
+catch.  Measured difference on 2026-09-01: definition-based yields 16 candidates
+where whole-tree-textual yields 14; the two extras are `certificates_dir` and
+`kolla_install_type` (referenced upstream but defined elsewhere), and neither is
+patch-consumed, so the report is identical in practice.  Accept the two extra
+candidates — they are the honest reading of "upstream defines it".
+
+**Why matching is on patch content, not filename:**
+osism/container-image-kolla-ansible#942 renumbered every patch in
+`patches/2026.1/` to an `0001-*.patch` form.  A filename-based check would
+have broken at that commit; content-based matching is rename-proof.
+
+**Release-ref resolution:** `release_to_ref` is always used to resolve a release
+to its upstream ref — never by string-formatting `stable/<release>`.  This matters
+because 2024.1 resolves to `unmaintained/2024.1` and 2024.2 to the `2024.2-eol`
+tag.  A first sizing pass that assumed `stable/` for all five releases silently
+dropped two of them from the upstream union and produced an inflated candidate set
+(six keys looked orphaned and were correctly retained once 2024.1 and 2024.2 were
+included).
+
+**Chain-overlap skip:** Keys owned by a dead, non-allowlisted service are skipped;
+`kolla_orphan_config` already reports them through the service-keyed chain.  The
+plugin uses `kolla_orphan_config.dead_service_set()` — the allowlist-filtered dead
+set — rather than raw `orphan_ids()`, so an allowlisted service's keys are _not_
+excluded here.  Using the raw set would mean that `kolla_operations_*` keys
+(allowlisted as an OSISM invention) go unreported by both plugins simultaneously.
+
+**Fail-closed guard:** A missing or empty `patches/<newest>/` directory raises
+`SourceError` rather than treating it as "no consumers at the newest release".
+The motivating window: `latest/openstack-2026.1.yml` existed in `osism/release`
+before `patches/2026.1/` existed in `container-image-kolla-ansible`.  In that
+window "no patch references this key" is absence of evidence, not evidence of
+absence.  A missing _older_ `patches/<rel>/` is treated as "no consumers at that
+release" (`missing_ok=True`) — a missing older directory can only shrink the
+candidate set, never manufacture a false positive.
+
+The same rule covers the individual patch files.  Every path the scan reads came
+from the directory listing at the same ref, so a read that fails is a timeout, a
+throttled response or an outage — never "this file is absent".  It raises rather
+than being skipped: skipping one at the newest release drops a consumer and
+reports a live key as retired, and skipping one at an older release drops the
+only evidence the key was ever consumed and suppresses a real finding.  Either
+way the report would still look complete.
+
+**Findings split into two blocks, by whether anything changed at this release.**
+Whether the retired patch was still _applied_ at the release it was last carried
+in, or was already parked as `.disabled`, decides what the finding means — and a
+`.disabled` suffix buried in a path is the wrong place to hide that difference:
+
+- **applied when last carried** — the patch was live through the previous
+  release, so dropping it stopped the behaviour it implemented.  Remediation is
+  to decide whether that behaviour should be restored, via a patch for the new
+  release or a native equivalent, _before_ removing the key.
+  `kolla_disable_python_deprecation_warnings` is the worked example.
+- **already `.disabled` when last carried** — the key stopped having an effect
+  when the patch was parked, not when it was deleted; deleting it only made the
+  dead key visible.  Nothing changed at the newest release and the remediation is
+  a plain cleanup.  The six `grafana_*_paths` / `prometheus_*_paths` keys whose
+  only consumer was `kolla-operations.patch` are this case — the predicted cost
+  of the parking rule in condition 2, landing exactly as expected.
+
+The split is carried by per-entry `summary` / `remediation` overrides
+(`DriftEntry.summary`), which is what `report.py` groups on, so the two kinds
+render as separate blocks.  A key consumed at that release by both an applied and
+a parked patch counts as applied, and the applied file is the one named.
+
+**Findings are advisory** (`severity="advisory"`, exit 0) — both blocks — because
+the check tests "consumed", not "functional": a customer kolla config overlay can
+consume a key through a stale fork of an upstream template, keeping the key live
+without making it work.  Either way the key may also simply be allowlisted if it
+is deliberately kept.
+
+    python3 src/check-drift.py --group kolla --plugin kolla_retired_patch_orphan
+
+- **Inputs:** `defaults all/099-kolla.yml`; `container-image-kolla-ansible
+  patches/<release>/` (all files, every supported release); `openstack/kolla-ansible
+  ansible/` (group_vars/all and roles/*/defaults/main.yml, per resolved release ref).
+- **Fix:** confirm the key is still wanted, then remove it from
+  `osism/defaults all/099-kolla.yml`, add a working consumer for the newest
+  release, or allowlist it with a reason.
+
 ### Plugin: kolla_enablement_build
 
 **Enabled → built — an enabled service must be in the build set.** For each supported release R, an OSISM-enabled kolla service

@@ -364,19 +364,23 @@ def upstream_groupvars_keys(release, config) -> set:
 _UPSTREAM_ROLES_DIR = "ansible/roles"
 
 
-def upstream_image_tag_keys(release, config) -> tuple[set, set]:
-    """(image_vars, tag_vars) defined across upstream kolla-ansible role defaults
-    at `release`'s resolved ref.
+def upstream_role_default_keys(release, config) -> set:
+    """Every top-level key across upstream kolla-ansible role defaults at
+    `release`'s resolved ref.
 
-    The canonical source of kolla image/tag parameters is
-    ansible/roles/<role>/defaults/main.yml, where each carries `<svc>_image` and
-    `<svc>_tag` top-level defaults. Read every role's defaults once and split the
-    top-level keys by suffix: `*_image` (excluding the derived `*_image_full`)
-    and `*_tag`. A role without a defaults file is skipped. Compared by exact
-    name (an Ansible var name is a Python identifier), matching top_level_keys.
+    Walks ansible/roles/*/defaults/main.yml and unions the top-level YAML keys
+    from every role that has a defaults file.  A role without a defaults/main.yml
+    is skipped silently (optional=True).  The resolved ref is used so that a
+    release whose branch lives under unmaintained/ or a -eol tag is read
+    correctly — never hard-code stable/<release>.
+
+    This is the companion to upstream_groupvars_keys that covers the role-defaults
+    layer (decision 3 of kolla_retired_patch_orphan): upstream_groupvars_keys
+    alone misses keys defined only in a role's defaults, such as
+    horizon_listen_port and octavia_certs_work_dir.
     """
     ref = source.release_to_ref("kolla_ansible", release, config)
-    images, tags = set(), set()
+    keys = set()
     for role in source.list_dir_at_ref(
         "kolla_ansible", _UPSTREAM_ROLES_DIR, ref, config, dirs_only=True
     ):
@@ -389,11 +393,25 @@ def upstream_image_tag_keys(release, config) -> tuple[set, set]:
         )
         if body is None:
             continue
-        for k in top_level_keys(body):
-            if k.endswith("_image") and not k.endswith("_image_full"):
-                images.add(k)
-            elif k.endswith("_tag"):
-                tags.add(k)
+        keys |= top_level_keys(body)
+    return keys
+
+
+def upstream_image_tag_keys(release, config) -> tuple[set, set]:
+    """(image_vars, tag_vars) defined across upstream kolla-ansible role defaults
+    at `release`'s resolved ref.
+
+    Builds on upstream_role_default_keys and filters by suffix: `*_image`
+    (excluding the derived `*_image_full`) and `*_tag`. A role without a
+    defaults file is skipped. Compared by exact name (an Ansible var name is a
+    Python identifier), matching top_level_keys.
+    """
+    images, tags = set(), set()
+    for k in upstream_role_default_keys(release, config):
+        if k.endswith("_image") and not k.endswith("_image_full"):
+            images.add(k)
+        elif k.endswith("_tag"):
+            tags.add(k)
     return images, tags
 
 

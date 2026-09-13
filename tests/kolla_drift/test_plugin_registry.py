@@ -40,6 +40,10 @@ def test_kolla_secrets_orphan_plugin_registered():
     assert "kolla_secrets_orphan" in [p.NAME for p in KOLLA_PLUGINS]
 
 
+def test_kolla_retired_patch_orphan_plugin_registered():
+    assert "kolla_retired_patch_orphan" in [p.NAME for p in KOLLA_PLUGINS]
+
+
 def test_kolla_orphan_config_plugin_registered():
     assert "kolla_orphan_config" in [p.NAME for p in KOLLA_PLUGINS]
 
@@ -81,6 +85,7 @@ def test_plugins_in_lifecycle_order():
         "kolla_version_gate_orphan",
         "kolla_image_orphan",
         "kolla_secrets_orphan",
+        "kolla_retired_patch_orphan",
         "kolla_enablement_build",
         "kolla_version_chain_upstream",
         "kolla_version_chain_inner",
