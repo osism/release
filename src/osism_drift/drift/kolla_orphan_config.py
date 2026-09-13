@@ -41,7 +41,7 @@ REMEDIATION = (
 _DEFAULTS_DIR = "all"
 
 
-def _owning_service(var: str, dead: set) -> str | None:
+def owning_service(var: str, dead: set) -> str | None:
     """The dead service that owns `var` (var == sid or var starts sid+'_'),
     longest match wins; None if no dead service owns it."""
     v = enablement.canon(var)
@@ -51,10 +51,17 @@ def _owning_service(var: str, dead: set) -> str | None:
     return max(owners, key=len) if owners else None
 
 
-def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
-    """Return dead-config drifts: <service>_* vars of orphaned services."""
-    # Genuinely dead services: orphaned AND not kept via the orphan allowlist
-    # (so OSISM inventions like common/kolla_operations are excluded).
+def dead_service_set(config, allowlist) -> set:
+    """Service ids that are orphaned AND not kept via the orphan allowlist.
+
+    OSISM inventions such as common and kolla_operations are allowlisted under
+    kolla_enablement_orphan and therefore excluded from the dead set — their
+    companion vars are intentionally kept and must not be swept.  Using the raw
+    orphan_ids() would incorrectly include them.
+
+    This construction is shared with kolla_retired_patch_orphan so both plugins
+    use identical dead-set semantics without duplicating the allowlist probe.
+    """
     dead = set()
     for sid in kolla_enablement_orphan.orphan_ids(config):
         probe = DriftEntry(
@@ -68,6 +75,14 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
         )
         if allowlist.match(probe) is None:
             dead.add(sid)
+    return dead
+
+
+def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
+    """Return dead-config drifts: <service>_* vars of orphaned services."""
+    # Genuinely dead services: orphaned AND not kept via the orphan allowlist
+    # (so OSISM inventions like common/kolla_operations are excluded).
+    dead = dead_service_set(config, allowlist)
     if not dead:
         return []
 
@@ -84,7 +99,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     for var in sorted(var_file):
         if var.startswith("enable_"):
             continue  # enable flags belong to kolla_enablement_orphan
-        owner = _owning_service(var, dead)
+        owner = owning_service(var, dead)
         if owner is None:
             continue
         d = DriftEntry(

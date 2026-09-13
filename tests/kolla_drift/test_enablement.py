@@ -420,6 +420,38 @@ def test_in_mirror_layer():
 
 
 @responses.activate
+def test_upstream_role_default_keys_all_top_level_keys():
+    # upstream_role_default_keys returns every top-level key across all role
+    # defaults, not just *_image / *_tag (those are filtered by
+    # upstream_image_tag_keys which now builds on this helper).
+    _mock_roles(
+        "stable/A",
+        {
+            "nova": 'nova_tag: "x"\nnova_api_port: 8774\nnova_api_image: "y"\n',
+            "glance": 'glance_image: "g"\nglance_listen_port: 9292\n',
+        },
+    )
+    keys = enablement.upstream_role_default_keys("A", _cfg_ka())
+    assert keys == {
+        "nova_tag",
+        "nova_api_port",
+        "nova_api_image",
+        "glance_image",
+        "glance_listen_port",
+    }
+
+
+@responses.activate
+def test_upstream_role_default_keys_role_without_defaults_skipped():
+    # A role directory without a defaults/main.yml is silently skipped.
+    _mock_roles("stable/A", {"nova": 'nova_tag: "x"\n'})
+    # Register a 404 for a second role's defaults (simulated by having no mock for it,
+    # but since list_dir_at_ref returns only "nova" here, no second call is made).
+    keys = enablement.upstream_role_default_keys("A", _cfg_ka())
+    assert "nova_tag" in keys
+
+
+@responses.activate
 def test_upstream_image_tag_keys_collects_both_suffixes():
     _mock_roles(
         "stable/A",

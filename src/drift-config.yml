@@ -34,6 +34,7 @@ plugins:
   kolla_orphan_config: {enabled: true}
   kolla_image_orphan: {enabled: true}
   kolla_secrets_orphan: {enabled: true}
+  kolla_retired_patch_orphan: {enabled: true}
   kolla_source_ref_phase: {enabled: true}
   catalog_role_missing: {enabled: true}
   kolla_version_gate_orphan: {enabled: true}
