@@ -475,19 +475,61 @@ in, or was already parked as `.disabled`, decides what the finding means — and
 - **applied when last carried** — the patch was live through the previous
   release, so dropping it stopped the behaviour it implemented.  Remediation is
   to decide whether that behaviour should be restored, via a patch for the new
-  release or a native equivalent, _before_ removing the key.
-  `kolla_disable_python_deprecation_warnings` is the worked example.
+  release or a native equivalent.  Restoring it clears the finding with no edit
+  to `osism/defaults` at all — the key is consumed at the newest release again,
+  so condition 2 (patch-absent) no longer holds.  `kolla_disable_python_deprecation_warnings`
+  is the worked example, and it went that way: a replacement patch restored the
+  setting for 2026.1's uWSGI services.  Retiring the behaviour instead does
+  _not_ mean removing the key while an older supported release still applies
+  the patch.
 - **already `.disabled` when last carried** — the key stopped having an effect
-  when the patch was parked, not when it was deleted; deleting it only made the
-  dead key visible.  Nothing changed at the newest release and the remediation is
-  a plain cleanup.  The six `grafana_*_paths` / `prometheus_*_paths` keys whose
-  only consumer was `kolla-operations.patch` are this case — the predicted cost
-  of the parking rule in condition 2, landing exactly as expected.
+  _at the newest release_ when the patch was parked, not when it was deleted;
+  deleting it only made the dead key visible.  Nothing changed at the newest
+  release — which is not the same as nothing changing anywhere, and does not
+  make the remediation a plain removal: the key is still live wherever the patch
+  is still applied.  The six `grafana_*_paths` / `prometheus_*_paths` keys whose
+  only consumer was `kolla-operations.patch` are this case — parked at 2025.1
+  and 2025.2, still applied at 2024.1 and 2024.2 — the predicted cost of the
+  parking rule in condition 2, landing exactly as expected.
 
 The split is carried by per-entry `summary` / `remediation` overrides
 (`DriftEntry.summary`), which is what `report.py` groups on, so the two kinds
 render as separate blocks.  A key consumed at that release by both an applied and
 a parked patch counts as applied, and the applied file is the one named.
+
+**Each finding names the live release range.** The per-release patch state —
+applied, parked (`.disabled`) or absent — is the same fact that decides which
+block a finding lands in, so the plugin has it for every release and prints it:
+
+    still consumed at 2024.1, 2024.2 (patch active); dead at 2025.1, 2025.2
+    (patch parked) and 2026.1 (patch absent)
+
+It opens the `Fix:` text rather than sitting only in `found`, because `report.py`
+renders `found` only for `SHOW_VALUES` plugins — and because `remediation` is
+part of its grouping key, so keys sharing a range state it once and keys with
+different ranges split into blocks with the right boundary each.
+
+**The remediation states a constraint, it does not order an edit.** A key whose
+patch is still applied at an older supported release must not simply be removed
+from `all/099-kolla.yml`: that layer is release-independent, so the removal
+lands at those releases too. The text says so, and names a `099`
+`openstack_version` gate below the boundary — the release after the newest live
+one, which is not the same as the oldest dead one when a patch was parked and
+later revived — as the instrument for keeping the key at the older releases
+only. It stops there. The check measures where the patch is applied, which
+settles that a plain removal is wrong but not which instrument replaces it: it
+has not measured whether the behaviour is being retired (the applied class asks
+the reader to decide, and the first such finding was resolved by restoring the
+patch at the newest release instead), whether the key's value can carry an
+`else` branch, or whether anything outside the patch set still reads the key at
+the newest release. Only a key live at no supported release gets a plain
+"remove it".
+
+Gating does not clear the finding — detection is key-name only, so a gated key
+is still a top-level key — and the closing sentence says so. It does not say
+the finding recurs "until the key is gone": a consumer restored at the newest
+release clears it with the key still defined, and an allowlist entry added by
+that reader would go stale as soon as their patch landed.
 
 **Findings are advisory** (`severity="advisory"`, exit 0) — both blocks — because
 the check tests "consumed", not "functional": a customer kolla config overlay can
@@ -500,9 +542,15 @@ is deliberately kept.
 - **Inputs:** `defaults all/099-kolla.yml`; `container-image-kolla-ansible
   patches/<release>/` (all files, every supported release); `openstack/kolla-ansible
   ansible/` (group_vars/all and roles/*/defaults/main.yml, per resolved release ref).
-- **Fix:** confirm the key is still wanted, then remove it from
-  `osism/defaults all/099-kolla.yml`, add a working consumer for the newest
-  release, or allowlist it with a reason.
+- **Fix:** confirm the key is still wanted. A consumer restored at the newest
+  release clears the finding outright. Otherwise the key must not simply be
+  removed from `osism/defaults all/099-kolla.yml` while an older supported
+  release still applies the patch — that layer is release-independent, so the
+  removal lands there too; the instrument for keeping it at those releases only
+  is a `099` `openstack_version` gate below the boundary the finding names.
+  Remove it outright only when no supported release still applies the patch.
+  Gating leaves the key defined, so allowlist it with a reason to close the
+  finding.
 
 ### Plugin: kolla_enablement_build
 
