@@ -98,3 +98,18 @@ allow:
   - {plugin: kolla_image_orphan, image: dcap_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}
   - {plugin: kolla_image_orphan, image: dcap_register_image_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}
   - {plugin: kolla_image_orphan, image: dcap_server_image_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}
+  # kolla-operations.patch is parked, not retired: it is enabled at 2024.1 and
+  # 2024.2, .disabled at 2025.1/2025.2 and absent at 2026.1, and it was parked
+  # because it stopped applying (4 of 7 hunks fail on stable/2025.1), not
+  # because the feature was dropped. Its upstream half, review 921097 /
+  # LP#2068002, is still open. So these keys are dead at the newest release and
+  # live at the oldest two, and removing them from the release-independent
+  # all/099-kolla.yml would break 2024.x. Drop these entries together with the
+  # keys (and with enable_kolla_operations' kolla_enablement_orphan entry
+  # above) once the revive-or-remove question is settled.
+  - {plugin: kolla_retired_patch_orphan, image: grafana_custom_dashboards_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
+  - {plugin: kolla_retired_patch_orphan, image: grafana_custom_extra_config_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
+  - {plugin: kolla_retired_patch_orphan, image: grafana_prometheus_config_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
+  - {plugin: kolla_retired_patch_orphan, image: grafana_provisioning_config_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
+  - {plugin: kolla_retired_patch_orphan, image: prometheus_common_config_overrides_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
+  - {plugin: kolla_retired_patch_orphan, image: prometheus_custom_alert_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
