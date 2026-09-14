@@ -59,10 +59,8 @@ SUMMARY = (
     "so the behaviour it implemented is no longer applied:"
 )
 REMEDIATION = (
-    "the behaviour this key drove is gone at the newest release. Decide "
-    "whether it should be restored -- a patch for the new release, or a native "
-    "equivalent -- before removing the key from osism/defaults "
-    "all/099-kolla.yml. Allowlist it if losing the behaviour is intended."
+    "The behaviour the key drove is gone at the newest release: decide whether "
+    "to restore it, with a patch for the new release or a native equivalent."
 )
 
 # Per-entry overrides (see DriftEntry.summary/remediation) for keys whose patch
@@ -70,13 +68,44 @@ REMEDIATION = (
 PARKED_SUMMARY = (
     "{n} osism/defaults 099-kolla.yml keys whose only consumer was a carried "
     "patch that was already .disabled when it was last carried and has now been "
-    "dropped, so the keys have been inert since it was parked:"
+    "dropped, so the keys have been inert at the newest release since it was "
+    "parked:"
 )
 PARKED_REMEDIATION = (
-    "nothing changed at the newest release -- the key stopped having an effect "
-    "when its patch was parked, and dropping the patch only made that visible. "
-    "Remove the key from osism/defaults all/099-kolla.yml, or allowlist it if "
-    "it is deliberately kept against the patch being revived."
+    "Nothing changed at the newest release -- the key stopped having an effect "
+    "there when its patch was parked, and dropping the patch only made that "
+    "visible."
+)
+
+# Tails and closes composed around the two constants above by _remediation().
+# The text states the constraint and names the instrument; it does not order an
+# edit.  The check measures where a patch is applied, which settles that a plain
+# removal is wrong -- not which instrument replaces it.  It has not measured
+# whether the behaviour is being retired (the applied class asks the reader to
+# decide, and the first real finding was resolved by restoring the patch
+# instead), whether the key's value can carry an else branch, or whether
+# anything outside the patch set still reads the key at the newest release.
+_KEEP_TAIL = (
+    "Do not simply remove it from osism/defaults all/099-kolla.yml while an "
+    "older supported release still applies the patch: all/ is "
+    "release-independent, so the removal lands there too. To keep it for those "
+    "releases only, the instrument is a 099 openstack_version gate below "
+    "{boundary} (see osism/defaults all/README.md)."
+)
+_REMOVE_TAIL = "Remove it from osism/defaults all/099-kolla.yml."
+# Gating leaves the key top-level in 099-kolla.yml and detection is key-name
+# only, so the finding recurs.  It does NOT say "until the key is gone": a
+# consumer restored at the newest release clears it with the key still defined,
+# and an allowlist entry added by that reader goes stale the moment their patch
+# lands, which the driver exits 1 on.
+_RECUR_CLOSE = (
+    "Keeping or gating the value does not by itself clear this finding. If the "
+    "key is kept with no consumer at the newest release, allowlist it with that "
+    "reason."
+)
+_PARKED_ALLOW = (
+    "Allowlist it instead if it is deliberately kept against the patch being "
+    "revived."
 )
 
 _KOLLA_OPINION_FILE = "all/099-kolla.yml"
@@ -225,6 +254,46 @@ def _range_sentence(states, releases) -> str:
     return f"no supported release still applies its patch: dead at {dead}"
 
 
+def _gate_boundary(states, releases):
+    """The release immediately after the newest one where the key is live.
+
+    Not "the oldest dead release": for a patch applied at A, parked at B and
+    applied again at C, the boundary is the release after C.  Gating below B
+    would drop the key at C, where the patch is applied.
+
+    Returns None when no release is live.  For a key that became a finding the
+    newest release is always dead, so the newest live release is never the last
+    element and the lookup cannot run off the end.
+    """
+    rels = sorted(releases)
+    live = [r for r in rels if states.get(r) == _ACTIVE]
+    if not live:
+        return None
+    return rels[rels.index(live[-1]) + 1]
+
+
+def _remediation(states, releases, active: bool) -> str:
+    """Compose one entry's Fix text: range, class sentence, tail, close.
+
+    `active` selects the class sentence -- whether the patch was still applied
+    at the release it was last carried in.  The tail and close are selected by
+    whether any release is still live, which is the fact that decides whether a
+    plain removal is safe.
+    """
+    parts = [
+        f"{_range_sentence(states, releases)}.",
+        REMEDIATION if active else PARKED_REMEDIATION,
+    ]
+    boundary = _gate_boundary(states, releases)
+    if boundary is None:
+        parts.append(_REMOVE_TAIL)
+        parts.append(_PARKED_ALLOW)
+    else:
+        parts.append(_KEEP_TAIL.format(boundary=boundary))
+        parts.append(_RECUR_CLOSE)
+    return " ".join(parts)
+
+
 def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     """Return retired-patch-orphan drifts for osism/defaults 099-kolla.yml."""
     # Step 1: definitions from the OSISM opinion file.
@@ -274,7 +343,8 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
         if dead and owning_service(var, dead) is not None:
             continue
         rel, last_path, active = last_consumer.get(var, (None, None, True))
-        rng = _range_sentence(state_by_rel.get(var, {}), releases)
+        states = state_by_rel.get(var, {})
+        rng = _range_sentence(states, releases)
         if rel is not None:
             state = "applied" if active else "already .disabled"
             found_text = (
@@ -301,7 +371,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
             ),
             found_src=f"osism/defaults {_KOLLA_OPINION_FILE}",
             summary=SUMMARY if active else PARKED_SUMMARY,
-            remediation=REMEDIATION if active else PARKED_REMEDIATION,
+            remediation=_remediation(states, releases, active),
             severity="advisory",
         )
         drifts.append(allowlist.apply(d))
