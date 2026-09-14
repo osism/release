@@ -513,7 +513,7 @@ def test_retired_while_applied_uses_behaviour_change_block(tmp_path):
     drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
     assert [d.image for d in drifts] == ["applied_key"]
     assert drifts[0].summary == plugin.SUMMARY
-    assert drifts[0].remediation == plugin.REMEDIATION
+    assert plugin.REMEDIATION in drifts[0].remediation
     assert "applied at B" in drifts[0].found
 
 
@@ -538,7 +538,7 @@ def test_retired_while_parked_uses_cleanup_block(tmp_path):
     drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
     assert [d.image for d in drifts] == ["parked_key"]
     assert drifts[0].summary == plugin.PARKED_SUMMARY
-    assert drifts[0].remediation == plugin.PARKED_REMEDIATION
+    assert plugin.PARKED_REMEDIATION in drifts[0].remediation
     assert "already .disabled at B" in drifts[0].found
 
 
@@ -660,3 +660,209 @@ def test_non_contiguous_live_range(tmp_path):
         "still consumed at A, C (patch active); "
         "dead at B (patch parked) and D (patch absent)"
     ) in drifts[0].found
+
+
+@responses.activate
+def test_live_range_named_in_fix(tmp_path):
+    """The remediation opens with the measured range, not a hedge."""
+    _write_kolla_yml(tmp_path, ["parked_key"])
+    _write_patches(
+        tmp_path,
+        {
+            "A": {"ops.patch": "parked_key: yes\n"},
+            "B": {"ops.patch.disabled": "parked_key: yes\n"},
+            "C": {"other.patch": "# unrelated sentinel\n"},
+        },
+    )
+    _mock_upstream()
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    assert drifts[0].remediation.startswith(
+        "still consumed at A (patch active); "
+        "dead at B (patch parked) and C (patch absent). "
+    )
+
+
+@responses.activate
+def test_gate_boundary_is_release_after_newest_live(tmp_path):
+    """The named boundary is the first release the key is no longer live at."""
+    _write_kolla_yml(tmp_path, ["parked_key"])
+    _write_patches(
+        tmp_path,
+        {
+            "A": {"ops.patch": "parked_key: yes\n"},
+            "B": {"ops.patch.disabled": "parked_key: yes\n"},
+            "C": {"other.patch": "# unrelated sentinel\n"},
+        },
+    )
+    _mock_upstream()
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    assert "openstack_version gate below B" in drifts[0].remediation
+    assert "Do not simply remove it" in drifts[0].remediation
+
+
+@responses.activate
+def test_non_contiguous_gate_boundary(tmp_path):
+    """Boundary follows the NEWEST live release, not the oldest dead one.
+
+    Active at A, parked at B, active again at C, gone at D: gating below B
+    would drop the key at C, where the patch is applied.
+    """
+    rels = ("A", "B", "C", "D")
+    _write_kolla_yml(tmp_path, ["my_key"])
+    _write_patches(
+        tmp_path,
+        {
+            "A": {"fix.patch": "my_key: yes\n"},
+            "B": {"fix.patch.disabled": "my_key: yes\n"},
+            "C": {"fix.patch": "my_key: yes\n"},
+            "D": {"other.patch": "# unrelated sentinel\n"},
+        },
+    )
+    _mock_upstream(releases=rels)
+    drifts = plugin.run(_cfg(tmp_path, releases=rels), Allowlist(()))
+    assert "openstack_version gate below D" in drifts[0].remediation
+    assert "below B" not in drifts[0].remediation
+
+
+@responses.activate
+def test_no_live_release_asks_for_removal(tmp_path):
+    """Parked everywhere it was carried: nothing is live, so remove it."""
+    _write_kolla_yml(tmp_path, ["parked_key"])
+    _write_patches(
+        tmp_path,
+        {
+            "A": {"ops.patch.disabled": "parked_key: yes\n"},
+            "B": {"ops.patch.disabled": "parked_key: yes\n"},
+            "C": {"other.patch": "# unrelated sentinel\n"},
+        },
+    )
+    _mock_upstream()
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    rem = drifts[0].remediation
+    assert rem.startswith("no supported release still applies its patch: ")
+    assert "Remove it from osism/defaults all/099-kolla.yml." in rem
+    assert "openstack_version gate" not in rem
+    assert "Allowlist it instead" in rem
+
+
+@responses.activate
+def test_applied_block_keeps_and_does_not_order_a_gate(tmp_path):
+    """The applied class gets the same constraint, and no imperative gate.
+
+    Its reader may restore the behaviour instead of retiring it -- an ordered
+    "Gate it below C" would tell them to break the patch they just wrote.
+    """
+    _write_kolla_yml(tmp_path, ["applied_key"])
+    _write_patches(
+        tmp_path,
+        {
+            "A": {"fix.patch": "applied_key: yes\n"},
+            "B": {"fix.patch": "applied_key: yes\n"},
+            "C": {"other.patch": "# unrelated sentinel\n"},
+        },
+    )
+    _mock_upstream()
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    rem = drifts[0].remediation
+    assert plugin.REMEDIATION in rem
+    assert "openstack_version gate below C" in rem
+    assert "Gate it below" not in rem
+
+
+@responses.activate
+def test_keep_branch_close_does_not_claim_removal_is_the_only_exit(tmp_path):
+    """Keep branch: recurrence close, and no 'until the key is gone'.
+
+    A consumer restored at the newest release clears the finding with the key
+    still defined, so removal is not the only exit and the close must not say
+    it is.
+    """
+    _write_kolla_yml(tmp_path, ["parked_key"])
+    _write_patches(
+        tmp_path,
+        {
+            "A": {"ops.patch": "parked_key: yes\n"},
+            "B": {"ops.patch.disabled": "parked_key: yes\n"},
+            "C": {"other.patch": "# unrelated sentinel\n"},
+        },
+    )
+    _mock_upstream()
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    rem = drifts[0].remediation
+    assert "does not by itself clear this finding" in rem
+    assert "until the key is gone" not in rem
+    assert "Allowlist it instead" not in rem
+
+
+@responses.activate
+def test_gated_definition_still_reported(tmp_path):
+    """A release-gated value is still a top-level key, so it still reports.
+
+    This is what the closing sentence promises the reader: gating the value
+    does not clear the finding.
+    """
+    ddir = tmp_path / "defaults" / "all"
+    ddir.mkdir(parents=True, exist_ok=True)
+    (ddir / "099-kolla.yml").write_text(
+        "parked_key: \"{{ ['/x'] if openstack_version in ['A'] else [] }}\"\n"
+    )
+    _write_patches(
+        tmp_path,
+        {
+            "A": {"ops.patch": "parked_key: yes\n"},
+            "B": {"ops.patch.disabled": "parked_key: yes\n"},
+            "C": {"other.patch": "# unrelated sentinel\n"},
+        },
+    )
+    _mock_upstream()
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    assert [d.image for d in drifts] == ["parked_key"]
+
+
+@responses.activate
+def test_same_range_groups_one_block_different_ranges_split(tmp_path):
+    """report.py groups on remediation, so the range is the block key.
+
+    All three keys are in the same class (parked when last carried) and the
+    same branch (keep), and all three have the SAME gate boundary -- so the
+    range sentence is the only thing that can separate them. key_one and
+    key_two share a range and must land in one block; key_three is live at one
+    release fewer and must land in its own.
+    """
+    rels = ("A", "B", "C", "D")
+    _write_kolla_yml(tmp_path, ["key_one", "key_two", "key_three"])
+    _write_patches(
+        tmp_path,
+        {
+            "A": {
+                "ops.patch": "key_one: yes\nkey_two: yes\n",
+                "other.patch.disabled": "key_three: yes\n",
+            },
+            "B": {
+                "ops.patch": "key_one: yes\nkey_two: yes\n",
+                "other.patch": "key_three: yes\n",
+            },
+            "C": {
+                "ops.patch.disabled": "key_one: yes\nkey_two: yes\n",
+                "other.patch.disabled": "key_three: yes\n",
+            },
+            "D": {"unrelated.patch": "# unrelated sentinel\n"},
+        },
+    )
+    _mock_upstream(releases=rels)
+    drifts = plugin.run(_cfg(tmp_path, releases=rels), Allowlist(()))
+    by_key = {d.image: (d.summary, d.remediation) for d in drifts}
+    assert sorted(by_key) == ["key_one", "key_three", "key_two"]
+
+    # Same class, same branch, same boundary for all three.
+    for key in by_key:
+        summary, remediation = by_key[key]
+        assert summary == plugin.PARKED_SUMMARY
+        assert "openstack_version gate below C" in remediation
+
+    # So only the range can split them, and it does.
+    assert by_key["key_one"] == by_key["key_two"]
+    assert by_key["key_three"] != by_key["key_one"]
+    assert len(set(by_key.values())) == 2
+    assert "still consumed at A, B (patch active)" in by_key["key_one"][1]
+    assert "still consumed at B (patch active)" in by_key["key_three"][1]
