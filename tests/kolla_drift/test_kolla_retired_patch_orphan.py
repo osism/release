@@ -594,3 +594,69 @@ def test_two_blocks_report_separately(tmp_path):
     assert sorted(d.image for d in drifts) == ["applied_key", "parked_key"]
     groups = {(d.summary, d.remediation) for d in drifts}
     assert len(groups) == 2
+
+
+@responses.activate
+def test_found_carries_per_release_state(tmp_path):
+    """found names the state at every release, so --format json records it."""
+    _write_kolla_yml(tmp_path, ["parked_key"])
+    _write_patches(
+        tmp_path,
+        {
+            "A": {"ops.patch": "parked_key: yes\n"},
+            "B": {"ops.patch.disabled": "parked_key: yes\n"},
+            "C": {"other.patch": "# unrelated sentinel\n"},
+        },
+    )
+    _mock_upstream()
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    assert (
+        "still consumed at A (patch active); "
+        "dead at B (patch parked) and C (patch absent)"
+    ) in drifts[0].found
+    # The representative-file prefix survives: the range does not name it.
+    assert "already .disabled at B" in drifts[0].found
+
+
+@responses.activate
+def test_missing_older_patch_dir_renders_as_absent(tmp_path):
+    """A release with no patches/ dir at all is 'patch absent', not omitted."""
+    _write_kolla_yml(tmp_path, ["my_key"])
+    _write_patches(
+        tmp_path,
+        {
+            "A": {"fix.patch": "my_key: yes\n"},
+            "C": {"other.patch": "# unrelated sentinel\n"},
+        },
+    )
+    _mock_upstream()
+    drifts = plugin.run(_cfg(tmp_path), Allowlist(()))
+    assert (
+        "still consumed at A (patch active); dead at B, C (patch absent)"
+    ) in drifts[0].found
+
+
+@responses.activate
+def test_non_contiguous_live_range(tmp_path):
+    """A patch parked at one release and revived at the next keeps both live.
+
+    Four releases: active at A, parked at B, active again at C, gone at D.
+    The live range is A and C -- not A through C.
+    """
+    rels = ("A", "B", "C", "D")
+    _write_kolla_yml(tmp_path, ["my_key"])
+    _write_patches(
+        tmp_path,
+        {
+            "A": {"fix.patch": "my_key: yes\n"},
+            "B": {"fix.patch.disabled": "my_key: yes\n"},
+            "C": {"fix.patch": "my_key: yes\n"},
+            "D": {"other.patch": "# unrelated sentinel\n"},
+        },
+    )
+    _mock_upstream(releases=rels)
+    drifts = plugin.run(_cfg(tmp_path, releases=rels), Allowlist(()))
+    assert (
+        "still consumed at A, C (patch active); "
+        "dead at B (patch parked) and D (patch absent)"
+    ) in drifts[0].found

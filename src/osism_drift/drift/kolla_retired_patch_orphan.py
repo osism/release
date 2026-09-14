@@ -84,11 +84,18 @@ _CI_REPO = "container_image_kolla_ansible"
 _PATCHES_BASE = "patches"
 _DISABLED_SUFFIX = ".disabled"
 
+# Per-release state of a key's patch consumers, as computed by _scan_patches.
+# "parked" means every consuming file at that release was .disabled, so the key
+# was defined but had no effect there; "absent" means no file consumed it.
+_ACTIVE = "active"
+_PARKED = "parked"
+_ABSENT = "absent"
+
 
 def _scan_patches(config, definitions, releases):
     """Scan patch files for all releases.
 
-    Returns (consumed_older, consumed_newest, last_consumer) where:
+    Returns (consumed_older, consumed_newest, last_consumer, state_by_rel) where:
       consumed_older  — keys found in any older-release patch
       consumed_newest — keys found in any newest-release patch
       last_consumer   — {key: (release, path, active)} for the latest older
@@ -98,6 +105,12 @@ def _scan_patches(config, definitions, releases):
                         `active` decides which report block the finding lands
                         in; an active file is preferred as the representative,
                         since that is the one whose removal changed behaviour.
+      state_by_rel    — {key: {release: _ACTIVE | _PARKED | _ABSENT}} for every
+                        key in `definitions` at every release in `releases`.
+                        This is the same applied-vs-.disabled distinction
+                        `last_consumer.active` makes, recorded per release
+                        instead of only for the last carrying one, so a finding
+                        can name where the key is still consumed.
 
     A missing older patches/<rel>/ directory is treated as "no consumers at
     that release" (missing_ok=True) and does not raise.  A missing or empty
@@ -117,6 +130,7 @@ def _scan_patches(config, definitions, releases):
     # resets the path list rather than appending to the earlier one's.
     last_rel = {}
     paths_at_last_rel = {}
+    state_by_rel = {k: {} for k in definitions}
 
     for rel in sorted_rels:
         is_newest = rel == newest
@@ -133,6 +147,10 @@ def _scan_patches(config, definitions, releases):
                 "the newest release still consumes (create the patches "
                 "directory before running this check)"
             )
+        # Per-release tallies: `seen_here` is any consumer, `active_here` only
+        # applied ones. A key in `seen_here` but not `active_here` was parked.
+        seen_here = set()
+        active_here = set()
         for path in sorted(paths):
             # No try/except: every path here came from the list_tree above at
             # the same ref, so a read that fails is a transport failure, a
@@ -141,8 +159,12 @@ def _scan_patches(config, definitions, releases):
             # older-release one (a suppressed finding), from a report that still
             # looked complete.  Let it propagate; the driver exits 2.
             body = source.read(_CI_REPO, path, config).decode("utf-8", errors="ignore")
+            is_parked = path.endswith(_DISABLED_SUFFIX)
             for k, pat in patterns.items():
                 if pat.search(body):
+                    seen_here.add(k)
+                    if not is_parked:
+                        active_here.add(k)
                     if is_newest:
                         consumed_newest.add(k)
                     else:
@@ -151,6 +173,14 @@ def _scan_patches(config, definitions, releases):
                             last_rel[k] = rel
                             paths_at_last_rel[k] = []
                         paths_at_last_rel[k].append(path)
+
+        for k in definitions:
+            if k in active_here:
+                state_by_rel[k][rel] = _ACTIVE
+            elif k in seen_here:
+                state_by_rel[k][rel] = _PARKED
+            else:
+                state_by_rel[k][rel] = _ABSENT
 
     last_consumer = {}
     for k, rel in last_rel.items():
@@ -161,7 +191,38 @@ def _scan_patches(config, definitions, releases):
         active = bool(applied)
         last_consumer[k] = (rel, (applied or paths_here)[0], active)
 
-    return consumed_older, consumed_newest, last_consumer
+    return consumed_older, consumed_newest, last_consumer, state_by_rel
+
+
+def _range_sentence(states, releases) -> str:
+    """One clause naming where the key is still consumed and where it is dead.
+
+    `states` is one key's {release: state} map from _scan_patches. Reads, for a
+    patch applied at the two oldest of five releases and parked at the next
+    two:
+
+        still consumed at 2024.1, 2024.2 (patch active); dead at 2025.1,
+        2025.2 (patch parked) and 2026.1 (patch absent)
+
+    Parked releases are listed before absent ones. A group with no releases is
+    dropped. The absent group is never empty for a key that became a finding:
+    condition 2 requires no consumer at the newest release.
+    """
+    rels = sorted(releases)
+    live = [r for r in rels if states.get(r) == _ACTIVE]
+    parked = [r for r in rels if states.get(r) == _PARKED]
+    absent = [r for r in rels if states.get(r) == _ABSENT]
+
+    dead_parts = []
+    if parked:
+        dead_parts.append(f"{', '.join(parked)} (patch parked)")
+    if absent:
+        dead_parts.append(f"{', '.join(absent)} (patch absent)")
+    dead = " and ".join(dead_parts)
+
+    if live:
+        return f"still consumed at {', '.join(live)} (patch active); dead at {dead}"
+    return f"no supported release still applies its patch: dead at {dead}"
 
 
 def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
@@ -184,7 +245,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     newest = sorted(releases)[-1]
 
     # Step 3+4: scan patches; compute candidates.
-    consumed_older, consumed_newest, last_consumer = _scan_patches(
+    consumed_older, consumed_newest, last_consumer, state_by_rel = _scan_patches(
         config, definitions, releases
     )
     candidates = consumed_older - consumed_newest
@@ -213,18 +274,18 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
         if dead and owning_service(var, dead) is not None:
             continue
         rel, last_path, active = last_consumer.get(var, (None, None, True))
+        rng = _range_sentence(state_by_rel.get(var, {}), releases)
         if rel is not None:
             state = "applied" if active else "already .disabled"
             found_text = (
-                f"consumed by {last_path} ({state} at {rel}); "
-                f"no consumer at {newest}; "
+                f"consumed by {last_path} ({state} at {rel}); {rng}; "
                 "upstream defines it at no supported release"
             )
         else:
-            found_text = (
-                f"no consumer at {newest}; "
-                "upstream defines it at no supported release"
-            )
+            # Unreachable by construction -- a candidate came from
+            # consumed_older, which is what populates last_consumer -- but kept
+            # so a future caller cannot turn it into a KeyError.
+            found_text = f"{rng}; upstream defines it at no supported release"
         d = DriftEntry(
             plugin=NAME,
             image=var,
