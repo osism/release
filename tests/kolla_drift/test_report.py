@@ -125,3 +125,43 @@ def test_lists_image_not_alias():
     )
     assert "real_key" in text
     assert "some_alias" not in text
+
+
+def test_remediation_alone_splits_the_group():
+    """`remediation` is part of the grouping key, not just rendered text.
+
+    Two entries identical in every field except `remediation` must still
+    render as two separate blocks. This guards report.py:70's grouping
+    tuple: kolla_retired_patch_orphan rides its per-key live-release range
+    on `remediation` specifically because that field is part of the key.
+    If `remediation` were ever dropped from the tuple, two keys with
+    different ranges would silently merge into one block that prints only
+    one range's `Fix:` text -- against both keys' names.
+    """
+    p = _plugin("plug", summary="{n} thing:", remediation="default fix.")
+    e1 = DriftEntry(
+        plugin="plug",
+        image="same_key",
+        alias="same_key",
+        expected="exp",
+        found="found",
+        expected_src="E",
+        found_src="F",
+        summary="{n} thing:",
+        remediation="fix at range A.",
+    )
+    e2 = DriftEntry(
+        plugin="plug",
+        image="same_key",
+        alias="same_key",
+        expected="exp",
+        found="found",
+        expected_src="E",
+        found_src="F",
+        summary="{n} thing:",
+        remediation="fix at range B.",
+    )
+    text = "\n".join(report.format_text([e1, e2], [p]))
+    assert text.count("plug — 1 thing:") == 2  # two separate blocks
+    assert "Fix: fix at range A." in text
+    assert "Fix: fix at range B." in text
