@@ -21,6 +21,24 @@ Grouping key depends on the plugin's SHOW_VALUES attribute (default False):
 Block order follows the given `plugins` list. The orientation header precedes
 the blocks. Returns [] when there are no actionable drifts. The caller owns
 the stale-allowlist block and the summary.
+
+A fact that varies per entry belongs in that entry's `summary` or
+`remediation`, not in `expected`/`found`: outside SHOW_VALUES mode those two
+reach a reader only through --format json, while summary and remediation are
+both rendered AND part of the grouping key. So a plugin steers its own block
+layout through their wording: differing text always splits entries apart, into
+blocks that can each carry the right advice, while matching text collapses them
+only when the rest of the key -- plugin and source paths -- matches too.
+`kolla_source_ref_phase` keeps the project name out of its remediation so
+every project moving to the same phase groups together; `catalog_role_missing`
+puts the failing release list into its summary, so entries broken at different
+releases land in different blocks.
+
+Only `summary` is passed through .format(n=...); `remediation` is interpolated
+as-is. So a summary built with an f-string writes `{{n}}` in the source,
+leaving the literal `{n}` the renderer substitutes, and must not carry a stray
+`{` from data, or rendering raises after the whole run. A composed remediation
+escapes nothing.
 """
 
 import textwrap
