@@ -48,6 +48,7 @@ traefik: library/traefik
 
 # security
 syft: anchore/syft
+wazuh_proxy: library/nginx
 
 # netbox
 netbox: osism/netbox
