@@ -95,6 +95,8 @@ docker_images:
   substation: '1774452086'
   # renovate: datasource=docker depName=hashicorp/vault
   vault: '1.21.4'
+  # renovate: datasource=docker depName=nginx
+  wazuh_proxy: '1.31.5'
 
 ansible_roles:
   geerlingguy.certbot: master
