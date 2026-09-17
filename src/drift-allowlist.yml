@@ -80,7 +80,7 @@ allow:
   # removed-upstream service). The check uses explicit scope -- it flags every
   # invented enable_* by name regardless of value -- so these surface even when off.
   - {plugin: kolla_enablement_orphan, image: common, reason: "OSISM-invented flag; no upstream counterpart by design"}
-  - {plugin: kolla_enablement_orphan, image: kolla_operations, reason: "OSISM-invented flag; no upstream counterpart by design"}
+  - {plugin: kolla_enablement_orphan, image: kolla_operations, reason: "OSISM-invented flag; retired, gated to 2024.1/2024.2 -- if stale, do the kolla-operations sweep below"}
   # Live OSISM services whose flag/var names collide with dead or renamed kolla
   # ones. Verified via upstream git history + OSISM consumers: not the removed
   # kolla service, so allowlisting here also clears their <svc>_* companion vars
@@ -98,18 +98,24 @@ allow:
   - {plugin: kolla_image_orphan, image: dcap_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}
   - {plugin: kolla_image_orphan, image: dcap_register_image_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}
   - {plugin: kolla_image_orphan, image: dcap_server_image_tag, reason: "OSISM DPU/dcap image; no upstream kolla image"}
-  # kolla-operations.patch is parked, not retired: it is enabled at 2024.1 and
-  # 2024.2, .disabled at 2025.1/2025.2 and absent at 2026.1, and it was parked
-  # because it stopped applying (4 of 7 hunks fail on stable/2025.1), not
-  # because the feature was dropped. Its upstream half, review 921097 /
-  # LP#2068002, is still open. So these keys are dead at the newest release and
-  # live at the oldest two, and removing them from the release-independent
-  # all/099-kolla.yml would break 2024.x. Drop these entries together with the
-  # keys (and with enable_kolla_operations' kolla_enablement_orphan entry
-  # above) once the revive-or-remove question is settled.
-  - {plugin: kolla_retired_patch_orphan, image: grafana_custom_dashboards_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
-  - {plugin: kolla_retired_patch_orphan, image: grafana_custom_extra_config_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
-  - {plugin: kolla_retired_patch_orphan, image: grafana_prometheus_config_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
-  - {plugin: kolla_retired_patch_orphan, image: grafana_provisioning_config_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
-  - {plugin: kolla_retired_patch_orphan, image: prometheus_common_config_overrides_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
-  - {plugin: kolla_retired_patch_orphan, image: prometheus_custom_alert_paths, reason: "kolla-operations.patch parked pending upstream 921097; key still live at 2024.1/2024.2"}
+  # kolla-operations is retired. enable_kolla_operations is gated to 2024.1 and
+  # 2024.2, the only releases where kolla-operations.patch still applies; the
+  # keys stay because all/ is release-independent and defaults is fetched at
+  # deploy time, so deleting them would strip dashboards and alert rules from
+  # 2024.1.
+  #
+  # These entries going stale is the trigger for the rest of the retirement --
+  # it means 2024.1 and 2024.2 are gone. The sweep, in full:
+  #   - osism/defaults: the enable_kolla_operations gate and the six *_paths keys
+  #   - osism/container-image-kolla-ansible: the OPENSTACK_VERSION gating in
+  #     Containerfile and playbooks/build.yml, and the three remaining
+  #     patches/*/kolla-operations.patch files
+  #   - osism/release: operations_version in latest/base.yml, the operations:
+  #     entry in etc/other.yml, and these seven entries
+  # osism/kolla-operations then has no consumer and can be archived.
+  - {plugin: kolla_retired_patch_orphan, image: grafana_custom_dashboards_paths, reason: "kolla-operations retired; live at 2024.1/2024.2 only -- if stale, do the sweep noted above"}
+  - {plugin: kolla_retired_patch_orphan, image: grafana_custom_extra_config_paths, reason: "kolla-operations retired; live at 2024.1/2024.2 only -- if stale, do the sweep noted above"}
+  - {plugin: kolla_retired_patch_orphan, image: grafana_prometheus_config_paths, reason: "kolla-operations retired; live at 2024.1/2024.2 only -- if stale, do the sweep noted above"}
+  - {plugin: kolla_retired_patch_orphan, image: grafana_provisioning_config_paths, reason: "kolla-operations retired; live at 2024.1/2024.2 only -- if stale, do the sweep noted above"}
+  - {plugin: kolla_retired_patch_orphan, image: prometheus_common_config_overrides_paths, reason: "kolla-operations retired; live at 2024.1/2024.2 only -- if stale, do the sweep noted above"}
+  - {plugin: kolla_retired_patch_orphan, image: prometheus_custom_alert_paths, reason: "kolla-operations retired; live at 2024.1/2024.2 only -- if stale, do the sweep noted above"}
