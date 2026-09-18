@@ -94,7 +94,7 @@ docker_images:
   # renovate: datasource=docker depName=ghcr.io/cloudnull/substation/substation
   substation: '1774452086'
   # renovate: datasource=docker depName=hashicorp/vault
-  vault: '1.21.4'
+  vault: '2.1.0'
   # renovate: datasource=docker depName=nginx
   wazuh_proxy: '1.31.5'
 
