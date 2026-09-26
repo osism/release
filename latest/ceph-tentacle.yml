@@ -1,0 +1,24 @@
+---
+# renovate: datasource=pypi depName=ansible
+ansible_version: '9.13.0'
+# renovate: datasource=pypi depName=ansible-core
+ansible_core_version: '2.16.19'
+
+# NOTE: no ceph_ansible_version. ceph-ansible upstream stops at stable-9.0
+# (squid); there is no stable-10 branch, so Tentacle has no ceph-ansible
+# deployment path and must be deployed with cephadm. Naming a stale
+# stable-9.0 here would assert a combination that cannot work.
+ceph_version: tentacle
+
+# renovate: datasource=github-tags depName=osism/defaults
+defaults_version: 'v0.20260928.0'
+# renovate: datasource=github-tags depName=osism/generics
+generics_version: 'v0.20260929.0'
+# renovate: datasource=github-tags depName=osism/ansible-playbooks
+playbooks_version: 'v0.20260924.0'
+
+docker_images:
+  # renovate: datasource=docker depName=registry.osism.tech/osism/ceph-daemon
+  ceph: '20.2.4'
+  # renovate: datasource=docker depName=registry.osism.tech/osism/cephclient
+  cephclient: '20.2.4'
