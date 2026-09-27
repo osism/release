@@ -15,9 +15,9 @@ INPUT_FILES = [
 SUMMARY = "{n} release base.yml pins set to a rolling tag (non-reproducible):"
 REMEDIATION = (
     "replace the rolling tag with a concrete, immutable version in release "
-    "base.yml (and wire <alias>_tag into the manager render template if the "
-    "image deploys via a role default), or allowlist it if the image is "
-    "rolling by design (e.g. a kolla-built test image)."
+    "base.yml (and carry <alias>_tag in container-image-osism-ansible's "
+    "versions.yml.j2 if the image deploys via a role default), or allowlist it "
+    "if the image is rolling by design (e.g. a kolla-built test image)."
 )
 
 # Curated denylist of rolling (mutable) tag values, matched case-insensitively.
