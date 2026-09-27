@@ -12,13 +12,16 @@ DESCRIPTION = (
 INPUT_FILES = [
     ("release", "<release_version>/base.yml"),
     ("generics", "environments/manager/images.yml"),
+    ("container_image_osism_ansible", "files/src/templates/versions.yml.j2"),
     ("ansible_collection_services", "roles/*/defaults/main.yml"),
+    ("ansible_collection_validations", "roles/*/defaults/main.yml"),
 ]
 SUMMARY = "{n} <alias>_tag pins in role defaults with no release base.yml pin:"
 REMEDIATION = (
-    "add a pin to release base.yml (and wire <alias>_tag into the manager render "
-    "template) to make it release-managed, or allowlist it if the image is "
-    "intentionally role-managed."
+    "add a pin to release base.yml (and carry <alias>_tag in "
+    "container-image-osism-ansible's versions.yml.j2, or in generics' manager "
+    "template for a manager-environment service) to make it release-managed, "
+    "or allowlist it if the image is intentionally role-managed."
 )
 
 
