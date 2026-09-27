@@ -63,3 +63,7 @@ def test_agreeing_alias_maps_merge():
     assert role_scan.merge_alias_maps(
         {"adminer": "adminer", "manager_redis": "redis"}, {"adminer": "adminer"}
     ) == {"adminer": "adminer", "manager_redis": "redis"}
+
+
+def test_version_input_resolves_through_runner_template(cfg):
+    assert _pins(cfg)["oteldemo"].release_key == "oteldemo"
