@@ -9,3 +9,4 @@ docker_images:
   osism: '0.20260414.0'
   osism_ansible: '0.20260322.0'
   floatdemo: '1.0.0'
+  tempest: 'latest'

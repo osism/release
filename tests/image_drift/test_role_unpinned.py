@@ -69,3 +69,25 @@ def test_allowlist_marks_ciinternal_allowlisted(cfg):
     drifts = _by_alias(role_unpinned.run(cfg, al))
     assert "ciinternal" in drifts
     assert drifts["ciinternal"].allowlisted
+
+
+def test_tempest_osism_not_emitted(cfg):
+    """tempest_osism_tag resolves to the release key tempest, which base.yml has."""
+    drifts = _by_alias(role_unpinned.run(cfg, Allowlist(())))
+    assert "tempest_osism" not in drifts
+
+
+def test_validations_pin_without_release_key_is_emitted(cfg, monkeypatch):
+    """Without the versions.yml.j2 map, tempest_osism resolves to itself -- a key
+    no manifest has -- and is reported: the scan does cover validations."""
+    monkeypatch.setattr(role_unpinned.role_scan, "runner_pins", lambda config: {})
+    drifts = _by_alias(role_unpinned.run(cfg, Allowlist(())))
+    assert drifts["tempest_osism"].found_src == (
+        "ansible-collection-validations/roles/tempest/defaults/main.yml"
+    )
+
+
+def test_inputs_declare_both_collections():
+    repos = {repo for repo, _ in role_unpinned.INPUT_FILES}
+    assert {"ansible_collection_services", "ansible_collection_validations"} <= repos
+    assert "container_image_osism_ansible" in repos
