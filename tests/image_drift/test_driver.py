@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "src" / "check-drift.py"
 FIXT = Path(__file__).parent / "fixtures"
@@ -16,6 +18,8 @@ remote:
   branch: main
   default_owner: osism
 release_version: latest
+sources:
+  ansible_playbooks: {branch: main}
 plugins:
   release_vs_manager:
     enabled: true
@@ -31,6 +35,17 @@ allow:
 """
 
 
+# role_shadows reads the playbook map, whose ansible-playbooks checkout is a
+# git repo built per session (conftest.playbooks_base); every run gets it as a
+# second --base-dir.
+_EXTRA_BASE_DIRS = []
+
+
+@pytest.fixture(autouse=True)
+def _playbooks_base_dir(playbooks_base):
+    _EXTRA_BASE_DIRS[:] = ["--base-dir", str(playbooks_base)]
+
+
 def _run(*args, cfg, al):
     return subprocess.run(
         [
@@ -42,6 +57,7 @@ def _run(*args, cfg, al):
             str(al),
             "--group",
             "image",
+            *_EXTRA_BASE_DIRS,
             *args,
         ],
         capture_output=True,
@@ -128,7 +144,7 @@ def test_summary_line_counts(tmp_path):
     )
     assert summary is not None, f"no Summary: line in output:\n{r.stdout}"
     assert "5 to act on" in summary, summary
-    assert "3 advisory" in summary, summary
+    assert "4 advisory" in summary, summary
     assert "1 allowlisted" in summary, summary
 
 
@@ -154,7 +170,7 @@ def test_advisory_only_exits_0(tmp_path):
     )
     assert summary is not None, r.stdout
     assert "0 to act on" in summary, summary
-    assert "3 advisory" in summary, summary
+    assert "4 advisory" in summary, summary
     # advisory findings still render in the report body
     assert "adminer" in r.stdout, r.stdout
 

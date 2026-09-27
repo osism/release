@@ -1,0 +1,2 @@
+oteldemo_version: '0.1.0'
+oteldemo_tag: "{{ oteldemo_version }}"
