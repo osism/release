@@ -33,13 +33,20 @@ The same image tag should be consistent across these locations:
   fed to Ansible for the manager environment.
 - `osism/ansible-collection-services/roles/<role>/defaults/main.yml` —
   role defaults that occasionally shadow a tag with a hard-coded pin.
-- `osism/container-image-osism-ansible/files/src/templates/images.yml.j2`
-  — the override template rendered into `group_vars/all/images.yml`, which
-  carries higher Ansible precedence than role defaults. An alias emitted here
-  is overridden at deploy time by the release pin, making its role default
-  dormant (low priority). An alias absent from this template is live — the
-  role default is what actually deploys, so the fix is to add the alias here
-  (role defaults must never govern the deployed version).
+- `osism/ansible-collection-validations/roles/<role>/defaults/main.yml` —
+  the same, for the validation roles the osism-ansible image ships (tempest).
+- `osism/container-image-osism-ansible/files/src/templates/versions.yml.j2`
+  — the runner's version file. The image renders it into
+  `group_vars/all/versions.yml` and exports it to `/interface/versions/`; the
+  inventory reconciler copies it into the shared inventory as
+  `group_vars/all/100-versions-osism-ansible.yml`, which beats every role
+  default and every osism/defaults file. A role variable carried here
+  (`<alias>_tag`, or the role's own `<alias>_version` input) is overridden at
+  deploy time by the release pin, so its role default is dormant: it only
+  matters for standalone use of the collection. A variable carried neither
+  here nor, for a manager-environment role, by the generics manager render is
+  live — the role default is what actually deploys, so the fix is to carry it
+  here (role defaults must never govern the deployed version).
 
 Because these locations evolve at different cadences, they can — and do —
 disagree silently. The detector compares them and reports each disagreement
@@ -72,7 +79,8 @@ handled naturally.
 ### `role_shadows`
 
 Compares `release/<version>/base.yml` against every
-`ansible-collection-services/roles/<role>/defaults/main.yml`. Reports any
+`ansible-collection-services/roles/<role>/defaults/main.yml` and
+`ansible-collection-validations/roles/<role>/defaults/main.yml`. Reports any
 `<alias>_tag: <value>` whose value is a concrete string and disagrees with
 the corresponding release pin.
 
@@ -81,25 +89,45 @@ Roles whose default file is a Jinja fail-loud expression
 — those are the deliberate "no in-role default; require an override"
 pattern.
 
-**Inputs**: release `base.yml`, generics manager template (alias map),
-role `defaults/main.yml` files, and
-`container-image-osism-ansible/files/src/templates/images.yml.j2` (the
-override template that determines each finding's advice class).
+**Inputs**: release `base.yml`; the generics manager template and
+`container-image-osism-ansible/files/src/templates/versions.yml.j2` (alias
+map, and the two transports that decide each finding's advice class); role
+`defaults/main.yml` files of both collections; and the reconstructed playbook
+map (`osism_drift/playbooks.py`: container-image-osism-ansible's
+`generate-playbook-symlinks.py` and `render-playbooks.py` applied to
+ansible-playbooks at `playbooks_version`), which says in which environment
+each role's `osism apply` runs.
+
+Alias resolution reads both templates: `<alias>_tag: "{{ versions['<key>'] }}"`
+lines of the generics manager template, and `<alias>_tag` or
+`<alias>_version` lines of `versions.yml.j2`. So `tempest_osism_tag` resolves
+to the release key `tempest`. An alias the two templates map to different
+keys stops the run.
 
 #### Advice classes
 
-Each finding is classified by override precedence:
+Each finding is classified by the mechanism that actually applies at deploy:
 
-- **`dormant`** — the alias is emitted by the override template, so the
-  release pin wins at deploy via `group_vars/all/images.yml`.
+- **`dormant`** — a release transport overrides the role default:
+  - the role's `<alias>_tag` or `<alias>_version` is carried in
+    `versions.yml.j2`, which reaches every environment as
+    `group_vars/all/100-versions-osism-ansible.yml`; or
+  - the alias is emitted by the generics manager template **and** the role's
+    service resolves to the `manager` environment, whose runs load
+    `environments/manager/images.yml` as an extra var.
+
+  The role default then only affects standalone use of the collection.
   *Advice: low priority; sync when convenient.*
 
-- **`live`** — the alias is not overridden. The stale role default is what
-  actually reaches deployment.
-  *Advice: add `<alias>_tag`/`<alias>_image` to the manager render template
-  (`images.yml.j2`) so the `latest/base.yml` pin governs the deployed version.
-  Role defaults must never govern it, so bumping the role default is the wrong
-  fix — it just re-drifts.*
+- **`live`** — neither applies. The stale role default is what actually
+  reaches deployment. A generics manager template entry does not help a role
+  that runs in another environment: `osism apply netbox` runs in
+  `infrastructure` (`manager-netbox.yml` is in the symlink script's `SKIP`
+  list), so `netbox_redis_tag` there is live.
+  *Advice: carry `<alias>_tag` (or the role's `<alias>_version`) in
+  container-image-osism-ansible's `versions.yml.j2` so the `latest/base.yml`
+  pin governs the deployed version. Role defaults must never govern it, so
+  bumping the role default is the wrong fix — it just re-drifts.*
 
 Stream-resolved aliases (see below) are skipped entirely and never reach
 this classification.
@@ -109,22 +137,22 @@ this classification.
 Each advice class renders as a separate block. Within a block, entries
 appear one per line, sorted by role path then alias:
 
-    role_shadows — 1 LIVE — no images.yml override; the role default is
-    what actually deploys:
+    role_shadows — 1 LIVE — no release transport overrides it; the role
+    default is what actually deploys:
 
-        dnsmasq_tag (2.90 → 2.91)   roles/dnsmasq/defaults/main.yml
+        netbox_redis_tag (7.4.6-alpine → 7.4.10-alpine)   roles/netbox/defaults/main.yml
 
-      Fix: add `<alias>_tag`/`<alias>_image` to the manager render template
-           (images.yml.j2) so the latest/base.yml pin governs the deployed
-           version.
+      Fix: carry `<alias>_tag` (or the role's `<alias>_version`) in
+           container-image-osism-ansible's versions.yml.j2 so the
+           latest/base.yml pin governs the deployed version.
       Refs: release/latest/base.yml
 
-    role_shadows — 3 DORMANT — overridden by the rendered images.yml; the
-    release pin wins at deploy:
+    role_shadows — 3 DORMANT — a release transport overrides it at deploy;
+    the role default only affects standalone use of the collection:
 
-        adminer_tag (4.7 → 5.4.2)   roles/adminer/defaults/main.yml
-        ara_server_mariadb_tag (11.8.3 → 11.8.4)   roles/manager/defaults/main.yml
-        manager_redis_tag (7.4.6-alpine → 7.5.0)   roles/manager/defaults/main.yml
+        adminer_tag (4.7 → 5.5.1)   roles/adminer/defaults/main.yml
+        ara_server_mariadb_tag (11.8.3 → 11.8.8)   roles/manager/defaults/main.yml
+        manager_redis_tag (7.4.6-alpine → 7.4.10-alpine)   roles/manager/defaults/main.yml
 
       Fix: lower priority; sync when convenient.
       Refs: release/latest/base.yml
@@ -142,14 +170,22 @@ This plugin partitions the concrete role-default `*_tag` pins with
 - Resolved key **not in** `base.yml` → `role_unpinned` (this plugin).
 
 **`image = release_key`, not the alias.** Alias resolution uses the same
-alias map as `role_shadows` (from the generics manager template). An alias
-like `osism_frontend` that maps to `osism` (which *is* in `base.yml`) is
-correctly kept out of this plugin. An alias like `widget` that maps to
-`gadget` (absent from `base.yml`) is reported with `image=gadget`.
+alias map as `role_shadows` (the generics manager template and
+`versions.yml.j2`). An alias like `osism_frontend` that maps to `osism` (which
+*is* in `base.yml`) is correctly kept out of this plugin, and so is
+`tempest_osism`, which `versions.yml.j2` maps to `tempest`. An alias like
+`widget` that maps to `gadget` (absent from `base.yml`) is reported with
+`image=gadget`.
 
-**Inputs**: release `base.yml` and generics manager template (alias map), plus
-role `defaults/main.yml` files. The override template is not needed — the
-finding has no comparison value, only a "not present in release" verdict.
+This plugin is also the safety net for `versions.yml.j2` rendering only the
+keys a release manifest has: it works from the role side, so a release key
+that was never added, was renamed or was removed shows up here whatever the
+template contains.
+
+**Inputs**: release `base.yml`, the generics manager template and
+`versions.yml.j2` (alias map), plus role `defaults/main.yml` files of both
+collections. The finding has no comparison value, only a "not present in
+release" verdict.
 
 **Scope**: `*_tag` pins only. `*_version` pins are deferred.
 
@@ -164,9 +200,11 @@ role path then alias:
         ciinternal_tag (1.0, no release pin)   roles/ciinternal/defaults/main.yml
         widget_tag (2.0, no release pin)   roles/widget/defaults/main.yml
 
-      Fix: add a pin to release base.yml (and wire <alias>_tag into the
-           manager render template) to make it release-managed, or
-           allowlist it if the image is intentionally role-managed.
+      Fix: add a pin to release base.yml (and carry <alias>_tag in
+           container-image-osism-ansible's versions.yml.j2, or in generics'
+           manager template for a manager-environment service) to make it
+           release-managed, or allowlist it if the image is intentionally
+           role-managed.
       Refs: release/latest/base.yml
 
 ### `rolling_pin`
@@ -186,8 +224,8 @@ Unlike the other image plugins this reads a single file — the release
 **Inputs**: release `<release_version>/base.yml` only.
 
 **Fix**: replace the rolling tag with a concrete, immutable version in
-`base.yml` (and wire `<alias>_tag` into the manager render template if the image
-deploys via a role default), or allowlist the entry if the image is rolling by
+`base.yml` (and carry `<alias>_tag` in container-image-osism-ansible's
+`versions.yml.j2` if the image deploys via a role default), or allowlist the entry if the image is rolling by
 design — e.g. a kolla-built test image (`tempest`) or a mirror-only image
 (`sonic_vs`). A rolling tag on a *deployed* service is a real finding to fix,
 not to allowlist (cf. `substation`, osism/issues#1404).
@@ -393,6 +431,14 @@ The osism family no longer needs `role_shadows` allowlist entries: both
 `role_shadows` and `role_unpinned` now skip stream-resolved aliases
 automatically (see [Stream-resolved tags](#stream-resolved-tags) above).
 
+The remaining image entries are the stated exceptions to "osism/release pins
+every image of OSISM's own services", each role-managed on purpose:
+
+- `role_unpinned` kepler (osism/issues#1403), httpd and httpd_data (rolling
+  by design) and the zuul stack (osism/issues#1397): no release pin at all.
+- `role_shadows` homer and nexus: pinned in the release, but cut from the
+  osism-ansible transport, so the role default governs and lags the pin.
+
 **Stale entries are a hard error.** An entry that matches no real drift is
 reported and makes the run exit non-zero. Remove it once its drift is fixed.
 
@@ -404,9 +450,12 @@ reported and makes the run exit non-zero. Remove it once its drift is fixed.
 - `release_version` (default `latest`): which release snapshot to compare.
 - `plugins.<name>.enabled`: turn plugins on or off.
 
-The shared config includes kolla-only `sources:` pins. Image plugins ignore
-those entries; their repos are unpinned consumer reads at `main`, and local
-checkouts are discovered by directory name under `--base-dir`.
+The shared config includes `sources:` pins. Image plugins read their repos
+unpinned, as consumer reads at `main`, and discover local checkouts by
+directory name under `--base-dir` — with one exception: `role_shadows`
+reads `ansible_playbooks` (pinned) at the release's `playbooks_version` for
+the playbook map, so a `--base-dir` run needs a git checkout of
+ansible-playbooks holding that tag, or `--remote-fallback`.
 
 ## Adding a plugin
 
