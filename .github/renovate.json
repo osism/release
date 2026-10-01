@@ -24,7 +24,8 @@
         "/^latest\\/openstack-2024.1.yml$/",
         "/^latest\\/openstack-2024.2.yml$/",
         "/^latest\\/openstack-2025.1.yml$/",
-        "/^latest\\/openstack-2025.2.yml$/"
+        "/^latest\\/openstack-2025.2.yml$/",
+        "/^latest\\/openstack-2026.1.yml$/"
       ],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>docker) depName=(?<depName>.*?)\n.*?: '(?<currentValue>.*?)'",
@@ -48,7 +49,8 @@
         "latest/openstack-2024.1.yml",
         "latest/openstack-2024.2.yml",
         "latest/openstack-2025.1.yml",
-        "latest/openstack-2025.2.yml"
+        "latest/openstack-2025.2.yml",
+        "latest/openstack-2026.1.yml"
       ],
       "matchUpdateTypes": [
         "patch"
@@ -68,7 +70,8 @@
         "latest/openstack-2024.1.yml",
         "latest/openstack-2024.2.yml",
         "latest/openstack-2025.1.yml",
-        "latest/openstack-2025.2.yml"
+        "latest/openstack-2025.2.yml",
+        "latest/openstack-2026.1.yml"
       ],
       "matchUpdateTypes": [
         "major",
@@ -112,6 +115,21 @@
         "latest/ceph-squid.yml"
       ],
       "groupName": "ceph"
+    },
+    {
+      "description": [
+        "The OpenStack series from 2025.1 on pin the same openstackclient",
+        "version, so their files move together."
+      ],
+      "matchDepNames": [
+        "registry.osism.tech/osism/openstackclient"
+      ],
+      "matchFileNames": [
+        "latest/openstack-2025.1.yml",
+        "latest/openstack-2025.2.yml",
+        "latest/openstack-2026.1.yml"
+      ],
+      "groupName": "openstackclient"
     },
     {
       "matchDepNames": [

@@ -68,6 +68,13 @@ def get_latest_kolla():
     return version if version else "FIXME"
 
 
+def get_openstackclient_version(openstack_file):
+    """Get the openstackclient version of the default OpenStack release"""
+    with open(openstack_file, "r") as f:
+        data = yaml.safe_load(f)
+    return data["docker_images"]["openstackclient"]
+
+
 def process_base_yaml(
     input_file,
     output_file,
@@ -78,6 +85,7 @@ def process_base_yaml(
     kolla_ansible,
     ceph_ansible,
     kolla,
+    openstackclient,
 ):
     """Process base.yml: remove comments and update versions"""
     with open(input_file, "r") as f:
@@ -97,6 +105,7 @@ def process_base_yaml(
     data["docker_images"]["kolla_ansible"] = kolla_ansible
     data["docker_images"]["ceph_ansible"] = ceph_ansible
     data["docker_images"]["kolla"] = kolla
+    data["docker_images"]["openstackclient"] = openstackclient
 
     with open(output_file, "w") as f:
         yaml.dump(
@@ -113,6 +122,7 @@ def main():
 
     version_dir = args.version
     source_file = "latest/base.yml"
+    openstack_file = "latest/openstack.yml"
     dest_file = os.path.join(version_dir, "base.yml")
 
     # Check if source file exists
@@ -165,6 +175,9 @@ def main():
 
     # Copy and process base.yml
     try:
+        # Get openstackclient version of the default OpenStack release
+        openstackclient = get_openstackclient_version(openstack_file)
+
         process_base_yaml(
             source_file,
             dest_file,
@@ -175,6 +188,7 @@ def main():
             kolla_ansible,
             ceph_ansible,
             kolla,
+            openstackclient,
         )
         print(f"Copied {source_file} to {dest_file}")
         print(f"  - manager_version: {version_dir}")
@@ -184,6 +198,7 @@ def main():
         print(f"  - docker_images.kolla_ansible: {kolla_ansible}")
         print(f"  - docker_images.ceph_ansible: {ceph_ansible}")
         print(f"  - docker_images.kolla: {kolla}")
+        print(f"  - docker_images.openstackclient: {openstackclient}")
     except Exception as e:
         print(f"Error processing file: {e}")
         # Clean up created directory on error

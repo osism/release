@@ -83,7 +83,8 @@ Each file pins the versions specific to one OpenStack release:
 - `ansible_version` / `ansible_core_version` — the Ansible versions required for this
   OpenStack release
 - `defaults_version`, `generics_version`, `playbooks_version` — pinned component versions
-- `docker_images` — the `openstackclient` image version
+- `docker_images` — the `openstackclient` image version; from 2025.1 on pinned
+  to a concrete release (the same in every file) and kept up to date by Renovate
 - `infrastructure_projects` — list of Kolla infrastructure projects (shared across all
   OpenStack versions)
 - `openstack_projects` — all OpenStack service projects with their stable branch references
@@ -165,6 +166,7 @@ This:
 - Copies `latest/base.yml` (without Renovate comments)
 - Queries git tags to resolve the latest versions of core container images
   (osism-ansible, osism-kubernetes, inventory-reconciler, kolla-ansible, ceph-ansible, kolla)
+- Adds the `openstackclient` image version from `latest/openstack.yml`
 - Sets `manager_version` to the release name
 
 ### 4. Changelog generation (per-component)
