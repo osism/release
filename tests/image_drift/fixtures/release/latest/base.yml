@@ -1,5 +1,6 @@
 ---
 manager_version: latest
+playbooks_version: 'v0.fixture'
 docker_images:
   ara_server: '1.7.5'
   adminer: '5.4.2'
@@ -9,3 +10,5 @@ docker_images:
   osism: '0.20260414.0'
   osism_ansible: '0.20260322.0'
   floatdemo: '1.0.0'
+  oteldemo: '0.2.0'
+  tempest: 'latest'

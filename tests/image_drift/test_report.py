@@ -45,9 +45,9 @@ _FS_ADMINER = "ansible-collection-services/roles/adminer/defaults/main.yml"
 _FS_NETBOX = "ansible-collection-services/roles/netbox/defaults/main.yml"
 _FS_MANAGER = "ansible-collection-services/roles/manager/defaults/main.yml"
 
-_LIVE_SUM = "{n} LIVE — no images.yml override"
+_LIVE_SUM = "{n} LIVE — no release transport overrides it"
 _LIVE_REM = "bump the tag."
-_DORMANT_SUM = "{n} DORMANT — overridden by images.yml"
+_DORMANT_SUM = "{n} DORMANT — a release transport overrides it at deploy"
 _DORMANT_REM = "sync when convenient."
 
 
