@@ -1,17 +1,12 @@
 ---
-# renovate: datasource=pypi depName=ansible
-ansible_version: '9.13.0'
-# renovate: datasource=pypi depName=ansible-core
-ansible_core_version: '2.16.19'
-
 # NOTE: no ceph_ansible_version. ceph-ansible upstream stops at stable-9.0
 # (squid); there is no stable-10 branch, so Tentacle has no ceph-ansible
-# deployment path and must be deployed with cephadm. Naming a stale
-# stable-9.0 here would assert a combination that cannot work.
+# deployment path and must be deployed with cephadm.
 ceph_version: tentacle
 
-# renovate: datasource=github-tags depName=osism/defaults
-defaults_version: 'v0.20260928.0'
+# Read by the ceph-ansible *release* build, from latest/ceph.yml: once that
+# points here at the cut, ceph-ansible images still built for the move of
+# existing clusters check out these refs. Nothing else reads them.
 # renovate: datasource=github-tags depName=osism/generics
 generics_version: 'v0.20260929.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
