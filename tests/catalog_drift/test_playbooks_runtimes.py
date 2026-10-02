@@ -233,6 +233,26 @@ def test_ceph_flavours_excludes_the_ceph_yml_alias(cfg):
 
 
 @responses.activate
+def test_ceph_files_skips_flavours_without_ceph_ansible(cfg, tmp_path):
+    """A flavour file without ceph_ansible_version (Tentacle, cephadm only)
+    has no ceph-ansible image: no files/playbooks/<flavour> and no
+    infrastructure-playbooks ref. It must neither fail the walk nor change
+    what the image is computed to ship."""
+    _mock_ceph_ansible()
+    baseline = playbooks.ceph_files(cfg)
+    release = tmp_path / "release"
+    shutil.copytree(FIXT / "release", release, symlinks=True)
+    (release / "latest" / "ceph-tentacle.yml").write_text(
+        "---\nceph_version: tentacle\n"
+    )
+    c = dataclasses.replace(cfg, base_dirs=(str(tmp_path), str(FIXT)))
+
+    assert playbooks.ceph_files(c) == baseline
+    assert playbooks._ceph_flavours(c) == ["squid", "tentacle"]
+    assert playbooks._ceph_ansible_flavours(c) == ["squid"]
+
+
+@responses.activate
 def test_ceph_mirrors_known_upstream_typos(cfg):
     """Containerfile:154 copies to "/ansible/ceph-site.ym" (missing the "l")
     and Containerfile:156 copies "dashboard.yml" unprefixed; neither ever

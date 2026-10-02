@@ -306,9 +306,29 @@ def _ceph_flavours(config) -> list:
     )
 
 
+def _ceph_ansible_flavours(config) -> list:
+    """The flavours a ceph-ansible image is built for.
+
+    A flavour file without ceph_ansible_version (Tentacle: ceph-ansible has no
+    branch past squid, so it is deployed with cephadm only) has no
+    files/playbooks/<flavour> and no infrastructure-playbooks ref, so it
+    contributes nothing to the ceph-ansible image and is skipped here.
+    """
+    out = []
+    for flavour in _ceph_flavours(config):
+        data = (
+            yaml.safe_load(source.read("release", f"latest/ceph-{flavour}.yml", config))
+            or {}
+        )
+        if "ceph_ansible_version" in data:
+            out.append(flavour)
+    return out
+
+
 def ceph_files(config) -> frozenset:
     """/ansible/ceph-*.yml basenames the ceph-ansible image ships, unioned
-    across every ceph flavour built today (quincy, reef, squid).
+    across every ceph flavour it is built for (quincy, reef, squid; see
+    _ceph_ansible_flavours).
 
     Containerfile:22 lands OSISM's flavour-independent playbooks;
     Containerfile:21 lands OSISM's own per-flavour playbooks (already named
@@ -328,7 +348,7 @@ def ceph_files(config) -> frozenset:
         )
         if n.startswith("ceph-") and n.endswith(".yml")
     }
-    for flavour in _ceph_flavours(config):
+    for flavour in _ceph_ansible_flavours(config):
         files |= {
             n
             for n in source.list_dir(
