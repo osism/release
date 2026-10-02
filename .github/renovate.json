@@ -21,6 +21,7 @@
         "/^latest\\/ceph-quincy.yml$/",
         "/^latest\\/ceph-reef.yml$/",
         "/^latest\\/ceph-squid.yml$/",
+        "/^latest\\/ceph-tentacle.yml$/",
         "/^latest\\/openstack-2024.1.yml$/",
         "/^latest\\/openstack-2024.2.yml$/",
         "/^latest\\/openstack-2025.1.yml$/",
@@ -87,7 +88,8 @@
       "matchFileNames": [
         "latest/ceph-quincy.yml",
         "latest/ceph-reef.yml",
-        "latest/ceph-squid.yml"
+        "latest/ceph-squid.yml",
+        "latest/ceph-tentacle.yml"
       ],
       "matchUpdateTypes": [
         "major"
@@ -112,7 +114,8 @@
       "matchFileNames": [
         "latest/ceph-quincy.yml",
         "latest/ceph-reef.yml",
-        "latest/ceph-squid.yml"
+        "latest/ceph-squid.yml",
+        "latest/ceph-tentacle.yml"
       ],
       "groupName": "ceph"
     },
