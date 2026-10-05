@@ -10,7 +10,7 @@ ceph_version: tentacle
 # renovate: datasource=github-tags depName=osism/generics
 generics_version: 'v0.20260929.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
-playbooks_version: 'v0.20261001.0'
+playbooks_version: 'v0.20261005.0'
 
 docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/ceph-daemon
