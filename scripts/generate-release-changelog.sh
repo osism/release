@@ -22,8 +22,18 @@
 # reported as removals nor duplicated as new features; the effective
 # OSISM kolla defaults (osism/defaults) are included as a reference so
 # that configuration advice matches what OSISM actually sets (Ubuntu
-# only, no kolla-ansible command, osism apply instead). Claude turns
-# this input into an operator-focused release notes body in the style of
+# only, no kolla-ansible command, osism apply instead). The OpenStack
+# Security Advisories (OSSA pages of osism.github.io) whose fixes the
+# kolla images contain in addition to the previous release are
+# determined from the container-images-kolla commits the pages link
+# (downstream patches) or, for fixes that came with the upstream
+# sources, from the advisory date between the two image builds; they
+# become a "Security fixes" subsection with a fixed wording. The input
+# names the OpenStack version of the release so that changes only
+# affecting other OpenStack versions are left out, and MetalBox-only
+# changes (baremetal, SONiC, netbox-manager) are grouped in a trailing
+# "MetalBox" subsection. Claude turns this input into an
+# operator-focused release notes body in the style of
 # docs/release-notes/osism-10.md. The changelog entries are only PR title
 # lists, so Claude is allowed to look up the referenced pull requests
 # itself via the GitHub CLI (gh pr view/diff, read-only) to describe
@@ -32,8 +42,9 @@
 #
 # The model output is sanitized deterministically: it must
 # start with a "### " subsection, "# "/"## " headings are demoted so that
-# the generated body can never overwrite other release sections, and any
-# preamble is stripped (src/release-notes.py sanitize).
+# the generated body can never overwrite other release sections, a
+# "### MetalBox" subsection is moved to the end, and any preamble is
+# stripped (src/release-notes.py sanitize).
 #
 # Insertion into osism.github.io follows the osism-10.md layout: a plain
 # row in the release table (no anchor link) and a "## <version>" section
@@ -252,7 +263,8 @@ else
     echo "  Release date:     $DATE"
 
     release_notes_py input \
-        --previous "$PREVIOUS" --current "$VERSION" --output "$INPUT_FILE"
+        --previous "$PREVIOUS" --current "$VERSION" --date "$DATE" \
+        ${SITE_DIR:+--site-dir "$SITE_DIR"} --output "$INPUT_FILE"
 fi
 
 if [ "$RUN_CLAUDE" = false ]; then
@@ -290,9 +302,11 @@ and possibly (3) a "kolla-ansible upstream changes" section with the
 upstream openstack/kolla-ansible changes (commit subjects and reno release
 notes) that the rebuild of the kolla-ansible container image pulled in,
 including the added and removed downstream patches of that image, (4)
-the downstream patch changes of the kolla service images, and (5) an
-"OSISM kolla defaults (reference)" section with the effective kolla
-defaults OSISM ships in this release.
+the downstream patch changes of the kolla service images, (5) a
+"Security advisories fixed in this release" section with the OpenStack
+Security Advisories whose fixes the kolla images contain in addition to
+the previous release, and (6) an "OSISM kolla defaults (reference)"
+section with the effective kolla defaults OSISM ships in this release.
 
 Write the body of the release notes section for OSISM __VERSION__.
 
@@ -306,6 +320,15 @@ Selection rules:
 - Ignore routine dependency bumps (Renovate) and other chores; mention a
   third-party component only if the version jump is significant (e.g. a
   new major version) or has operator impact
+
+Release scope:
+- The input header names the OpenStack version of this release. OSISM
+  __MAJOR__ ships exactly that OpenStack release: changes that only take
+  effect on another OpenStack version (a collection that deploys a
+  different service from a newer OpenStack release on, support for
+  building and deploying a newer OpenStack version, fixes for images of
+  an older release) are out of scope and must be left out entirely, not
+  mentioned as an aside
 
 OSISM conventions:
 - OSISM supports Ubuntu as the only host distribution: ignore changes
@@ -329,6 +352,29 @@ OSISM conventions:
   (example: upstream dropped linuxbridge, but OSISM defaults to
   neutron_plugin_agent "ovn", so no linuxbridge advice belongs in OSISM
   release notes)
+- Name the right configuration file: environments/kolla/configuration.yml
+  holds kolla-ansible variables only. Variables of OSISM's own Ansible
+  roles (bootstrap, hostname, network, frr, hardening, ... from the
+  osism-ansible image) belong in environments/configuration.yml, and
+  manager_* variables in environments/manager/configuration.yml. When
+  unsure, name environments/configuration.yml; never put a variable that
+  is not a kolla-ansible variable into environments/kolla/configuration.yml
+
+Security fixes:
+- If the input contains a "Security advisories fixed in this release"
+  section, write "### Security fixes" as the very first subsection,
+  before any breaking change: the opening paragraph verbatim, one bullet
+  per listed advisory, then the closing paragraph verbatim
+- Each bullet starts with the bullet prefix given for the advisory (the
+  advisory link, component and CVE ids), followed by one sentence
+  derived from the advisory summary that says what the fix closes or
+  changes for users; do not rate the severity and do not describe how
+  the fix was shipped (patch, rebuild, rolling tag)
+- Only the advisories listed in that section are fixed in this release;
+  never present another advisory as fixed. CVE fixes that only appear in
+  a component changelog without an advisory page are mentioned in the
+  subsection of the affected component as before
+- Without that section, do not write a "### Security fixes" subsection
 
 Looking up pull requests:
 - The changelog entries reference pull requests like (org/repo#123). For
@@ -400,11 +446,24 @@ Structure:
   one heading ("### osism CLI and NetBox-manager", "### Baremetal and
   SONiC", "### Networking and inventory reconciler" are all wrong,
   split them). OSISM services and components (inventory reconciler,
-  osism CLI, netbox-manager, openstack-image-manager,
-  openstack-flavor-manager, openstack-project-manager, SONiC, baremetal,
-  ...) each get their own
-  dedicated subsection, never a combined one; only items too small for
-  a subsection of their own go into "### Notable changes"
+  osism CLI, openstack-image-manager, openstack-flavor-manager,
+  openstack-project-manager, ...) each get their own dedicated
+  subsection, never a combined one; only items too small for a
+  subsection of their own go into "### Notable changes"
+- Changes to the baremetal commands (osism baremetal, Ironic), to SONiC
+  (switch configuration, validation, ZTP) and to netbox-manager only
+  concern the MetalBox and the OSISM Manager running on it. Collect them
+  in a "### MetalBox" subsection placed last in the section, opened with
+  exactly this paragraph:
+      The following changes are only relevant for the
+      [MetalBox](../concepts/metalbox.md) and the OSISM Manager running
+      on it. They add no new functionality to an OSISM Manager that is
+      used to deploy an OpenStack environment.
+  followed by one "#### " subsection per topic (for example
+  "#### Baremetal cleaning RAID modes", "#### SONiC validation
+  improvements", "#### netbox-manager"). The inventory reconciler is not
+  MetalBox-only and keeps its own "### " subsection. Without any such
+  change there is no "### MetalBox" subsection
 - Summarize instead of enumerating every changelog entry; release notes
   are curated, not a changelog
 

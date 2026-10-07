@@ -332,12 +332,28 @@ The script:
    distributions other than Ubuntu are ignored, and kolla-ansible commands
    are written as their `osism apply` equivalents (there is no
    `kolla-ansible` command in OSISM)
-4. Lets Claude write an operator-focused release notes body; for entries
+4. When `docker_images.kolla` changed, determines the OpenStack Security
+   Advisories whose fixes the kolla images contain in addition to the
+   previous release: the OSSA pages of
+   [osism.github.io](https://github.com/osism/osism.github.io)
+   (`docs/appendix/security/ossa-*.md`, read from `--site-dir` or GitHub)
+   link the container-images-kolla commits and pull requests that ship a
+   fix as downstream patches. An advisory counts if such a commit touches
+   the OpenStack version of the release and lies in the image range, or,
+   if no referenced commit touches that version (the fix came with the
+   upstream sources), if the advisory was published between the two image
+   builds. The advisories become a "Security fixes" subsection with a
+   fixed wording and links to the advisory pages. The input also names the
+   OpenStack version of the release, so that changes only affecting other
+   OpenStack versions are left out
+5. Lets Claude write an operator-focused release notes body; for entries
    whose changelog line alone does not tell an operator anything, Claude
    looks up the referenced pull requests via read-only `gh pr view`/
-   `gh pr diff` calls (chores and Renovate bumps are skipped). The body is
-   sanitized deterministically before use
-5. Inserts the section into `docs/release-notes/osism-<major>.md` of
+   `gh pr diff` calls (chores and Renovate bumps are skipped). Changes
+   that only concern the MetalBox (baremetal, SONiC, netbox-manager) are
+   grouped in a trailing "MetalBox" subsection. The body is sanitized
+   deterministically before use
+6. Inserts the section into `docs/release-notes/osism-<major>.md` of
    [osism.github.io](https://github.com/osism/osism.github.io) following the
    `osism-10.md` layout: a plain row in the release table and a
    `## <version>` section (no date suffix), inserted before the first

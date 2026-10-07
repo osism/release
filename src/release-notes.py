@@ -23,12 +23,16 @@
 #             rebuild (commit subjects and reno release notes) together
 #             with the added/removed downstream patches of the
 #             kolla-ansible image; when docker_images.kolla changed, the
-#             downstream patch changes of the kolla images as well, plus
-#             the effective OSISM kolla defaults (osism/defaults) as a
-#             reference for checking configuration advice
+#             downstream patch changes of the kolla images as well, the
+#             OpenStack Security Advisories (OSSA pages of osism.github.io)
+#             whose fixes the kolla images contain in addition to the
+#             previous release, plus the effective OSISM kolla defaults
+#             (osism/defaults) as a reference for checking configuration
+#             advice
 #   sanitize  Sanitize a model-generated release notes body (stdin to
 #             stdout): strip any preamble before the first "### " heading,
-#             demote forbidden "# "/"## " headings, collapse blank lines.
+#             demote forbidden "# "/"## " headings, move a "### MetalBox"
+#             subsection to the end, collapse blank lines.
 #             Code fences are honored so that e.g. shell comments in
 #             examples are never touched.
 #   insert    Insert a generated section into a release notes page of
@@ -104,6 +108,23 @@ OSISM_DEFAULTS_REPO = "osism/defaults"
 OSISM_KOLLA_DEFAULTS_FILES = [
     "all/099-kolla.yml",
 ]
+
+# The security advisories published on osism.tech: one page per OpenStack
+# Security Advisory (OSSA) with a property table (Date, CVE, Affected
+# Project), a Summary section and links to the container-images-kolla
+# commits and pull requests that ship the fix as downstream patches
+SITE_REPO = "osism/osism.github.io"
+SITE_SECURITY_DIR = "docs/appendix/security"
+ADVISORY_FILE_RE = re.compile(r"^(ossa-\d{4}-\d{3})\.md$")
+ADVISORY_REF_RE = re.compile(
+    r"github\.com/osism/container-images-kolla/(commit|pull)/([0-9a-f]{7,40}|\d+)"
+)
+CVE_RE = re.compile(r"CVE-\d{4}-\d{4,}")
+# Link target of an advisory page, relative to docs/release-notes/osism-<major>.md
+ADVISORY_LINK_PREFIX = "../appendix/security/"
+
+# The MetalBox-only changes are the last subsection of a release section
+METALBOX_HEADING_RE = re.compile(r"^### MetalBox\b", re.IGNORECASE)
 
 # Caps for the upstream kolla-ansible input section; exceeding entries are
 # dropped with an explicit note so that nothing is truncated silently
@@ -323,6 +344,28 @@ def kolla_ansible_build_time(image_version):
         )
         return when
     warn(f"Cannot determine a build time for kolla-ansible {image_version}")
+    return None
+
+
+def image_build_date(tag_prefix, version):
+    """Build date (YYYY-MM-DD) of a kolla(-ansible) image version.
+
+    The date is encoded in the version number (0.20261001.0 was built on
+    2026-10-01); the committer date of the <prefix>-v<version> tag of
+    this repository is the fallback (the tag may predate the build by a
+    few days), the GitHub API the last resort.
+    """
+    when = version_date(version)
+    if when:
+        return when[:10]
+    tag = f"{tag_prefix}-v{version.lstrip('v')}"
+    out = run_git(["log", "-1", "--format=%cI", tag])
+    if out and out.strip():
+        return out.strip()[:10]
+    when = github_commit_time("osism/release", tag)
+    if when:
+        return when[:10]
+    warn(f"Cannot determine a build date for {tag_prefix} {version}")
     return None
 
 
@@ -743,6 +786,325 @@ def osism_kolla_defaults_section(previous, current):
     return "\n".join(out).rstrip()
 
 
+def list_advisory_pages(site_dir=None):
+    """Return [(id, text)] of the OSSA pages of osism.github.io.
+
+    Read from a local checkout if given, from the main branch on GitHub
+    otherwise. Returns None if the listing or a page fetch failed; an
+    empty list only when there are no advisory pages.
+    """
+    pages = []
+    if site_dir:
+        directory = os.path.join(site_dir, SITE_SECURITY_DIR)
+        try:
+            names = sorted(os.listdir(directory))
+        except OSError as e:
+            warn(f"Listing {directory} failed: {e}")
+            return None
+        for name in names:
+            m = ADVISORY_FILE_RE.match(name)
+            if not m:
+                continue
+            with open(os.path.join(directory, name)) as fp:
+                pages.append((m.group(1), fp.read()))
+        return pages
+
+    url = f"https://api.github.com/repos/{SITE_REPO}/contents/{SITE_SECURITY_DIR}"
+    try:
+        response = requests.get(url, headers=github_headers(), timeout=30)
+    except requests.RequestException as e:
+        warn(f"Fetching {url} failed: {e}")
+        return None
+    if response.status_code != 200:
+        warn(
+            f"Could not list {SITE_SECURITY_DIR} of {SITE_REPO} "
+            f"(HTTP {response.status_code})"
+        )
+        return None
+    for entry in sorted(response.json(), key=lambda e: e.get("name", "")):
+        m = ADVISORY_FILE_RE.match(entry.get("name", ""))
+        if not m or entry.get("type") != "file":
+            continue
+        raw = (
+            f"https://raw.githubusercontent.com/{SITE_REPO}/main/"
+            f"{SITE_SECURITY_DIR}/{entry['name']}"
+        )
+        try:
+            page = requests.get(raw, timeout=30)
+        except requests.RequestException as e:
+            warn(f"Fetching {raw} failed: {e}")
+            return None
+        if page.status_code != 200:
+            warn(f"Could not fetch {raw} (HTTP {page.status_code})")
+            return None
+        pages.append((m.group(1), page.text))
+    return pages
+
+
+def parse_advisory(advisory_id, text):
+    """Extract the facts of an OSSA page needed for the release notes.
+
+    Returns a dict with the advisory id, the link target relative to the
+    release notes page, the title, the publication date, the CVE ids, the
+    affected project, the text of the Summary section and the referenced
+    container-images-kolla commits and pull requests.
+    """
+    upper = advisory_id.upper()
+    advisory = {
+        "id": upper,
+        "link": f"{ADVISORY_LINK_PREFIX}{advisory_id}.md",
+        "title": upper,
+        "date": None,
+        "cves": [],
+        "project": None,
+        "summary": "",
+        "commits": [],
+        "pulls": [],
+    }
+    summary = []
+    section = None
+    for line in text.splitlines():
+        if line.startswith("# "):
+            heading = line[2:].strip()
+            if heading.upper().startswith(upper + ":"):
+                heading = heading[len(upper) + 1 :].strip()
+            advisory["title"] = heading
+            continue
+        if line.startswith("## "):
+            section = line[3:].strip()
+            continue
+        m = re.match(r"^\|\s*(Date|CVE|Affected Project)\s*\|(.*)\|\s*$", line)
+        if m:
+            key, value = m.group(1), m.group(2).strip()
+            if key == "Date":
+                d = re.search(r"\d{4}-\d{2}-\d{2}", value)
+                advisory["date"] = d.group(0) if d else None
+            elif key == "CVE":
+                for cve in CVE_RE.findall(value):
+                    if cve not in advisory["cves"]:
+                        advisory["cves"].append(cve)
+            else:
+                advisory["project"] = value
+            continue
+        if section == "Summary":
+            summary.append(line)
+    advisory["summary"] = "\n".join(summary).strip()
+    for kind, ref in ADVISORY_REF_RE.findall(text):
+        target = advisory["commits"] if kind == "commit" else advisory["pulls"]
+        if ref not in target:
+            target.append(ref)
+    return advisory
+
+
+def list_range_commits(repo, old, new):
+    """SHAs of the commits in v<old>..v<new> of a repository, or None.
+
+    Uses the paginated compare API; a failure returns None, never a
+    partial list.
+    """
+    base = f"v{old.lstrip('v')}"
+    head = f"v{new.lstrip('v')}"
+    url = f"https://api.github.com/repos/{repo}/compare/{base}...{head}"
+    shas = []
+    page = 1
+    while True:
+        params = {"per_page": COMMITS_PER_PAGE, "page": page}
+        try:
+            response = requests.get(
+                url, headers=github_headers(), params=params, timeout=30
+            )
+        except requests.RequestException as e:
+            warn(f"Fetching {url} failed: {e}")
+            return None
+        if response.status_code != 200:
+            warn(
+                f"Could not compare {base}...{head} of {repo} "
+                f"(HTTP {response.status_code})"
+            )
+            return None
+        commits = response.json().get("commits", [])
+        shas.extend(entry["sha"] for entry in commits)
+        if len(commits) < COMMITS_PER_PAGE:
+            return shas
+        page += 1
+
+
+def commit_files(repo, sha):
+    """Paths changed by a commit via the GitHub API, or None on failure."""
+    url = f"https://api.github.com/repos/{repo}/commits/{sha}"
+    try:
+        response = requests.get(url, headers=github_headers(), timeout=30)
+    except requests.RequestException as e:
+        warn(f"Fetching {url} failed: {e}")
+        return None
+    if response.status_code != 200:
+        warn(f"Could not fetch commit {sha} of {repo} (HTTP {response.status_code})")
+        return None
+    return [entry["filename"] for entry in response.json().get("files", [])]
+
+
+def pull_merge_commit(repo, number):
+    """Merge commit SHA of a pull request, or None if unknown."""
+    url = f"https://api.github.com/repos/{repo}/pulls/{number}"
+    try:
+        response = requests.get(url, headers=github_headers(), timeout=30)
+    except requests.RequestException as e:
+        warn(f"Fetching {url} failed: {e}")
+        return None
+    if response.status_code != 200:
+        warn(
+            f"Could not fetch pull request {number} of {repo} (HTTP {response.status_code})"
+        )
+        return None
+    return response.json().get("merge_commit_sha")
+
+
+def advisory_fix_in_release(
+    advisory, range_shas, openstack_version, old_date, new_date
+):
+    """How the fix of an advisory reached the kolla images of a release.
+
+    The advisory pages link the container-images-kolla commits and pull
+    requests that ship a fix as downstream patches. Returns
+    ("patch", sha) if such a commit touches the OpenStack version of the
+    release and lies in the image range, None if one touches the version
+    but lies outside the range (the fix was shipped by another release),
+    and ("upstream", None) if no referenced commit touches the version
+    at all (the fix came with the upstream sources) and the advisory
+    was published between the two image builds. Returns None as well
+    when a lookup failed, so that nothing is claimed on a guess.
+    """
+    shas = list(advisory["commits"])
+    for number in advisory["pulls"]:
+        sha = pull_merge_commit(KOLLA_IMAGES_REPO, number)
+        if sha and not any(sha.startswith(s) or s.startswith(sha) for s in shas):
+            shas.append(sha)
+    marker = f"/{openstack_version}/"
+    touching = []
+    for sha in shas:
+        files = commit_files(KOLLA_IMAGES_REPO, sha)
+        if files is None:
+            warn(f"{advisory['id']}: cannot resolve the files of {sha}, skipping")
+            return None
+        if any(marker in path for path in files):
+            touching.append(sha)
+    for sha in touching:
+        if any(full.startswith(sha) or sha.startswith(full) for full in range_shas):
+            return ("patch", sha)
+    if touching:
+        return None
+    date = advisory["date"]
+    if date and old_date and new_date and old_date < date <= new_date:
+        return ("upstream", None)
+    return None
+
+
+def long_date(date):
+    """YYYYMMDD -> '1 October 2026' (running text, no ordinal dot)."""
+    d = datetime.strptime(date, "%Y%m%d")
+    return f"{d.day} {MONTHS[d.month - 1]} {d.year}"
+
+
+def security_advisory_section(previous, current, previous_release, date, site_dir=None):
+    """Markdown input section with the advisories newly fixed in the release.
+
+    Compares the kolla images of the two releases against the OSSA pages
+    of osism.github.io and lists the advisories whose fixes the new
+    images contain in addition to the previous release, together with
+    the fixed wording of the "Security fixes" subsection. Returns None
+    if the kolla images did not change, nothing is newly fixed or the
+    state cannot be determined.
+    """
+    key = ("docker_images", "kolla")
+    old = previous.get(key)
+    new = current.get(key)
+    if not old or not new or old == new:
+        info("kolla images unchanged, skipping the security advisory check")
+        return None
+    openstack_version = release_openstack_version("kolla", new)
+    if openstack_version is None:
+        return None
+
+    info(
+        f"Checking the security advisories of {SITE_REPO} against "
+        f"{KOLLA_IMAGES_REPO} ({old} -> {new})..."
+    )
+    pages = list_advisory_pages(site_dir)
+    if pages is None:
+        return None
+    range_shas = list_range_commits(KOLLA_IMAGES_REPO, old, new)
+    if range_shas is None:
+        return None
+    old_date = image_build_date("kolla", old)
+    new_date = image_build_date("kolla", new)
+
+    fixed = []
+    for advisory_id, text in pages:
+        advisory = parse_advisory(advisory_id, text)
+        how = advisory_fix_in_release(
+            advisory, range_shas, openstack_version, old_date, new_date
+        )
+        if how:
+            info(f"{advisory['id']}: fixed in this release ({how[0]})")
+            fixed.append((advisory, how))
+    if not fixed:
+        info("No security advisories newly fixed in the kolla images")
+        return None
+
+    out = [
+        "## Security advisories fixed in this release",
+        "",
+        f"The kolla container images ({old} -> {new}, OpenStack "
+        f"{openstack_version}) contain the fixes for the following OpenStack "
+        f"Security Advisories that were not yet part of OSISM {previous_release}. "
+        'Write the "### Security fixes" subsection from this list as described '
+        "in the prompt: the opening and closing paragraphs verbatim, one bullet "
+        "per advisory starting with its bullet prefix.",
+        "",
+        "Opening paragraph:",
+        "",
+        f"This release includes all security fixes that were known and patched "
+        f"up to {long_date(date)}. Compared to OSISM {previous_release}, the "
+        "container images additionally contain the fixes for the following "
+        "advisories:",
+        "",
+        "Closing paragraph:",
+        "",
+        f"The fixes for the advisories already covered by OSISM {previous_release} "
+        "remain included. If you obtained one of the fixes above ahead of this "
+        "release through the rolling tags, remove the corresponding image "
+        "overrides from `environments/kolla/images.yml` when upgrading, so that "
+        "the images pinned by the release are used again. All advisories are "
+        f"listed in the [Security]({ADVISORY_LINK_PREFIX}index.md) section.",
+        "",
+    ]
+    for advisory, (how, sha) in fixed:
+        cves = ", ".join(advisory["cves"]) if advisory["cves"] else "CVE pending"
+        project = advisory["project"] or "OpenStack"
+        if how == "patch":
+            shipped = (
+                f"downstream patch, {KOLLA_IMAGES_REPO} commit {sha[:10]} "
+                "(context only, not for the release notes)"
+            )
+        else:
+            shipped = (
+                "upstream fix included by the image rebuild "
+                "(context only, not for the release notes)"
+            )
+        out.append(f"### {advisory['id']}: {advisory['title']}")
+        out.append("")
+        out.append(
+            f"- Bullet prefix: [{advisory['id']}]({advisory['link']}) "
+            f"({project}, {cves}):"
+        )
+        out.append(f"- Published: {advisory['date'] or 'unknown'}")
+        out.append(f"- Fix: {shipped}")
+        out.append("")
+        out.append(advisory["summary"] or "(no summary)")
+        out.append("")
+    return "\n".join(out).rstrip()
+
+
 def upstream_change_lines(old, new, release):
     """Markdown lines for the upstream kolla-ansible changes of a rebuild.
 
@@ -985,6 +1347,12 @@ def cmd_input(args):
     out.append("")
     out.append(f"- Previous release: {args.previous}")
     out.append(f"- New release: {args.current}")
+    kolla = current.get(("docker_images", "kolla"))
+    openstack_version = release_openstack_version("kolla", kolla) if kolla else None
+    if openstack_version:
+        out.append(f"- OpenStack version: {openstack_version}")
+    else:
+        warn("Cannot determine the OpenStack version of the release")
     out.append("")
     out.append("## Version changes")
     out.append("")
@@ -1053,6 +1421,13 @@ def cmd_input(args):
         out.append(kolla_patches)
         out.append("")
 
+    advisories = security_advisory_section(
+        previous, current, args.previous, args.date, args.site_dir
+    )
+    if advisories:
+        out.append(advisories)
+        out.append("")
+
     defaults = osism_kolla_defaults_section(previous, current)
     if defaults:
         out.append(defaults)
@@ -1092,6 +1467,37 @@ def unwrap_markdown_fence(lines):
                     return lines[:i] + lines[i + 1 : j], trailer
             return lines, []
     return lines, []
+
+
+def move_metalbox_last(lines):
+    """Move a "### MetalBox" subsection to the end of the body.
+
+    The MetalBox-only changes are always the last subsection of a release
+    section. Splits the body at the "### " headings outside code fences
+    and returns (lines, moved).
+    """
+    sections = []
+    current = []
+    in_fence = False
+    for line in lines:
+        if not in_fence and line.startswith("### "):
+            sections.append(current)
+            current = []
+        current.append(line)
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+    sections.append(current)
+
+    metalbox = [s for s in sections if s and METALBOX_HEADING_RE.match(s[0])]
+    if not metalbox or sections[-1] is metalbox[0]:
+        return lines, False
+
+    out = []
+    for section in [s for s in sections if s is not metalbox[0]] + [metalbox[0]]:
+        if out and out[-1].strip() and section and section[0].startswith("### "):
+            out.append("")
+        out.extend(section)
+    return out, True
 
 
 def cmd_sanitize(args):
@@ -1146,6 +1552,10 @@ def cmd_sanitize(args):
             file=sys.stderr,
         )
         sys.exit(1)
+
+    body, moved = move_metalbox_last(body)
+    if moved:
+        warn("Moved the '### MetalBox' subsection to the end of the body")
 
     # Collapse consecutive blank lines outside of code fences
     out = []
@@ -1270,6 +1680,16 @@ def main():
     sub.add_argument("--previous", required=True, help="previous release, e.g. 10.0.0")
     sub.add_argument("--current", required=True, help="new release, e.g. 10.1.0")
     sub.add_argument("--repositories", default="etc/changelog-repositories.yml")
+    sub.add_argument(
+        "--date",
+        default=datetime.now().strftime("%Y%m%d"),
+        help="release date as YYYYMMDD (default: today)",
+    )
+    sub.add_argument(
+        "--site-dir",
+        help="osism.github.io checkout to read the security advisories from "
+        "(default: fetched from GitHub)",
+    )
     sub.add_argument("--output", help="output file (default: stdout)")
     sub.set_defaults(func=cmd_input)
 
