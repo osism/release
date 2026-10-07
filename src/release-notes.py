@@ -17,7 +17,9 @@
 #             those pinned in a requirements file of another component,
 #             e.g. netbox-manager in python-osism), the commits of
 #             components installed from a branch at image build time
-#             (openstack-project-manager in the osism image) and,
+#             (openstack-project-manager in the osism image) together
+#             with the CHANGELOG.md sections of the tags created in that
+#             range, and,
 #             when docker_images.kolla_ansible changed, the upstream
 #             openstack/kolla-ansible changes pulled in by the image
 #             rebuild (commit subjects and reno release notes) together
@@ -435,6 +437,61 @@ def list_branch_commits(repo, branch, since, until, limit=None):
         page += 1
 
 
+def list_tags(repo):
+    """The newest tags of a repository as [(name, commit sha)], or None."""
+    url = f"https://api.github.com/repos/{repo}/tags"
+    try:
+        response = requests.get(
+            url, headers=github_headers(), params={"per_page": 100}, timeout=30
+        )
+    except requests.RequestException as e:
+        warn(f"Fetching {url} failed: {e}")
+        return None
+    if response.status_code != 200:
+        warn(f"Could not list the tags of {repo} (HTTP {response.status_code})")
+        return None
+    return [(entry["name"], entry["commit"]["sha"]) for entry in response.json()]
+
+
+def branch_release_lines(repo, commits):
+    """CHANGELOG.md sections of the tags created among the given commits.
+
+    A component installed from a branch may still tag releases and keep
+    a CHANGELOG.md; the sections of the tags pointing at one of the
+    listed commits describe those commits in more detail. Returns the
+    markdown lines or None if no tag lies in the range or the changelog
+    has no matching sections.
+    """
+    tags = list_tags(repo)
+    if not tags:
+        return None
+    shas = {sha for sha, _ in commits}
+    released = [(i, name) for i, (name, sha) in enumerate(tags) if sha in shas]
+    if not released:
+        return None
+    newest = released[0][1]
+    oldest_index = released[-1][0]
+    previous = tags[oldest_index + 1][0] if oldest_index + 1 < len(tags) else "0"
+    changelog = fetch_changelog(repo)
+    if changelog is None:
+        warn(f"No CHANGELOG.md found for {repo}")
+        return None
+    sections = extract_sections(changelog, previous, newest)
+    if sections is None:
+        warn(f"No CHANGELOG.md sections found for {repo} in ({previous}, {newest}]")
+        return None
+    names = ", ".join(name for _, name in reversed(released))
+    return [
+        f"The commits up to {newest} were released as {names}; these "
+        "CHANGELOG.md sections describe them in more detail and take "
+        "precedence over the commit subjects. Commits after the last release "
+        "are unreleased changes of the branch that are nevertheless part of "
+        "the image:",
+        "",
+        sections,
+    ]
+
+
 def branch_component_change(name, cfg, source_repo, old_source, new_source):
     """Resolve the changes of a component installed from a branch.
 
@@ -484,6 +541,10 @@ def branch_component_change(name, cfg, source_repo, old_source, new_source):
         # style of the component changelogs
         subject = re.sub(r"\(#(\d+)\)\s*$", rf"({repo}#\1)", subject)
         lines.append(f"- {subject}")
+    released = branch_release_lines(repo, commits)
+    if released:
+        lines.append("")
+        lines.extend(released)
     row = (f"{name} (via {source}, {branch})", repo, old, new)
     return row, lines
 

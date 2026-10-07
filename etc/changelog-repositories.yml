@@ -55,7 +55,8 @@ derived:
     source: osism
     file: requirements.openstack-image-manager.txt
   # installed from main by the Containerfile of python-osism (git clone),
-  # no version pin and no CHANGELOG.md in the repository
+  # no version pin; the CHANGELOG.md sections of the tags created between
+  # the two image builds are added to the listed commits
   openstack-project-manager:
     repository: osism/openstack-project-manager
     source: osism

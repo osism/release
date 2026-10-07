@@ -93,9 +93,9 @@ def test_branch_commits_limit_stops_after_the_first_match():
         json=[_commit("a" * 40, "newest"), _commit("b" * 40, "older")],
         status=200,
     )
-    assert rn.list_branch_commits(PM, "main", None, "2026-01-01T00:00:00Z", limit=1) == [
-        ("a" * 40, "newest")
-    ]
+    assert rn.list_branch_commits(
+        PM, "main", None, "2026-01-01T00:00:00Z", limit=1
+    ) == [("a" * 40, "newest")]
 
 
 @responses.activate
@@ -122,9 +122,15 @@ def test_branch_component_change_builds_row_and_section():
         responses.GET, PM_COMMITS, json=[_commit("a" * 40, "before")], status=200
     )
 
+    responses.add(responses.GET, f"{API}/{PM}/tags", json=[], status=200)
+
     cfg = {"repository": PM, "source": "osism", "branch": "main"}
     row, lines = rn.branch_component_change(
-        "openstack-project-manager", cfg, "osism/python-osism", "0.20260615.0", "0.20260701.0"
+        "openstack-project-manager",
+        cfg,
+        "osism/python-osism",
+        "0.20260615.0",
+        "0.20260701.0",
     )
     assert row == (
         "openstack-project-manager (via osism, main)",
@@ -139,6 +145,70 @@ def test_branch_component_change_builds_row_and_section():
 
 
 @responses.activate
+def test_branch_component_change_adds_the_changelog_of_tags_in_range():
+    _commit_time("osism/python-osism", "v0.20260615.0", "2026-06-15T10:00:00Z")
+    _commit_time("osism/python-osism", "v0.20260701.0", "2026-07-01T10:00:00Z")
+    responses.add(
+        responses.GET,
+        PM_COMMITS,
+        json=[
+            _commit("d" * 40, "unreleased"),
+            _commit("c" * 40, "Add quota handling (#42)"),
+            _commit("b" * 40, "Fix typo"),
+        ],
+        status=200,
+    )
+    responses.add(
+        responses.GET, PM_COMMITS, json=[_commit("a" * 40, "before")], status=200
+    )
+    # v0.20260620.0 points at a listed commit, v0.20260610.0 precedes the range
+    responses.add(
+        responses.GET,
+        f"{API}/{PM}/tags",
+        json=[
+            {"name": "v0.20260620.0", "commit": {"sha": "c" * 40}},
+            {"name": "v0.20260610.0", "commit": {"sha": "a" * 40}},
+        ],
+        status=200,
+    )
+    responses.add(
+        responses.GET,
+        f"https://raw.githubusercontent.com/{PM}/main/CHANGELOG.md",
+        body=(
+            "# Changelog\n\n## [v0.20260620.0] - 2026-06-20\n\n### Added\n"
+            f"- Add quota handling ({PM}#42)\n\n"
+            "## [v0.20260610.0] - 2026-06-10\n\n### Fixed\n- old\n"
+        ),
+        status=200,
+    )
+
+    cfg = {"repository": PM, "source": "osism", "branch": "main"}
+    _, lines = rn.branch_component_change(
+        "openstack-project-manager",
+        cfg,
+        "osism/python-osism",
+        "0.20260615.0",
+        "0.20260701.0",
+    )
+    text = "\n".join(lines)
+    assert "- unreleased" in lines
+    assert "released as v0.20260620.0;" in text
+    assert "## [v0.20260620.0] - 2026-06-20" in text
+    assert "## [v0.20260610.0]" not in text
+
+
+@responses.activate
+def test_branch_release_lines_none_without_a_tag_in_range():
+    responses.add(
+        responses.GET,
+        f"{API}/{PM}/tags",
+        json=[{"name": "v0.20260610.0", "commit": {"sha": "a" * 40}}],
+        status=200,
+    )
+    assert rn.branch_release_lines(PM, [("c" * 40, "x")]) is None
+
+
+@responses.activate
 def test_branch_component_change_none_without_commits():
     _commit_time("osism/python-osism", "v0.20260615.0", "2026-06-15T10:00:00Z")
     _commit_time("osism/python-osism", "v0.20260701.0", "2026-07-01T10:00:00Z")
@@ -146,7 +216,11 @@ def test_branch_component_change_none_without_commits():
     cfg = {"repository": PM, "source": "osism", "branch": "main"}
     assert (
         rn.branch_component_change(
-            "openstack-project-manager", cfg, "osism/python-osism", "0.20260615.0", "0.20260701.0"
+            "openstack-project-manager",
+            cfg,
+            "osism/python-osism",
+            "0.20260615.0",
+            "0.20260701.0",
         )
         is None
     )
