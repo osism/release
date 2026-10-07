@@ -8,7 +8,7 @@ ceph_version: tentacle
 # points here at the cut, ceph-ansible images still built for the move of
 # existing clusters check out these refs. Nothing else reads them.
 # renovate: datasource=github-tags depName=osism/generics
-generics_version: 'v0.20260929.0'
+generics_version: 'v0.20261007.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks
 playbooks_version: 'v0.20261005.0'
 
