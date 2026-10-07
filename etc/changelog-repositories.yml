@@ -8,10 +8,15 @@
 # treated as third-party dependencies (version bump only).
 #
 # Components listed under "derived" are not pinned in base.yml themselves;
-# their version is read from a requirements file of another component
-# (source) at the version pinned in base.yml. Example: the netbox-manager
-# version used by a release is defined by requirements.netbox-manager.txt
-# of python-osism at the pinned osism version.
+# their version is read from a requirements file ("file") of another
+# component (source) at the version pinned in base.yml. Example: the
+# netbox-manager version used by a release is defined by
+# requirements.netbox-manager.txt of python-osism at the pinned osism
+# version. A derived component with a "branch" instead of a "file" is not
+# pinned at all: the container image of the source component clones that
+# branch when it is built, so the commits of the branch between the build
+# times of the two source versions are included instead of CHANGELOG.md
+# sections.
 #
 # Note: this intentionally differs from etc/images.yml, which maps image
 # names to container registry paths, not to source repositories.
@@ -41,3 +46,17 @@ derived:
     repository: osism/netbox-manager
     source: osism
     file: requirements.netbox-manager.txt
+  openstack-flavor-manager:
+    repository: osism/openstack-flavor-manager
+    source: osism
+    file: requirements.openstack-flavor-manager.txt
+  openstack-image-manager:
+    repository: osism/openstack-image-manager
+    source: osism
+    file: requirements.openstack-image-manager.txt
+  # installed from main by the Containerfile of python-osism (git clone),
+  # no version pin and no CHANGELOG.md in the repository
+  openstack-project-manager:
+    repository: osism/openstack-project-manager
+    source: osism
+    branch: main

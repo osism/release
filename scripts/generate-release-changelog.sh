@@ -30,9 +30,7 @@
 # operator-relevant changes in detail; chores and dependency bumps
 # (Renovate) are not looked up.
 #
-# The recurring "images have been rebuilt" bullets are derived
-# deterministically from the docker_images.kolla version (never generated
-# by the model). The model output is sanitized deterministically: it must
+# The model output is sanitized deterministically: it must
 # start with a "### " subsection, "# "/"## " headings are demoted so that
 # the generated body can never overwrite other release sections, and any
 # preamble is stripped (src/release-notes.py sanitize).
@@ -257,11 +255,6 @@ else
         --previous "$PREVIOUS" --current "$VERSION" --output "$INPUT_FILE"
 fi
 
-# The standard bullets derive from base.yml directly and are cheap to
-# recompute, also when an existing input file is reused
-BULLETS=$(release_notes_py bullets \
-    --previous "$PREVIOUS" --current "$VERSION")
-
 if [ "$RUN_CLAUDE" = false ]; then
     echo ""
     echo "Next steps:"
@@ -407,7 +400,9 @@ Structure:
   one heading ("### osism CLI and NetBox-manager", "### Baremetal and
   SONiC", "### Networking and inventory reconciler" are all wrong,
   split them). OSISM services and components (inventory reconciler,
-  osism CLI, netbox-manager, SONiC, baremetal, ...) each get their own
+  osism CLI, netbox-manager, openstack-image-manager,
+  openstack-flavor-manager, openstack-project-manager, SONiC, baremetal,
+  ...) each get their own
   dedicated subsection, never a combined one; only items too small for
   a subsection of their own go into "### Notable changes"
 - Summarize instead of enumerating every changelog entry; release notes
@@ -432,8 +427,10 @@ Output format:
 - Do NOT invent anything that is not covered by the input or the pull
   requests you read; when unsure, leave it out
 - Do NOT include PR/issue references like (org/repo#123)
-- Do NOT include the release heading "## __VERSION__" and do NOT mention
-  rebuilt service images; both are added by the calling script
+- Do NOT include the release heading "## __VERSION__"; it is added by
+  the calling script
+- Do NOT write generic "images have been rebuilt, an upgrade is
+  recommended" bullets; describe concrete changes only
 - Your output MUST start with the first "### " subsection heading
 - Only use "### " and "#### " headings, never "# " or "## "
 - Do NOT wrap your output in a code fence (no leading ```markdown); code
@@ -506,10 +503,6 @@ rm -f "$CLAUDE_STDERR_FILE"
 {
     echo "## $VERSION"
     echo ""
-    if [ -n "$BULLETS" ]; then
-        echo "$BULLETS"
-        echo ""
-    fi
     echo "$BODY"
 } > "$OUTPUT_FILE"
 

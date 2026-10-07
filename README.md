@@ -308,7 +308,11 @@ The script:
 2. Fetches the CHANGELOG.md sections of all changed OSISM components for the
    version range (mapping: `etc/changelog-repositories.yml`); this includes
    derived components whose version is pinned in a requirements file of
-   another component (e.g. netbox-manager in python-osism)
+   another component (netbox-manager, openstack-image-manager and
+   openstack-flavor-manager in python-osism). For components installed from
+   a branch when another image is built (openstack-project-manager, cloned
+   from `main` by the osism image build), the commits of that branch between
+   the build times of the two source versions are included instead
 3. When `docker_images.kolla_ansible` changed, collects the upstream
    [openstack/kolla-ansible](https://github.com/openstack/kolla-ansible)
    changes pulled in by the image rebuild: the image is built from the
@@ -328,14 +332,12 @@ The script:
    distributions other than Ubuntu are ignored, and kolla-ansible commands
    are written as their `osism apply` equivalents (there is no
    `kolla-ansible` command in OSISM)
-4. Derives the recurring "images have been rebuilt" bullets deterministically
-   from the `docker_images.kolla` version (never model-generated)
-5. Lets Claude write an operator-focused release notes body; for entries
+4. Lets Claude write an operator-focused release notes body; for entries
    whose changelog line alone does not tell an operator anything, Claude
    looks up the referenced pull requests via read-only `gh pr view`/
    `gh pr diff` calls (chores and Renovate bumps are skipped). The body is
    sanitized deterministically before use
-6. Inserts the section into `docs/release-notes/osism-<major>.md` of
+5. Inserts the section into `docs/release-notes/osism-<major>.md` of
    [osism.github.io](https://github.com/osism/osism.github.io) following the
    `osism-10.md` layout: a plain row in the release table and a
    `## <version>` section (no date suffix), inserted before the first
