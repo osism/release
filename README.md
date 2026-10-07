@@ -235,7 +235,8 @@ The script:
    openstack-flavor-manager in python-osism). For components installed from
    a branch when another image is built (openstack-project-manager, cloned
    from `main` by the osism image build), the commits of that branch between
-   the build times of the two source versions are included instead
+   the build times of the two source versions are included instead, together
+   with the CHANGELOG.md sections of the tags created in that range
 3. When `docker_images.kolla_ansible` changed, collects the upstream
    [openstack/kolla-ansible](https://github.com/openstack/kolla-ansible)
    changes pulled in by the image rebuild: the image is built from the
