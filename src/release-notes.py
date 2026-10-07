@@ -13,7 +13,11 @@
 #
 #   input     Build the input document for the release notes generation:
 #             the version changes between two release versions plus the
-#             CHANGELOG.md excerpts of all changed OSISM components and,
+#             CHANGELOG.md excerpts of all changed OSISM components (also
+#             those pinned in a requirements file of another component,
+#             e.g. netbox-manager in python-osism), the commits of
+#             components installed from a branch at image build time
+#             (openstack-project-manager in the osism image) and,
 #             when docker_images.kolla_ansible changed, the upstream
 #             openstack/kolla-ansible changes pulled in by the image
 #             rebuild (commit subjects and reno release notes) together
@@ -22,8 +26,6 @@
 #             downstream patch changes of the kolla images as well, plus
 #             the effective OSISM kolla defaults (osism/defaults) as a
 #             reference for checking configuration advice
-#   bullets   Print the deterministic standard bullets for a release
-#             (derived from docker_images.kolla, never model-generated)
 #   sanitize  Sanitize a model-generated release notes body (stdin to
 #             stdout): strip any preamble before the first "### " heading,
 #             demote forbidden "# "/"## " headings, collapse blank lines.
@@ -108,19 +110,8 @@ OSISM_KOLLA_DEFAULTS_FILES = [
 MAX_UPSTREAM_NOTES = 100
 MAX_UPSTREAM_COMMITS = 400
 
-# The recurring "images have been rebuilt" bullets of the release notes.
-# All of these images are built by container-images-kolla, so they apply
-# exactly when docker_images.kolla changed between the two releases.
-STANDARD_BULLETS = """\
-* All OpenStack service images have been rebuilt. An upgrade of OpenStack services is recommended.
-
-* The infrastructure service images (MariaDB, RabbitMQ, ..) have been rebuilt. An upgrade is recommended.
-
-* The network service images (OVN, OVS) have been rebuilt. An upgrade is recommended.
-
-* The monitoring service images (Prometheus & all Prometheus exporters) have been rebuilt. An upgrade is recommended.
-
-* The logging service images (OpenSearch, Fluentd) have been rebuilt. An upgrade is recommended."""
+# GitHub commit listings are paginated; the maximum page size
+COMMITS_PER_PAGE = 100
 
 
 def warn(message):
@@ -287,6 +278,26 @@ def release_openstack_version(tag_prefix, image_version):
         return None
 
 
+def github_commit_time(repo, ref):
+    """Committer date of a commit, tag or branch head via the GitHub API."""
+    url = f"https://api.github.com/repos/{repo}/commits/{ref}"
+    try:
+        response = requests.get(url, headers=github_headers(), timeout=30)
+        if response.status_code == 200:
+            return response.json()["commit"]["committer"]["date"]
+    except (requests.RequestException, KeyError, ValueError) as e:
+        warn(f"Fetching {url} failed: {e}")
+    return None
+
+
+def version_date(version):
+    """End of the day encoded in an OSISM version like v0.20260615.0."""
+    m = re.fullmatch(r"v?\d+\.(\d{4})(\d{2})(\d{2})\.\d+", version)
+    if m:
+        return f"{m.group(1)}-{m.group(2)}-{m.group(3)}T23:59:59+00:00"
+    return None
+
+
 def kolla_ansible_build_time(image_version):
     """Approximate when a kolla-ansible image version was built.
 
@@ -300,23 +311,138 @@ def kolla_ansible_build_time(image_version):
     if out and out.strip():
         return out.strip()
 
-    url = f"https://api.github.com/repos/osism/release/commits/{tag}"
-    try:
-        response = requests.get(url, headers=github_headers(), timeout=30)
-        if response.status_code == 200:
-            return response.json()["commit"]["committer"]["date"]
-    except (requests.RequestException, KeyError, ValueError) as e:
-        warn(f"Fetching {url} failed: {e}")
+    when = github_commit_time("osism/release", tag)
+    if when:
+        return when
 
-    m = re.fullmatch(r"v?\d+\.(\d{4})(\d{2})(\d{2})\.\d+", image_version)
-    if m:
+    when = version_date(image_version)
+    if when:
         warn(
             f"Tag {tag} not found, falling back to the date encoded "
             f"in {image_version}"
         )
-        return f"{m.group(1)}-{m.group(2)}-{m.group(3)}T23:59:59+00:00"
+        return when
     warn(f"Cannot determine a build time for kolla-ansible {image_version}")
     return None
+
+
+def source_build_time(repo, version):
+    """Approximate when the container image of an OSISM component was built.
+
+    The image is built from the tag v<version> of its source repository
+    (e.g. python-osism for the osism image); the committer date of the
+    tagged commit is the closest timestamp available without the build
+    logs. Falls back to the date encoded in the version number.
+    """
+    tag = f"v{version.lstrip('v')}"
+    when = github_commit_time(repo, tag)
+    if when:
+        return when
+    when = version_date(version)
+    if when:
+        warn(
+            f"Tag {tag} of {repo} not found, falling back to the date encoded "
+            f"in {version}"
+        )
+        return when
+    warn(f"Cannot determine a build time for {repo} {version}")
+    return None
+
+
+def list_branch_commits(repo, branch, since, until, limit=None):
+    """Non-merge commits of a branch between two times, newest first.
+
+    Lists the commits of the branch in (since, until] via the GitHub API
+    (either bound may be None); returns [(sha, subject)] or None if the
+    listing failed. With a limit, at most that many commits are returned.
+    """
+    url = f"https://api.github.com/repos/{repo}/commits"
+    commits = []
+    page = 1
+    while True:
+        params = {"sha": branch, "per_page": COMMITS_PER_PAGE, "page": page}
+        if since:
+            params["since"] = since
+        if until:
+            params["until"] = until
+        try:
+            response = requests.get(
+                url, headers=github_headers(), params=params, timeout=30
+            )
+        except requests.RequestException as e:
+            warn(f"Fetching {url} failed: {e}")
+            return None
+        if response.status_code != 200:
+            warn(
+                f"Could not list the commits of {repo} {branch} "
+                f"(HTTP {response.status_code})"
+            )
+            return None
+        data = response.json()
+        for entry in data:
+            if len(entry.get("parents", [])) > 1:
+                continue
+            message = entry["commit"]["message"].strip()
+            subject = message.splitlines()[0].strip() if message else ""
+            commits.append((entry["sha"], subject))
+            if limit is not None and len(commits) >= limit:
+                return commits
+        if len(data) < COMMITS_PER_PAGE:
+            return commits
+        page += 1
+
+
+def branch_component_change(name, cfg, source_repo, old_source, new_source):
+    """Resolve the changes of a component installed from a branch.
+
+    Some components are not pinned anywhere: the container image of the
+    source component clones a branch of their repository when it is built
+    (e.g. openstack-project-manager in the osism image). The commits of
+    that branch between the build times of the two source versions stand
+    in for a version range. Returns (table row, input section lines) or
+    None if nothing changed or the state cannot be determined.
+    """
+    repo = cfg["repository"]
+    branch = cfg["branch"]
+    source = cfg["source"]
+    info(
+        f"Resolving {name} ({repo} {branch}) from the build times of "
+        f"{source_repo} {old_source} and {new_source}..."
+    )
+    since = source_build_time(source_repo, old_source)
+    until = source_build_time(source_repo, new_source)
+    if since is None or until is None:
+        return None
+    commits = list_branch_commits(repo, branch, since, until)
+    if commits is None:
+        return None
+    if not commits:
+        info(f"{name}: no commits on {branch} between {since} and {until}")
+        return None
+    head = commits[0][0]
+    base = list_branch_commits(repo, branch, None, since, limit=1)
+    base = base[0][0] if base else None
+    old = base[:10] if base else "?"
+    new = head[:10]
+
+    lines = [
+        f"### {repo} ({branch}, {old} -> {new})",
+        "",
+        f"{name} is not pinned: the {source} container image installs it "
+        f"from the {branch} branch of {repo} when the image is built. These "
+        f"are the commits of {branch} between the builds of {source} "
+        f"{old_source} and {new_source} ({since} -> {until}); the install "
+        "background is context only and must not be mentioned in the "
+        "release notes:",
+        "",
+    ]
+    for _, subject in commits:
+        # "(#123)" of a squash merge -> "(org/repo#123)", the reference
+        # style of the component changelogs
+        subject = re.sub(r"\(#(\d+)\)\s*$", rf"({repo}#\1)", subject)
+        lines.append(f"- {subject}")
+    row = (f"{name} (via {source}, {branch})", repo, old, new)
+    return row, lines
 
 
 def upstream_kolla_ansible_branch(openstack_version):
@@ -817,7 +943,10 @@ def cmd_input(args):
             third_rows.append((component, old, new))
 
     # Components whose version is pinned in a requirements file of another
-    # component (e.g. netbox-manager in python-osism) instead of base.yml
+    # component (e.g. netbox-manager in python-osism) instead of base.yml,
+    # or installed from a branch when the image of another component is
+    # built (e.g. openstack-project-manager in the osism image)
+    branch_sections = []
     for name, cfg in sorted(derived.items()):
         repo = cfg["repository"]
         source = cfg["source"]
@@ -827,6 +956,18 @@ def cmd_input(args):
         new_source = component_version(current, source)
         if not source_repo or not old_source or not new_source:
             warn(f"Cannot resolve source component '{source}' for {name}")
+            continue
+        if old_source == new_source:
+            info(f"{name}: unchanged ({source} {old_source})")
+            continue
+        if "branch" in cfg:
+            result = branch_component_change(
+                name, cfg, source_repo, old_source, new_source
+            )
+            if result:
+                row, lines = result
+                osism_rows.append(row)
+                branch_sections.append(lines)
             continue
         info(f"Resolving {name} pin from {source_repo} {cfg['file']}...")
         old = resolve_requirement_pin(source_repo, old_source, cfg["file"], package)
@@ -898,6 +1039,9 @@ def cmd_input(args):
             else:
                 out.append(sections)
         out.append("")
+    for lines in branch_sections:
+        out.extend(lines)
+        out.append("")
 
     upstream = kolla_ansible_upstream_section(previous, current)
     if upstream:
@@ -921,14 +1065,6 @@ def cmd_input(args):
         info(f"Input document written to {args.output}")
     else:
         sys.stdout.write(document)
-
-
-def cmd_bullets(args):
-    previous = load_versions(args.previous)
-    current = load_versions(args.current)
-    key = ("docker_images", "kolla")
-    if key in current and key in previous and previous[key] != current[key]:
-        print(STANDARD_BULLETS)
 
 
 def unwrap_markdown_fence(lines):
@@ -1130,16 +1266,12 @@ def main():
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    for name, func in (("input", cmd_input), ("bullets", cmd_bullets)):
-        sub = subparsers.add_parser(name)
-        sub.add_argument(
-            "--previous", required=True, help="previous release, e.g. 10.0.0"
-        )
-        sub.add_argument("--current", required=True, help="new release, e.g. 10.1.0")
-        if name == "input":
-            sub.add_argument("--repositories", default="etc/changelog-repositories.yml")
-            sub.add_argument("--output", help="output file (default: stdout)")
-        sub.set_defaults(func=func)
+    sub = subparsers.add_parser("input")
+    sub.add_argument("--previous", required=True, help="previous release, e.g. 10.0.0")
+    sub.add_argument("--current", required=True, help="new release, e.g. 10.1.0")
+    sub.add_argument("--repositories", default="etc/changelog-repositories.yml")
+    sub.add_argument("--output", help="output file (default: stdout)")
+    sub.set_defaults(func=cmd_input)
 
     sub = subparsers.add_parser("sanitize")
     sub.set_defaults(func=cmd_sanitize)
