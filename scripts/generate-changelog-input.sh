@@ -29,6 +29,17 @@
 # never be listed in later changelogs. They are also ignored when
 # deciding whether unreleased commits warrant a virtual today tag.
 #
+# A tag whose range contains no releasable commits (typically only the
+# release-notes commit of the previous tag, or the very same commit as the
+# previous tag) is not skipped. The OSISM release process sometimes
+# requires tagging a component again without any change of its own, so
+# that its container image is rebuilt with the component versions
+# currently pinned in osism/release (above all the osism package) and all
+# images of a release carry the same version tag. Such a tag gets a short
+# deterministic "rebuild without changes" entry, written without Claude,
+# so that the release notes generation finds a CHANGELOG.md section for
+# every released version.
+#
 # Every commit in a release range is resolved to a reference: #N from the
 # commit subject (squash-merge convention), otherwise the pull request
 # associated with the commit according to the GitHub API (gh), otherwise
@@ -214,6 +225,74 @@ count_releasable_commits() {
         fi
     done < <(git rev-list "$1".."$2")
     echo "$count"
+}
+
+# Insert the changelog entry in file $1 into CHANGELOG.md: before the first
+# existing version entry, or at the end of a header-only file. A missing or
+# empty CHANGELOG.md is created with the standard header; $2 (YYYY-MM-DD)
+# is used as the date the file was started on.
+insert_changelog_entry() {
+    local entry_file="$1" tag_date="$2" started_date insert_line
+
+    if [ ! -f "CHANGELOG.md" ] || [ ! -s "CHANGELOG.md" ]; then
+        # Format tag_date to "Month DD, YYYY" for the header
+        started_date=$(date -j -f "%Y-%m-%d" "$tag_date" "+%B %d, %Y" 2>/dev/null \
+            || date -d "$tag_date" "+%B %d, %Y" 2>/dev/null \
+            || echo "$tag_date")
+        {
+            echo "# Changelog"
+            echo ""
+            echo "All notable changes to this project will be documented in this file."
+            echo ""
+            echo "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),"
+            echo "and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)."
+            echo ""
+            echo "This file was started on ${started_date}. Changes prior to this date are not included in the CHANGELOG."
+            echo ""
+            cat "$entry_file"
+            echo ""
+        } > CHANGELOG.md
+        echo "Created CHANGELOG.md and inserted entry"
+        return
+    fi
+
+    insert_line=$(grep -n '^## \[v' CHANGELOG.md | head -1 | cut -d: -f1)
+    if [ -n "$insert_line" ]; then
+        # Has existing version entries: insert before the first one
+        {
+            head -n $((insert_line - 1)) CHANGELOG.md
+            cat "$entry_file"
+            echo ""
+            tail -n +"$insert_line" CHANGELOG.md
+        } > CHANGELOG.md.tmp
+        mv CHANGELOG.md.tmp CHANGELOG.md
+        echo "Inserted into CHANGELOG.md before existing entries"
+    else
+        # Minimal changelog (header only, no version entries): append at the end
+        {
+            cat CHANGELOG.md
+            echo ""
+            cat "$entry_file"
+            echo ""
+        } > CHANGELOG.md.tmp
+        mv CHANGELOG.md.tmp CHANGELOG.md
+        echo "Appended to CHANGELOG.md"
+    fi
+}
+
+# Delete the input and batch files of the current tag unless --keep-input
+# was given; they only existed to produce the entry now in CHANGELOG.md
+cleanup_input_files() {
+    local f
+    if [ "$KEEP_INPUT" = true ]; then
+        echo "Keeping input file: $OUTPUT_FILE (--keep-input)"
+        return
+    fi
+    rm -f "$OUTPUT_FILE"
+    for f in "${BATCH_FILES[@]}"; do
+        rm -f "$f"
+    done
+    echo "Removed input file: $OUTPUT_FILE"
 }
 
 # Handle --auto mode: read last tag from CHANGELOG.md
@@ -507,7 +586,41 @@ fi
 echo "  Max batch size: $MAX_BATCH_SIZE lines"
 
 if [ "$TOTAL_COMMITS" -eq 0 ]; then
-    echo "  No releasable commits in this range, skipping $LATEST_TAG"
+    if [ "$FIRST_TAG" = true ]; then
+        echo "  No releasable commits in this range, skipping $LATEST_TAG"
+        continue
+    fi
+
+    # The tag was created without any change of its own (see the header
+    # comment): write a short deterministic entry instead of skipping the
+    # tag, so that this version has a CHANGELOG.md section as well. There
+    # is nothing for Claude to analyze here, so Claude is not run.
+    echo "  No releasable commits since $PREVIOUS_TAG, writing a rebuild entry for $LATEST_TAG"
+
+    BATCH_FILES=()
+    {
+        echo "## [$LATEST_TAG] - $TAG_DATE"
+        echo ""
+        echo "### Changed"
+        echo "- Rebuild without changes since $PREVIOUS_TAG: the tag only exists so that the container image is rebuilt with the component versions currently pinned in osism/release (above all the osism package) and is released under the same version as the other OSISM container images"
+    } > "$OUTPUT_FILE"
+
+    echo ""
+    echo "Rebuild entry written to: $OUTPUT_FILE"
+    echo ""
+    echo "Content:"
+    echo "----------------------------------------"
+    cat "$OUTPUT_FILE"
+    echo "----------------------------------------"
+
+    if [ "$RUN_CLAUDE" = true ]; then
+        insert_changelog_entry "$OUTPUT_FILE" "$TAG_DATE"
+        cleanup_input_files
+    else
+        echo ""
+        echo "Next steps:"
+        echo "  1. Add the entry from $OUTPUT_FILE to CHANGELOG.md"
+    fi
     continue
 fi
 
@@ -926,64 +1039,8 @@ $CLEAN_RESULT"
     cat "$OUTPUT_FILE"
     echo "----------------------------------------"
 
-    # Insert into CHANGELOG.md
-    if [ ! -f "CHANGELOG.md" ] || [ ! -s "CHANGELOG.md" ]; then
-        # No CHANGELOG.md or empty: create with header and insert entry
-        # Format TAG_DATE to "Month DD, YYYY" for the header
-        STARTED_DATE=$(date -j -f "%Y-%m-%d" "$TAG_DATE" "+%B %d, %Y" 2>/dev/null \
-            || date -d "$TAG_DATE" "+%B %d, %Y" 2>/dev/null \
-            || echo "$TAG_DATE")
-        {
-            echo "# Changelog"
-            echo ""
-            echo "All notable changes to this project will be documented in this file."
-            echo ""
-            echo "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),"
-            echo "and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)."
-            echo ""
-            echo "This file was started on ${STARTED_DATE}. Changes prior to this date are not included in the CHANGELOG."
-            echo ""
-            cat "$OUTPUT_FILE"
-            echo ""
-        } > CHANGELOG.md
-        echo "Created CHANGELOG.md and inserted entry"
-    else
-        INSERT_LINE=$(grep -n '^## \[v' CHANGELOG.md | head -1 | cut -d: -f1)
-        if [ -n "$INSERT_LINE" ]; then
-            # Has existing version entries: insert before the first one
-            {
-                head -n $((INSERT_LINE - 1)) CHANGELOG.md
-                cat "$OUTPUT_FILE"
-                echo ""
-                tail -n +"$INSERT_LINE" CHANGELOG.md
-            } > CHANGELOG.md.tmp
-            mv CHANGELOG.md.tmp CHANGELOG.md
-            echo "Inserted into CHANGELOG.md before existing entries"
-        else
-            # Minimal changelog (header only, no version entries): append at the end
-            {
-                cat CHANGELOG.md
-                echo ""
-                cat "$OUTPUT_FILE"
-                echo ""
-            } > CHANGELOG.md.tmp
-            mv CHANGELOG.md.tmp CHANGELOG.md
-            echo "Appended to CHANGELOG.md"
-        fi
-    fi
-
-    # The input and batch files only existed to feed Claude; now that the
-    # entry is in CHANGELOG.md they are deleted again unless --keep-input
-    # was given
-    if [ "$KEEP_INPUT" = true ]; then
-        echo "Keeping input file: $OUTPUT_FILE (--keep-input)"
-    else
-        rm -f "$OUTPUT_FILE"
-        for f in "${BATCH_FILES[@]}"; do
-            rm -f "$f"
-        done
-        echo "Removed input file: $OUTPUT_FILE"
-    fi
+    insert_changelog_entry "$OUTPUT_FILE" "$TAG_DATE"
+    cleanup_input_files
 else
     echo ""
     echo "Next steps:"
