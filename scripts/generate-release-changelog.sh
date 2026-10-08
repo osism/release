@@ -1,9 +1,10 @@
 #!/bin/bash
 #
-# Generate a release notes section for a follow-up OSISM release
+# Generate a release notes section for an OSISM release
 #
 # This script generates the release notes section for a follow-up release
-# (e.g. 10.1.0) as published at https://osism.tech/docs/release-notes/ and
+# (e.g. 10.1.0) or the first release of a new major series (e.g. 11.0.0)
+# as published at https://osism.tech/docs/release-notes/ and
 # optionally inserts it into docs/release-notes/osism-<major>.md of
 # osism/osism.github.io.
 #
@@ -53,7 +54,11 @@
 # --site-dir a temporary clone is used; --commit commits on a branch,
 # --pr additionally pushes the branch and opens a pull request via gh.
 # Without any of these options the generated section is only written to a
-# local file for review.
+# local file for review. The page docs/release-notes/osism-<major>.md has
+# to exist already: the page of a new major series (first release X.0.0)
+# is created by hand. The checkout is prepared and the page is checked
+# before anything is generated, so that a missing page fails before the
+# Claude run; the security advisories are then read from that checkout.
 #
 # Usage: ./scripts/generate-release-changelog.sh [options] <version>
 #
@@ -245,6 +250,49 @@ fi
 INPUT_FILE="release-notes-input-${VERSION}.md"
 MAJOR="${VERSION%%.*}"
 
+# X.0.0 is the first release of a new major series, any other version a
+# follow-up (point) release within its series
+FIRST_OF_SERIES=false
+if [[ "$VERSION" =~ ^[0-9]+\.0\.0$ ]]; then
+    FIRST_OF_SERIES=true
+fi
+
+# Prepare the osism.github.io checkout before anything is generated: the
+# Claude run takes several minutes, so a missing release notes page has to
+# fail here and not only when the section is inserted
+SITE_FILE=""
+if [ "$RUN_CLAUDE" = true ] && { [ -n "$SITE_DIR" ] || [ "$DO_COMMIT" = true ]; }; then
+    TEMP_SITE_DIR=""
+    if [ -z "$SITE_DIR" ]; then
+        TEMP_SITE_DIR=$(mktemp -d)
+        SITE_DIR="$TEMP_SITE_DIR/osism.github.io"
+        echo "Cloning $SITE_REPO into $SITE_DIR..."
+        if command -v gh >/dev/null 2>&1; then
+            gh repo clone "$SITE_REPO" "$SITE_DIR" -- --depth 1
+        else
+            git clone --depth 1 "https://github.com/${SITE_REPO}.git" "$SITE_DIR"
+        fi
+        echo ""
+    fi
+
+    SITE_FILE="$SITE_DIR/docs/release-notes/osism-${MAJOR}.md"
+    if [ ! -f "$SITE_FILE" ]; then
+        echo "Error: $SITE_FILE not found"
+        if [ "$FIRST_OF_SERIES" = true ]; then
+            echo ""
+            echo "$VERSION is the first release of OSISM $MAJOR. The page of a new major"
+            echo "series (front matter, info boxes, release table) is created by hand"
+            echo "in $SITE_REPO, following osism-$((MAJOR - 1)).md. Afterwards this"
+            echo "script can insert the $VERSION section; without --site-dir/--commit/--pr"
+            echo "the section is only written to $OUTPUT_FILE."
+        fi
+        if [ -n "$TEMP_SITE_DIR" ]; then
+            rm -rf "$TEMP_SITE_DIR"
+        fi
+        exit 1
+    fi
+fi
+
 if [ -n "$INPUT_FILE_ARG" ]; then
     INPUT_FILE="$INPUT_FILE_ARG"
     echo "Reusing existing input file: $INPUT_FILE"
@@ -291,8 +339,8 @@ PROMPT_TEMPLATE_FILE=$(mktemp)
 cat > "$PROMPT_TEMPLATE_FILE" <<'EOF'
 # Release Notes Generation Prompt
 
-You are writing the release notes section for OSISM __VERSION__, a follow-up
-(point) release of OSISM __MAJOR__, published at
+You are writing the release notes section for OSISM __VERSION__,
+__RELEASE_KIND__, published at
 https://osism.tech/docs/release-notes/.
 
 Below you find (1) the version changes between OSISM __PREVIOUS__ and OSISM
@@ -530,7 +578,14 @@ EOF
 PROMPT_TEMPLATE=$(cat "$PROMPT_TEMPLATE_FILE")
 rm -f "$PROMPT_TEMPLATE_FILE"
 
-PROMPT="${PROMPT_TEMPLATE//__VERSION__/$VERSION}"
+if [ "$FIRST_OF_SERIES" = true ]; then
+    RELEASE_KIND="the first release of the new major series OSISM $MAJOR (the previous release is OSISM $PREVIOUS)"
+else
+    RELEASE_KIND="a follow-up (point) release of OSISM $MAJOR"
+fi
+
+PROMPT="${PROMPT_TEMPLATE//__RELEASE_KIND__/$RELEASE_KIND}"
+PROMPT="${PROMPT//__VERSION__/$VERSION}"
 PROMPT="${PROMPT//__PREVIOUS__/$PREVIOUS}"
 PROMPT="${PROMPT//__MAJOR__/$MAJOR}"
 PROMPT="$PROMPT
@@ -573,7 +628,7 @@ echo "----------------------------------------"
 cat "$OUTPUT_FILE"
 echo "----------------------------------------"
 
-if [ -z "$SITE_DIR" ] && [ "$DO_COMMIT" = false ]; then
+if [ -z "$SITE_FILE" ]; then
     echo ""
     echo "Next steps:"
     echo "  Insert the section into docs/release-notes/osism-${MAJOR}.md of $SITE_REPO,"
@@ -581,24 +636,7 @@ if [ -z "$SITE_DIR" ] && [ "$DO_COMMIT" = false ]; then
     exit 0
 fi
 
-# Insert the section into osism.github.io
-if [ -z "$SITE_DIR" ]; then
-    SITE_DIR=$(mktemp -d)/osism.github.io
-    echo ""
-    echo "Cloning $SITE_REPO into $SITE_DIR..."
-    if command -v gh >/dev/null 2>&1; then
-        gh repo clone "$SITE_REPO" "$SITE_DIR" -- --depth 1
-    else
-        git clone --depth 1 "https://github.com/${SITE_REPO}.git" "$SITE_DIR"
-    fi
-fi
-
-SITE_FILE="$SITE_DIR/docs/release-notes/osism-${MAJOR}.md"
-if [ ! -f "$SITE_FILE" ]; then
-    echo "Error: $SITE_FILE not found"
-    exit 1
-fi
-
+# Insert the section into osism.github.io (checkout prepared above)
 release_notes_py insert \
     --site-file "$SITE_FILE" --section-file "$OUTPUT_FILE" \
     --version "$VERSION" --date "$DATE"
