@@ -1,4 +1,15 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#     "gitpython",
+#     "pyyaml",
+# ]
+# ///
+#
+# Helper for scripts/create-version.sh: freezes the current latest/ state
+# into a named release directory. Must be run from the repository root
+# (reads latest/base.yml and the git tags of this repository).
 
 import argparse
 import os
