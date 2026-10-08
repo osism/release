@@ -234,6 +234,16 @@ The script:
 6. Deletes the generated `changelog-input-*.md` working files again
    (`--keep-input` keeps them; with `-n` they are always kept)
 
+A tag without any change of its own (its range contains nothing but the
+release-notes commit of the previous tag, or it points to the same commit)
+is not skipped: the release process sometimes requires tagging a component
+again so that its container image is rebuilt with the component versions
+currently pinned in `latest/` (above all the `osism` package) and all
+images of a release carry the same version tag. Such a tag gets a short
+deterministic "rebuild without changes" entry, written without Claude, so
+that the release notes generation (step 5) finds a `CHANGELOG.md` section
+for every released version.
+
 ### 5. Release notes generation (per release)
 
 Generate the release notes section for a follow-up release as published at
