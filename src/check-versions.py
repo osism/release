@@ -13,6 +13,10 @@
 #
 # Checked are:
 #
+# - the symlinks that name the default series: latest/ceph.yml has to point
+#   to the newest active Ceph release (ceph/ceph doc/releases/releases.yml),
+#   latest/openstack.yml to the newest released SLURP release of OpenStack
+#   (openstack/releases data/series_status.yaml).
 # - every pin with a Renovate annotation and an OSISM version (date-based,
 #   v0.YYYYMMDD.N) in latest/base.yml and in the Ceph and OpenStack files
 #   the symlinks of latest/ point to (ceph.yml, ceph_ansible.yml,
@@ -28,8 +32,8 @@
 #   release on PyPI.
 #
 # For an outdated pin the open Renovate pull request that updates it is
-# named, if there is one. Exits with 1 if a pin is outdated or its newest
-# version could not be determined.
+# named, if there is one. Exits with 1 if a symlink or a pin is outdated or
+# its newest version could not be determined.
 
 import argparse
 import collections
@@ -48,6 +52,12 @@ GALAXY_URL = (
 )
 PYPI_URL = "https://pypi.org/pypi/{package}/json"
 RAW_URL = "https://raw.githubusercontent.com/{repo}/{ref}/{path}"
+CEPH_RELEASES_URL = RAW_URL.format(
+    repo="ceph/ceph", ref="main", path="doc/releases/releases.yml"
+)
+OPENSTACK_SERIES_URL = RAW_URL.format(
+    repo="openstack/releases", ref="master", path="data/series_status.yaml"
+)
 PULLS_URL = "https://api.github.com/repos/{repo}/pulls"
 
 # The repository whose latest/ directory is checked
@@ -396,6 +406,116 @@ def check_derived(mapping, base_path):
     return rows
 
 
+def get_yaml(url):
+    """A YAML document from a URL with every scalar as a string.
+
+    The BaseLoader keeps a release-id like 2026.1 a string, not a float.
+    """
+    response = requests.get(url, timeout=30)
+    response.raise_for_status()
+    return yaml.load(response.text, Loader=yaml.BaseLoader)
+
+
+def ceph_releases():
+    """The released Ceph releases as [(codename, active)], newest first.
+
+    A release counts once it has a stable version (x.2.z; x.0.z are
+    development versions, x.1.z release candidates) and is active until
+    upstream sets its actual_eol.
+    """
+    releases = []
+    for name, data in get_yaml(CEPH_RELEASES_URL)["releases"].items():
+        stable = [
+            release["version"]
+            for release in data.get("releases") or []
+            if int(release["version"].split(".")[1]) >= 2
+        ]
+        if stable:
+            major = int(stable[0].split(".")[0])
+            releases.append((major, name, "actual_eol" not in data))
+    return [(name, active) for _, name, active in sorted(releases, reverse=True)]
+
+
+def openstack_releases():
+    """The released OpenStack series as [(release-id, slurp)], newest first."""
+    series = [
+        (entry["release-id"], entry.get("slurp", "").lower() in ("yes", "true"))
+        for entry in get_yaml(OPENSTACK_SERIES_URL)
+        if "release-id" in entry and entry["status"] != "development"
+    ]
+    return sorted(series, key=lambda entry: version_key(entry[0]), reverse=True)
+
+
+# The symlinks of latest/ that name the default series: the prefix of the
+# series files, which series the symlink has to point to, and the upstream
+# data the series are read from
+SYMLINKS = (
+    ("ceph.yml", "ceph-", "active Ceph release", "ceph/ceph", ceph_releases),
+    (
+        "openstack.yml",
+        "openstack-",
+        "released SLURP release",
+        "openstack/releases",
+        openstack_releases,
+    ),
+)
+
+
+def check_symlinks(directory):
+    """Check that the symlinks of latest/ point to the newest default series.
+
+    ceph_ansible.yml is no default series and not checked: it names the
+    series that existing clusters are managed with by ceph-ansible, which
+    stops at squid.
+    """
+    rows = []
+    for symlink, prefix, criterion, source, releases in SYMLINKS:
+        path = os.path.join(directory, symlink)
+        target = os.readlink(path) if os.path.islink(path) else "-"
+        try:
+            series = releases()
+        except (
+            AttributeError,
+            LookupError,
+            TypeError,
+            ValueError,
+            yaml.YAMLError,
+            requests.RequestException,
+        ) as e:
+            rows.append(
+                Row(
+                    "error",
+                    path,
+                    "symlink",
+                    source,
+                    target,
+                    None,
+                    f"lookup failed: {e}",
+                )
+            )
+            continue
+        files = [f"{prefix}{name}.yml" for name, _ in series]
+        candidates = [file for file, (_, ok) in zip(files, series) if ok]
+        if not candidates:
+            rows.append(
+                Row("error", path, "symlink", source, target, None, f"no {criterion}")
+            )
+            continue
+        newest_series = candidates[0]
+        if target == newest_series:
+            status, note = "ok", ""
+        elif target in files and files.index(target) > files.index(newest_series):
+            status, note = "outdated", f"newest {criterion}"
+        else:
+            status, note = "error", f"not the newest {criterion}"
+        if status != "ok" and not os.path.exists(
+            os.path.join(directory, newest_series)
+        ):
+            note += f", {newest_series} does not exist yet"
+        rows.append(Row(status, path, "symlink", source, target, newest_series, note))
+    return rows
+
+
 def print_report(rows, verbose):
     shown = [row for row in rows if verbose or row.status != "ok"]
     if shown:
@@ -411,14 +531,15 @@ def print_report(rows, verbose):
         print()
     counts = collections.Counter(row.status for row in rows)
     print(
-        f"{len(rows)} OSISM version pins checked: {counts['ok']} current, "
+        f"{len(rows)} pins and symlinks checked: {counts['ok']} current, "
         f"{counts['outdated']} outdated, {counts['error']} unresolved"
     )
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Check that latest/ pins the newest OSISM component versions"
+        description="Check that latest/ pins the newest OSISM component versions "
+        "and points to the newest default Ceph and OpenStack series"
     )
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="also list the current pins"
@@ -434,7 +555,8 @@ def main():
     with open(args.repositories) as fp:
         mapping = yaml.safe_load(fp)
 
-    rows = check_latest(args.latest)
+    rows = check_symlinks(args.latest)
+    rows += check_latest(args.latest)
     rows += check_derived(mapping, os.path.join(args.latest, "base.yml"))
     print_report(rows, args.verbose)
     return 0 if all(row.status == "ok" for row in rows) else 1

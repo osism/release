@@ -16,9 +16,9 @@ changelogs.
 ├── latest/              # Current development versions (continuously updated)
 │   ├── base.yml         # Core component versions
 │   ├── ceph-*.yml       # Ceph-specific versions (quincy, reef, squid)
-│   ├── ceph.yml         # Symlink → default Ceph version (currently ceph-reef.yml)
+│   ├── ceph.yml         # Symlink → default Ceph version (newest active Ceph release)
 │   ├── openstack-*.yml  # OpenStack-specific versions (2024.1, 2024.2, 2025.1, 2025.2)
-│   └── openstack.yml    # Symlink → default OpenStack version (currently openstack-2025.1.yml)
+│   └── openstack.yml    # Symlink → default OpenStack version (newest SLURP release)
 ├── <VERSION>/           # Pinned release versions (e.g. 10.0.0/, 9.5.0/)
 │   └── base.yml         # Frozen component versions for this release
 ├── next/                # SBOMs and metadata for upcoming builds
@@ -96,12 +96,15 @@ Each file pins the versions specific to one OpenStack release:
 
 **Symlinks** — default versions:
 
-- `ceph.yml` → `ceph-reef.yml` — points to the current default Ceph version
-- `openstack.yml` → `openstack-2025.1.yml` — points to the current default OpenStack version
+- `ceph.yml` → `ceph-tentacle.yml` — points to the current default Ceph version,
+  always the newest active Ceph release
+- `openstack.yml` → `openstack-2026.1.yml` — points to the current default OpenStack
+  version, always the newest released SLURP release (`2025.1`, `2026.1`, ...)
 
 These symlinks are used by consumers that do not specify a particular version and
 want to use the recommended default. When the default changes (e.g. after a new
-OpenStack release is promoted), the symlink target is updated.
+Ceph release or a new SLURP release of OpenStack), the symlink target is updated;
+`./scripts/check-versions.sh` reports a symlink that is behind.
 
 **Release versions** (`<VERSION>/`) only contain `base.yml`. The OpenStack and Ceph
 files are not copied into release directories because the supported OpenStack and
@@ -151,6 +154,14 @@ Requires [uv](https://docs.astral.sh/uv/) (fallback: a `python3` with
 
 The script checks:
 
+- the symlinks that name the default series: `ceph.yml` has to point to the
+  newest active Ceph release (a stable `x.2.z` version is released, no
+  `actual_eol` in `doc/releases/releases.yml` of ceph/ceph), `openstack.yml`
+  to the newest released SLURP release (`slurp: yes`, no longer in
+  development in `data/series_status.yaml` of openstack/releases). If the
+  series file of that release does not exist in `latest/` yet, the note says
+  so. `ceph_ansible.yml` is not checked, it names the series that existing
+  clusters are managed with by ceph-ansible
 - every pin with a Renovate annotation and a date-based OSISM version
   (`v0.YYYYMMDD.N`) in `latest/base.yml` and in the Ceph and OpenStack files
   the symlinks point to (`ceph.yml`, `ceph_ansible.yml`, `openstack.yml`):
@@ -171,8 +182,8 @@ The script checks:
   use yet
 
 For an outdated pin the open Renovate PR that updates it is named; without
-one, trigger a Renovate run. The script exits with 1 if a pin is outdated or
-its newest version could not be determined.
+one, trigger a Renovate run. The script exits with 1 if a symlink or a pin is
+outdated or its newest version could not be determined.
 
 ### 2. Tag creation
 

@@ -339,3 +339,127 @@ def test_check_derived_points_to_the_newer_python_osism_release(tmp_path, monkey
     assert rows[0].note == (
         "in osism/python-osism v0.20261009.0, update osism in latest/base.yml"
     )
+
+
+CEPH_RELEASES = """
+releases:
+  squid:
+    target_eol: 2026-10-31
+    releases:
+      - version: 19.2.6
+        released: 2026-08-19
+  tentacle:
+    target_eol: 2027-06-01
+    releases:
+      - version: 20.2.4
+        released: 2026-08-19
+  umbrella:
+    releases:
+      - version: 21.1.0
+        released: 2026-09-01
+  reef:
+    target_eol: 2026-03-20
+    actual_eol: 2026-03-20
+    releases:
+      - version: 18.2.8
+        released: 2026-03-20
+"""
+
+OPENSTACK_SERIES = """
+- name: indri
+  release-id: 2027.1
+  status: development
+  slurp: yes
+- name: hibiscus
+  release-id: 2026.2
+  status: maintained
+- name: gazpacho
+  release-id: 2026.1
+  status: maintained
+  slurp: yes
+- name: flamingo
+  release-id: 2025.2
+  status: maintained
+- name: epoxy
+  release-id: 2025.1
+  status: maintained
+  slurp: yes
+- name: zed
+  status: unmaintained
+"""
+
+
+def _series(tmp_path, ceph, openstack, files=()):
+    for name in files:
+        (tmp_path / name).write_text("---\n")
+    (tmp_path / "ceph.yml").symlink_to(ceph)
+    (tmp_path / "openstack.yml").symlink_to(openstack)
+    responses.add(responses.GET, cv.CEPH_RELEASES_URL, body=CEPH_RELEASES)
+    responses.add(responses.GET, cv.OPENSTACK_SERIES_URL, body=OPENSTACK_SERIES)
+    return cv.check_symlinks(str(tmp_path))
+
+
+@responses.activate
+def test_check_symlinks_expects_the_newest_active_ceph_and_slurp_release(tmp_path):
+    rows = _series(
+        tmp_path,
+        "ceph-tentacle.yml",
+        "openstack-2025.1.yml",
+        files=("ceph-tentacle.yml", "openstack-2025.1.yml", "openstack-2026.1.yml"),
+    )
+
+    # umbrella has only a release candidate, 2026.2 is no SLURP release and
+    # 2027.1 is still in development
+    assert rows == [
+        cv.Row(
+            "ok",
+            str(tmp_path / "ceph.yml"),
+            "symlink",
+            "ceph/ceph",
+            "ceph-tentacle.yml",
+            "ceph-tentacle.yml",
+            "",
+        ),
+        cv.Row(
+            "outdated",
+            str(tmp_path / "openstack.yml"),
+            "symlink",
+            "openstack/releases",
+            "openstack-2025.1.yml",
+            "openstack-2026.1.yml",
+            "newest released SLURP release",
+        ),
+    ]
+
+
+@responses.activate
+def test_check_symlinks_rejects_newer_and_unknown_series(tmp_path):
+    rows = _series(
+        tmp_path,
+        "ceph-reef.yml",
+        "openstack-2026.2.yml",
+        files=("ceph-reef.yml", "openstack-2026.1.yml", "openstack-2026.2.yml"),
+    )
+
+    assert [(row.status, row.newest, row.note) for row in rows] == [
+        (
+            "outdated",
+            "ceph-tentacle.yml",
+            "newest active Ceph release, ceph-tentacle.yml does not exist yet",
+        ),
+        ("error", "openstack-2026.1.yml", "not the newest released SLURP release"),
+    ]
+
+
+@responses.activate
+def test_check_symlinks_reports_a_failed_lookup(tmp_path):
+    (tmp_path / "ceph.yml").symlink_to("ceph-tentacle.yml")
+    (tmp_path / "openstack.yml").symlink_to("openstack-2026.1.yml")
+    responses.add(responses.GET, cv.CEPH_RELEASES_URL, status=404)
+    responses.add(responses.GET, cv.OPENSTACK_SERIES_URL, body="- name: zed\n")
+
+    rows = cv.check_symlinks(str(tmp_path))
+
+    assert [row.status for row in rows] == ["error", "error"]
+    assert rows[0].note.startswith("lookup failed: 404")
+    assert rows[1].note == "no released SLURP release"

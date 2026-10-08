@@ -4,7 +4,9 @@
 #
 # Renovate opens a pull request for every new version of an OSISM
 # component, but nothing reminds of a pull request that was not merged.
-# This script compares the OSISM versions pinned in latest/base.yml and in
+# This script checks that latest/ceph.yml points to the newest active Ceph
+# release and latest/openstack.yml to the newest released SLURP release of
+# OpenStack, and compares the OSISM versions pinned in latest/base.yml and in
 # the Ceph and OpenStack files the symlinks of latest/ point to (defaults,
 # generics, the playbooks, the osism.* collections, the osism package and
 # the OSISM images) with the newest published versions, and the
@@ -19,8 +21,8 @@
 # Options:
 #   -v, --verbose   Also list the pins that are current
 #
-# Exits with 1 if a pin is outdated or its newest version could not be
-# determined.
+# Exits with 1 if a symlink or a pin is outdated or its newest version
+# could not be determined.
 #
 # Wrapper for src/check-versions.py: uv provisions its dependencies
 # (requests, PyYAML) from the inline script metadata (PEP 723); plain
