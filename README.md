@@ -212,7 +212,33 @@ This:
 
 ### 4. Changelog generation (per-component)
 
-Generate CHANGELOG entries from git commits using Claude:
+Every component that changed between the previous release and the new one
+needs a `CHANGELOG.md` section for its new version. The script generates
+these sections from git commits using Claude. It is run **inside the
+component repositories**, not in this repository; the repositories in
+question are the ones listed under `components` in
+`etc/changelog-repositories.yml` (python-osism, the Ansible collections and
+playbooks, defaults, generics and the container image repositories). The
+recommended invocation for the release process, with the current working
+directory being the component repository and `<release>` the path of a
+checkout of this repository:
+
+```bash
+# In every changed component repository
+<release>/scripts/generate-changelog-input.sh --auto --pr --tags-only
+```
+
+`--auto` picks up all tags that are not yet documented in `CHANGELOG.md`,
+`--tags-only` makes sure that only existing tags are documented (commits
+after the last tag are not part of any release yet), and `--pr` commits the
+result on a branch and opens a pull request in the component repository.
+**Merge these changelog PRs in all component repositories before
+continuing with step 5**: the release notes are generated from the
+`CHANGELOG.md` files on the default branches of the component repositories,
+so a changelog PR that is still open leaves its component out of the
+release notes.
+
+Further variants:
 
 ```bash
 # Auto-detect: process all tags not yet in CHANGELOG.md
@@ -316,9 +342,11 @@ The script:
    existing release section or directly after the release table if the page
    has none yet
 
-The component CHANGELOGs are the content source: run
-`generate-changelog-input.sh --auto` in the component repositories first so
-that their CHANGELOG.md files cover the new component versions.
+The component CHANGELOGs are the content source: the changelog PRs from
+step 4 have to be merged in all changed component repositories before this
+script is run, so that their `CHANGELOG.md` files cover the new component
+versions. A component whose changelog PR is still open is missing from the
+generated release notes.
 
 ## CI
 
