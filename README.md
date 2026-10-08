@@ -460,7 +460,8 @@ for every released version.
 
 ### 5. Release notes generation (per release)
 
-Generate the release notes section for a follow-up release as published at
+Generate the release notes section for a follow-up release (e.g. `10.1.0`)
+or the first release of a new major series (e.g. `11.0.0`) as published at
 https://osism.tech/docs/release-notes/ :
 
 ```bash
@@ -540,7 +541,11 @@ The script:
    `osism-10.md` layout: a plain row in the release table and a
    `## <version>` section (no date suffix), inserted before the first
    existing release section or directly after the release table if the page
-   has none yet
+   has none yet. The page has to exist already: the page of a new major
+   series (first release `X.0.0`, e.g. `osism-11.md`) with its front matter,
+   info boxes and release table is created by hand. With
+   `--site-dir`/`--commit`/`--pr` the page is checked before anything is
+   generated, so a missing page fails before the Claude run
 
 The component CHANGELOGs are the content source: the changelog PRs from
 step 4 have to be merged in all changed component repositories before this
