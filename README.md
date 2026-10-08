@@ -30,6 +30,7 @@ changelogs.
 │   └── changelog-repositories.yml  # Component name → GitHub source repository
 ├── scripts/             # Release automation scripts
 │   ├── check-kolla-images.sh
+│   ├── check-osism-images.sh
 │   ├── check-versions.sh
 │   ├── create-tags.sh
 │   ├── create-version.sh
@@ -38,6 +39,7 @@ changelogs.
 │   └── remove-kolla-images.sh
 └── src/                 # Python utilities
     ├── check-kolla-images.py
+    ├── check-osism-images.py
     ├── check-versions.py
     ├── create-version.py
     ├── git-diff-log.py
@@ -247,6 +249,10 @@ pushed, three further steps are required, in this order:
    - [osism/container-image-kolla-ansible](https://github.com/osism/container-image-kolla-ansible)
    - [osism/container-image-ceph-ansible](https://github.com/osism/container-image-ceph-ansible)
    - [osism/container-image-inventory-reconciler](https://github.com/osism/container-image-inventory-reconciler)
+
+   Wait until the builds have finished and check their images with
+   `./scripts/check-osism-images.sh v0.20260322.0` (see
+   [below](#checking-the-other-images-of-a-tag)).
 3. Once the images have been built and pushed, Renovate opens one PR per core
    image in this repository that bumps the image version in `latest/base.yml`
    to the new tag (e.g. [#2789](https://github.com/osism/release/pull/2789)
@@ -284,6 +290,44 @@ the SBOM image has to be signed as well. Nothing is changed in the registry; the
 script exits with 1 if a check fails. The images are checked in parallel
 (`--jobs`, default 8). The `kolla` project can be read anonymously;
 `HARBOR_USERNAME` and `HARBOR_PASSWORD` are used if they are set.
+
+#### Checking the other images of a tag
+
+After the builds of a tag in the other container image repositories have
+finished, check that all of their images are complete in the registry and
+were built from the current state of the release tags of this repository:
+
+```bash
+./scripts/check-osism-images.sh v0.20261008.0
+```
+
+The script checks the images `osism/<image>:<version>` (the tag without the
+leading `v`) on `osism.harbor.regio.digital` of `osism-ansible`,
+`osism-kubernetes`, `kolla-ansible`, `ceph-ansible` and
+`inventory-reconciler`. For every image the digest of its tag is looked up
+and checked:
+
+- the manifest the registry serves for the tag has this digest, and the config
+  blob and all layer blobs of the manifest exist
+- the label `org.opencontainers.image.version` names the build
+- the image was pushed after the commit of the release tag
+  `<image>-v<version>` of this repository was made. An image pushed before
+  that was built before the tag was moved to this commit (see
+  `./scripts/create-tags.sh`) and has to be built again from the tag
+- `kolla-ansible`: the label `de.osism.commit.release` names the commit of the
+  release tag, the label `de.osism.release.openstack` the OpenStack version of
+  `latest/openstack.yml` at the release tag
+- `ceph-ansible`: the label `de.osism.release.ceph` names the Ceph release of
+  `latest/ceph_ansible.yml` at the release tag (`latest/ceph.yml` for release
+  snapshots from before `ceph_ansible.yml` existed)
+- the digest carries a cosign signature (`signature.cosign` or a sigstore
+  bundle referring to it, depending on the cosign version of the build)
+
+Every image is printed with the digest of its tag (`<image>:<tag>@<digest>`).
+Nothing is changed in the registry; the script exits with 1 if a check fails.
+The release tags are read from the git checkout of this repository, so they
+have to exist locally (`git fetch --tags`). The `osism` project can be read
+anonymously; `HARBOR_USERNAME` and `HARBOR_PASSWORD` are used if they are set.
 
 #### Removing a wrongly built kolla tag
 
