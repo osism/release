@@ -33,13 +33,15 @@ changelogs.
 │   ├── create-tags.sh
 │   ├── create-version.sh
 │   ├── generate-changelog-input.sh
-│   └── generate-release-changelog.sh
+│   ├── generate-release-changelog.sh
+│   └── remove-kolla-images.sh
 └── src/                 # Python utilities
     ├── check-versions.py
     ├── create-version.py
     ├── git-diff-log.py
     ├── release-notes.py
-    └── remove-images-from-quay.py
+    ├── remove-images-from-quay.py
+    └── remove-kolla-images.py
 ```
 
 ## Version files
@@ -247,6 +249,37 @@ pushed, three further steps are required, in this order:
    then does `latest/base.yml` reference the images that were just built,
    and a release version created in the next step is based on it. If a PR is
    missing, trigger a Renovate run on this repository once more.
+
+#### Removing a wrongly built kolla tag
+
+If a tag was built in osism/container-images-kolla from the wrong state, its
+images have to be removed from the registry before the tag can be built again
+cleanly:
+
+```bash
+# List the images of the build, remove nothing
+./scripts/remove-kolla-images.sh --dry-run v0.20261008.0
+
+# Remove the images and the SBOM image, with a confirmation for every image
+./scripts/remove-kolla-images.sh v0.20261008.0
+```
+
+The script reads the SBOM image `kolla/release/<openstack version>/sbom:<tag>`
+of the build from `osism.harbor.regio.digital` (the OpenStack version is looked
+up in the registry, or given with `--openstack-version`) and asks for every
+image it lists whether to remove it (`yes`, `no` or `quit`). The SBOM image is
+removed last, after a confirmation of its own, so that an interrupted run can
+simply be repeated: images that are already gone are skipped. An image is
+removed as a Harbor artifact together with its cosign signature; if the artifact
+carries further tags, only the tag of the build is removed. Image tags only
+contain the build date, so builds of the same day share them: an image that is
+also listed in another SBOM of the same OpenStack version is pointed out before
+the confirmation.
+
+The Harbor credentials are read from `HARBOR_USERNAME` and `HARBOR_PASSWORD`
+and asked for if they are not set; the account needs the permission to delete
+artifacts in the `kolla` project. `uv` provisions the dependencies of
+`src/remove-kolla-images.py` (requests, PyYAML) from its inline script metadata.
 
 ### 3. Create a release version
 
