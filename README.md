@@ -29,11 +29,13 @@ changelogs.
 │   ├── roles.yml        # Ansible roles
 │   └── changelog-repositories.yml  # Component name → GitHub source repository
 ├── scripts/             # Release automation scripts
+│   ├── check-versions.sh
 │   ├── create-tags.sh
 │   ├── create-version.sh
 │   ├── generate-changelog-input.sh
 │   └── generate-release-changelog.sh
 └── src/                 # Python utilities
+    ├── check-versions.py
     ├── create-version.py
     ├── git-diff-log.py
     ├── release-notes.py
@@ -134,6 +136,44 @@ creates PRs to update versions in the `latest/` directory. It supports multiple 
 Related updates are grouped (e.g. ansible + ansible-core, postgres + pgautoupgrade)
 to keep PRs manageable.
 
+Renovate opens the PRs, but nothing reminds of a PR that was not merged. To
+make sure that `latest/` really pins the newest OSISM versions, run:
+
+```bash
+./scripts/check-versions.sh
+
+# Also list the pins that are current
+./scripts/check-versions.sh -v
+```
+
+Requires [uv](https://docs.astral.sh/uv/) (fallback: a `python3` with
+`requests` and `PyYAML` installed) and `git`.
+
+The script checks:
+
+- every pin with a Renovate annotation and a date-based OSISM version
+  (`v0.YYYYMMDD.N`) in `latest/base.yml` and in the Ceph and OpenStack files
+  the symlinks point to (`ceph.yml`, `ceph_ansible.yml`, `openstack.yml`):
+  `defaults`, `generics`, the playbooks (`osism/ansible-playbooks`,
+  `osism/ansible-playbooks-manager`, `osism/kolla-operations`), the
+  `osism.*` collections, the `osism` package and the OSISM images. The
+  files of the other series are not checked, only the default series are
+  in use. The newest version is read from the datasource of the Renovate
+  annotation (GitHub tags, Ansible Galaxy, PyPI, registry.osism.tech), so a
+  new OSISM pin with an annotation is covered without changing the script
+- the components that are pinned in a requirements file of python-osism
+  (`derived` with a `file` in `etc/changelog-repositories.yml`:
+  netbox-manager, openstack-image-manager, openstack-flavor-manager): the
+  pin in the python-osism version used by `latest/base.yml` is compared with
+  the newest release on PyPI. The note says where the update is missing: an
+  unmerged PR in python-osism, a python-osism release that is still to be
+  tagged, or a newer python-osism release that `latest/base.yml` does not
+  use yet
+
+For an outdated pin the open Renovate PR that updates it is named; without
+one, trigger a Renovate run. The script exits with 1 if a pin is outdated or
+its newest version could not be determined.
+
 ### 2. Tag creation
 
 Before creating tags, trigger a Renovate run on this repository once (e.g. via the
@@ -142,7 +182,9 @@ been merged beforehand. This applies above all to the `osism` Python package, bu
 also to the Ansible collections (`osism.commons`, `osism.services`,
 `osism.validations`, ...) and the Ansible playbooks (`osism.playbooks`,
 `manager-playbooks`). Only then does `latest/base.yml` reflect the state that the
-images are supposed to be built from.
+images are supposed to be built from. `./scripts/check-versions.sh` (see step 1)
+verifies this and names the PRs that are still open; it has to pass before the
+tags are created.
 
 Then create tags for the core projects:
 
