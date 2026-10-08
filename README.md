@@ -30,6 +30,7 @@ changelogs.
 │   └── changelog-repositories.yml  # Component name → GitHub source repository
 ├── scripts/             # Release automation scripts
 │   ├── create-tags.sh
+│   ├── create-version.sh
 │   ├── generate-changelog-input.sh
 │   └── generate-release-changelog.sh
 └── src/                 # Python utilities
@@ -108,7 +109,7 @@ Ceph versions remain the same across patch releases — they are always read fro
 ### `<VERSION>/base.yml`
 
 A frozen snapshot of `latest/base.yml` at the time of a release. Created by
-`src/create-version.py`. Does not contain Renovate annotations.
+`scripts/create-version.sh`. Does not contain Renovate annotations.
 
 ## Version numbering
 
@@ -199,8 +200,12 @@ pushed, three further steps are required, in this order:
 To freeze the current `latest/` state into a named release:
 
 ```bash
-./src/create-version.py 10.0.0
+./scripts/create-version.sh 10.0.0
 ```
+
+Requires [uv](https://docs.astral.sh/uv/), which provisions the
+dependencies of `src/create-version.py` (GitPython, PyYAML) from its inline
+script metadata (fallback: a `python3` with both installed).
 
 This:
 - Creates a new directory `10.0.0/`
