@@ -29,6 +29,7 @@ changelogs.
 │   ├── roles.yml        # Ansible roles
 │   └── changelog-repositories.yml  # Component name → GitHub source repository
 ├── scripts/             # Release automation scripts
+│   ├── check-kolla-images.sh
 │   ├── check-versions.sh
 │   ├── create-tags.sh
 │   ├── create-version.sh
@@ -36,9 +37,11 @@ changelogs.
 │   ├── generate-release-changelog.sh
 │   └── remove-kolla-images.sh
 └── src/                 # Python utilities
+    ├── check-kolla-images.py
     ├── check-versions.py
     ├── create-version.py
     ├── git-diff-log.py
+    ├── kolla_registry.py
     ├── release-notes.py
     ├── remove-images-from-quay.py
     └── remove-kolla-images.py
@@ -234,7 +237,9 @@ pushed, three further steps are required, in this order:
 1. Create and push the tag `v0.20260322.0` (the plain version, without project
    prefix) in [osism/container-images-kolla](https://github.com/osism/container-images-kolla)
    and wait until the build has finished. The kolla service images have to exist
-   before all other images, as the other builds depend on them.
+   before all other images, as the other builds depend on them. Check the
+   images of the build with `./scripts/check-kolla-images.sh v0.20260322.0`
+   (see [below](#checking-the-kolla-images-of-a-tag)).
 2. Only then create and push the same tag `v0.20260322.0` in all other container
    image repositories:
    - [osism/container-image-osism-ansible](https://github.com/osism/container-image-osism-ansible)
@@ -249,6 +254,36 @@ pushed, three further steps are required, in this order:
    then does `latest/base.yml` reference the images that were just built,
    and a release version created in the next step is based on it. If a PR is
    missing, trigger a Renovate run on this repository once more.
+
+#### Checking the kolla images of a tag
+
+After the build of a tag in osism/container-images-kolla has finished, check
+that all of its images are complete in the registry:
+
+```bash
+./scripts/check-kolla-images.sh v0.20261008.0
+```
+
+The script reads the SBOM image `kolla/release/<openstack version>/sbom:<tag>`
+of the build from `osism.harbor.regio.digital` (the OpenStack version is looked
+up in the registry, or given with `--openstack-version`). The SBOM lists the
+images by tag only, so for every image the digest of its tag is looked up and
+checked:
+
+- the manifest the registry serves for the tag has this digest, and the config
+  blob and all layer blobs of the manifest exist
+- the labels `de.osism.version` and `de.osism.release.openstack` of the image
+  name the build and its OpenStack version: image tags only contain the build
+  date, so a build of the same day moves them to its own images
+- the digest carries a cosign signature (`signature.cosign` or a sigstore
+  bundle referring to it, depending on the cosign version of the build)
+- the digest is the one of the SBOM entry, if the entry lists a `digest`
+
+Every image is printed with the digest of its tag (`<image>:<tag>@<digest>`),
+the SBOM image has to be signed as well. Nothing is changed in the registry; the
+script exits with 1 if a check fails. The images are checked in parallel
+(`--jobs`, default 8). The `kolla` project can be read anonymously;
+`HARBOR_USERNAME` and `HARBOR_PASSWORD` are used if they are set.
 
 #### Removing a wrongly built kolla tag
 
