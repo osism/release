@@ -26,7 +26,6 @@
 # changed in the registry.
 
 import argparse
-import hashlib
 import os
 import sys
 import tarfile
@@ -40,32 +39,17 @@ from kolla_registry import (
     SBOM_REPOSITORY,
     Harbor,
     RegistryError,
+    check_artifact,
     find_openstack_version,
-    image_manifests,
     normalize_tag,
     parse_image,
     sbom_images,
+    signed,
 )
 
-SIGNATURE = "signature.cosign"
-# Newer cosign versions store the signature as a sigstore bundle that refers
-# to the image (OCI 1.1 referrer), Harbor lists it as a subject accessory
-REFERRER = "subject.accessory"
-BUNDLE_TYPE = "application/vnd.dev.sigstore.bundle"
 VERSION_LABEL = "de.osism.version"
 OPENSTACK_LABEL = "de.osism.release.openstack"
 DEFAULT_JOBS = 8
-
-
-def signed(harbor, repository, artifact):
-    for accessory in artifact.get("accessories") or []:
-        if accessory.get("type") == SIGNATURE:
-            return True
-        if accessory.get("type") == REFERRER:
-            manifest = harbor.manifest(repository, accessory["digest"]).json()
-            if manifest.get("artifactType", "").startswith(BUNDLE_TYPE):
-                return True
-    return False
 
 
 def sbom_digests(sbom):
@@ -75,41 +59,6 @@ def sbom_digests(sbom):
         for entry in sbom["images"]
         if entry.get("digest")
     }
-
-
-def check_manifest(harbor, repository, reference, digest):
-    """The problems of the manifest of the reference and its blobs, and the
-    configs of its images."""
-    response = harbor.manifest(repository, reference)
-    if f"sha256:{hashlib.sha256(response.content).hexdigest()}" != digest:
-        return [f"the manifest of {reference} does not have the digest {digest}"], []
-    manifest = response.json()
-    problems = []
-
-    if "manifests" in manifest:
-        images = {m["digest"] for m in image_manifests(manifest)}
-        if not images:
-            problems.append(f"the index {digest} lists no image manifest")
-        configs = []
-        for child in manifest["manifests"]:
-            child_problems, child_configs = check_manifest(
-                harbor, repository, child["digest"], child["digest"]
-            )
-            problems += child_problems
-            if child["digest"] in images:
-                configs += child_configs
-        return problems, configs
-
-    config = manifest["config"]["digest"]
-    missing = [
-        blob
-        for blob in [config] + [layer["digest"] for layer in manifest["layers"]]
-        if not harbor.blob_exists(repository, blob)
-    ]
-    problems += [f"the blob {blob} is missing" for blob in missing]
-    if config in missing:
-        return problems, []
-    return problems, [harbor.registry_get(repository, f"blobs/{config}").json()]
 
 
 def check_labels(config, tag, openstack_version):
@@ -128,15 +77,12 @@ def check_labels(config, tag, openstack_version):
 
 def check_image(harbor, repository, image_tag, tag, openstack_version, sbom_digest):
     """The digest of the image and its problems; no digest if it is missing."""
-    artifact = harbor.artifact(repository, image_tag, with_accessory=True)
+    artifact, problems, configs = check_artifact(harbor, repository, image_tag)
     if artifact is None:
-        return None, ["not in the registry"]
+        return None, problems
     digest = artifact["digest"]
-    problems, configs = check_manifest(harbor, repository, image_tag, digest)
     for config in configs:
         problems += check_labels(config, tag, openstack_version)
-    if not signed(harbor, repository, artifact):
-        problems.append("no cosign signature")
     if sbom_digest and sbom_digest != digest:
         problems.append(f"the SBOM lists the digest {sbom_digest}")
     return digest, problems

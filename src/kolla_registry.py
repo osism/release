@@ -1,12 +1,16 @@
-# Access to the kolla release images of a Harbor registry, shared by
-# src/remove-kolla-images.py and src/check-kolla-images.py.
+# Access to the release images of a Harbor registry, shared by
+# src/remove-kolla-images.py, src/check-kolla-images.py and
+# src/check-osism-images.py.
 #
 # A release build of osism/container-images-kolla pushes its images to
 # <registry>/kolla/release/<openstack version>/<image>:<version>.<date> and
 # lists them in the SBOM image kolla/release/<openstack version>/sbom:<tag>
-# (FROM scratch with a single /images.yml). The SBOM is read via the registry
-# API, the images via the Harbor API and the registry API.
+# (FROM scratch with a single /images.yml). The release builds of the other
+# container image repositories push their images to
+# <registry>/osism/<image>:<version>. The SBOM is read via the registry API,
+# the images via the Harbor API and the registry API.
 
+import hashlib
 import io
 import os
 import re
@@ -32,6 +36,12 @@ MANIFEST_TYPES = [
     "application/vnd.oci.image.index.v1+json",
 ]
 INDEX_TYPES = MANIFEST_TYPES[2:]
+
+SIGNATURE = "signature.cosign"
+# Newer cosign versions store the signature as a sigstore bundle that refers
+# to the image (OCI 1.1 referrer), Harbor lists it as a subject accessory
+REFERRER = "subject.accessory"
+BUNDLE_TYPE = "application/vnd.dev.sigstore.bundle"
 
 
 class RegistryError(Exception):
@@ -61,8 +71,9 @@ def image_manifests(manifest):
 
 
 class Harbor:
-    def __init__(self, registry, username="", password=""):
+    def __init__(self, registry, username="", password="", project=PROJECT):
         self.registry = registry
+        self.project = project
         self.session = requests.Session()
         if username:
             self.session.auth = (username, password)
@@ -78,7 +89,7 @@ class Harbor:
         slashes.
         """
         url = (
-            f"https://{self.registry}/api/v2.0/projects/{PROJECT}/repositories/"
+            f"https://{self.registry}/api/v2.0/projects/{self.project}/repositories/"
             f"{quote(quote(repository, safe=''), safe='')}"
         )
         if reference is not None:
@@ -132,7 +143,7 @@ class Harbor:
                     f"https://{self.registry}/service/token",
                     params={
                         "service": "harbor-registry",
-                        "scope": f"repository:{PROJECT}/{repository}:pull",
+                        "scope": f"repository:{self.project}/{repository}:pull",
                     },
                     timeout=TIMEOUT,
                 ),
@@ -143,7 +154,7 @@ class Harbor:
         # drops it when a blob download is redirected to the storage backend.
         return requests.request(
             method,
-            f"https://{self.registry}/v2/{PROJECT}/{repository}/{path}",
+            f"https://{self.registry}/v2/{self.project}/{repository}/{path}",
             headers={
                 "Authorization": f"Bearer {self.tokens[repository]}",
                 **(headers or {}),
@@ -288,3 +299,67 @@ def parse_image(image, registry, openstack_version):
             f"{openstack_version}"
         )
     return f"release/{openstack_version}/{match.group(1)}", match.group(2)
+
+
+def signed(harbor, repository, artifact):
+    for accessory in artifact.get("accessories") or []:
+        if accessory.get("type") == SIGNATURE:
+            return True
+        if accessory.get("type") == REFERRER:
+            manifest = harbor.manifest(repository, accessory["digest"]).json()
+            if manifest.get("artifactType", "").startswith(BUNDLE_TYPE):
+                return True
+    return False
+
+
+def check_manifest(harbor, repository, reference, digest):
+    """The problems of the manifest of the reference and its blobs, and the
+    configs of its images."""
+    response = harbor.manifest(repository, reference)
+    if f"sha256:{hashlib.sha256(response.content).hexdigest()}" != digest:
+        return [f"the manifest of {reference} does not have the digest {digest}"], []
+    manifest = response.json()
+    problems = []
+
+    if "manifests" in manifest:
+        images = {m["digest"] for m in image_manifests(manifest)}
+        if not images:
+            problems.append(f"the index {digest} lists no image manifest")
+        configs = []
+        for child in manifest["manifests"]:
+            child_problems, child_configs = check_manifest(
+                harbor, repository, child["digest"], child["digest"]
+            )
+            problems += child_problems
+            if child["digest"] in images:
+                configs += child_configs
+        return problems, configs
+
+    config = manifest["config"]["digest"]
+    missing = [
+        blob
+        for blob in [config] + [layer["digest"] for layer in manifest["layers"]]
+        if not harbor.blob_exists(repository, blob)
+    ]
+    problems += [f"the blob {blob} is missing" for blob in missing]
+    if config in missing:
+        return problems, []
+    return problems, [harbor.registry_get(repository, f"blobs/{config}").json()]
+
+
+def check_artifact(harbor, repository, reference):
+    """The Harbor artifact of the reference, its problems and the configs of
+    its images; no artifact if it is missing.
+
+    The image has to be complete in the registry and carry a cosign signature,
+    the labels in the configs are left to the caller.
+    """
+    artifact = harbor.artifact(repository, reference, with_accessory=True)
+    if artifact is None:
+        return None, ["not in the registry"], []
+    problems, configs = check_manifest(
+        harbor, repository, reference, artifact["digest"]
+    )
+    if not signed(harbor, repository, artifact):
+        problems.append("no cosign signature")
+    return artifact, problems, configs
