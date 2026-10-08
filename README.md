@@ -197,15 +197,20 @@ pushed, three further steps are required, in this order:
 
 ### 3. Create a release version
 
-To freeze the current `latest/` state into a named release:
+To freeze the current `latest/` state into a named release, run on an
+up-to-date `main`:
 
 ```bash
 ./scripts/create-version.sh 10.0.0
+
+# Only create the version directory, no commit and no pull request
+./scripts/create-version.sh --no-pr 10.0.0
 ```
 
 Requires [uv](https://docs.astral.sh/uv/), which provisions the
 dependencies of `src/create-version.py` (GitPython, PyYAML) from its inline
-script metadata (fallback: a `python3` with both installed).
+script metadata (fallback: a `python3` with both installed), and an
+authenticated GitHub CLI (`gh`); with `--no-pr`, `gh` is not needed.
 
 This:
 - Creates a new directory `10.0.0/`
@@ -214,6 +219,12 @@ This:
   (osism-ansible, osism-kubernetes, inventory-reconciler, kolla-ansible, ceph-ansible, kolla)
 - Adds the `openstackclient` image version from `latest/openstack.yml`
 - Sets `manager_version` to the release name
+- Commits `10.0.0/base.yml` on a new branch `10.0.0` ("Prepare 10.0.0
+  release"), pushes it and opens a pull request
+
+If a core image version could not be resolved from the git tags, it is
+written as `FIXME` and the script stops before the commit: fix the
+values, then commit `10.0.0/base.yml` and open the pull request manually.
 
 ### 4. Changelog generation (per-component)
 
