@@ -135,15 +135,24 @@ to keep PRs manageable.
 
 ### 2. Tag creation
 
-When component images are built and ready, create tags for the core projects:
+Before creating tags, trigger a Renovate run on this repository once (e.g. via the
+Renovate dashboard issue or the Mend app) and make sure that all required PRs have
+been merged beforehand. This applies above all to the `osism` Python package, but
+also to the Ansible collections (`osism.commons`, `osism.services`,
+`osism.validations`, ...) and the Ansible playbooks (`osism.playbooks`,
+`manager-playbooks`). Only then does `latest/base.yml` reflect the state that the
+images are supposed to be built from.
+
+Then create tags for the core projects:
 
 ```bash
 ./scripts/create-tags.sh v0.20260322.0
 ```
 
-This creates and pushes tags in the format `<project>-<version>` for the five core
+This creates and pushes tags in the format `<project>-<version>` for the six core
 container image projects:
 
+- `kolla`
 - `osism-ansible`
 - `osism-kubernetes`
 - `kolla-ansible`
@@ -151,7 +160,32 @@ container image projects:
 - `inventory-reconciler`
 
 The tags reference the current HEAD of this repository and serve as version anchors
-for the container image build pipelines. Existing tags can optionally be recreated.
+for the container image build pipelines. The order in which the tags are created
+here does not matter.
+
+The script checks for every project whether the tag already exists (locally or on
+the remote) and where it points to. A tag that already points to the current HEAD
+is left as it is. Otherwise the script asks whether to **move** the tag to the
+current HEAD (the existing tag is deleted locally and on the remote and created
+again) or to **ignore** it (the existing tag is left untouched). This allows
+re-running the script with the same version after tags have been created on the
+wrong commit: fix the checkout, run the script again and answer "move" for every
+tag that has to be corrected.
+
+The tags in this repository alone do not trigger any builds. After they have been
+pushed, two further steps are required, in this order:
+
+1. Create and push the tag `v0.20260322.0` (the plain version, without project
+   prefix) in [osism/container-images-kolla](https://github.com/osism/container-images-kolla)
+   and wait until the build has finished. The kolla service images have to exist
+   before all other images, as the other builds depend on them.
+2. Only then create and push the same tag `v0.20260322.0` in all other container
+   image repositories:
+   - [osism/container-image-osism-ansible](https://github.com/osism/container-image-osism-ansible)
+   - [osism/osism-kubernetes](https://github.com/osism/osism-kubernetes)
+   - [osism/container-image-kolla-ansible](https://github.com/osism/container-image-kolla-ansible)
+   - [osism/container-image-ceph-ansible](https://github.com/osism/container-image-ceph-ansible)
+   - [osism/container-image-inventory-reconciler](https://github.com/osism/container-image-inventory-reconciler)
 
 ### 3. Create a release version
 
