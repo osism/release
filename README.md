@@ -173,7 +173,7 @@ wrong commit: fix the checkout, run the script again and answer "move" for every
 tag that has to be corrected.
 
 The tags in this repository alone do not trigger any builds. After they have been
-pushed, two further steps are required, in this order:
+pushed, three further steps are required, in this order:
 
 1. Create and push the tag `v0.20260322.0` (the plain version, without project
    prefix) in [osism/container-images-kolla](https://github.com/osism/container-images-kolla)
@@ -186,6 +186,13 @@ pushed, two further steps are required, in this order:
    - [osism/container-image-kolla-ansible](https://github.com/osism/container-image-kolla-ansible)
    - [osism/container-image-ceph-ansible](https://github.com/osism/container-image-ceph-ansible)
    - [osism/container-image-inventory-reconciler](https://github.com/osism/container-image-inventory-reconciler)
+3. Once the images have been built and pushed, Renovate opens one PR per core
+   image in this repository that bumps the image version in `latest/base.yml`
+   to the new tag (e.g. [#2789](https://github.com/osism/release/pull/2789)
+   for `osism-kubernetes`). Merge all of these PRs before continuing: only
+   then does `latest/base.yml` reference the images that were just built,
+   and a release version created in the next step is based on it. If a PR is
+   missing, trigger a Renovate run on this repository once more.
 
 ### 3. Create a release version
 
