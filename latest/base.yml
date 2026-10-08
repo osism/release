@@ -135,7 +135,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=community.zabbix
   community.zabbix: '4.2.0'
   # renovate: datasource=galaxy-collection depName=containers.podman
-  containers.podman: '1.20.2'
+  containers.podman: '1.21.0'
   # renovate: datasource=galaxy-collection depName=debops.debops
   debops.debops: '3.3.2'
   # renovate: datasource=galaxy-collection depName=fortinet.fortios
