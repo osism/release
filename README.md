@@ -45,6 +45,7 @@ changelogs.
     ├── git-diff-log.py
     ├── kolla_registry.py
     ├── release-notes.py
+    ├── release_tags.py
     ├── remove-images-from-quay.py
     └── remove-kolla-images.py
 ```
