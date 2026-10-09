@@ -174,6 +174,21 @@ def test_missing_release_tag(release_repo, capsys):
     assert "Images: 4 ok, 1 failed" in out
 
 
+@responses.activate
+def test_release_tag_moved_on_origin(commit, release_repo, capsys):
+    moved = release_repo.commit({"latest/other.yml": "other: 1\n"}, date=COMMITTED)
+    release_repo.move_upstream_tag(f"osism-ansible-v{VERSION}", moved)
+    for image in coi.IMAGES:
+        add_image(image, labels(image, commit))
+    assert coi.run(args()) == 1
+    out = capsys.readouterr().out
+    assert (
+        f"the local tag osism-ansible-v{VERSION} points to {commit[:7]}, "
+        f"origin to {moved[:7]} (git fetch --tags --force)" in out
+    )
+    assert "Images: 4 ok, 1 failed" in out
+
+
 def test_ceph_release_of_old_snapshots(release_repo):
     release_repo.commit(release_files(ceph_file="ceph.yml"), date=COMMITTED)
     tag_images(release_repo)
