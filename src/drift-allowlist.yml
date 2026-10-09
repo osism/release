@@ -53,8 +53,6 @@ allow:
   # Not deployed in this OSISM series (cf. inventory IGNORE_NOT_DEPLOYED).
   - {plugin: kolla_version_chain_upstream, image: cyborg, reason: "not deployed in this series"}
   - {plugin: kolla_version_chain_upstream, image: tacker, reason: "not deployed in this series"}
-  - {plugin: kolla_version_chain_upstream, image: telegraf, reason: "not deployed in this series"}
-  - {plugin: kolla_version_chain_upstream, image: zun, reason: "not deployed in this series"}
   # Build base layer, not a deployable service.
   - {plugin: kolla_version_chain_upstream, image: base, reason: "build base layer, not a service"}
   - {plugin: kolla_version_chain_upstream, image: openstack_base, reason: "build base layer, not a service"}

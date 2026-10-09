@@ -1,19 +1,34 @@
 from pathlib import Path
 import pytest
-from osism_drift.config import Allowlist, AllowEntry, Config, Remote, PluginCfg
+from osism_drift.config import (
+    Allowlist,
+    AllowEntry,
+    Config,
+    Remote,
+    PluginCfg,
+    SourceCfg,
+)
 from osism_drift.drift import kolla_version_chain_inner as plugin
 
 FIXT = Path(__file__).parent / "fixtures"
+DOCKER = ["foo", "ignored-svc", "newsvc", "off", "present_a"]
+
+
+def _cfg(base_dirs):
+    return Config(
+        remote=Remote("https://raw/", "https://api/", "main"),
+        base_dirs=tuple(str(d) for d in base_dirs),
+        release_version="latest",
+        plugins={"kolla_version_chain_inner": PluginCfg(enabled=True)},
+        sources={"kolla": SourceCfg(owner="openstack")},
+    )
 
 
 @pytest.fixture
-def cfg():
-    return Config(
-        remote=Remote("https://raw/", "https://api/", "main"),
-        base_dirs=(str(FIXT),),
-        release_version="latest",
-        plugins={"kolla_version_chain_inner": PluginCfg(enabled=True)},
-    )
+def cfg(kolla_clone):
+    # The fixture release range is A and B; both ship the same images here.
+    base = kolla_clone({"stable/A": DOCKER, "stable/B": DOCKER})
+    return _cfg((base, FIXT))
 
 
 def test_flags_all_inert_keys(cfg):
@@ -59,7 +74,17 @@ def test_hyphen_underscore_is_not_drift(cfg):
     assert all(d.image != "kolla_toolbox" for d in drifts)
 
 
-def test_reads_enable_flags_split_across_files(tmp_path):
+def test_buildable_only_at_an_older_release_is_a_remove(kolla_clone):
+    # foo is enabled, but kolla ships it only at the older release A. Read at the
+    # newest release B it is not buildable, so its line is dead, not an add.
+    base = kolla_clone({"stable/A": DOCKER, "stable/B": ["off", "present_a"]})
+    by = {x.image: x for x in plugin.run(_cfg((base, FIXT)), Allowlist(()))}
+    d = by["foo"]
+    assert "remove" in d.remediation.lower()
+    assert "@ stable/B" in d.expected_src
+
+
+def test_reads_enable_flags_split_across_files(tmp_path, kolla_clone):
     # enable_foo lives in a file OTHER than 099-kolla.yml. A single-file reader
     # would not see foo enabled and would misclassify its inert pin as a dead
     # line (remove) instead of a wire-the-SBOM-key (add).
@@ -67,12 +92,8 @@ def test_reads_enable_flags_split_across_files(tmp_path):
     dall.mkdir(parents=True)
     (dall / "099-kolla.yml").write_text('enable_off: "no"\n')
     (dall / "keystone.yml").write_text('enable_foo: "yes"\n')
-    c = Config(
-        remote=Remote("https://raw/", "https://api/", "main"),
-        base_dirs=(str(tmp_path), str(FIXT)),
-        release_version="latest",
-        plugins={"kolla_version_chain_inner": PluginCfg(enabled=True)},
-    )
+    base = kolla_clone({"stable/A": DOCKER, "stable/B": DOCKER})
+    c = _cfg((tmp_path, base, FIXT))
     d = [x for x in plugin.run(c, Allowlist(())) if x.image == "foo"][0]
     assert "SBOM_IMAGE_TO_VERSION" in d.remediation  # add, not remove
     assert "remove" not in d.remediation.lower()

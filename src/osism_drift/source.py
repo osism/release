@@ -1,8 +1,10 @@
 """Local-or-remote source reads for OSISM repos.
 
-A repo may carry a per-repo override in config.sources (owner and/or branch).
-A set `branch` *pins* the repo: it is always read remotely at that ref, so the
-result is deterministic regardless of any local checkout's current branch.
+A repo with an entry in config.sources (owner and/or branch) is *pinned*: it is
+read at named refs, remotely or from git objects in a local clone, never from a
+working tree, so the result is deterministic regardless of any local
+checkout's current branch. Its `branch` is optional; without one, the repo is
+read per release only.
 """
 
 import re
@@ -90,15 +92,31 @@ def _owner(repo: str, config) -> str:
 
 
 def _ref(repo: str, config) -> str:
+    """The ref the ref-less readers (read, list_dir, ...) use for `repo`.
+
+    A pinned repo without a `branch` has no such ref: it is read per release
+    only, through release_to_ref() and the *_at_ref readers. Falling back to
+    remote.branch there would silently read the upstream development branch.
+    """
     s = _source(repo, config)
     if s is not None and s.branch:
         return s.branch
+    if s is not None:
+        raise SourceError(
+            f"{repo} has no default ref (no branch in sources:); read it per "
+            f"release with release_to_ref() and the *_at_ref readers"
+        )
     return config.remote.branch
 
 
 def _is_pinned(repo: str, config) -> bool:
-    s = _source(repo, config)
-    return s is not None and s.branch is not None
+    """True for an upstream repo: one with a `sources:` entry.
+
+    A pinned repo is read from git objects at named refs, never from a working
+    tree, so a local checkout must be a git clone. A `branch` is optional; it
+    only sets the ref for the ref-less readers.
+    """
+    return _source(repo, config) is not None
 
 
 def current_ref(repo: str, config) -> str:
@@ -724,6 +742,14 @@ def _git_tree_dir(d, repo, ref, config) -> Path:
     return root
 
 
+def _pinned_refs(repo: str, config) -> str:
+    """The refs a pinned repo is read at, as describe_resolution() labels them."""
+    s = _source(repo, config)
+    if s.branch:
+        return f"{s.branch} (+per-release range refs)"
+    return "per-release range refs"
+
+
 def describe_resolution(repos, config) -> list[str]:
     """One human log line per repo (sorted). Raises SourceError listing *every*
     mode-B not-found repo (not just the first), so the driver can abort before
@@ -738,8 +764,8 @@ def describe_resolution(repos, config) -> list[str]:
             continue
         if where == "local" and _is_pinned(repo, config):
             lines.append(
-                f"  {repo:<32} local  {d} @ {_ref(repo, config)} "
-                f"(+per-release range refs)  [git refs, must be current]"
+                f"  {repo:<32} local  {d} @ {_pinned_refs(repo, config)}  "
+                f"[git refs, must be current]"
             )
         elif where == "local":
             lines.append(f"  {repo:<32} local  {d}  [working tree, as-is]")
@@ -747,7 +773,7 @@ def describe_resolution(repos, config) -> list[str]:
             owner = _owner(repo, config)
             lines.append(
                 f"  {repo:<32} remote {owner}/{repo.replace('_', '-')} "
-                f"@ {_ref(repo, config)} (+per-release range refs)  [remote]"
+                f"@ {_pinned_refs(repo, config)}  [remote]"
             )
         else:
             owner = _owner(repo, config)

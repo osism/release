@@ -168,6 +168,51 @@ def test_pinned_non_git_dir_no_fallback_is_mode_b(tmp_path):
         read("kolla", "docker/x.txt", cfg)
 
 
+def _branchless_kolla_cfg(tmp_path, **kw):
+    # An owner-only source entry: upstream, but read per release only.
+    return dataclasses.replace(
+        _cfg(tmp_path, base_dirs=(tmp_path,), **kw),
+        sources={"kolla": SourceCfg(owner="openstack")},
+    )
+
+
+def test_branchless_source_is_pinned_and_read_from_git_objects(tmp_path):
+    # The working tree is checked out at main; list_dir_at_ref must read the
+    # named ref from git objects, as for a source with a branch.
+    from osism_drift.source import list_dir_at_ref, local_checkout
+
+    _make_repo(
+        tmp_path / "kolla",
+        [
+            ("stable/B", "branch", {"docker/nova/Dockerfile.j2": "n"}),
+            ("main", "branch", {"docker/old/Dockerfile.j2": "x"}),
+        ],
+    )
+    cfg = _branchless_kolla_cfg(tmp_path)
+    assert local_checkout("kolla", cfg) == tmp_path / "kolla"
+    assert list_dir_at_ref("kolla", "docker", "stable/B", cfg, dirs_only=True) == [
+        "nova"
+    ]
+
+
+def test_branchless_source_non_git_dir_is_not_a_checkout(tmp_path):
+    # A plain dir cannot serve an upstream repo, whether or not it has a branch.
+    (tmp_path / "kolla").mkdir()
+    cfg = _branchless_kolla_cfg(tmp_path)
+    with pytest.raises(SourceError, match="not found under any --base-dir"):
+        read("kolla", "docker/x.txt", cfg)
+
+
+@responses.activate
+def test_branchless_source_has_no_default_ref(tmp_path):
+    # Without a branch, a ref-less read must not fall back to remote.branch,
+    # which would silently read the upstream development branch.
+    cfg = _branchless_kolla_cfg(tmp_path, remote_fallback=True)
+    with pytest.raises(SourceError, match="no default ref"):
+        list_dir("kolla", "docker", cfg)
+    assert len(responses.calls) == 0
+
+
 @responses.activate
 def test_read_remote_404_errors(tmp_path):
     responses.add(
@@ -665,6 +710,14 @@ def test_describe_resolution_local_and_remote(tmp_path):
     joined = "\n".join(lines)
     assert "defaults" in joined and "local" in joined and "working tree" in joined
     assert "kolla" in joined and "remote" in joined and "stable/2025.2" in joined
+
+
+def test_describe_resolution_branchless_source(tmp_path):
+    from osism_drift.source import describe_resolution
+
+    cfg = _branchless_kolla_cfg(tmp_path, remote_fallback=True)
+    (line,) = describe_resolution(["kolla"], cfg)
+    assert "openstack/kolla @ per-release range refs  [remote]" in line
 
 
 def test_describe_resolution_mode_b_raises(tmp_path):
