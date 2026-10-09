@@ -253,10 +253,11 @@ pushed, three further steps are required, in this order:
 
 1. Create and push the tag `v0.20260322.0` (the plain version, without project
    prefix) in [osism/container-images-kolla](https://github.com/osism/container-images-kolla)
-   and wait until the build has finished. The kolla service images have to exist
-   before all other images, as the other builds depend on them. Check the
-   images of the build with `./scripts/check-kolla-images.sh v0.20260322.0`
-   (see [below](#checking-the-kolla-images-of-a-tag)).
+   and wait until the build has finished. The kolla-ansible build pulls the
+   SBOM image `kolla/release/<openstack_version>/sbom:<version>` that this
+   build pushes, and fails if it does not exist yet. Check the images of the
+   build with `./scripts/check-kolla-images.sh v0.20260322.0` (see
+   [below](#checking-the-kolla-images-of-a-tag)).
 2. Only then create and push the same tag `v0.20260322.0` in all other container
    image repositories:
    - [osism/container-image-osism-ansible](https://github.com/osism/container-image-osism-ansible)
@@ -271,9 +272,8 @@ pushed, three further steps are required, in this order:
 3. Once the images have been built and pushed, Renovate opens one PR per core
    image in this repository that bumps the image version in `latest/base.yml`
    to the new tag (e.g. [#2789](https://github.com/osism/release/pull/2789)
-   for `osism-kubernetes`). Merge all of these PRs before continuing: only
-   then does `latest/base.yml` reference the images that were just built,
-   and a release version created in the next step is based on it. If a PR is
+   for `osism-kubernetes`). Merge all of these PRs before continuing, so that
+   `latest/base.yml` references the images that were just built. If a PR is
    missing, trigger a Renovate run on this repository once more.
 
 #### Checking the kolla images of a tag
