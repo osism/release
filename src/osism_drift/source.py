@@ -656,6 +656,65 @@ def read_at_ref(
     return r.content
 
 
+def tree_dir(repo: str, ref: str | None, config) -> Path:
+    """A local directory holding `repo`'s whole tree at `ref`.
+
+    For checks that read every file of a repo: one extraction per (repo, ref),
+    memoized on config.snapshot_cache like archive snapshots, instead of one
+    read per file. `ref=None` means the repo's configured ref.
+
+    An unpinned repo under a --base-dir at its configured ref is its working
+    tree, returned as is -- `.git/` included, which callers skip -- matching
+    how read() treats consumer repos. Any git checkout under a --base-dir
+    serves an explicit ref (and a pinned repo its pin) from its objects via
+    `git archive`. A non-git local dir cannot be read at a ref; in a
+    local-only run (no --remote-fallback) that is an error, never a silent
+    network read. Remote reads use the GitHub tarball, whatever --use-raw-get
+    says: per-file raw reads of a whole tree are not viable.
+    """
+    where, d = _resolve(repo, config)
+    if ref is None:
+        if where == "local" and not _is_pinned(repo, config):
+            return d
+        ref = _ref(repo, config)
+    if where == "local":
+        if (d / ".git").exists():
+            return _git_tree_dir(d, repo, ref, config)
+        if not config.remote_fallback:
+            raise SourceError(
+                f"{repo}: {d} is not a git checkout, so it cannot be read at "
+                f"{ref!r}; pass --remote-fallback to fetch it remotely"
+            )
+    _note("tree", repo, ref)
+    return archive.snapshot_dir(_owner(repo, config), repo, ref, config)
+
+
+def _git_tree_dir(d, repo, ref, config) -> Path:
+    """Extract `ref` of the git checkout `d` once per run; return the tree root."""
+    rref = _resolve_local_ref(d, ref)
+    if rref is None:
+        raise SourceError(
+            f"ref {ref!r} not found in {d} — fetch it "
+            f"(this repo is read at named refs via git)"
+        )
+    key = ("git-tree", str(d), rref)
+    cached = config.snapshot_cache.get(key)
+    if cached is not None:
+        return cached
+    # --prefix gives the archive exactly one top-level dir, which
+    # archive._extract_snapshot unwraps; without it a repo whose tree is a
+    # single directory would come back as that directory.
+    r = _git(d, "archive", "--format=tar.gz", "--prefix=tree/", rref)
+    if r.returncode != 0:
+        raise SourceError(
+            f"git archive {ref!r} failed in {d}: "
+            f"{r.stderr.decode(errors='replace').strip()}"
+        )
+    root = archive._extract_snapshot(r.stdout, repo, ref)
+    config.snapshot_cache[key] = root
+    return root
+
+
 def describe_resolution(repos, config) -> list[str]:
     """One human log line per repo (sorted). Raises SourceError listing *every*
     mode-B not-found repo (not just the first), so the driver can abort before
