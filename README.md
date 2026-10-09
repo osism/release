@@ -205,7 +205,9 @@ images are supposed to be built from. `./scripts/check-versions.sh` (see step 1)
 verifies this and names the PRs that are still open; it has to pass before the
 tags are created.
 
-Then create tags for the core projects:
+Then create tags for the core projects. `create-tags.sh` only tags the pushed
+state of `main`: it fetches `origin` and stops unless the current branch is
+`main` and `HEAD` equals `origin/main`.
 
 ```bash
 ./scripts/create-tags.sh v0.20260322.0
@@ -231,8 +233,8 @@ is left as it is. Otherwise the script asks whether to **move** the tag to the
 current HEAD (the existing tag is deleted locally and on the remote and created
 again) or to **ignore** it (the existing tag is left untouched). This allows
 re-running the script with the same version after tags have been created on the
-wrong commit: fix the checkout, run the script again and answer "move" for every
-tag that has to be corrected.
+wrong commit: merge the fix into `main`, pull, run the script again and answer
+"move" for every tag that has to be corrected.
 
 The tags in this repository alone do not trigger any builds. After they have been
 pushed, three further steps are required, in this order:
