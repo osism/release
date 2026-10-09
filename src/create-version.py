@@ -2,80 +2,94 @@
 # /// script
 # requires-python = ">=3.9"
 # dependencies = [
-#     "gitpython",
 #     "pyyaml",
 # ]
 # ///
 #
 # Helper for scripts/create-version.sh: freezes the current latest/ state
 # into a named release directory. Must be run from the repository root
-# (reads latest/base.yml and the git tags of this repository).
+# (reads latest/base.yml and latest/openstack.yml of the checkout).
+#
+# The versions of the core container images are the highest versions of
+# their tags <project>-v<version> on origin, not in the local checkout: a
+# checkout can lack a newer tag or still have a moved tag at its old commit.
 
 import argparse
 import os
 import re
 import shutil
+import subprocess
 import sys
 import yaml
-from git import Repo
+
+# The date-based versions of the tags, e.g. 0.20261008.0
+VERSION_PATTERN = re.compile(r"\d+\.\d+\.\d+")
 
 
-def get_latest_tag_version(prefix):
-    """Get the latest tag version from git for a given prefix"""
-    repo = Repo(".")
-
-    # Get all tags that match the pattern prefix*
-    matching_tags = []
-    for tag in repo.tags:
-        if tag.name.startswith(prefix):
-            matching_tags.append(tag)
-
-    if not matching_tags:
-        return None
-
-    # Sort tags by commit date to get the most recent
-    latest_tag = sorted(matching_tags, key=lambda t: t.commit.committed_datetime)[-1]
-
-    # Extract version from tag name (prefix + version)
-    match = re.match(rf"{re.escape(prefix)}(.+)", latest_tag.name)
-    if match:
-        return match.group(1)
-    return None
+def remote_tag_names():
+    """The names of all tags on origin; exits if they cannot be listed."""
+    result = subprocess.run(
+        ["git", "ls-remote", "--tags", "--refs", "origin"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        print(f"Error: Could not list the tags on origin: {result.stderr.strip()}")
+        sys.exit(1)
+    return [
+        line.split("\t", 1)[1][len("refs/tags/") :]
+        for line in result.stdout.splitlines()
+    ]
 
 
-def get_latest_osism_ansible():
-    """Get the latest osism-ansible tag version from git"""
-    version = get_latest_tag_version("osism-ansible-v")
+def version_key(version):
+    """0.20261008.10 sorts after 0.20261008.9"""
+    return tuple(int(part) for part in version.split("."))
+
+
+def get_latest_tag_version(tag_names, prefix):
+    """The highest version of the tags <prefix><version>, None if there is none"""
+    versions = [
+        name[len(prefix) :]
+        for name in tag_names
+        if name.startswith(prefix) and VERSION_PATTERN.fullmatch(name[len(prefix) :])
+    ]
+    return max(versions, key=version_key) if versions else None
+
+
+def get_latest_osism_ansible(tag_names):
+    """Get the latest osism-ansible tag version from origin"""
+    version = get_latest_tag_version(tag_names, "osism-ansible-v")
     return version if version else "FIXME"
 
 
-def get_latest_osism_kubernetes():
-    """Get the latest osism-kubernetes tag version from git"""
-    version = get_latest_tag_version("osism-kubernetes-v")
+def get_latest_osism_kubernetes(tag_names):
+    """Get the latest osism-kubernetes tag version from origin"""
+    version = get_latest_tag_version(tag_names, "osism-kubernetes-v")
     return version if version else "FIXME"
 
 
-def get_latest_inventory_reconciler():
-    """Get the latest inventory-reconciler tag version from git"""
-    version = get_latest_tag_version("inventory-reconciler-v")
+def get_latest_inventory_reconciler(tag_names):
+    """Get the latest inventory-reconciler tag version from origin"""
+    version = get_latest_tag_version(tag_names, "inventory-reconciler-v")
     return version if version else "FIXME"
 
 
-def get_latest_kolla_ansible():
-    """Get the latest kolla-ansible tag version from git"""
-    version = get_latest_tag_version("kolla-ansible-v")
+def get_latest_kolla_ansible(tag_names):
+    """Get the latest kolla-ansible tag version from origin"""
+    version = get_latest_tag_version(tag_names, "kolla-ansible-v")
     return version if version else "FIXME"
 
 
-def get_latest_ceph_ansible():
-    """Get the latest ceph-ansible tag version from git"""
-    version = get_latest_tag_version("ceph-ansible-v")
+def get_latest_ceph_ansible(tag_names):
+    """Get the latest ceph-ansible tag version from origin"""
+    version = get_latest_tag_version(tag_names, "ceph-ansible-v")
     return version if version else "FIXME"
 
 
-def get_latest_kolla():
-    """Get the latest kolla tag version from git"""
-    version = get_latest_tag_version("kolla-v")
+def get_latest_kolla(tag_names):
+    """Get the latest kolla tag version from origin"""
+    version = get_latest_tag_version(tag_names, "kolla-v")
     return version if version else "FIXME"
 
 
@@ -146,6 +160,10 @@ def main():
         print(f"Error: Directory {version_dir} already exists")
         sys.exit(1)
 
+    # List the tags before anything is written, so that a failed lookup
+    # leaves no version directory behind
+    tag_names = remote_tag_names()
+
     # Create version directory
     try:
         os.makedirs(version_dir)
@@ -154,33 +172,33 @@ def main():
         print(f"Error creating directory: {e}")
         sys.exit(1)
 
-    # Get latest osism-ansible version from git tags
-    osism_ansible = get_latest_osism_ansible()
+    # Get latest osism-ansible version from the tags on origin
+    osism_ansible = get_latest_osism_ansible(tag_names)
     if osism_ansible == "FIXME":
         print("Warning: Could not find osism-ansible version tag, using FIXME")
 
-    # Get latest osism-kubernetes version from git tags
-    osism_kubernetes = get_latest_osism_kubernetes()
+    # Get latest osism-kubernetes version from the tags on origin
+    osism_kubernetes = get_latest_osism_kubernetes(tag_names)
     if osism_kubernetes == "FIXME":
         print("Warning: Could not find osism-kubernetes version tag, using FIXME")
 
-    # Get latest inventory-reconciler version from git tags
-    inventory_reconciler = get_latest_inventory_reconciler()
+    # Get latest inventory-reconciler version from the tags on origin
+    inventory_reconciler = get_latest_inventory_reconciler(tag_names)
     if inventory_reconciler == "FIXME":
         print("Warning: Could not find inventory-reconciler version tag, using FIXME")
 
-    # Get latest kolla-ansible version from git tags
-    kolla_ansible = get_latest_kolla_ansible()
+    # Get latest kolla-ansible version from the tags on origin
+    kolla_ansible = get_latest_kolla_ansible(tag_names)
     if kolla_ansible == "FIXME":
         print("Warning: Could not find kolla-ansible version tag, using FIXME")
 
-    # Get latest ceph-ansible version from git tags
-    ceph_ansible = get_latest_ceph_ansible()
+    # Get latest ceph-ansible version from the tags on origin
+    ceph_ansible = get_latest_ceph_ansible(tag_names)
     if ceph_ansible == "FIXME":
         print("Warning: Could not find ceph-ansible version tag, using FIXME")
 
-    # Get latest kolla version from git tags
-    kolla = get_latest_kolla()
+    # Get latest kolla version from the tags on origin
+    kolla = get_latest_kolla(tag_names)
     if kolla == "FIXME":
         print("Warning: Could not find kolla version tag, using FIXME")
 
