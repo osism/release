@@ -132,6 +132,8 @@ A frozen snapshot of `latest/base.yml` at the time of a release. Created by
 | Component builds | Date-based              | `v0.20260322.0`, `0.20260320.0` |
 | External deps    | Upstream versioning     | `18.2.7` (Ceph), `2025.1` (OpenStack) |
 
+<!-- Linked as #release-process from the developer guide
+     (osism/osism.github.io, docs/guides/developer-guide/releases.md). -->
 ## Release process
 
 ### 1. Continuous dependency updates
@@ -193,6 +195,8 @@ For an outdated pin the open Renovate PR that updates it is named; without
 one, trigger a Renovate run. The script exits with 1 if a symlink or a pin is
 outdated or its newest version could not be determined.
 
+<!-- Linked as #2-tag-creation from the developer guide
+     (osism/osism.github.io, docs/guides/developer-guide/releases.md). -->
 ### 2. Tag creation
 
 Before creating tags, trigger a Renovate run on this repository once (e.g. via the
@@ -507,6 +511,8 @@ If a core image has no version tag on `origin`, it is
 written as `FIXME` and the script stops before the commit: fix the
 values, then commit `10.0.0/base.yml` and open the pull request manually.
 
+<!-- Linked as #4-changelog-generation-per-component from the developer guide
+     (osism/osism.github.io, docs/guides/developer-guide/releases.md). -->
 ### 4. Changelog generation (per-component)
 
 Every component that changed between the previous release and the new one
@@ -574,6 +580,8 @@ deterministic "rebuild without changes" entry, written without Claude, so
 that the release notes generation (step 5) finds a `CHANGELOG.md` section
 for every released version.
 
+<!-- Linked as #5-release-notes-generation-per-release from the developer guide
+     (osism/osism.github.io, docs/guides/developer-guide/releases.md). -->
 ### 5. Release notes generation (per release)
 
 Generate the release notes section for a follow-up release (e.g. `10.1.0`)
