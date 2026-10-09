@@ -10,11 +10,10 @@
 # Usage: ./scripts/create-version.sh [--no-pr] <version>
 # Example: ./scripts/create-version.sh 10.0.0
 #
-# Wrapper for src/create-version.py: uv provisions its dependencies
-# (GitPython, PyYAML) from the inline script metadata (PEP 723); plain
-# python3 is the fallback and requires them to be installed. The helper
-# reads latest/base.yml and the git tags of this repository, so it is
-# always run from the repository root.
+# Wrapper for src/create-version.py: uv provisions its dependency (PyYAML)
+# from the inline script metadata (PEP 723); plain python3 is the fallback
+# and requires it to be installed. The helper reads latest/ of the checkout
+# and the tags on origin, so it is always run from the repository root.
 
 set -euo pipefail
 

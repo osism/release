@@ -393,21 +393,23 @@ up-to-date `main`:
 ```
 
 Requires [uv](https://docs.astral.sh/uv/), which provisions the
-dependencies of `src/create-version.py` (GitPython, PyYAML) from its inline
-script metadata (fallback: a `python3` with both installed), and an
+dependency of `src/create-version.py` (PyYAML) from its inline
+script metadata (fallback: a `python3` with it installed), and an
 authenticated GitHub CLI (`gh`); with `--no-pr`, `gh` is not needed.
 
 This:
 - Creates a new directory `10.0.0/`
 - Copies `latest/base.yml` (without Renovate comments)
-- Queries git tags to resolve the latest versions of core container images
-  (osism-ansible, osism-kubernetes, inventory-reconciler, kolla-ansible, ceph-ansible, kolla)
+- Takes the highest version of the tags of the core container images
+  (osism-ansible, osism-kubernetes, inventory-reconciler, kolla-ansible,
+  ceph-ansible, kolla) on `origin`, so a local checkout that lacks a newer tag
+  or still has a moved tag at its old commit does not matter
 - Adds the `openstackclient` image version from `latest/openstack.yml`
 - Sets `manager_version` to the release name
 - Commits `10.0.0/base.yml` on a new branch `10.0.0` ("Prepare 10.0.0
   release"), pushes it and opens a pull request
 
-If a core image version could not be resolved from the git tags, it is
+If a core image has no version tag on `origin`, it is
 written as `FIXME` and the script stops before the commit: fix the
 values, then commit `10.0.0/base.yml` and open the pull request manually.
 
