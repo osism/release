@@ -326,8 +326,11 @@ and checked:
 
 Every image is printed with the digest of its tag (`<image>:<tag>@<digest>`).
 Nothing is changed in the registry; the script exits with 1 if a check fails.
-The release tags are read from the git checkout of this repository, so they
-have to exist locally (`git fetch --tags`). The `osism` project can be read
+The release tags are read from the git checkout of this repository and have to
+point to the same commits as on `origin`; a tag that is missing locally or
+points elsewhere fails the check. Refresh moved tags with
+`git fetch --tags --force`: a plain `git fetch --tags` keeps a tag that was
+moved on `origin` at its old commit. The `osism` project can be read
 anonymously; `HARBOR_USERNAME` and `HARBOR_PASSWORD` are used if they are set.
 
 #### Removing a wrongly built kolla tag

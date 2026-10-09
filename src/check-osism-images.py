@@ -30,6 +30,9 @@
 #   latest/ceph_ansible.yml at the tag
 # - the digest carries a cosign signature
 #
+# The release tags are read from the local checkout and have to point to the
+# same commits as on origin (src/release_tags.py).
+#
 # Nothing is changed in the registry.
 
 import argparse
