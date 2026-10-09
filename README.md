@@ -243,6 +243,11 @@ re-running the script with the same version after tags have been created on the
 wrong commit: merge the fix into `main`, pull, run the script again and answer
 "move" for every tag that has to be corrected.
 
+> [!WARNING]
+> Moving a tag does not rebuild the images that were already built from the
+> old commit. Follow
+> [Rebuilding images built from the wrong state](#rebuilding-images-built-from-the-wrong-state).
+
 The tags in this repository alone do not trigger any builds. After they have been
 pushed, three further steps are required, in this order:
 
@@ -348,6 +353,61 @@ points elsewhere fails the check. Refresh moved tags with
 `git fetch --tags --force`: a plain `git fetch --tags` keeps a tag that was
 moved on `origin` at its old commit. The `osism` project can be read
 anonymously; `HARBOR_USERNAME` and `HARBOR_PASSWORD` are used if they are set.
+
+#### Rebuilding images built from the wrong state
+
+A component build takes its pins, and for kolla and kolla-ansible the
+OpenStack series, from its release tag `<project>-<version>` in this
+repository, not from `main`. Correcting `main` alone therefore changes
+nothing: re-pushing a component tag while its release tag still points to the
+old commit builds the same images again. Rebuild in this order:
+
+1. Merge the fix into `main` of this repository (the missing PRs, a move of
+   the `latest/openstack.yml` or `latest/ceph.yml` symlink, ...).
+   `create-tags.sh` checks the result with `check-versions.sh` in the next
+   step.
+2. Move the release tags to the corrected commit. Answer "move" for the tag of
+   every component that is rebuilt:
+
+   ```bash
+   git pull
+   ./scripts/create-tags.sh v0.20260322.0
+   ```
+
+   Check that these tags now point to the current HEAD before continuing:
+
+   ```bash
+   git rev-parse HEAD
+   git ls-remote --tags origin 'refs/tags/*-v0.20260322.0'
+   ```
+
+3. If kolla is rebuilt, remove the images of its wrong build first (see
+   [Removing a wrongly built kolla tag](#removing-a-wrongly-built-kolla-tag)).
+4. Push the plain version tag again in each affected component repository (the
+   commit stays the same) to start a new `tag` build:
+
+   ```bash
+   git push origin :refs/tags/v0.20260322.0
+   git push origin v0.20260322.0
+   ```
+
+   Keep the order of the initial tagging: kolla first, kolla-ansible only after
+   the kolla build has succeeded. Whenever kolla is rebuilt, rebuild
+   kolla-ansible after it as well: its image contains the SBOM of the kolla
+   build.
+
+5. Check the rebuilt images with `./scripts/check-kolla-images.sh` and
+   `./scripts/check-osism-images.sh` (see
+   [Checking the kolla images of a tag](#checking-the-kolla-images-of-a-tag)
+   and [Checking the other images of a tag](#checking-the-other-images-of-a-tag)).
+   Refresh the moved tags in the checkout first: a plain `git fetch --tags`
+   keeps them at their old commits, so the checks would stop.
+
+   ```bash
+   git fetch --tags --force
+   ```
+
+The rebuilt images replace the earlier ones under the same version tag.
 
 #### Removing a wrongly built kolla tag
 
