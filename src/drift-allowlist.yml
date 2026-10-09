@@ -122,3 +122,8 @@ allow:
   - {plugin: kolla_retired_patch_orphan, image: grafana_provisioning_config_paths, reason: "kolla-operations retired; live at 2024.1/2024.2 only -- if stale, do the sweep noted above"}
   - {plugin: kolla_retired_patch_orphan, image: prometheus_common_config_overrides_paths, reason: "kolla-operations retired; live at 2024.1/2024.2 only -- if stale, do the sweep noted above"}
   - {plugin: kolla_retired_patch_orphan, image: prometheus_custom_alert_paths, reason: "kolla-operations retired; live at 2024.1/2024.2 only -- if stale, do the sweep noted above"}
+
+  # --- defaults_orphan ---
+  # Third-party readers: this check does not search third-party collections.
+  # Re-check each entry when that collection's pin moves in latest/base.yml.
+  - {plugin: defaults_orphan, image: apt__enabled, reason: "read by debops.debops 3.3.2, ansible/roles/apt/tasks/main.yml (when: apt__enabled | bool)"}
