@@ -196,9 +196,11 @@ outdated or its newest version could not be determined.
 ### 2. Tag creation
 
 Before creating tags, trigger a Renovate run on this repository once (e.g. via the
-Renovate dashboard issue or the Mend app) and make sure that all required PRs have
-been merged beforehand. This applies above all to the `osism` Python package, but
-also to the Ansible collections (`osism.commons`, `osism.services`,
+checkbox "Check this box to trigger a request for Renovate to run again on this
+repository" at the bottom of the Dependency Dashboard issue, or via the Mend app).
+The run starts shortly afterwards, not immediately. Make sure that all required
+PRs have been merged beforehand. This applies above all to the `osism` Python
+package, but also to the Ansible collections (`osism.commons`, `osism.services`,
 `osism.validations`, ...) and the Ansible playbooks (`osism.playbooks`,
 `manager-playbooks`). Only then does `latest/base.yml` reflect the state that the
 images are supposed to be built from. `./scripts/check-versions.sh` (see step 1)
@@ -217,6 +219,7 @@ state of `main`: it fetches `origin` and stops unless the current branch is
 `main` and `HEAD` equals `origin/main`.
 
 ```bash
+git pull
 ./scripts/create-tags.sh v0.20260322.0
 ```
 
@@ -234,6 +237,12 @@ The tags reference the current HEAD of this repository and serve as version anch
 for the container image build pipelines. The order in which the tags are created
 here does not matter.
 
+Each component build takes its pins from the commit its tag points to, and the
+kolla and kolla-ansible builds also take their OpenStack series from
+`latest/openstack.yml` there. For a major release, `latest/openstack.yml` has to
+point to the new OpenStack series before the tags are created; the
+`check-versions.sh` run of `create-tags.sh` stops if the symlink is behind.
+
 The script checks for every project whether the tag already exists (locally or on
 the remote) and where it points to. A tag that already points to the current HEAD
 is left as it is. Otherwise the script asks whether to **move** the tag to the
@@ -249,22 +258,36 @@ wrong commit: merge the fix into `main`, pull, run the script again and answer
 > [Rebuilding images built from the wrong state](#rebuilding-images-built-from-the-wrong-state).
 
 The tags in this repository alone do not trigger any builds. After they have been
-pushed, three further steps are required, in this order:
+pushed, three further steps are required, in this order. A component repository
+is tagged on the current HEAD of its default branch, and the push starts its Zuul
+`tag` pipeline:
+
+```bash
+git pull
+git tag v0.20260322.0
+git push origin v0.20260322.0
+```
 
 1. Create and push the tag `v0.20260322.0` (the plain version, without project
    prefix) in [osism/container-images-kolla](https://github.com/osism/container-images-kolla)
-   and wait until the build has finished. The kolla-ansible build pulls the
-   SBOM image `kolla/release/<openstack_version>/sbom:<version>` that this
-   build pushes, and fails if it does not exist yet. Check the images of the
-   build with `./scripts/check-kolla-images.sh v0.20260322.0` (see
+   and wait until the build (`container-images-kolla-release`) has finished.
+   The kolla-ansible build pulls the SBOM image
+   `kolla/release/<openstack_version>/sbom:<version>` that this build pushes,
+   and fails if it does not exist yet. Check the images of the build with
+   `./scripts/check-kolla-images.sh v0.20260322.0` (see
    [below](#checking-the-kolla-images-of-a-tag)).
 2. Only then create and push the same tag `v0.20260322.0` in all other container
    image repositories:
    - [osism/container-image-osism-ansible](https://github.com/osism/container-image-osism-ansible)
+     (`container-image-osism-ansible-push`)
    - [osism/osism-kubernetes](https://github.com/osism/osism-kubernetes)
+     (`osism-kubernetes-push`)
    - [osism/container-image-kolla-ansible](https://github.com/osism/container-image-kolla-ansible)
+     (`container-image-kolla-ansible-release`)
    - [osism/container-image-ceph-ansible](https://github.com/osism/container-image-ceph-ansible)
+     (`container-image-ceph-ansible-release`)
    - [osism/container-image-inventory-reconciler](https://github.com/osism/container-image-inventory-reconciler)
+     (`container-image-inventory-reconciler-push`)
 
    Wait until the builds have finished and check their images with
    `./scripts/check-osism-images.sh v0.20260322.0` (see
@@ -275,6 +298,17 @@ pushed, three further steps are required, in this order:
    for `osism-kubernetes`). Merge all of these PRs before continuing, so that
    `latest/base.yml` references the images that were just built. If a PR is
    missing, trigger a Renovate run on this repository once more.
+
+> [!NOTE]
+> Tag every component repository with the version used for `create-tags.sh`:
+>
+> - Each component build checks out `<project>-<version>` in this repository,
+>   with the version of its own tag.
+> - For kolla-ansible, the version also selects the kolla SBOM image. The
+>   build uses its own version for it unless
+>   `next/kolla-ansible-<version>.yml` (`openstack_sbom: ...`) says
+>   otherwise. With the same version for kolla and kolla-ansible, no such
+>   file is needed.
 
 #### Checking the kolla images of a tag
 
