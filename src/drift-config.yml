@@ -10,8 +10,8 @@ remote:
   branch: main
 
 sources:
-  kolla: {owner: openstack, branch: stable/2025.2}
-  kolla_ansible: {owner: openstack, branch: stable/2025.2}
+  kolla: {owner: openstack}
+  kolla_ansible: {owner: openstack}
   ceph_ansible: {owner: ceph, branch: main}
   ansible_playbooks: {owner: osism, branch: main}
 

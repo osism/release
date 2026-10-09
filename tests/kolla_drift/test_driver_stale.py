@@ -23,13 +23,20 @@ remote:
   default_owner: osism
   branch: main
 release_version: latest
+sources:
+  kolla: {owner: openstack}
 plugins:
   kolla_version_chain_inner: {enabled: true}
 """)
     return cfg
 
 
-def test_stale_entry_forces_exit_1_and_is_reported(tmp_path, capsys):
+def _kolla_base(kolla_clone):
+    docker = ["foo", "ignored-svc", "newsvc", "off", "present_a"]
+    return kolla_clone({"stable/A": docker, "stable/B": docker})
+
+
+def test_stale_entry_forces_exit_1_and_is_reported(tmp_path, capsys, kolla_clone):
     driver = _load_driver()
     cfg = _write_cfg(tmp_path)
     al = tmp_path / "a.yml"
@@ -49,6 +56,8 @@ allow:
             "--group",
             "kolla",
             "--base-dir",
+            str(_kolla_base(kolla_clone)),
+            "--base-dir",
             str(FIXT),
             "--plugin",
             "kolla_version_chain_inner",
@@ -62,7 +71,7 @@ allow:
     assert "ghost" in out
 
 
-def test_no_allowlist_ignores_invalid_file(tmp_path, capsys):
+def test_no_allowlist_ignores_invalid_file(tmp_path, capsys, kolla_clone):
     driver = _load_driver()
     cfg = _write_cfg(tmp_path)
     bad = tmp_path / "bad.yml"
@@ -78,6 +87,8 @@ def test_no_allowlist_ignores_invalid_file(tmp_path, capsys):
             "--group",
             "kolla",
             "--no-allowlist",
+            "--base-dir",
+            str(_kolla_base(kolla_clone)),
             "--base-dir",
             str(FIXT),
             "--plugin",

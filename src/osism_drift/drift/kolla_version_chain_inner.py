@@ -38,7 +38,7 @@ INPUT_FILES = [
     ("container_image_kolla_ansible", "files/src/templates/versions.yml.j2"),
     ("container_images_kolla", "src/tag-images-with-the-version.py"),
     ("defaults", "all/*.yml"),
-    ("kolla", "docker/"),
+    ("kolla", "docker/ (newest resolved ref)"),
 ]
 # Module-level fallback for the report; every entry below sets a per-finding
 # override, so these render only if an entry ever omits them.
@@ -80,10 +80,9 @@ _DEAD_FOUND_SRC = "container-image-kolla-ansible/files/src/templates/versions.ym
 
 def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     """Return inert-pin drifts, each routed to its add-vs-remove fix."""
-    dead_expected_src = (
-        f"openstack/kolla docker/ @ {source.current_ref('kolla', config)} "
-        "(no OSISM-built image)"
-    )
+    newest = sorted(enablement.release_range(config))[-1]
+    kolla_ref = source.release_to_ref("kolla", newest, config)
+    dead_expected_src = f"openstack/kolla docker/ @ {kolla_ref} (no OSISM-built image)"
     template_bytes = source.read("container_image_kolla_ansible", _TEMPLATE, config)
     sbom_bytes = source.read("container_images_kolla", _SBOM, config)
     template_keys = versions_template.parse_versions_keys(template_bytes)
@@ -91,7 +90,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
 
     enabled = enablement.truthy_enables(enablement.osism_enable_flags(config))
     buildable = kolla_docker.parse(
-        source.list_dir("kolla", _DOCKER, config, dirs_only=True)
+        source.list_dir_at_ref("kolla", _DOCKER, kolla_ref, config, dirs_only=True)
     )
 
     drifts = []

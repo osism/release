@@ -1,9 +1,10 @@
 """kolla_version_chain_upstream: upstream services with no template pin.
 
-Compares the top-level docker/ service dirs of openstack/kolla (at the pinned
-kolla source ref) against the versions['K'] keys in the kolla-ansible template.
-A service present upstream but absent from the template key space has no version
-pin wired (e.g. valkey, blazar, masakari) and its line would silently default.
+Compares the top-level docker/ service dirs of openstack/kolla (at the ref of
+the newest supported release) against the versions['K'] keys in the
+kolla-ansible template. A service present upstream but absent from the template
+key space has no version pin wired (e.g. valkey, blazar, masakari) and its line
+would silently default.
 
 The comparison is one-way (upstream -> template): producer keys are not folded
 in, so a service present in the producer yet absent from the template still
@@ -19,7 +20,7 @@ DESCRIPTION = (
     "kolla-ansible template (unwired pins)."
 )
 INPUT_FILES = [
-    ("kolla", "docker"),
+    ("kolla", "docker (newest resolved ref)"),
     ("container_image_kolla_ansible", "files/src/templates/versions.yml.j2"),
 ]
 SUMMARY = (
@@ -39,9 +40,10 @@ _FOUND_SRC = "container-image-kolla-ansible/files/src/templates/versions.yml.j2"
 
 def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     """Return unwired-pin drifts: upstream services with no template key."""
-    ref = source.current_ref("kolla", config)
+    newest = sorted(enablement.release_range(config))[-1]
+    ref = source.release_to_ref("kolla", newest, config)
     expected_src = f"openstack/kolla/docker/ @ {ref}"
-    docker_names = source.list_dir("kolla", _DOCKER, config, dirs_only=True)
+    docker_names = source.list_dir_at_ref("kolla", _DOCKER, ref, config, dirs_only=True)
     upstream = kolla_docker.parse(docker_names)
     template_bytes = source.read("container_image_kolla_ansible", _TEMPLATE, config)
     template_keys = {

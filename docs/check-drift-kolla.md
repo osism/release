@@ -25,7 +25,7 @@ GitHub, so the detector runs anywhere including CI; see "Input resolution".
 ## Input resolution: remote by default, `--base-dir` for local
 
 By default every repo is read from **GitHub** (`remote.branch`, default `main`;
-per-repo owner/branch via `sources:`). No local checkout is needed.
+upstream repos per release, see `sources:`). No local checkout is needed.
 
 To read local checkouts, pass `--base-dir DIR` (repeatable). For each repo a
 plugin needs, the dirs are searched **in order** and the first one containing
@@ -46,12 +46,12 @@ before any comparison:
 
     Resolving sources (1 base dir(s)):
       defaults                         local  /home/me/src/osism/defaults  [working tree, as-is]
-      kolla_ansible                    remote openstack/kolla-ansible @ stable/2025.2 ... [remote]
+      kolla_ansible                    remote openstack/kolla-ansible @ per-release range refs  [remote]
 
 Local OSISM-consumer repos are read from the **working tree as-is** (the change
 under test). Upstream `kolla`/`kolla-ansible` are **pinned** (`sources:`): if a
 `--base-dir` holds them as a **git clone**, they are read from git objects at the
-pinned/release refs (no checkout, offline, no GitHub rate limit; a missing ref is
+release refs (no checkout, offline, no GitHub rate limit; a missing ref is
 a loud error, and a non-`origin` remote such as `gerrit` is searched too). A
 pinned repo whose `--base-dir` dir is not a git clone falls back to remote (with
 `--remote-fallback`) or is a hard error. With no local clone they are read
@@ -83,14 +83,23 @@ periodic `release-tox-drift` job does not pass it.
 ### Per-repo source overrides (`sources:`)
 
 By default every repo is read from `default_owner` (osism) at `remote.branch`. A
-`sources:` entry overrides the owner and/or ref for one repo:
+`sources:` entry marks an upstream repo and sets its owner, and optionally a
+branch:
 
     sources:
-      kolla: {owner: openstack, branch: stable/2025.2}
+      kolla: {owner: openstack}
+      ceph_ansible: {owner: ceph, branch: main}
 
-A repo with a set `branch` is **pinned**: it is always read remotely at that ref
-(or from git objects in a local clone), so the result is deterministic regardless
-of any local checkout's current branch.
+A repo with a `sources:` entry is **pinned**: it is read at named refs, remotely
+or from git objects in a local clone, never from a working tree, so the result is
+deterministic regardless of any local checkout's current branch.
+
+Upstream `kolla` and `kolla-ansible` carry no `branch`. Every check reads them per
+release, at the ref `release_to_ref` resolves for each `latest/openstack-*.yml`
+release (or, for a check that compares against one release, the newest), so
+adding a release file moves them along and nothing in this config has to follow
+the OpenStack series. A read without a release ref is an error for a repo
+without a `branch`, rather than a silent read of upstream's development branch.
 
 ## The checks
 
@@ -227,7 +236,7 @@ verbatim (an Ansible var name is an exact identifier).
 **Enabled — `001` must stay a verbatim mirror of upstream-newest.** Enforces
 Convention X: the `osism/defaults` `all/001-*.yml` **layer** must equal upstream
 kolla-ansible `group_vars/all` at the **newest** supported release
-(`release_range[-1]`, `stable/2025.2` today), compared as parsed YAML values
+(`release_range[-1]`), compared as parsed YAML values
 (jinja lives in string values and compares as strings). Every OSISM opinion lives
 in a `099-*` file, never in `001`, and the allowlist is never a home for a
 group_var. The sibling `kolla_groupvars_missing` only proves the upstream *union*
@@ -584,8 +593,8 @@ release that resolves to no ref is a hard error, not a silent skip.
 ### Plugin: kolla_version_chain_upstream
 
 **Built → version-pinned — a built service must have a version pin.** Lists the top-level service
-directories of `openstack/kolla` `docker/` (at the pinned kolla ref, `stable/2025.2`
-by default) and flags any whose normalised name has **no** `versions['<key>']`
+directories of `openstack/kolla` `docker/` (at the ref of the newest supported
+release, `release_range[-1]`) and flags any whose normalised name has **no** `versions['<key>']`
 line in the kolla-ansible
 template — an upstream-built service with no version pin wired. The comparison is
 one-way (upstream → template) and does not fold in the producer's keys, so a
@@ -593,7 +602,7 @@ service present in the producer but missing a template line still flags here.
 
     python3 src/check-drift.py --group kolla --plugin kolla_version_chain_upstream
 
-- **Reads:** `openstack/kolla` `docker/`;
+- **Reads:** `openstack/kolla` `docker/` at the newest resolved ref;
   `container-image-kolla-ansible` `files/src/templates/versions.yml.j2`.
 - **Fix:** add a `versions['<name>']` line to the template to pin the image (and
   wire the producer); if intentionally unpinned, add an allowlist entry with a
@@ -615,7 +624,8 @@ A `versions['<key>']` key referenced in the template but **absent** from the SBO
 map is never produced, so the line silently falls back to the coarse
 `openstack_version` — an inert pin, with no error. This plugin flags exactly those
 keys, and **classifies** each: if OSISM actually deploys the service (enabled in
-`all/*.yml` and buildable in `openstack/kolla` `docker/`) the right fix is to
+`all/*.yml` and buildable in `openstack/kolla` `docker/` at the newest supported
+release) the right fix is to
 **wire the SBOM key**; otherwise the template line is dead and should be
 **removed**. The report renders the two buckets as separate blocks, each pointing
 at the repo to edit.
@@ -624,7 +634,8 @@ at the repo to edit.
 
 - **Reads:** `container-image-kolla-ansible` `files/src/templates/versions.yml.j2`;
   `container-images-kolla` `src/tag-images-with-the-version.py`;
-  `osism/defaults` `all/*.yml`; `openstack/kolla` `docker/`.
+  `osism/defaults` `all/*.yml`; `openstack/kolla` `docker/` at the newest
+  resolved ref.
 - **Fix:** wire the key into `SBOM_IMAGE_TO_VERSION` if OSISM deploys it, else
   remove the dead template line; allowlist keys meant to default.
 

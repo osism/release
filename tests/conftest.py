@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 
 import pytest
@@ -111,3 +112,32 @@ def release_repo(tmp_path):
     that do not use it.
     """
     return ReleaseRepo(tmp_path)
+
+
+@pytest.fixture
+def kolla_clone(tmp_path):
+    """Build a kolla clone with one branch per release, returns its base dir.
+
+    Called with {branch: [docker service dir, ...]}; pass the returned dir as a
+    --base-dir. A pinned repo is read from git objects at named refs, never from
+    a working tree, so a plugin that lists openstack/kolla per release needs a
+    clone rather than a plain fixture directory.
+    """
+
+    def make(branches):
+        base = tmp_path / "kolla-base"
+        repo = base / "kolla"
+        repo.mkdir(parents=True)
+        run_git(repo, "init", "-q", "-b", "scratch")
+        for branch, services in branches.items():
+            run_git(repo, "checkout", "-q", "--orphan", branch)
+            shutil.rmtree(repo / "docker", ignore_errors=True)
+            for service in services:
+                (repo / "docker" / service).mkdir(parents=True)
+                (repo / "docker" / service / "Dockerfile.j2").write_text("")
+            (repo / "docker" / "macros.j2").write_text("")
+            run_git(repo, "add", "-A")
+            run_git(repo, "commit", "-q", "-m", branch)
+        return base
+
+    return make
