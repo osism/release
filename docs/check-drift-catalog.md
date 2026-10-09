@@ -200,7 +200,7 @@ wrong):
    steps and *both* fixup rules, not just the one you'd expect it to come
    from — a role landing via step 2 (site.yml split) is easy to overlook if
    you're only checking step 3 (top-level files).
-3. **The per-runtime `_pin()` refs** — `playbooks_version` (base.yml) for
+3. **The per-runtime `pin()` refs** — `playbooks_version` (base.yml) for
    osism-ansible, `ceph_ansible_version` per flavour for ceph-ansible. A role
    resolving upstream at HEAD but not at the pinned ref (or vice versa) means
    the pin, not the role, is the actual mismatch.

@@ -249,7 +249,7 @@ def test_ceph_files_skips_flavours_without_ceph_ansible(cfg, tmp_path):
 
     assert playbooks.ceph_files(c) == baseline
     assert playbooks._ceph_flavours(c) == ["squid", "tentacle"]
-    assert playbooks._ceph_ansible_flavours(c) == ["squid"]
+    assert playbooks.ceph_ansible_flavours(c) == ["squid"]
 
 
 @responses.activate
