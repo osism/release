@@ -16,7 +16,7 @@ from osism_drift.config import (
     load_allowlist,
     load_config,
 )
-from osism_drift import demo, report, source
+from osism_drift import demo, http, report, source
 from osism_drift.source import SourceError
 
 
@@ -90,12 +90,19 @@ def run(
             source.set_progress(lambda line: print(line, file=sys.stderr, flush=True))
 
     drifts = []
+    http.reset_stats()
     try:
         for plugin in selected:
             drifts.extend(plugin.run(config, allowlist, verbose=args.verbose))
     except SourceError as e:
         print(f"source error: {e}", file=sys.stderr)
         return 2
+    finally:
+        # Even with --quiet and after a source error: this is the line to read
+        # in a CI log when a run nears GitHub's anonymous rate limit.
+        requests_line = http.summary()
+        if requests_line:
+            print(requests_line, file=sys.stderr)
 
     non_allowlisted = [d for d in drifts if not d.allowlisted]
     advisory = [d for d in non_allowlisted if d.severity == "advisory"]

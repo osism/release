@@ -24,6 +24,72 @@ class SourceError(Exception):
 
 _GITHUB_HOSTS = frozenset({"github.com", "api.github.com", "raw.githubusercontent.com"})
 
+# Per-run request tally, reported by the driver at the end of every run.
+# _get and head are the only places drift checks send HTTP, so counting here
+# makes each run state its own cost -- above all against GitHub's anonymous
+# REST limit (60 requests an hour), which a nightly job without a token shares
+# across every plugin group. Hosts are counted per hop. An archive download is
+# a 302 from api.github.com to codeload.github.com; GitHub does not charge it to
+# the REST rate limit (measured 2026-10-09: three anonymous tarball downloads
+# left /rate_limit unchanged, one contents call took one), and the redirect's
+# X-RateLimit-* headers do not reflect what was used. So archive requests are
+# counted under their own label and their headers are ignored.
+_requests_by_host: dict = {}
+_github_limit: dict = {}
+_LIMIT_FIELDS = ("limit", "remaining", "used", "reset")
+
+
+def reset_stats() -> None:
+    """Forget the tally; the driver calls this at the start of a run."""
+    _requests_by_host.clear()
+    _github_limit.clear()
+
+
+def _is_archive(parsed) -> bool:
+    return parsed.hostname == "api.github.com" and (
+        "/tarball/" in parsed.path or "/zipball/" in parsed.path
+    )
+
+
+def _count_url(url: str) -> None:
+    parsed = urlparse(url)
+    host = parsed.hostname or url
+    if _is_archive(parsed):
+        host += " archives"
+    _requests_by_host[host] = _requests_by_host.get(host, 0) + 1
+
+
+def _count_response(r) -> None:
+    """Count every hop of `r`, and keep the latest api.github.com rate limit."""
+    for hop in (*r.history, r):
+        _count_url(hop.url)
+        parsed = urlparse(hop.url)
+        if (
+            parsed.hostname == "api.github.com"
+            and not _is_archive(parsed)
+            and "X-RateLimit-Remaining" in hop.headers
+        ):
+            for field in _LIMIT_FIELDS:
+                _github_limit[field] = hop.headers.get(f"X-RateLimit-{field.title()}")
+
+
+def summary() -> str | None:
+    """One line: requests per host, and the GitHub API budget left, if seen."""
+    if not _requests_by_host:
+        return None
+    hosts = ", ".join(f"{h} {n}" for h, n in sorted(_requests_by_host.items()))
+    line = f"HTTP requests: {hosts}"
+    if _github_limit.get("remaining") is not None:
+        line += (
+            f"; GitHub API rate limit: {_github_limit['remaining']} of "
+            f"{_github_limit.get('limit')} left"
+        )
+        reset = _github_limit.get("reset") or ""
+        if reset.isdigit():
+            when = datetime.datetime.fromtimestamp(int(reset), datetime.timezone.utc)
+            line += f" (resets {when:%H:%M} UTC)"
+    return line
+
 
 def _auth_headers(url: str, extra: dict | None = None) -> dict:
     """Merge a GitHub bearer token into request headers when one is available
@@ -142,7 +208,9 @@ def _get(action: str, url: str, *, json_api: bool = False, ok=(), timeout: int =
     try:
         r = requests.get(url, timeout=timeout, headers=_auth_headers(url, extra))
     except requests.RequestException as e:
+        _count_url(url)
         raise SourceError(f"network error {action} {url}: {e}") from e
+    _count_response(r)
     if not r.ok and r.status_code not in ok:
         raise _http_error(action, url, r)
     return r
@@ -187,9 +255,11 @@ def head(
                 url, timeout=timeout, headers=_auth_headers(url), allow_redirects=True
             )
         except requests.RequestException as e:
+            _count_url(url)
             if final:
                 raise SourceError(f"network error {action} {url}: {e}") from e
         else:
+            _count_response(r)
             if r.ok or r.status_code in ok:
                 return r
             if final or r.status_code not in _TRANSIENT_STATUS:
