@@ -38,3 +38,4 @@ plugins:
   kolla_source_ref_phase: {enabled: true}
   catalog_role_missing: {enabled: true}
   kolla_version_gate_orphan: {enabled: true}
+  defaults_orphan: {enabled: true}

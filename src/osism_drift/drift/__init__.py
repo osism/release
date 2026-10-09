@@ -3,6 +3,7 @@
 from osism_drift import report
 from osism_drift.drift import (
     catalog_role_missing,
+    defaults_orphan,
     image_orphan,
     kolla_enablement_build,
     kolla_enablement_orphan,
@@ -51,10 +52,13 @@ IMAGE_PLUGINS = [
 
 CATALOG_PLUGINS = [catalog_role_missing]
 
+DEFAULTS_PLUGINS = [defaults_orphan]
+
 PLUGIN_GROUPS = {
     "image": IMAGE_PLUGINS,
     "kolla": KOLLA_PLUGINS,
     "catalog": CATALOG_PLUGINS,
+    "defaults": DEFAULTS_PLUGINS,
 }
 
 REPORT_HEADERS = {
@@ -67,5 +71,10 @@ REPORT_HEADERS = {
         "Checks follow a role name from python-osism's static catalogs to the "
         "playbook interface each runtime image advertises, per supported "
         "release."
+    ),
+    "defaults": (
+        "Checks follow a variable osism/defaults sets to something that reads "
+        "it: an OSISM repo at main or at the version latest ships, or upstream "
+        "kolla-ansible/ceph-ansible at a supported release."
     ),
 }
