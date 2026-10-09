@@ -175,7 +175,7 @@ def kolla_interface(release, config) -> dict:
     return out
 
 
-def _pin(release_file: str, key: str, config) -> str:
+def pin(release_file: str, key: str, config) -> str:
     """A *_version pin read from release/latest/<release_file>, or SourceError.
 
     These pins (playbooks_version, ceph_ansible_version, ...) are what each
@@ -219,7 +219,7 @@ def osism_files(config) -> frozenset:
     body = source.read(_CONTAINER_IMAGE_OSISM_ANSIBLE, _SYMLINK_SCRIPT, config)
     skip = load_const(body, "SKIP")
     envs = load_const(body, "ENVIRONMENTS")
-    ref = _pin("base.yml", "playbooks_version", config)
+    ref = pin("base.yml", "playbooks_version", config)
     # GitHub's contents API 404s identically for a missing directory and for a
     # bad ref (source.py's list_dir_at_ref). missing_ok=True below is needed
     # for the former (some ENVIRONMENTS entries have no upstream directory),
@@ -306,7 +306,7 @@ def _ceph_flavours(config) -> list:
     )
 
 
-def _ceph_ansible_flavours(config) -> list:
+def ceph_ansible_flavours(config) -> list:
     """The flavours a ceph-ansible image is built for.
 
     A flavour file without ceph_ansible_version (Tentacle: ceph-ansible has no
@@ -328,7 +328,7 @@ def _ceph_ansible_flavours(config) -> list:
 def ceph_files(config) -> frozenset:
     """/ansible/ceph-*.yml basenames the ceph-ansible image ships, unioned
     across every ceph flavour it is built for (quincy, reef, squid; see
-    _ceph_ansible_flavours).
+    ceph_ansible_flavours).
 
     Containerfile:22 lands OSISM's flavour-independent playbooks;
     Containerfile:21 lands OSISM's own per-flavour playbooks (already named
@@ -348,7 +348,7 @@ def ceph_files(config) -> frozenset:
         )
         if n.startswith("ceph-") and n.endswith(".yml")
     }
-    for flavour in _ceph_ansible_flavours(config):
+    for flavour in ceph_ansible_flavours(config):
         files |= {
             n
             for n in source.list_dir(
@@ -356,7 +356,7 @@ def ceph_files(config) -> frozenset:
             )
             if n.startswith("ceph-") and n.endswith(".yml")
         }
-        ref = _pin(f"ceph-{flavour}.yml", "ceph_ansible_version", config)
+        ref = pin(f"ceph-{flavour}.yml", "ceph_ansible_version", config)
         files |= {
             f"ceph-{n[: -len('.yml')]}.yml"
             for n in source.list_dir_at_ref(

@@ -32,7 +32,7 @@ INPUT_FILES = [
     ("container_image_ceph_ansible", "files/playbooks/..."),
     ("osism_kubernetes", "playbooks/kubernetes-*.yml"),
     # release_range's own listing, plus the *_version pins playbooks.py's
-    # _pin()/_ceph_flavours() read to resolve ansible-playbooks/ceph-ansible refs.
+    # pin()/_ceph_flavours() read to resolve ansible-playbooks/ceph-ansible refs.
     (
         "release",
         "latest/ (openstack-*.yml, ceph-*.yml) + latest/{base,ceph-<flavour>}.yml",
