@@ -10,6 +10,8 @@ import pytest
 import responses
 import yaml
 
+import release_tags
+
 # check-kolla-images.py is hyphenated -> not importable by name; load it by path.
 _SRC = pathlib.Path(__file__).resolve().parents[1] / "src" / "check-kolla-images.py"
 _spec = importlib.util.spec_from_file_location("check_kolla_images", _SRC)
@@ -130,6 +132,22 @@ def args(**kwargs):
         jobs=2,
     )
     return argparse.Namespace(**{**defaults, **kwargs})
+
+
+RELEASE_FILES = {
+    "latest/openstack-2025.1.yml": "openstack_version: '2025.1'\n",
+    "latest/openstack.yml": ("symlink", "openstack-2025.1.yml"),
+}
+
+
+@pytest.fixture(autouse=True)
+def release(release_repo, monkeypatch):
+    """The release tag kolla-v0.20261008.0; the images name its commit."""
+    monkeypatch.setattr(release_tags, "REPO_ROOT", release_repo.checkout)
+    commit = release_repo.commit(RELEASE_FILES)
+    release_repo.tag("kolla-v0.20261008.0")
+    monkeypatch.setitem(LABELS, "de.osism.commit.release", commit[:7])
+    return commit
 
 
 @pytest.fixture(autouse=True)
@@ -263,3 +281,93 @@ def test_missing_sbom_aborts():
     )
     with pytest.raises(cki.RegistryError):
         cki.run(args())
+
+
+@responses.activate
+def test_openstack_version_from_the_release_tag(release, capsys):
+    add_image("keystone", "26.0.1.20261008")
+    add_sbom([f"{PREFIX}/keystone:26.0.1.20261008"])
+    assert cki.run(args(openstack_version=None)) == 0
+    out = capsys.readouterr().out
+    assert f"Release tag: kolla-v0.20261008.0 ({release[:7]}, OpenStack 2025.1)" in out
+
+
+@responses.activate
+def test_commit_label_of_another_commit(release, capsys):
+    add_image(
+        "keystone",
+        "26.0.1.20261008",
+        labels={**LABELS, "de.osism.commit.release": "a5d59bd"},
+    )
+    add_image(
+        "nova-api",
+        "31.0.1.20261008",
+        labels={**LABELS, "de.osism.commit.release": release[:4]},
+    )
+    add_image(
+        "cron",
+        "3.0.20261008",
+        labels={k: v for k, v in LABELS.items() if k != "de.osism.commit.release"},
+    )
+    add_image(
+        "heat-api",
+        "24.0.1.20261008",
+        labels={**LABELS, "de.osism.commit.release": release},
+    )
+    add_sbom(
+        [
+            f"{PREFIX}/keystone:26.0.1.20261008",
+            f"{PREFIX}/nova-api:31.0.1.20261008",
+            f"{PREFIX}/cron:3.0.20261008",
+            f"{PREFIX}/heat-api:24.0.1.20261008",
+        ]
+    )
+    assert cki.run(args()) == 1
+    out = capsys.readouterr().out
+    suffix = f"not the commit {release[:7]} of the release tag kolla-v0.20261008.0"
+    assert f"the label de.osism.commit.release is a5d59bd, {suffix}" in out
+    assert f"the label de.osism.commit.release is {release[:4]}, {suffix}" in out
+    assert f"the label de.osism.commit.release is None, {suffix}" in out
+    assert f"{PREFIX}/heat-api:24.0.1.20261008@" in out
+    assert "Images: 1 ok, 3 failed" in out
+
+
+@responses.activate
+def test_openstack_version_differs_from_the_release_tag(
+    release_repo, monkeypatch, capsys
+):
+    moved = release_repo.commit(
+        {
+            "latest/openstack-2026.1.yml": "openstack_version: '2026.1'\n",
+            "latest/openstack.yml": ("symlink", "openstack-2026.1.yml"),
+        }
+    )
+    release_repo.tag("kolla-v0.20261008.0")
+    monkeypatch.setitem(LABELS, "de.osism.commit.release", moved[:7])
+    add_image("keystone", "26.0.1.20261008")
+    add_sbom([f"{PREFIX}/keystone:26.0.1.20261008"])
+    assert cki.run(args(openstack_version="2025.1")) == 1
+    out = capsys.readouterr().out
+    assert "FAILED: the release tag names OpenStack 2026.1, not 2025.1" in out
+    assert "Images: 1 ok, 0 failed" in out
+
+
+@responses.activate
+def test_build_for_another_series_than_the_tag(release_repo):
+    release_repo.commit(
+        {
+            "latest/openstack-2026.1.yml": "openstack_version: '2026.1'\n",
+            "latest/openstack.yml": ("symlink", "openstack-2026.1.yml"),
+        }
+    )
+    release_repo.tag("kolla-v0.20261008.0")
+    responses.get(
+        f"{repo_url('release/2026.1/sbom')}/artifacts/0.20261008.0", status=404
+    )
+    with pytest.raises(cki.RegistryError, match="release/2026.1/sbom"):
+        cki.run(args(openstack_version=None))
+
+
+def test_missing_release_tag():
+    with pytest.raises(cki.ReleaseError, match="kolla-v0.20261009.0"):
+        cki.run(args(tag="v0.20261009.0"))
