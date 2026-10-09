@@ -3,6 +3,10 @@
 # Script to create and push git tags for OSISM projects
 # Usage: ./create-tags.sh v0.20250920.0
 #
+# The tags are only created on the pushed state of main: the script fetches
+# origin and stops unless the current branch is main and HEAD equals
+# origin/main, because the component builds check the tags out from origin.
+#
 # For every project the tag <project>-<version> is created on the current
 # HEAD and pushed to origin. If a tag already exists (locally and/or on the
 # remote), the script asks whether to move it to the current HEAD (the
@@ -19,6 +23,25 @@ if [ $# -eq 0 ]; then
 fi
 
 VERSION="$1"
+
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$REPO_ROOT" || exit 1
+
+if ! git fetch -q origin; then
+    echo "Error: Could not fetch origin" >&2
+    exit 1
+fi
+
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$CURRENT_BRANCH" != "main" ]; then
+    echo "Error: Tags are created on main, but the current branch is $CURRENT_BRANCH" >&2
+    exit 1
+fi
+
+if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+    echo "Error: HEAD ($(git rev-parse --short HEAD)) is not origin/main ($(git rev-parse --short origin/main)): pull or push first" >&2
+    exit 1
+fi
 
 # List of projects
 PROJECTS=(
