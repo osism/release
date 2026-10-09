@@ -16,7 +16,7 @@ playbooks_version: 'v0.20261005.0'
 
 docker_images:
   # renovate: datasource=docker depName=registry.osism.tech/osism/openstackclient
-  openstackclient: '10.3.0'
+  openstackclient: '10.4.0'
 
 infrastructure_projects:
   cron:
