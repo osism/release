@@ -19,10 +19,12 @@ CHECK_VERSIONS_STUB = """#!/bin/bash
 while [ $# -gt 0 ]; do
     case "$1" in
         --latest) latest="$2"; shift 2 ;;
+        --tagging) tagging="$2"; shift 2 ;;
         *) shift ;;
     esac
 done
 echo "check-versions: $latest"
+echo "tagging: $tagging"
 [ "$(readlink "$latest/openstack.yml")" = "openstack-2026.1.yml" ]
 """
 
@@ -102,3 +104,53 @@ def test_refuses_unreachable_origin(repo, tmp_path):
     result = create_tags(repo)
     assert result.returncode == 1
     assert "Could not fetch origin" in result.stderr
+
+
+def test_failing_check_creates_no_tags(release_repo):
+    release_repo.commit(files(series="2025.1"))
+    release_repo.push()
+    result = create_tags(release_repo)
+    assert result.returncode == 1
+    assert "check-versions.sh failed" in result.stderr
+    assert release_repo.upstream_tags() == {}
+
+
+def test_skip_check_versions(release_repo):
+    release_repo.commit(files(series="2025.1"))
+    release_repo.push()
+    result = create_tags(release_repo, "--skip-check-versions")
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "Skipping scripts/check-versions.sh" in result.stdout
+    assert len(release_repo.upstream_tags()) == len(PROJECTS)
+
+
+def test_check_reads_the_commit_not_the_working_tree(release_repo):
+    release_repo.commit(files(series="2025.1"))
+    release_repo.push()
+    link = release_repo.checkout / "latest" / "openstack.yml"
+    link.unlink()
+    link.symlink_to("openstack-2026.1.yml")
+    result = create_tags(release_repo)
+    assert result.returncode == 1
+    assert "check-versions.sh failed" in result.stderr
+    assert release_repo.upstream_tags() == {}
+
+
+def test_check_runs_on_an_extracted_copy(repo):
+    result = create_tags(repo)
+    assert result.returncode == 0, result.stdout + result.stderr
+    checked = [
+        line
+        for line in result.stdout.splitlines()
+        if line.startswith("check-versions: ")
+    ]
+    assert len(checked) == 1
+    assert str(repo.checkout) not in checked[0]
+    assert "tagging: v0.20261009.0" in result.stdout
+
+
+def test_unknown_option(repo):
+    result = create_tags(repo, "--force")
+    assert result.returncode == 1
+    assert "Unknown option --force" in result.stderr
+    assert repo.upstream_tags() == {}

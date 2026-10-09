@@ -1,11 +1,20 @@
 #!/bin/bash
 
 # Script to create and push git tags for OSISM projects
-# Usage: ./create-tags.sh v0.20250920.0
+# Usage: ./create-tags.sh [--skip-check-versions] v0.20250920.0
 #
 # The tags are only created on the pushed state of main: the script fetches
 # origin and stops unless the current branch is main and HEAD equals
 # origin/main, because the component builds check the tags out from origin.
+#
+# Before any tag is created, scripts/check-versions.sh checks the commit to
+# be tagged (latest/ and etc/ of HEAD, extracted with git archive, not the
+# working tree). If it fails, also because a version could not be
+# determined, no tag is created. Pins of the images built from these tags
+# whose newest published version is the version being tagged count as
+# current, so moving tags after a first build is not stopped; all other pins
+# have to be current. --skip-check-versions skips the check for
+# the rare case where an outdated pin is intended.
 #
 # For every project the tag <project>-<version> is created on the current
 # HEAD and pushed to origin. If a tag already exists (locally and/or on the
@@ -14,15 +23,51 @@
 # to ignore it (the existing tag is left untouched). This allows re-running
 # the script after tags have been created on the wrong commit.
 
-# Check if version parameter is provided
-if [ $# -eq 0 ]; then
-    echo "Error: Version parameter required"
-    echo "Usage: $0 <version>"
+usage() {
+    echo "Usage: $0 [--skip-check-versions] <version>"
+    echo ""
+    echo "Options:"
+    echo "  --skip-check-versions   Do not run scripts/check-versions.sh first"
+    echo "  -h, --help              Show this help"
+    echo ""
     echo "Example: $0 v0.20250920.0"
+}
+
+SKIP_CHECK_VERSIONS=false
+VERSION=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --skip-check-versions)
+            SKIP_CHECK_VERSIONS=true
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -*)
+            echo "Error: Unknown option $1" >&2
+            usage >&2
+            exit 1
+            ;;
+        *)
+            if [ -n "$VERSION" ]; then
+                echo "Error: Only one version can be given" >&2
+                usage >&2
+                exit 1
+            fi
+            VERSION="$1"
+            shift
+            ;;
+    esac
+done
+
+if [ -z "$VERSION" ]; then
+    echo "Error: Version parameter required" >&2
+    usage >&2
     exit 1
 fi
-
-VERSION="$1"
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO_ROOT" || exit 1
@@ -41,6 +86,25 @@ fi
 if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
     echo "Error: HEAD ($(git rev-parse --short HEAD)) is not origin/main ($(git rev-parse --short origin/main)): pull or push first" >&2
     exit 1
+fi
+
+if [ "$SKIP_CHECK_VERSIONS" = true ]; then
+    echo "Skipping scripts/check-versions.sh (--skip-check-versions)"
+else
+    CHECK_DIR=$(mktemp -d)
+    trap 'rm -rf "$CHECK_DIR"' EXIT
+    if ! (set -o pipefail; git archive HEAD latest etc | tar -x -C "$CHECK_DIR"); then
+        echo "Error: Could not extract latest/ and etc/ of HEAD" >&2
+        exit 1
+    fi
+    if ! "$REPO_ROOT/scripts/check-versions.sh" \
+        --latest "$CHECK_DIR/latest" \
+        --repositories "$CHECK_DIR/etc/changelog-repositories.yml" \
+        --tagging "$VERSION"; then
+        echo "Error: scripts/check-versions.sh failed for $(git rev-parse --short HEAD), no tags created" >&2
+        echo "Merge the missing updates first, or use --skip-check-versions if an outdated pin is intended" >&2
+        exit 1
+    fi
 fi
 
 # List of projects

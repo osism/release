@@ -202,8 +202,15 @@ also to the Ansible collections (`osism.commons`, `osism.services`,
 `osism.validations`, ...) and the Ansible playbooks (`osism.playbooks`,
 `manager-playbooks`). Only then does `latest/base.yml` reflect the state that the
 images are supposed to be built from. `./scripts/check-versions.sh` (see step 1)
-verifies this and names the PRs that are still open; it has to pass before the
-tags are created.
+verifies this and names the PRs that are still open. `create-tags.sh` runs it
+on the commit it tags (not on local changes) and stops without creating a tag
+if it fails, also if a version could not be determined. Pins of the images built
+from these tags (osism-ansible, osism-kubernetes, inventory-reconciler,
+kolla-ansible, ceph-ansible) whose newest published version is the version
+being tagged count as current, so a re-run to move tags after a first build is
+not stopped. All other pins have to be current.
+`--skip-check-versions` skips the check for the rare case where an outdated pin
+is intended.
 
 Then create tags for the core projects. `create-tags.sh` only tags the pushed
 state of `main`: it fetches `origin` and stops unless the current branch is
