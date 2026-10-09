@@ -258,6 +258,87 @@ def test_check_latest_reports_osism_pins_of_base_and_the_symlinked_series(
     ]
 
 
+def _check_tagging(tmp_path, monkeypatch, newest, tagging):
+    (tmp_path / "base.yml").write_text(
+        "docker_images:\n"
+        "  # renovate: datasource=docker depName=registry.osism.tech/osism/osism-ansible\n"
+        "  osism-ansible: '0.20261001.0'\n"
+    )
+    monkeypatch.setattr(
+        cv,
+        "newest_version",
+        _newest({("docker", "registry.osism.tech/osism/osism-ansible"): newest}),
+    )
+    _pulls("osism/release", [])
+    return cv.check_latest(str(tmp_path), tagging=tagging)
+
+
+@responses.activate
+def test_check_latest_counts_the_version_being_tagged_as_current(tmp_path, monkeypatch):
+    rows = _check_tagging(tmp_path, monkeypatch, "0.20261008.0", "v0.20261008.0")
+
+    assert [(row.status, row.note) for row in rows] == [
+        ("ok", "newest is the version being tagged")
+    ]
+
+
+@responses.activate
+def test_check_latest_without_tagging_reports_the_pin_as_outdated(
+    tmp_path, monkeypatch
+):
+    rows = _check_tagging(tmp_path, monkeypatch, "0.20261008.0", None)
+
+    assert [row.status for row in rows] == ["outdated"]
+
+
+@responses.activate
+def test_check_latest_still_reports_a_newer_version_than_the_one_tagged(
+    tmp_path, monkeypatch
+):
+    rows = _check_tagging(tmp_path, monkeypatch, "0.20261009.0", "v0.20261008.0")
+
+    assert [row.status for row in rows] == ["outdated"]
+
+
+@responses.activate
+def test_check_latest_tagging_only_covers_the_tagged_images(tmp_path, monkeypatch):
+    (tmp_path / "base.yml").write_text(
+        "osism_projects:\n"
+        "  # renovate: datasource=pypi depName=osism\n"
+        "  osism: '0.20261001.0'\n"
+        "ansible_collections:\n"
+        "  # renovate: datasource=galaxy-collection depName=osism.services\n"
+        "  osism.services: '0.20261001.0'\n"
+        "docker_images:\n"
+        "  # renovate: datasource=docker depName=registry.osism.tech/osism/osism\n"
+        "  osism: '0.20261001.0'\n"
+        "  # renovate: datasource=docker depName=registry.osism.tech/osism/osism-ansible\n"
+        "  osism-ansible: '0.20261001.0'\n"
+    )
+    monkeypatch.setattr(
+        cv,
+        "newest_version",
+        _newest(
+            {
+                ("pypi", "osism"): "0.20261008.0",
+                ("galaxy-collection", "osism.services"): "0.20261008.0",
+                ("docker", "registry.osism.tech/osism/osism"): "0.20261008.0",
+                ("docker", "registry.osism.tech/osism/osism-ansible"): "0.20261008.0",
+            }
+        ),
+    )
+    _pulls("osism/release", [])
+
+    rows = cv.check_latest(str(tmp_path), tagging="v0.20261008.0")
+
+    assert [(row.dependency, row.status) for row in rows] == [
+        ("osism", "outdated"),
+        ("osism.services", "outdated"),
+        ("registry.osism.tech/osism/osism", "outdated"),
+        ("registry.osism.tech/osism/osism-ansible", "ok"),
+    ]
+
+
 def _check_derived(tmp_path, monkeypatch, newest):
     (tmp_path / "base.yml").write_text(BASE_YML)
     monkeypatch.setattr(cv, "newest_version", _newest(newest))

@@ -62,6 +62,20 @@ PULLS_URL = "https://api.github.com/repos/{repo}/pulls"
 
 # The repository whose latest/ directory is checked
 RELEASE_REPO = "osism/release"
+# The images built from the release tags of scripts/create-tags.sh: with
+# --tagging, their pins may lag behind the version being tagged. Everything
+# else (the osism package and image, collections, defaults, ...) is released
+# independently and has to be current.
+TAGGED_IMAGES = {
+    f"registry.osism.tech/osism/{image}"
+    for image in (
+        "osism-ansible",
+        "osism-kubernetes",
+        "inventory-reconciler",
+        "kolla-ansible",
+        "ceph-ansible",
+    )
+}
 
 OSISM_VERSION = re.compile(r"v?0\.\d{8}\.\d+")
 ANNOTATION = re.compile(r"\s*# renovate: datasource=(\S+) depName=(\S+)")
@@ -301,7 +315,8 @@ def version_files(directory):
     return files
 
 
-def check_latest(directory):
+def check_latest(directory, tagging=None):
+    tagging = tagging.lstrip("v") if tagging else None
     rows = []
     for where, path in version_files(directory):
         for pin in parse_pins(path):
@@ -309,7 +324,17 @@ def check_latest(directory):
                 continue
             newest_published, error = newest_version(pin.datasource, pin.dependency)
             status, note = compare(pin.version, newest_published, error)
-            if status == "outdated":
+            if (
+                status == "outdated"
+                and tagging
+                and pin.datasource == "docker"
+                and pin.dependency in TAGGED_IMAGES
+                and newest_published.lstrip("v") == tagging
+            ):
+                # the images of the version being tagged are built from the
+                # tags being created, so their pins cannot be newer yet
+                status, note = "ok", "newest is the version being tagged"
+            elif status == "outdated":
                 # grouped updates are titled by the group, e.g. "Update osism"
                 # for registry.osism.tech/osism/osism and the osism package
                 names = (pin.dependency, pin.dependency.rsplit("/", 1)[-1])
@@ -550,13 +575,20 @@ def main():
         default="etc/changelog-repositories.yml",
         help="component mapping with the derived components",
     )
+    parser.add_argument(
+        "--tagging",
+        help="version that is being tagged; a pin of an image built from the "
+        "release tags (osism-ansible, osism-kubernetes, inventory-reconciler, "
+        "kolla-ansible, ceph-ansible) whose newest published version is this "
+        "version counts as current",
+    )
     args = parser.parse_args()
 
     with open(args.repositories) as fp:
         mapping = yaml.safe_load(fp)
 
     rows = check_symlinks(args.latest)
-    rows += check_latest(args.latest)
+    rows += check_latest(args.latest, tagging=args.tagging)
     rows += check_derived(mapping, os.path.join(args.latest, "base.yml"))
     print_report(rows, args.verbose)
     return 0 if all(row.status == "ok" for row in rows) else 1
