@@ -2,12 +2,12 @@ import argparse
 import hashlib
 import importlib.util
 import json
-import os
 import pathlib
-import subprocess
 
 import pytest
 import responses
+
+import release_tags
 
 # check-osism-images.py is hyphenated -> not importable by name; load it by path.
 _SRC = pathlib.Path(__file__).resolve().parents[1] / "src" / "check-osism-images.py"
@@ -25,43 +25,31 @@ PUSHED = "2026-10-08T12:30:00.123Z"
 SIGNATURE = [{"type": "signature.cosign", "digest": "sha256:sig"}]
 
 
-def git(repo, *args, date=COMMITTED):
-    env = {
-        **os.environ,
-        "GIT_CONFIG_GLOBAL": os.devnull,
-        "GIT_CONFIG_NOSYSTEM": "1",
-        "GIT_AUTHOR_NAME": "Test",
-        "GIT_AUTHOR_EMAIL": "test@example.com",
-        "GIT_COMMITTER_NAME": "Test",
-        "GIT_COMMITTER_EMAIL": "test@example.com",
-        "GIT_AUTHOR_DATE": date,
-        "GIT_COMMITTER_DATE": date,
+def release_files(ceph_file="ceph_ansible.yml"):
+    """latest/ of a release snapshot: OpenStack 2026.1, Ceph reef."""
+    return {
+        "latest/openstack-2026.1.yml": "openstack_version: '2026.1'\n",
+        "latest/ceph-reef.yml": "ceph_version: reef\n",
+        "latest/openstack.yml": ("symlink", "openstack-2026.1.yml"),
+        f"latest/{ceph_file}": ("symlink", "ceph-reef.yml"),
     }
-    return subprocess.run(
-        ["git", *args], cwd=repo, env=env, check=True, capture_output=True, text=True
-    ).stdout.strip()
 
 
-def release_repo(path, ceph_file="ceph_ansible.yml", images=coi.IMAGES):
-    """A release repository with the tags of the images, returns the commit."""
-    latest = path / "latest"
-    latest.mkdir(parents=True)
-    (latest / "openstack-2026.1.yml").write_text("openstack_version: '2026.1'\n")
-    (latest / "ceph-reef.yml").write_text("ceph_version: reef\n")
-    (latest / "openstack.yml").symlink_to("openstack-2026.1.yml")
-    (latest / ceph_file).symlink_to("ceph-reef.yml")
-    git(path, "init", "-q")
-    git(path, "add", ".")
-    git(path, "commit", "-q", "-m", "release")
+def tag_images(release_repo, images=coi.IMAGES):
     for image in images:
-        git(path, "tag", f"{image}-v{VERSION}")
-    return git(path, "rev-parse", "HEAD")
+        release_repo.tag(f"{image}-v{VERSION}")
+
+
+@pytest.fixture(autouse=True)
+def tags_root(release_repo, monkeypatch):
+    monkeypatch.setattr(release_tags, "REPO_ROOT", release_repo.checkout)
 
 
 @pytest.fixture
-def commit(tmp_path, monkeypatch):
-    monkeypatch.setattr(coi, "REPO_ROOT", tmp_path)
-    return release_repo(tmp_path)
+def commit(release_repo):
+    commit = release_repo.commit(release_files(), date=COMMITTED)
+    tag_images(release_repo)
+    return commit
 
 
 def labels(image, commit, **overrides):
@@ -172,9 +160,9 @@ def test_problems_are_reported(commit, capsys):
 
 
 @responses.activate
-def test_missing_release_tag(tmp_path, monkeypatch, capsys):
-    monkeypatch.setattr(coi, "REPO_ROOT", tmp_path)
-    commit = release_repo(tmp_path, images=coi.IMAGES[:-1])
+def test_missing_release_tag(release_repo, capsys):
+    commit = release_repo.commit(release_files(), date=COMMITTED)
+    tag_images(release_repo, coi.IMAGES[:-1])
     for image in coi.IMAGES:
         add_image(image, labels(image, commit))
     assert coi.run(args()) == 1
@@ -186,9 +174,9 @@ def test_missing_release_tag(tmp_path, monkeypatch, capsys):
     assert "Images: 4 ok, 1 failed" in out
 
 
-def test_ceph_release_of_old_snapshots(tmp_path, monkeypatch):
-    monkeypatch.setattr(coi, "REPO_ROOT", tmp_path)
-    release_repo(tmp_path, ceph_file="ceph.yml")
+def test_ceph_release_of_old_snapshots(release_repo):
+    release_repo.commit(release_files(ceph_file="ceph.yml"), date=COMMITTED)
+    tag_images(release_repo)
     label, files, key = coi.SERIES["ceph-ansible"]
     assert coi.release_series(f"ceph-ansible-v{VERSION}", files, key) == "reef"
     label, files, key = coi.SERIES["kolla-ansible"]
