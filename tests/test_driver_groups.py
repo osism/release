@@ -4,7 +4,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from osism_drift import driver
+from osism_drift import driver, http
+from osism_drift.http import SourceError
 from osism_drift.drift import (
     PLUGIN_GROUPS as REAL_GROUPS,
     REPORT_HEADERS as REAL_HEADERS,
@@ -172,3 +173,73 @@ def test_help_lists_plugin_groups(tmp_path, capsys):
     assert "Plugins by group:" in out
     assert "image: fake_image" in out
     assert "kolla: fake_kolla" in out
+
+
+def _plugin_that_requests(name, raise_after=False):
+    def run(config, allowlist, verbose=False):
+        del config, allowlist, verbose
+        http._count_url("https://api.github.com/repos/osism/release/contents/latest")
+        if raise_after:
+            raise SourceError("boom")
+        return []
+
+    return SimpleNamespace(
+        NAME=name,
+        DESCRIPTION=f"{name} description",
+        INPUT_FILES=[("repo", f"{name}.yml")],
+        SUMMARY="{n} drift",
+        REMEDIATION=f"fix {name}",
+        run=run,
+    )
+
+
+def _run_with(tmp_path, plugin, *args):
+    cfg = tmp_path / "drift-config.yml"
+    cfg.write_text(
+        """
+remote:
+  github_raw: https://raw.githubusercontent.com/
+  github_api: https://api.github.com/repos/
+  default_owner: osism
+  branch: main
+release_version: latest
+plugins:
+  %s: {enabled: true}
+""" % plugin.NAME,
+        encoding="utf-8",
+    )
+    allowlist = tmp_path / "drift-allowlist.yml"
+    allowlist.write_text("allow: []\n", encoding="utf-8")
+    return driver.run(
+        ["--config", str(cfg), "--allowlist", str(allowlist), *args],
+        description="test driver",
+        default_config=Path("missing-config.yml"),
+        default_allowlist=Path("missing-allowlist.yml"),
+        plugin_groups={"image": [plugin]},
+        report_headers={"image": "image header"},
+    )
+
+
+def test_request_summary_is_printed_even_when_quiet(tmp_path, capsys):
+    assert (
+        _run_with(tmp_path, _plugin_that_requests("counting"), "--group", "image", "-q")
+        == 0
+    )
+    err = capsys.readouterr().err
+    assert "HTTP requests: api.github.com 1" in err
+
+
+def test_request_summary_is_printed_after_a_source_error(tmp_path, capsys):
+    plugin = _plugin_that_requests("failing", raise_after=True)
+    assert _run_with(tmp_path, plugin, "--group", "image", "-q") == 2
+    err = capsys.readouterr().err
+    assert "source error: boom" in err
+    assert "HTTP requests: api.github.com 1" in err
+
+
+def test_request_summary_counts_one_run_only(tmp_path, capsys):
+    plugin = _plugin_that_requests("counting")
+    _run_with(tmp_path, plugin, "--group", "image", "-q")
+    _run_with(tmp_path, plugin, "--group", "image", "-q")
+    err = capsys.readouterr().err
+    assert err.count("HTTP requests: api.github.com 1") == 2
