@@ -1,6 +1,6 @@
 # OSISM release repository
 
-Release notes published at https://osism.tech/docs/release-notes/
+Release notes published at <https://osism.tech/docs/release-notes/>
 
 ## Overview
 
@@ -78,6 +78,7 @@ versions are tracked in separate files — one per supported release stream.
 **Ceph files** (`ceph-quincy.yml`, `ceph-reef.yml`, `ceph-squid.yml`):
 
 Each file pins the versions specific to one Ceph release stream:
+
 - `ceph_version` — the Ceph release name (e.g. `reef`)
 - `ceph_ansible_version` — the ceph-ansible branch (e.g. `stable-8.0`)
 - `ansible_version` / `ansible_core_version` — the Ansible versions required by that
@@ -89,6 +90,7 @@ Each file pins the versions specific to one Ceph release stream:
 `openstack-2025.2.yml`):
 
 Each file pins the versions specific to one OpenStack release:
+
 - `openstack_version` / `openstack_previous_version` — the release identifier and its
   predecessor (used for upgrades)
 - `ansible_version` / `ansible_core_version` — the Ansible versions required for this
@@ -496,6 +498,7 @@ script metadata (fallback: a `python3` with it installed), and an
 authenticated GitHub CLI (`gh`); with `--no-pr`, `gh` is not needed.
 
 This:
+
 - Creates a new directory `10.0.0/`
 - Copies `latest/base.yml` (without Renovate comments)
 - Takes the highest version of the tags of the core container images
@@ -558,6 +561,7 @@ Further variants:
 ```
 
 The script:
+
 1. Collects commits and diffs between consecutive tags; changelog
    housekeeping commits (touching only `CHANGELOG.md`, e.g. the
    release-notes PRs created by this script) are excluded and never
@@ -586,7 +590,7 @@ for every released version.
 
 Generate the release notes section for a follow-up release (e.g. `10.1.0`)
 or the first release of a new major series (e.g. `11.0.0`) as published at
-https://osism.tech/docs/release-notes/ :
+<https://osism.tech/docs/release-notes/> :
 
 ```bash
 # Generate the section only (written to release-notes-10.1.0.md)
@@ -610,6 +614,7 @@ GitHub CLI (`gh`); with `-n` (input file only) neither `claude` nor `gh`
 is needed.
 
 The script:
+
 1. Diffs `<version>/base.yml` against the previous release
 2. Fetches the CHANGELOG.md sections of all changed OSISM components for the
    version range (mapping: `etc/changelog-repositories.yml`); this includes
