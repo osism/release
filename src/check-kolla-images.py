@@ -19,11 +19,17 @@
 # - the labels de.osism.version and de.osism.release.openstack name the
 #   build and its OpenStack version: image tags only carry the build date,
 #   so a build of the same day moves them to its own images
+# - the label de.osism.commit.release names the commit of the release tag
+#   kolla-v<version> of this repository (a short hash)
 # - the digest carries a cosign signature
 # - the digest is the one of the SBOM entry, if the entry lists one
 #
-# The SBOM image itself has to carry a cosign signature as well. Nothing is
-# changed in the registry.
+# The SBOM image itself has to carry a cosign signature as well.
+# The OpenStack version is the one of latest/openstack.yml at the release
+# tag, unless --openstack-version is given; a version that differs from the
+# release tag fails the check. The release tag is read from the local
+# checkout and has to point to the same commit as on origin
+# (src/release_tags.py). Nothing is changed in the registry.
 
 import argparse
 import os
@@ -40,15 +46,18 @@ from kolla_registry import (
     Harbor,
     RegistryError,
     check_artifact,
-    find_openstack_version,
     normalize_tag,
     parse_image,
     sbom_images,
     signed,
 )
+from release_tags import ReleaseError, release_commit, release_series
 
 VERSION_LABEL = "de.osism.version"
 OPENSTACK_LABEL = "de.osism.release.openstack"
+COMMIT_LABEL = "de.osism.commit.release"
+# The label is a short hash; shorter ones are not unique enough
+MIN_COMMIT_LENGTH = 7
 DEFAULT_JOBS = 8
 
 
@@ -61,7 +70,7 @@ def sbom_digests(sbom):
     }
 
 
-def check_labels(config, tag, openstack_version):
+def check_labels(config, tag, openstack_version, commit):
     labels = (config.get("config") or {}).get("Labels") or {}
     problems = []
     version = labels.get(VERSION_LABEL)
@@ -72,17 +81,25 @@ def check_labels(config, tag, openstack_version):
             f"the label {OPENSTACK_LABEL} is {labels.get(OPENSTACK_LABEL)}, "
             f"not {openstack_version}"
         )
+    label_commit = labels.get(COMMIT_LABEL) or ""
+    if len(label_commit) < MIN_COMMIT_LENGTH or not commit.startswith(label_commit):
+        problems.append(
+            f"the label {COMMIT_LABEL} is {labels.get(COMMIT_LABEL)}, "
+            f"not the commit {commit[:7]} of the release tag kolla-v{tag}"
+        )
     return problems
 
 
-def check_image(harbor, repository, image_tag, tag, openstack_version, sbom_digest):
+def check_image(
+    harbor, repository, image_tag, tag, openstack_version, sbom_digest, commit
+):
     """The digest of the image and its problems; no digest if it is missing."""
     artifact, problems, configs = check_artifact(harbor, repository, image_tag)
     if artifact is None:
         return None, problems
     digest = artifact["digest"]
     for config in configs:
-        problems += check_labels(config, tag, openstack_version)
+        problems += check_labels(config, tag, openstack_version, commit)
     if sbom_digest and sbom_digest != digest:
         problems.append(f"the SBOM lists the digest {sbom_digest}")
     return digest, problems
@@ -90,12 +107,24 @@ def check_image(harbor, repository, image_tag, tag, openstack_version, sbom_dige
 
 def run(args):
     tag = normalize_tag(args.tag)
+    release_tag = f"kolla-v{tag}"
+    commit, _ = release_commit(release_tag)
+    release_openstack = release_series(
+        release_tag, ["openstack.yml"], "openstack_version"
+    )
+    openstack_version = args.openstack_version or release_openstack
     harbor = Harbor(
         args.registry,
         os.environ.get("HARBOR_USERNAME", ""),
         os.environ.get("HARBOR_PASSWORD", ""),
     )
-    openstack_version = args.openstack_version or find_openstack_version(harbor, tag)
+    print(f"Release tag: {release_tag} ({commit[:7]}, OpenStack {release_openstack})")
+    series_ok = openstack_version == release_openstack
+    if not series_ok:
+        print(
+            f"  FAILED: the release tag names OpenStack {release_openstack}, "
+            f"not {openstack_version}"
+        )
 
     sbom_repository = SBOM_REPOSITORY.format(openstack_version=openstack_version)
     sbom_ref = f"{args.registry}/{PROJECT}/{sbom_repository}:{tag}"
@@ -126,6 +155,7 @@ def run(args):
                 tag,
                 openstack_version,
                 digests.get(image),
+                commit,
             )
         except (RegistryError, requests.RequestException) as e:
             return None, [str(e)]
@@ -149,7 +179,7 @@ def run(args):
 
     print()
     print(f"Images: {len(images) - failed} ok, {failed} failed")
-    if failed or not sbom_signed:
+    if failed or not sbom_signed or not series_ok:
         print(f"Check of {sbom_ref} FAILED")
         return 1
     print(f"Check of {sbom_ref} passed")
@@ -167,7 +197,7 @@ def main():
     parser.add_argument(
         "-o",
         "--openstack-version",
-        help="OpenStack version of the build (default: looked up in the registry)",
+        help="OpenStack version of the build (default: latest/openstack.yml at the release tag kolla-v<version>)",
     )
     parser.add_argument(
         "-r",
@@ -188,7 +218,12 @@ def main():
 
     try:
         return run(args)
-    except (RegistryError, requests.RequestException, tarfile.TarError) as e:
+    except (
+        RegistryError,
+        ReleaseError,
+        requests.RequestException,
+        tarfile.TarError,
+    ) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
     except KeyboardInterrupt:

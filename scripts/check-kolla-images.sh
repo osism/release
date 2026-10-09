@@ -5,8 +5,9 @@
 # Reads the SBOM image kolla/release/<openstack version>/sbom:<tag> of a build
 # of osism/container-images-kolla and checks for every image it lists that its
 # tag points to a complete image (manifest, config and all layer blobs) in the
-# registry, that the labels of the image name the build and its OpenStack
-# version and that the image carries a cosign signature. Every image is
+# registry, that the labels of the image name the build, its OpenStack
+# version and the commit of the release tag kolla-<tag> of this repository,
+# and that the image carries a cosign signature. Every image is
 # printed with the digest of its tag. The SBOM image has to be signed as well.
 # Nothing is changed in the registry; the exit code is 1 if a check fails.
 #
@@ -15,8 +16,8 @@
 #
 # Options:
 #   -j, --jobs                Images checked in parallel (default: 8)
-#   -o, --openstack-version   OpenStack version of the build (default: looked
-#                             up in the registry)
+#   -o, --openstack-version   OpenStack version of the build (default:
+#                             latest/openstack.yml at the release tag)
 #   -r, --registry            Harbor registry (default: osism.harbor.regio.digital)
 #
 # The kolla project can be read anonymously; HARBOR_USERNAME and

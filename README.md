@@ -272,9 +272,11 @@ that all of its images are complete in the registry:
 ```
 
 The script reads the SBOM image `kolla/release/<openstack version>/sbom:<tag>`
-of the build from `osism.harbor.regio.digital` (the OpenStack version is looked
-up in the registry, or given with `--openstack-version`). The SBOM lists the
-images by tag only, so for every image the digest of its tag is looked up and
+of the build from `osism.harbor.regio.digital`. The OpenStack version is the
+one of `latest/openstack.yml` at the release tag `kolla-v<version>` of this
+repository; with `--openstack-version` another one can be given, but a version
+that differs from the release tag fails the check. The SBOM lists the images
+by tag only, so for every image the digest of its tag is looked up and
 checked:
 
 - the manifest the registry serves for the tag has this digest, and the config
@@ -282,6 +284,9 @@ checked:
 - the labels `de.osism.version` and `de.osism.release.openstack` of the image
   name the build and its OpenStack version: image tags only contain the build
   date, so a build of the same day moves them to its own images
+- the label `de.osism.commit.release` names the commit of the release tag
+  `kolla-v<version>`: an image built before the tag was moved names the old
+  commit
 - the digest carries a cosign signature (`signature.cosign` or a sigstore
   bundle referring to it, depending on the cosign version of the build)
 - the digest is the one of the SBOM entry, if the entry lists a `digest`
@@ -289,7 +294,9 @@ checked:
 Every image is printed with the digest of its tag (`<image>:<tag>@<digest>`),
 the SBOM image has to be signed as well. Nothing is changed in the registry; the
 script exits with 1 if a check fails. The images are checked in parallel
-(`--jobs`, default 8). The `kolla` project can be read anonymously;
+(`--jobs`, default 8). The release tag is read from the git checkout of this
+repository and has to point to the same commit as on `origin`, as for the
+other images below. The `kolla` project can be read anonymously;
 `HARBOR_USERNAME` and `HARBOR_PASSWORD` are used if they are set.
 
 #### Checking the other images of a tag
