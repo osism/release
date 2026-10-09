@@ -689,6 +689,15 @@ def tree_dir(repo: str, ref: str | None, config) -> Path:
     return archive.snapshot_dir(_owner(repo, config), repo, ref, config)
 
 
+def github_tree_dir(owner: str, slug: str, ref: str, config) -> Path:
+    """A GitHub repo's whole tree at `ref`, always read remotely.
+
+    For an exact non-OSISM repo name (a galaxy role): it is no OSISM checkout,
+    so --base-dir is never consulted, and the name is not hyphenated."""
+    _note("tree", f"{owner}/{slug}", ref)
+    return archive.snapshot_dir(owner, slug, ref, config, slug=slug)
+
+
 def _git_tree_dir(d, repo, ref, config) -> Path:
     """Extract `ref` of the git checkout `d` once per run; return the tree root."""
     rref = _resolve_local_ref(d, ref)

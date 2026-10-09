@@ -89,13 +89,17 @@ def _extract_snapshot(data, repo, ref):
     return tmp
 
 
-def snapshot_dir(owner, repo, ref, config):
-    """Extracted-tree Path for (repo, ref); fetched+extracted once, then memoized."""
-    key = (config.remote.github_api, owner, _repo_slug(repo), ref)
+def snapshot_dir(owner, repo, ref, config, slug=None):
+    """Extracted-tree Path for (repo, ref); fetched+extracted once, then memoized.
+
+    `slug`, when given, is the exact GitHub repo name, used verbatim instead
+    of the hyphenated `repo`."""
+    slug = _repo_slug(repo) if slug is None else slug
+    key = (config.remote.github_api, owner, slug, ref)
     cached = config.snapshot_cache.get(key)
     if cached is not None:
         return cached
-    url = _archive_url(config.remote.github_api, owner, repo, ref)
+    url = f"{config.remote.github_api}{owner}/{slug}/tarball/{ref}"
     data = _fetch_archive_bytes(repo, ref, url)
     root = _extract_snapshot(data, repo, ref)
     config.snapshot_cache[key] = root
