@@ -10,8 +10,9 @@ defaults_corpus builds: the OSISM repos at main and at the version `latest`
 ships, and upstream kolla-ansible and ceph-ansible at every supported
 release. A variable is reported only when no source reads it.
 
-Third-party collections and galaxy roles are not in the corpus. A variable
-only they read is allowlisted, with a reason that names the reading role.
+The galaxy roles `latest` pins are in the corpus, read from GitHub at their
+pins. Third-party collections are not: a variable only they read is
+allowlisted, with a reason that names the reading file.
 """
 
 from osism_drift import defaults_corpus, source, var_refs
@@ -22,8 +23,9 @@ NAME = "defaults_orphan"
 DESCRIPTION = (
     "Flag non-kolla variables osism/defaults sets that nothing reads: no OSISM "
     "repo (at main or at the latest pin) and no upstream kolla-ansible or "
-    "ceph-ansible release in the supported range."
+    "ceph-ansible release in the supported range, and no pinned galaxy role."
 )
+EXTERNAL_HOSTS = ("api.github.com",)
 INPUT_FILES = [
     ("defaults", "all/*.yml, <group>/*.yml (non-kolla layers)"),
     ("release", "latest/base.yml (osism collections and their pins)"),
@@ -33,12 +35,16 @@ INPUT_FILES = [
     ("ansible_collection_validations", "whole repo, at main and at the latest pin"),
     ("kolla_ansible", "whole repo, per supported release"),
     ("ceph_ansible", "whole repo, per ceph-ansible flavour"),
+    (
+        "release",
+        "etc/roles.yml + latest/base.yml ansible_roles (galaxy roles, at their pins)",
+    ),
 ]
 SUMMARY = "{n} variables this defaults file sets that nothing reads:"
 REMEDIATION = (
-    "remove them from osism/defaults. If a third-party collection or galaxy "
-    "role reads one (this check does not search those), allowlist it with a "
-    "reason naming the role that reads it."
+    "remove them from osism/defaults. If a third-party collection reads one "
+    "(this check does not search those), allowlist it with a reason naming "
+    "the collection file that reads it."
 )
 _NEAR_MISS_SUMMARY = (
     "{n} variables this defaults file sets that miss a merge_variables "

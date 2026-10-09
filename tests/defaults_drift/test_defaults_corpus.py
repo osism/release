@@ -13,18 +13,30 @@ ansible_collections:
   community.general: '13.4.0'
   osism.commons: '0.20261005.0'
   osism.services: '0.20261007.0'
+ansible_roles:
+  geerlingguy.dotfiles: master
+  hardening: e77c311442cb1d1ef8caa7df9d9c00471afa75e7
+  pdns_recursor: 'v1.8.1'
+"""
+
+_ROLES_YML = b"""---
+geerlingguy.certbot: geerlingguy/ansible-role-certbot
+geerlingguy.dotfiles: geerlingguy/ansible-role-dotfiles
+hardening: openstack/ansible-hardening
+pdns_recursor: PowerDNS/pdns_recursor-ansible
 """
 
 
 def _stub_release(
     monkeypatch,
     base=_BASE_YML,
+    roles=_ROLES_YML,
     releases=("2025.2", "2026.1"),
     flavours=("quincy", "reef"),
 ):
     def read(repo, path, config):
-        assert (repo, path) == ("release", "latest/base.yml")
-        return base
+        assert repo == "release"
+        return {"latest/base.yml": base, "etc/roles.yml": roles}[path]
 
     monkeypatch.setattr(dc.source, "read", read)
     monkeypatch.setattr(dc.enablement, "release_range", lambda config: list(releases))
@@ -57,7 +69,11 @@ def test_sources_cover_osism_repos_pins_and_the_upstream_range(monkeypatch):
     assert not any("community" in r for r in main_repos)
     for repo in dc.CORE_REPOS:
         assert repo in main_repos
-    pinned = {(s.repo, s.ref) for s in got if s.ref is not None and not s.upstream}
+    pinned = {
+        (s.repo, s.ref)
+        for s in got
+        if s.ref is not None and not s.upstream and not s.external
+    }
     assert pinned == {
         ("ansible_collection_commons", "v0.20261005.0"),
         ("ansible_collection_services", "v0.20261007.0"),
@@ -65,12 +81,18 @@ def test_sources_cover_osism_repos_pins_and_the_upstream_range(monkeypatch):
         ("ansible_playbooks_manager", "v0.20260721.0"),
         ("generics", "v0.20261007.0"),
     }
-    upstream = {(s.repo, s.ref) for s in got if s.upstream}
+    upstream = {(s.repo, s.ref) for s in got if s.upstream and not s.external}
     assert upstream == {
         ("kolla_ansible", "stable/2025.2"),
         ("kolla_ansible", "stable/2026.1"),
         ("ceph_ansible", "stable-7.0"),
         ("ceph_ansible", "stable-8.0"),
+    }
+    external = {(s.repo, s.ref) for s in got if s.external}
+    assert external == {
+        ("geerlingguy/ansible-role-dotfiles", "master"),
+        ("openstack/ansible-hardening", "e77c311442cb1d1ef8caa7df9d9c00471afa75e7"),
+        ("PowerDNS/pdns_recursor-ansible", "v1.8.1"),
     }
     assert len(got) == len(set(got))
 
@@ -215,6 +237,55 @@ def test_scan_collects_patterns_unresolved_calls_and_near_misses(tmp_path, make_
     assert corpus.unresolved == ["widget@main:a.yml"]
 
 
+def test_external_sources_follow_the_others_sorted_by_role_name(monkeypatch):
+    _stub_release(monkeypatch)
+    got = dc.sources(None)
+    ext = [s for s in got if s.external]
+    assert got[-len(ext) :] == ext
+    assert ext == [
+        dc.Source(
+            "geerlingguy/ansible-role-dotfiles", "master", upstream=True, external=True
+        ),
+        dc.Source(
+            "openstack/ansible-hardening",
+            "e77c311442cb1d1ef8caa7df9d9c00471afa75e7",
+            upstream=True,
+            external=True,
+        ),
+        dc.Source(
+            "PowerDNS/pdns_recursor-ansible", "v1.8.1", upstream=True, external=True
+        ),
+    ]
+
+
+def test_role_pins_are_used_verbatim(monkeypatch):
+    base = _BASE_YML.replace(b"master", b"1a2b3c4").replace(b"v1.8.1", b"3.1.0")
+    _stub_release(monkeypatch, base=base)
+    refs = {s.repo: s.ref for s in dc.sources(None) if s.external}
+    assert refs["geerlingguy/ansible-role-dotfiles"] == "1a2b3c4"
+    assert refs["PowerDNS/pdns_recursor-ansible"] == "3.1.0"
+
+
+def test_a_pinned_role_missing_from_roles_yml_fails(monkeypatch):
+    _stub_release(monkeypatch, roles=_ROLES_YML.replace(b"hardening:", b"other_role:"))
+    with pytest.raises(SourceError, match="hardening"):
+        dc.sources(None)
+
+
+@pytest.mark.parametrize("block", [b"ansible_roles:\n", b"ansible_roles: {}\n"])
+def test_empty_pinned_roles_adds_no_external_sources(monkeypatch, block):
+    head = _BASE_YML.split(b"ansible_roles:")[0]
+    _stub_release(monkeypatch, base=head + block)
+    assert not [s for s in dc.sources(None) if s.external]
+
+
+def test_missing_ansible_roles_key_is_an_error(monkeypatch):
+    head = _BASE_YML.split(b"ansible_roles:")[0]
+    _stub_release(monkeypatch, base=head)
+    with pytest.raises(SourceError, match="ansible_roles"):
+        dc.sources(None)
+
+
 @pytest.mark.parametrize(
     "mutate",
     [
@@ -228,6 +299,37 @@ def test_no_osism_collection_is_an_error(monkeypatch, mutate):
     _stub_release(monkeypatch, base=mutate(_BASE_YML))
     with pytest.raises(SourceError, match="osism"):
         dc.sources(None)
+
+
+def test_external_label_is_verbatim():
+    src = dc.Source(
+        "PowerDNS/pdns_recursor-ansible", "v1.8.1", upstream=True, external=True
+    )
+    assert src.label(None) == "PowerDNS/pdns_recursor-ansible@v1.8.1"
+
+
+def test_iter_files_walks_the_github_tree_with_upstream_skips(tmp_path, monkeypatch):
+    root = tmp_path / "role"
+    for rel, text in {
+        "tasks/main.yml": "x: '{{ role_reader }}'\n",
+        "tests/test.yml": "x: '{{ test_only }}'\n",
+        "molecule/default/converge.yml": "x: '{{ molecule_reader }}'\n",
+        "tox.ini": "[testenv]\n",
+        "README.md": "prose_only\n",
+    }.items():
+        (root / rel).parent.mkdir(parents=True, exist_ok=True)
+        (root / rel).write_text(text)
+    calls = []
+
+    def fake(owner, slug, ref, config):
+        calls.append((owner, slug, ref))
+        return root
+
+    monkeypatch.setattr(dc.source, "github_tree_dir", fake)
+    src = dc.Source("PowerDNS/pdns_recursor-ansible", "v1.8.1", True, True)
+    got = dict(dc.iter_files(src, None))
+    assert calls == [("PowerDNS", "pdns_recursor-ansible", "v1.8.1")]
+    assert sorted(got) == ["molecule/default/converge.yml", "tasks/main.yml"]
 
 
 def test_walk_skips_tooling_directories(tmp_path, make_cfg):

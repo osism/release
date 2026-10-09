@@ -16,6 +16,7 @@ _DEFAULTS = {
         "commented_only: 5\n"
         'uses_other: "{{ read_by_value }}"\n'
         "dup_var: 6\n"
+        "read_by_galaxy_role: 9\n"
     ),
     "all/099-ceph.yml": "dup_var: 7\nold_ceph_var: 8\n",
     "all/001-common.yml": "kolla_mirror_var: 1\n",
@@ -61,7 +62,12 @@ def repos(tmp_path, git_repo, make_cfg, monkeypatch):
         dc.Source("widget", None),
         dc.Source("ceph_ansible", "stable-7.0", upstream=True),
         dc.Source("ceph_ansible", "stable-8.0", upstream=True),
+        dc.Source("acme/ansible-role-x", "v1", upstream=True, external=True),
     ]
+    role = tmp_path / "role-x"
+    (role / "tasks").mkdir(parents=True)
+    (role / "tasks" / "main.yml").write_text("x: '{{ read_by_galaxy_role }}'\n")
+    monkeypatch.setattr(dc.source, "github_tree_dir", lambda o, s, r, c: role)
     monkeypatch.setattr(dc, "sources", lambda config: srcs)
     return make_cfg(tmp_path, pinned={"ceph_ansible": "main"})
 
@@ -209,6 +215,17 @@ def test_entries_carry_the_corpus_in_expected_src(repos):
     d = _by(plugin.run(repos, Allowlist(())))[
         ("dead_var", "defaults/all/099-generic.yml")
     ]
-    assert d.expected_src.startswith(
-        "4 sources: defaults@main, widget@main, ceph-ansible@stable-7.0"
+    assert d.expected_src == (
+        "5 sources: defaults@main, widget@main, ceph-ansible@stable-7.0, "
+        "ceph-ansible@stable-8.0, acme/ansible-role-x@v1"
     )
+
+
+def test_variable_read_only_by_a_galaxy_role_is_not_flagged(repos):
+    assert "read_by_galaxy_role" not in {
+        d.image for d in plugin.run(repos, Allowlist(()))
+    }
+
+
+def test_external_hosts_declared():
+    assert plugin.EXTERNAL_HOSTS == ("api.github.com",)

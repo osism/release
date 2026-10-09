@@ -75,6 +75,7 @@ REPORT_HEADERS = {
     "defaults": (
         "Checks follow a variable osism/defaults sets to something that reads "
         "it: an OSISM repo at main or at the version latest ships, or upstream "
-        "kolla-ansible/ceph-ansible at a supported release."
+        "kolla-ansible/ceph-ansible at a supported release, or a galaxy role "
+        "latest pins."
     ),
 }

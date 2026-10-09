@@ -10,7 +10,10 @@ Sources, each read as a whole tree via source.tree_dir:
 - upstream kolla-ansible at every supported OpenStack release and
   ceph-ansible at every flavour's ceph_ansible_version.
 
-Third-party collections and galaxy roles are deliberately absent (see
+- the galaxy roles base.yml `ansible_roles` pins, at their pins, in the GitHub
+  repos etc/roles.yml names (always read remotely).
+
+Third-party collections are deliberately absent (see
 docs/check-drift-defaults.md). An empty range is an error: without upstream,
 every kolla- or ceph-only variable would be reported for deletion.
 """
@@ -63,8 +66,11 @@ class Source:
     repo: str
     ref: str | None
     upstream: bool = False
+    external: bool = False  # `repo` is a verbatim GitHub "owner/slug"
 
     def label(self, config) -> str:
+        if self.external:
+            return f"{self.repo}@{self.ref}"
         ref = (
             self.ref if self.ref is not None else source.current_ref(self.repo, config)
         )
@@ -143,7 +149,26 @@ def sources(config) -> list:
     for flavour in flavours:
         ref = playbooks.pin(f"ceph-{flavour}.yml", "ceph_ansible_version", config)
         out.append(Source("ceph_ansible", ref, upstream=True))
+    out.extend(_role_sources(base, config))
     return list(dict.fromkeys(out))
+
+
+def _role_sources(base, config) -> list:
+    """The pinned galaxy roles of base.yml `ansible_roles`, at their pins as
+    shipped (verbatim: the image's requirements.yml uses them as git versions),
+    in the repos etc/roles.yml names."""
+    if "ansible_roles" not in base:
+        raise SourceError("ansible_roles missing from release latest/base.yml")
+    roles = base["ansible_roles"] or {}
+    if not roles:
+        return []
+    repos = yaml.safe_load(source.read("release", "etc/roles.yml", config)) or {}
+    out = []
+    for name, pin in sorted(roles.items()):
+        if name not in repos:
+            raise SourceError(f"galaxy role {name} missing from release etc/roles.yml")
+        out.append(Source(str(repos[name]), str(pin), upstream=True, external=True))
+    return out
 
 
 def _skip(src: Source, path: str) -> bool:
@@ -157,7 +182,11 @@ def _skip(src: Source, path: str) -> bool:
 
 def iter_files(src: Source, config):
     """(repo-relative path, text) for every searchable file of `src`."""
-    root = source.tree_dir(src.repo, src.ref, config)
+    if src.external:
+        owner, slug = src.repo.split("/", 1)
+        root = source.github_tree_dir(owner, slug, src.ref, config)
+    else:
+        root = source.tree_dir(src.repo, src.ref, config)
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = sorted(d for d in dirnames if d not in _WALK_SKIP_DIRS)
         for name in sorted(filenames):
