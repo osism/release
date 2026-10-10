@@ -7,7 +7,7 @@ ansible_version: '11.10.0'
 ansible_core_version: '2.18.18'
 
 # renovate: datasource=github-tags depName=osism/defaults
-defaults_version: 'v0.20261005.0'
+defaults_version: 'v0.20261010.0'
 # renovate: datasource=github-tags depName=osism/generics
 generics_version: 'v0.20261007.0'
 # renovate: datasource=github-tags depName=osism/ansible-playbooks-manager
