@@ -1,6 +1,6 @@
 # OSISM release repository
 
-Release notes published at https://osism.tech/docs/release-notes/
+Release notes published at <https://osism.tech/docs/release-notes/>
 
 ## Overview
 
@@ -78,6 +78,7 @@ versions are tracked in separate files — one per supported release stream.
 **Ceph files** (`ceph-quincy.yml`, `ceph-reef.yml`, `ceph-squid.yml`):
 
 Each file pins the versions specific to one Ceph release stream:
+
 - `ceph_version` — the Ceph release name (e.g. `reef`)
 - `ceph_ansible_version` — the ceph-ansible branch (e.g. `stable-8.0`)
 - `ansible_version` / `ansible_core_version` — the Ansible versions required by that
@@ -89,6 +90,7 @@ Each file pins the versions specific to one Ceph release stream:
 `openstack-2025.2.yml`):
 
 Each file pins the versions specific to one OpenStack release:
+
 - `openstack_version` / `openstack_previous_version` — the release identifier and its
   predecessor (used for upgrades)
 - `ansible_version` / `ansible_core_version` — the Ansible versions required for this
@@ -132,6 +134,8 @@ A frozen snapshot of `latest/base.yml` at the time of a release. Created by
 | Component builds | Date-based              | `v0.20260322.0`, `0.20260320.0` |
 | External deps    | Upstream versioning     | `18.2.7` (Ceph), `2025.1` (OpenStack) |
 
+<!-- Linked as #release-process from the developer guide
+     (osism/osism.github.io, docs/guides/developer-guide/releases.md). -->
 ## Release process
 
 ### 1. Continuous dependency updates
@@ -193,12 +197,16 @@ For an outdated pin the open Renovate PR that updates it is named; without
 one, trigger a Renovate run. The script exits with 1 if a symlink or a pin is
 outdated or its newest version could not be determined.
 
+<!-- Linked as #2-tag-creation from the developer guide
+     (osism/osism.github.io, docs/guides/developer-guide/releases.md). -->
 ### 2. Tag creation
 
 Before creating tags, trigger a Renovate run on this repository once (e.g. via the
-Renovate dashboard issue or the Mend app) and make sure that all required PRs have
-been merged beforehand. This applies above all to the `osism` Python package, but
-also to the Ansible collections (`osism.commons`, `osism.services`,
+checkbox "Check this box to trigger a request for Renovate to run again on this
+repository" at the bottom of the Dependency Dashboard issue, or via the Mend app).
+The run starts shortly afterwards, not immediately. Make sure that all required
+PRs have been merged beforehand. This applies above all to the `osism` Python
+package, but also to the Ansible collections (`osism.commons`, `osism.services`,
 `osism.validations`, ...) and the Ansible playbooks (`osism.playbooks`,
 `manager-playbooks`). Only then does `latest/base.yml` reflect the state that the
 images are supposed to be built from. `./scripts/check-versions.sh` (see step 1)
@@ -217,6 +225,7 @@ state of `main`: it fetches `origin` and stops unless the current branch is
 `main` and `HEAD` equals `origin/main`.
 
 ```bash
+git pull
 ./scripts/create-tags.sh v0.20260322.0
 ```
 
@@ -234,6 +243,12 @@ The tags reference the current HEAD of this repository and serve as version anch
 for the container image build pipelines. The order in which the tags are created
 here does not matter.
 
+Each component build takes its pins from the commit its tag points to, and the
+kolla and kolla-ansible builds also take their OpenStack series from
+`latest/openstack.yml` there. For a major release, `latest/openstack.yml` has to
+point to the new OpenStack series before the tags are created; the
+`check-versions.sh` run of `create-tags.sh` stops if the symlink is behind.
+
 The script checks for every project whether the tag already exists (locally or on
 the remote) and where it points to. A tag that already points to the current HEAD
 is left as it is. Otherwise the script asks whether to **move** the tag to the
@@ -243,22 +258,42 @@ re-running the script with the same version after tags have been created on the
 wrong commit: merge the fix into `main`, pull, run the script again and answer
 "move" for every tag that has to be corrected.
 
+> [!WARNING]
+> Moving a tag does not rebuild the images that were already built from the
+> old commit. Follow
+> [Rebuilding images built from the wrong state](#rebuilding-images-built-from-the-wrong-state).
+
 The tags in this repository alone do not trigger any builds. After they have been
-pushed, three further steps are required, in this order:
+pushed, three further steps are required, in this order. A component repository
+is tagged on the current HEAD of its default branch, and the push starts its Zuul
+`tag` pipeline:
+
+```bash
+git pull
+git tag v0.20260322.0
+git push origin v0.20260322.0
+```
 
 1. Create and push the tag `v0.20260322.0` (the plain version, without project
    prefix) in [osism/container-images-kolla](https://github.com/osism/container-images-kolla)
-   and wait until the build has finished. The kolla service images have to exist
-   before all other images, as the other builds depend on them. Check the
-   images of the build with `./scripts/check-kolla-images.sh v0.20260322.0`
-   (see [below](#checking-the-kolla-images-of-a-tag)).
+   and wait until the build (`container-images-kolla-release`) has finished.
+   The kolla-ansible build pulls the SBOM image
+   `kolla/release/<openstack_version>/sbom:<version>` that this build pushes,
+   and fails if it does not exist yet. Check the images of the build with
+   `./scripts/check-kolla-images.sh v0.20260322.0` (see
+   [below](#checking-the-kolla-images-of-a-tag)).
 2. Only then create and push the same tag `v0.20260322.0` in all other container
    image repositories:
    - [osism/container-image-osism-ansible](https://github.com/osism/container-image-osism-ansible)
+     (`container-image-osism-ansible-push`)
    - [osism/osism-kubernetes](https://github.com/osism/osism-kubernetes)
+     (`osism-kubernetes-push`)
    - [osism/container-image-kolla-ansible](https://github.com/osism/container-image-kolla-ansible)
+     (`container-image-kolla-ansible-release`)
    - [osism/container-image-ceph-ansible](https://github.com/osism/container-image-ceph-ansible)
+     (`container-image-ceph-ansible-release`)
    - [osism/container-image-inventory-reconciler](https://github.com/osism/container-image-inventory-reconciler)
+     (`container-image-inventory-reconciler-push`)
 
    Wait until the builds have finished and check their images with
    `./scripts/check-osism-images.sh v0.20260322.0` (see
@@ -266,10 +301,20 @@ pushed, three further steps are required, in this order:
 3. Once the images have been built and pushed, Renovate opens one PR per core
    image in this repository that bumps the image version in `latest/base.yml`
    to the new tag (e.g. [#2789](https://github.com/osism/release/pull/2789)
-   for `osism-kubernetes`). Merge all of these PRs before continuing: only
-   then does `latest/base.yml` reference the images that were just built,
-   and a release version created in the next step is based on it. If a PR is
+   for `osism-kubernetes`). Merge all of these PRs before continuing, so that
+   `latest/base.yml` references the images that were just built. If a PR is
    missing, trigger a Renovate run on this repository once more.
+
+> [!NOTE]
+> Tag every component repository with the version used for `create-tags.sh`:
+>
+> - Each component build checks out `<project>-<version>` in this repository,
+>   with the version of its own tag.
+> - For kolla-ansible, the version also selects the kolla SBOM image. The
+>   build uses its own version for it unless
+>   `next/kolla-ansible-<version>.yml` (`openstack_sbom: ...`) says
+>   otherwise. With the same version for kolla and kolla-ansible, no such
+>   file is needed.
 
 #### Checking the kolla images of a tag
 
@@ -349,6 +394,61 @@ points elsewhere fails the check. Refresh moved tags with
 moved on `origin` at its old commit. The `osism` project can be read
 anonymously; `HARBOR_USERNAME` and `HARBOR_PASSWORD` are used if they are set.
 
+#### Rebuilding images built from the wrong state
+
+A component build takes its pins, and for kolla and kolla-ansible the
+OpenStack series, from its release tag `<project>-<version>` in this
+repository, not from `main`. Correcting `main` alone therefore changes
+nothing: re-pushing a component tag while its release tag still points to the
+old commit builds the same images again. Rebuild in this order:
+
+1. Merge the fix into `main` of this repository (the missing PRs, a move of
+   the `latest/openstack.yml` or `latest/ceph.yml` symlink, ...).
+   `create-tags.sh` checks the result with `check-versions.sh` in the next
+   step.
+2. Move the release tags to the corrected commit. Answer "move" for the tag of
+   every component that is rebuilt:
+
+   ```bash
+   git pull
+   ./scripts/create-tags.sh v0.20260322.0
+   ```
+
+   Check that these tags now point to the current HEAD before continuing:
+
+   ```bash
+   git rev-parse HEAD
+   git ls-remote --tags origin 'refs/tags/*-v0.20260322.0'
+   ```
+
+3. If kolla is rebuilt, remove the images of its wrong build first (see
+   [Removing a wrongly built kolla tag](#removing-a-wrongly-built-kolla-tag)).
+4. Push the plain version tag again in each affected component repository (the
+   commit stays the same) to start a new `tag` build:
+
+   ```bash
+   git push origin :refs/tags/v0.20260322.0
+   git push origin v0.20260322.0
+   ```
+
+   Keep the order of the initial tagging: kolla first, kolla-ansible only after
+   the kolla build has succeeded. Whenever kolla is rebuilt, rebuild
+   kolla-ansible after it as well: its image contains the SBOM of the kolla
+   build.
+
+5. Check the rebuilt images with `./scripts/check-kolla-images.sh` and
+   `./scripts/check-osism-images.sh` (see
+   [Checking the kolla images of a tag](#checking-the-kolla-images-of-a-tag)
+   and [Checking the other images of a tag](#checking-the-other-images-of-a-tag)).
+   Refresh the moved tags in the checkout first: a plain `git fetch --tags`
+   keeps them at their old commits, so the checks would stop.
+
+   ```bash
+   git fetch --tags --force
+   ```
+
+The rebuilt images replace the earlier ones under the same version tag.
+
 #### Removing a wrongly built kolla tag
 
 If a tag was built in osism/container-images-kolla from the wrong state, its
@@ -398,6 +498,7 @@ script metadata (fallback: a `python3` with it installed), and an
 authenticated GitHub CLI (`gh`); with `--no-pr`, `gh` is not needed.
 
 This:
+
 - Creates a new directory `10.0.0/`
 - Copies `latest/base.yml` (without Renovate comments)
 - Takes the highest version of the tags of the core container images
@@ -413,6 +514,8 @@ If a core image has no version tag on `origin`, it is
 written as `FIXME` and the script stops before the commit: fix the
 values, then commit `10.0.0/base.yml` and open the pull request manually.
 
+<!-- Linked as #4-changelog-generation-per-component from the developer guide
+     (osism/osism.github.io, docs/guides/developer-guide/releases.md). -->
 ### 4. Changelog generation (per-component)
 
 Every component that changed between the previous release and the new one
@@ -458,6 +561,7 @@ Further variants:
 ```
 
 The script:
+
 1. Collects commits and diffs between consecutive tags; changelog
    housekeeping commits (touching only `CHANGELOG.md`, e.g. the
    release-notes PRs created by this script) are excluded and never
@@ -480,11 +584,13 @@ deterministic "rebuild without changes" entry, written without Claude, so
 that the release notes generation (step 5) finds a `CHANGELOG.md` section
 for every released version.
 
+<!-- Linked as #5-release-notes-generation-per-release from the developer guide
+     (osism/osism.github.io, docs/guides/developer-guide/releases.md). -->
 ### 5. Release notes generation (per release)
 
 Generate the release notes section for a follow-up release (e.g. `10.1.0`)
 or the first release of a new major series (e.g. `11.0.0`) as published at
-https://osism.tech/docs/release-notes/ :
+<https://osism.tech/docs/release-notes/> :
 
 ```bash
 # Generate the section only (written to release-notes-10.1.0.md)
@@ -508,6 +614,7 @@ GitHub CLI (`gh`); with `-n` (input file only) neither `claude` nor `gh`
 is needed.
 
 The script:
+
 1. Diffs `<version>/base.yml` against the previous release
 2. Fetches the CHANGELOG.md sections of all changed OSISM components for the
    version range (mapping: `etc/changelog-repositories.yml`); this includes
