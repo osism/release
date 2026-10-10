@@ -106,6 +106,8 @@ ansible_roles:
   pdns_recursor: 'v1.8.1'
   # renovate: datasource=github-tags depName=ansible-lockdown/UBUNTU22-CIS
   ubuntu22_cis: '3.1.0'
+  # renovate: datasource=github-tags depName=ansible-lockdown/UBUNTU24-CIS
+  ubuntu24_cis: '1.7.0'
 
 ansible_collections:
   # renovate: datasource=galaxy-collection depName=ansible.mysql

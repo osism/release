@@ -5,3 +5,4 @@ hardening: openstack/ansible-hardening
 pdns_recursor: PowerDNS/pdns_recursor-ansible
 proxmox: lae/ansible-role-proxmox
 ubuntu22_cis: ansible-lockdown/UBUNTU22-CIS
+ubuntu24_cis: ansible-lockdown/UBUNTU24-CIS

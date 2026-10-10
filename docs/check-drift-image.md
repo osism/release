@@ -348,6 +348,35 @@ definitions, and every file under
 `ansible-playbooks-manager/playbooks/` and
 `generics/environments/manager/` for consumers.
 
+### `ubuntu24_cis_level2`
+
+Reports UBUNTU24-CIS Level 2 rules that the defaults do not switch off, and
+toggles that are no longer Level 2.
+
+The role defines `ubtu24cis_level_2` but no task reads it: a level is chosen
+by tags alone (`level1-server`, `level2-server`), and an OSISM play cannot pass
+`--skip-tags`. `osism/defaults` `all/099-ubuntu24-cis.yml` therefore sets the
+toggle of every Level 2-only rule to `false`, between `# BEGIN level2` and
+`# END level2`. A renovate bump of the `ubuntu24_cis` pin that adds Level 2
+rules would otherwise enable them silently.
+
+The plugin reads the pin from `ansible_roles.ubuntu24_cis` in `base.yml`,
+collects the rules tagged `level2-server` and not `level1-server` from the
+role's `tasks/section_*/cis_*.yml` at that tag (nested `block`s included),
+and compares them with the toggles in the marked block:
+
+- `expected=false`, `found` empty: a Level 2 rule at the pin has no toggle.
+  Add `ubtu24cis_rule_<n>: false` to the block.
+- `expected` empty, `found=false`: the block disables a rule that is not Level
+  2-only at the pin (renamed, removed, or moved to Level 1). Remove it, or
+  move it out of the block with a reason if OSISM wants it off anyway.
+
+No pin, no findings. A missing defaults file reports every Level 2 rule.
+
+**Inputs**: `release/<version>/base.yml`; ansible-lockdown `UBUNTU24-CIS`
+`tasks/section_*/cis_*.yml` at the pinned tag; `defaults`
+`all/099-ubuntu24-cis.yml`.
+
 ### Stream-resolved tags
 
 Some `<alias>_tag` lines in the generics manager template resolve at deploy
@@ -376,6 +405,13 @@ under each base dir.
 A repo not found under any `--base-dir` is a **hard error** (all missing
 repos are listed at once). Pass `--remote-fallback` to fetch not-found repos
 remotely instead. To fetch everything from GitHub, just omit `--base-dir`.
+
+Not every input is an osism repo: `ubuntu24_cis_level2` reads
+ansible-lockdown's `UBUNTU24-CIS`. For a local run, clone it into a base dir
+under that name, with tags (`git clone https://github.com/ansible-lockdown/UBUNTU24-CIS`).
+The source is pinned in `drift-config.yml`, so the clone is read from git
+objects at the role's pinned tag, not from its working tree; fetch when the
+pin moves.
 
 Remote repos are fetched as one tarball per `(repo, ref)` and read locally
 from the extracted tree, not one HTTP request per file — see the kolla doc's

@@ -23,6 +23,7 @@ from osism_drift.drift import (
     role_shadows,
     role_unpinned,
     rolling_pin,
+    ubuntu24_cis_level2,
 )
 
 KOLLA_PLUGINS = [
@@ -48,6 +49,7 @@ IMAGE_PLUGINS = [
     rolling_pin,
     image_orphan,
     role_registry_orphan,
+    ubuntu24_cis_level2,
 ]
 
 CATALOG_PLUGINS = [catalog_role_missing]
