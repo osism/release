@@ -695,6 +695,22 @@ to the plugins that actually ran (a `--plugin` run only judges that plugin's
 entries) and is skipped under `--no-allowlist`. Remove an entry once its drift is
 fixed.
 
+**A reason must hold on every supported series, and nothing checks that it
+does.** Stale detection proves only that an entry still matches a finding, not
+that its `reason` is still true. A reason that states a fact about upstream
+(the service is not deployed, the image has no distinct version key, it is
+wired via `versions['<key>']`) can go false while the finding it covers stays
+the same, because the upstream change happened below the plugin's granularity.
+Example: kolla 2026.1 removed `docker/letsencrypt/letsencrypt-webserver`, but
+`docker/letsencrypt/` remained, so `kolla_version_chain_upstream` kept raising the
+same `letsencrypt` finding. The entry covering it, "wired via
+`versions['letsencrypt_lego']` / `['letsencrypt_webserver']`", kept matching
+although `letsencrypt_webserver` no longer resolved on 2026.1. When a new
+OpenStack series is added, re-read every reason of that kind against the new
+series and fix or remove the entries that no longer hold. Reasons that state a
+policy (rolling by design, OSISM-built, provided by the environment inventory)
+do not depend on the series.
+
 ## Release model and why the range-aware checks use unions
 
 To read the range-aware plugins correctly (or write one), you need the OSISM
