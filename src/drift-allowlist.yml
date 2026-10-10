@@ -59,7 +59,6 @@ allow:
   - {plugin: kolla_version_chain_upstream, image: base, reason: "build base layer, not a service"}
   - {plugin: kolla_version_chain_upstream, image: openstack_base, reason: "build base layer, not a service"}
   # Naming/variant or supporting image, no distinct versions['K'] key.
-  - {plugin: kolla_version_chain_upstream, image: hacluster, reason: "pacemaker/corosync variant, no distinct version key"}
   - {plugin: kolla_version_chain_upstream, image: letsencrypt, reason: "wired via versions['letsencrypt_lego'] / ['letsencrypt_webserver']"}
   - {plugin: kolla_version_chain_upstream, image: networking_baremetal, reason: "neutron plugin image, no distinct version key"}
   - {plugin: kolla_version_chain_upstream, image: mariadb_server, reason: "upstream dir mariadb-server; wired via versions['mariadb']"}
