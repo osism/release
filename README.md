@@ -299,12 +299,16 @@ git push origin v0.20260322.0
    Wait until the builds have finished and check their images with
    `./scripts/check-osism-images.sh v0.20260322.0` (see
    [below](#checking-the-other-images-of-a-tag)).
-3. Once the images have been built and pushed, Renovate opens one PR per core
-   image in this repository that bumps the image version in `latest/base.yml`
-   to the new tag (e.g. [#2789](https://github.com/osism/release/pull/2789)
-   for `osism-kubernetes`). Merge all of these PRs before continuing, so that
+3. Once the images have been built and pushed, Renovate opens one PR each for
+   `osism-ansible`, `osism-kubernetes` and `inventory-reconciler` in this
+   repository that bumps the image version in `latest/base.yml` to the new tag
+   (e.g. [#2789](https://github.com/osism/release/pull/2789) for
+   `osism-kubernetes`). Merge all of these PRs before continuing, so that
    `latest/base.yml` references the images that were just built. If a PR is
-   missing, trigger a Renovate run on this repository once more.
+   missing, trigger a Renovate run on this repository once more. `kolla`,
+   `kolla-ansible` and `ceph-ansible` are not pinned in `latest/base.yml` and
+   get no PR; `create-version.py` takes the versions of all six core images
+   from their tags (see [Create a release version](#3-create-a-release-version)).
 
 > [!NOTE]
 > Tag every component repository with the version used for `create-tags.sh`:
