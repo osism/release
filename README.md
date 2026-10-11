@@ -309,6 +309,9 @@ git push origin v0.20260322.0
    `kolla-ansible` and `ceph-ansible` are not pinned in `latest/base.yml` and
    get no PR; `create-version.py` takes the versions of all six core images
    from their tags (see [Create a release version](#3-create-a-release-version)).
+   `main` requires an approving review before a PR can be merged, Renovate PRs
+   included: approve each PR before merging it, unless you can bypass the
+   review requirement.
 
 > [!NOTE]
 > Tag every component repository with the version used for `create-tags.sh`:
@@ -518,6 +521,10 @@ This:
 If a core image has no version tag on `origin`, it is
 written as `FIXME` and the script stops before the commit: fix the
 values, then commit `10.0.0/base.yml` and open the pull request manually.
+
+`main` requires an approving review. A release manager without bypass rights
+needs someone else to approve the pull request, since GitHub does not accept
+the approval of its author.
 
 <!-- Linked as #4-changelog-generation-per-component from the developer guide
      (osism/osism.github.io, docs/guides/developer-guide/releases.md). -->
