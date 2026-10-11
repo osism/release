@@ -265,8 +265,9 @@ wrong commit: merge the fix into `main`, pull, run the script again and answer
 
 The tags in this repository alone do not trigger any builds. After they have been
 pushed, three further steps are required, in this order. A component repository
-is tagged on the current HEAD of its default branch, and the push starts its Zuul
-`tag` pipeline:
+is tagged on the current HEAD of its default branch with a lightweight tag, as
+`create-tags.sh` creates in this repository, and the push starts its Zuul `tag`
+pipeline:
 
 ```bash
 git pull
