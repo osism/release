@@ -331,9 +331,13 @@ and checked:
   `<image>-v<version>` of this repository was made. An image pushed before
   that was built before the tag was moved to this commit (see
   `./scripts/create-tags.sh`) and has to be built again from the tag
-- `kolla-ansible`: the label `de.osism.commit.release` names the commit of the
-  release tag, the label `de.osism.release.openstack` the OpenStack version of
-  `latest/openstack.yml` at the release tag
+- the label `de.osism.commit.release` names the commit of the release tag (at
+  least 7 characters of it). Every image is labelled so from a version on
+  (`COMMIT_LABEL_SINCE` in `src/check-osism-images.py`); from that version a
+  missing label fails the check, and an older image without it is checked by
+  push time only
+- `kolla-ansible`: the label `de.osism.release.openstack` names the OpenStack
+  version of `latest/openstack.yml` at the release tag
 - `ceph-ansible`: the label `de.osism.release.ceph` names the Ceph release of
   `latest/ceph_ansible.yml` at the release tag (`latest/ceph.yml` for release
   snapshots from before `ceph_ansible.yml` existed)
