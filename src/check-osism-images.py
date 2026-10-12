@@ -23,9 +23,11 @@
 # - the image was pushed after the commit of the tag <image>-v<version> of
 #   this repository was made: an image pushed before it was built before the
 #   tag was moved to this commit
-# - kolla-ansible: the label de.osism.commit.release names the commit of the
-#   tag, the label de.osism.release.openstack the OpenStack version of
-#   latest/openstack.yml at the tag
+# - the label de.osism.commit.release names the commit of the tag (a prefix
+#   of at least 7 characters); it is required from the version in
+#   COMMIT_LABEL_SINCE on, and checked whenever it is present
+# - kolla-ansible: the label de.osism.release.openstack names the OpenStack
+#   version of latest/openstack.yml at the tag
 # - ceph-ansible: the label de.osism.release.ceph names the Ceph release of
 #   latest/ceph_ansible.yml at the tag
 # - the digest carries a cosign signature
@@ -62,8 +64,12 @@ IMAGES = [
 ]
 VERSION_LABEL = "org.opencontainers.image.version"
 COMMIT_LABEL = "de.osism.commit.release"
-# Images that name the commit of this repository they were built from
-COMMIT_IMAGES = ["kolla-ansible"]
+MIN_COMMIT_LENGTH = 7
+# Image -> first version whose image has to carry COMMIT_LABEL. Older images
+# without it are checked by push time only.
+COMMIT_LABEL_SINCE = {
+    "kolla-ansible": "0.20261001.0",
+}
 # Image -> label of the series it is built for, the files in latest/ naming
 # the series (the first one that exists at the tag) and their key. Release
 # snapshots from before latest/ceph_ansible.yml existed name the Ceph release
@@ -91,6 +97,27 @@ def check_labels(config, expected):
     ]
 
 
+def version_key(version):
+    return tuple(int(part) for part in version.split("."))
+
+
+def check_commit_label(configs, image, version, commit):
+    """Problems of the label naming the commit the image was built from."""
+    since = COMMIT_LABEL_SINCE.get(image)
+    required = since is not None and version_key(version) >= version_key(since)
+    problems = []
+    for config in configs:
+        labels = (config.get("config") or {}).get("Labels") or {}
+        value = labels.get(COMMIT_LABEL)
+        if value is None:
+            if required:
+                problems.append(f"the label {COMMIT_LABEL} is missing")
+            continue
+        if len(value) < MIN_COMMIT_LENGTH or not commit.startswith(value):
+            problems.append(f"the label {COMMIT_LABEL} is {value}, not {commit}")
+    return problems
+
+
 def check_image(harbor, image, version):
     """The digest of the image and its problems; no digest if it is missing."""
     release_tag = f"{image}-v{version}"
@@ -99,8 +126,6 @@ def check_image(harbor, image, version):
     commit = None
     try:
         commit, committed = release_commit(release_tag)
-        if image in COMMIT_IMAGES:
-            expected[COMMIT_LABEL] = commit
         if image in SERIES:
             label, files, key = SERIES[image]
             expected[label] = release_series(release_tag, files, key)
@@ -113,6 +138,8 @@ def check_image(harbor, image, version):
         return None, problems
     for config in configs:
         problems += check_labels(config, expected)
+    if commit:
+        problems += check_commit_label(configs, image, version, commit)
     if commit and parse_time(artifact["push_time"]) < committed:
         problems.append(
             f"pushed at {artifact['push_time']}, before the commit {commit[:7]} "

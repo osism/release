@@ -198,3 +198,95 @@ def test_ceph_release_of_old_snapshots(release_repo):
     assert coi.release_series(f"kolla-ansible-v{VERSION}", files, key) == "2026.1"
     with pytest.raises(coi.ReleaseError):
         coi.release_series(f"kolla-ansible-v{VERSION}", ["missing.yml"], key)
+
+
+LABEL_COMMIT = "a29561e2" + "0" * 32
+
+
+def image_config(**labels):
+    return {"config": {"Labels": labels}}
+
+
+def commit_label(value):
+    return image_config(**{coi.COMMIT_LABEL: value})
+
+
+@pytest.mark.parametrize("value", [LABEL_COMMIT, LABEL_COMMIT[:7]])
+def test_commit_label_full_or_short_hash(value):
+    problems = coi.check_commit_label(
+        [commit_label(value)], "osism-ansible", VERSION, LABEL_COMMIT
+    )
+    assert problems == []
+
+
+@pytest.mark.parametrize("value", [LABEL_COMMIT[:6], "deb956e", ""])
+def test_commit_label_too_short_or_different(value):
+    problems = coi.check_commit_label(
+        [commit_label(value)], "osism-ansible", VERSION, LABEL_COMMIT
+    )
+    assert problems == [
+        f"the label de.osism.commit.release is {value}, not {LABEL_COMMIT}"
+    ]
+
+
+def test_commit_label_missing_before_cutoff(monkeypatch):
+    monkeypatch.setitem(coi.COMMIT_LABEL_SINCE, "osism-ansible", "0.20261009.0")
+    problems = coi.check_commit_label(
+        [image_config()], "osism-ansible", "0.20261008.0", LABEL_COMMIT
+    )
+    assert problems == []
+
+
+@pytest.mark.parametrize("version", ["0.20261008.0", "0.20261008.10", "0.20261010.0"])
+def test_commit_label_missing_from_cutoff_on(monkeypatch, version):
+    monkeypatch.setitem(coi.COMMIT_LABEL_SINCE, "osism-ansible", "0.20261008.0")
+    problems = coi.check_commit_label(
+        [image_config()], "osism-ansible", version, LABEL_COMMIT
+    )
+    assert problems == ["the label de.osism.commit.release is missing"]
+
+
+def test_commit_label_missing_without_cutoff(monkeypatch):
+    monkeypatch.delitem(coi.COMMIT_LABEL_SINCE, "osism-ansible", raising=False)
+    problems = coi.check_commit_label(
+        [image_config()], "osism-ansible", VERSION, LABEL_COMMIT
+    )
+    assert problems == []
+
+
+def test_version_key_orders_numerically():
+    assert coi.version_key("0.20261008.10") > coi.version_key("0.20261008.9")
+
+
+def test_kolla_ansible_cutoff():
+    # 7ba0595 (osism/container-image-kolla-ansible#949) is first in v0.20261001.0
+    assert coi.COMMIT_LABEL_SINCE["kolla-ansible"] == "0.20261001.0"
+
+
+@responses.activate
+def test_commit_label_of_other_images_is_checked(commit, capsys):
+    for image in coi.IMAGES:
+        overrides = {}
+        if image == "osism-ansible":
+            overrides = {"de.osism.commit.release": "deb956e"}
+        if image == "osism-kubernetes":
+            overrides = {"de.osism.commit.release": commit[:7]}
+        add_image(image, labels(image, commit, **overrides))
+    assert coi.run(args()) == 1
+    out = capsys.readouterr().out
+    assert f"the label de.osism.commit.release is deb956e, not {commit}" in out
+    assert f"osism-kubernetes:{VERSION}@sha256:" in out
+    assert "Images: 4 ok, 1 failed" in out
+
+
+@responses.activate
+def test_missing_commit_label_of_kolla_ansible(commit, capsys):
+    for image in coi.IMAGES:
+        image_labels = labels(image, commit)
+        if image == "kolla-ansible":
+            del image_labels["de.osism.commit.release"]
+        add_image(image, image_labels)
+    assert coi.run(args()) == 1
+    out = capsys.readouterr().out
+    assert "the label de.osism.commit.release is missing" in out
+    assert "Images: 4 ok, 1 failed" in out
