@@ -436,8 +436,6 @@ every image of OSISM's own services", each role-managed on purpose:
 
 - `role_unpinned` kepler (osism/issues#1403), httpd and httpd_data (rolling
   by design) and the zuul stack (osism/issues#1397): no release pin at all.
-- `role_shadows` nexus: pinned in the release, but cut from the
-  osism-ansible transport, so the role default governs and lags the pin.
 
 **Stale entries are a hard error.** An entry that matches no real drift is
 reported and makes the run exit non-zero. Remove it once its drift is fixed.
