@@ -137,3 +137,31 @@ def test_equal_validations_pin_is_not_drift(cfg):
     versions.yml.j2) and matches it, so role_shadows reports nothing."""
     drifts = _by_alias(role_shadows.run(cfg, Allowlist(())))
     assert "tempest_osism" not in drifts
+
+
+def _allow(alias):
+    return Allowlist((AllowEntry(plugin="role_shadows", image=alias, reason="ops"),))
+
+
+def test_live_finding_ignores_allowlist(cfg):
+    """A LIVE shadow means base.yml pins a version that never deploys; an
+    allowlist entry must not hide that, and the finding says why."""
+    drifts = _by_alias(role_shadows.run(cfg, _allow("floatdemo")))
+    d = drifts["floatdemo"]
+    assert not d.allowlisted
+    assert d.severity == "actionable"
+    assert "cannot apply" in d.summary
+    assert "role_unpinned" in d.remediation
+
+
+def test_live_finding_with_entry_keeps_entry_from_going_stale(cfg):
+    """The entry still matches its finding, so it is reported through the
+    finding, not as a stale entry pointing elsewhere."""
+    al = _allow("floatdemo")
+    drifts = role_shadows.run(cfg, al)
+    assert al.stale(drifts, {"role_shadows"}) == []
+
+
+def test_dormant_finding_still_allowlistable(cfg):
+    drifts = _by_alias(role_shadows.run(cfg, _allow("adminer")))
+    assert drifts["adminer"].allowlisted

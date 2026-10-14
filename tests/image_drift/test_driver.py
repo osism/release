@@ -1,6 +1,7 @@
 """End-to-end tests for check-drift.py image group via subprocess."""
 
 import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -148,37 +149,50 @@ def test_summary_line_counts(tmp_path):
     assert "1 allowlisted" in summary, summary
 
 
-_AL_ADVISORY_ONLY = """\
-allow:
-  - plugin: role_shadows
-    image: floatdemo
-    reason: test
-  - plugin: role_shadows
-    image: redis
-    alias: netbox_redis
-    reason: test
-"""
+def _advisory_only_overlay(tmp_path):
+    """A --base-dir that shadows the fixture's container-image-osism-ansible
+    with a versions.yml.j2 also carrying the two LIVE aliases, so every
+    role_shadows finding is DORMANT. (LIVE findings ignore the allowlist.)"""
+    repo = "container-image-osism-ansible"
+    overlay = tmp_path / "overlay"
+    shutil.copytree(FIXT / repo, overlay / repo)
+    tmpl = overlay / repo / "files/src/templates/versions.yml.j2"
+    tmpl.write_text(
+        tmpl.read_text()
+        + "floatdemo_tag: \"{{ versions['floatdemo'] }}\"\n"
+        + "netbox_redis_tag: \"{{ versions['redis'] }}\"\n"
+    )
+    return str(overlay)
 
 
 def test_advisory_only_exits_0(tmp_path):
     cfg, al = _setup(tmp_path)
-    al.write_text(_AL_ADVISORY_ONLY)
-    r = _run("--base-dir", str(FIXT), "--plugin", "role_shadows", cfg=cfg, al=al)
+    r = _run(
+        "--base-dir",
+        _advisory_only_overlay(tmp_path),
+        "--base-dir",
+        str(FIXT),
+        "--plugin",
+        "role_shadows",
+        cfg=cfg,
+        al=al,
+    )
     assert r.returncode == 0, r.stdout
     summary = next(
         (ln for ln in r.stdout.splitlines() if ln.startswith("Summary:")), None
     )
     assert summary is not None, r.stdout
     assert "0 to act on" in summary, summary
-    assert "4 advisory" in summary, summary
+    assert "6 advisory" in summary, summary
     # advisory findings still render in the report body
     assert "adminer" in r.stdout, r.stdout
 
 
 def test_advisory_finding_in_default_json(tmp_path):
     cfg, al = _setup(tmp_path)
-    al.write_text(_AL_ADVISORY_ONLY)
     r = _run(
+        "--base-dir",
+        _advisory_only_overlay(tmp_path),
         "--base-dir",
         str(FIXT),
         "--plugin",

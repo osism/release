@@ -1,5 +1,7 @@
 """role_shadows plugin: <alias>_tag pins in role defaults vs release."""
 
+from dataclasses import replace
+
 from osism_drift import manager_template, playbooks, release, role_scan, source
 from osism_drift.model import DriftEntry
 
@@ -38,6 +40,17 @@ _LIVE_REMEDIATION = (
     "carry `<alias>_tag` (or the role's `<alias>_version`) in "
     "container-image-osism-ansible's versions.yml.j2 so the latest/base.yml pin "
     "governs the deployed version."
+)
+_LIVE_ALLOWLISTED_SUMMARY = (
+    "{n} LIVE with an allowlist entry that cannot apply — base.yml pins a "
+    "version the deployment never receives:"
+)
+_LIVE_ALLOWLISTED_REMEDIATION = (
+    "carry `<alias>_tag` (or the role's `<alias>_version`) in "
+    "container-image-osism-ansible's versions.yml.j2 so the latest/base.yml pin "
+    "governs the deployed version; or, if the image is role-managed by design, "
+    "remove its latest/base.yml pin and allowlist it under role_unpinned. Then "
+    "drop the role_shadows allowlist entry."
 )
 _DORMANT_SUMMARY = (
     "{n} DORMANT — a release transport overrides it at deploy; the role default "
@@ -100,5 +113,19 @@ def run(config, allowlist, verbose: bool = False) -> list:
             remediation=remediation,
             severity=severity,
         )
-        drifts.append(allowlist.apply(d))
+        if severity == "advisory":
+            drifts.append(allowlist.apply(d))
+        elif allowlist.match(d) is not None:
+            # Every role_shadows finding is for an image base.yml pins. Were a
+            # LIVE one allowlisted, the release would keep stating a version
+            # that never deploys, so the entry is reported instead of honoured.
+            drifts.append(
+                replace(
+                    d,
+                    summary=_LIVE_ALLOWLISTED_SUMMARY,
+                    remediation=_LIVE_ALLOWLISTED_REMEDIATION,
+                )
+            )
+        else:
+            drifts.append(d)
     return drifts

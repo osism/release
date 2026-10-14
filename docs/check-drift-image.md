@@ -129,6 +129,13 @@ Each finding is classified by the mechanism that actually applies at deploy:
   pin governs the deployed version. Role defaults must never govern it, so
   bumping the role default is the wrong fix — it just re-drifts.*
 
+  A `live` finding cannot be allowlisted. Every `role_shadows` finding is for
+  an image `base.yml` pins, so a silenced `live` one would leave the release
+  stating a version that never deploys. A matching entry is reported on the
+  finding itself, which stays actionable. An image that is role-managed by
+  design has its `base.yml` pin removed instead and is allowlisted under
+  `role_unpinned`.
+
 Stream-resolved aliases (see below) are skipped entirely and never reach
 this classification.
 
