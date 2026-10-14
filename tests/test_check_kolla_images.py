@@ -473,6 +473,14 @@ def test_tag_section_passes_without_findings(monkeypatch, capsys):
     )
 
 
+def test_malformed_sbom_fails_the_section(monkeypatch, capsys):
+    inputs = tag_inputs()
+    inputs.sbom = {}
+    monkeypatch.setattr(cki, "gather", lambda options, registry: inputs)
+    assert CHECK_TAGS(tag_args(), "0.20261008.0", "2026.1") is False
+    assert "  Error:" in capsys.readouterr().out
+
+
 def test_tag_input_error_fails_the_section(monkeypatch, capsys):
     def fail(options, registry):
         raise InputError("the patch 0001-x.patch does not apply")

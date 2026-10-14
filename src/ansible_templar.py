@@ -20,6 +20,7 @@
 import ast
 from dataclasses import dataclass
 from itertools import chain, islice
+from types import GeneratorType
 
 import jinja2
 from jinja2.runtime import Context
@@ -85,7 +86,9 @@ def ansible_concat(nodes):
     if len(head) == 1:
         out = str(head[0])
     else:
-        out = "".join(str(value) for value in chain(head, nodes))
+        if isinstance(nodes, GeneratorType):
+            nodes = chain(head, nodes)
+        out = "".join(str(value) for value in nodes)
     if out.startswith(("{", "[")) or out in ("True", "False"):
         try:
             out = ast.literal_eval(

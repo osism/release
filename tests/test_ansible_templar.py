@@ -29,14 +29,20 @@ def test_booleans_survive_as_conditions():
     assert resolve(t, "x") == "b"
 
 
+def gen(values):
+    # jinja2 hands the concat function a generator, as ansible-core expects
+    yield from values
+
+
 def test_concat_matches_ansible_core_2_18():
-    assert ansible_concat(iter([])) == ""
-    assert ansible_concat(iter(["2026.10"])) == "2026.10"
-    assert ansible_concat(iter(["a", 1])) == "a1"
-    assert ansible_concat(iter(["True"])) is True
-    assert ansible_concat(iter(["[1, ", "2]"])) == [1, 2]
-    assert ansible_concat(iter(['{"a": true}'])) == {"a": True}
-    assert ansible_concat(iter(["{not python"])) == "{not python"
+    assert ansible_concat(gen([])) == ""
+    assert ansible_concat(gen(["2026.10"])) == "2026.10"
+    assert ansible_concat(gen(["a", 1])) == "a1"
+    assert ansible_concat(["a", "b", "c"]) == "abc"
+    assert ansible_concat(gen(["True"])) is True
+    assert ansible_concat(gen(["[1, ", "2]"])) == [1, 2]
+    assert ansible_concat(gen(['{"a": true}'])) == {"a": True}
+    assert ansible_concat(gen(["{not python"])) == "{not python"
 
 
 def test_inactive_branch_with_a_cycle_does_not_fail():
