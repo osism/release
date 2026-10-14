@@ -7,8 +7,9 @@
 # container-image-kolla-ansible's template and the SBOM, the series'
 # overlay, and osism/defaults at the defaults_version the inventory-
 # reconciler build takes. Recorded mode (the image exists) reads what was
-# built: the commits the image labels record, or, where a label is missing
-# or unusable, the files of the image itself.
+# built: the commits and the SBOM digest the image labels record (the label
+# baseline, osism/issues#1463); an image without them is an error that
+# points to --predicted.
 #
 # Repos are read through osism_drift.source at commits, remotely (one
 # GitHub tarball per repo and commit) or from local clones (--base-dir).
@@ -232,6 +233,27 @@ def note_other_build(build, options, notes):
         )
 
 
+RELEASE_OVERLAY = "overlays/release/{version}/release-kolla-ansible.yml"
+
+
+def check_release_overlay(templates_root, version):
+    """Refuse a release whose kolla-ansible image ships a per-release overlay.
+
+    The build moves overlays/release/<VERSION>/release-kolla-ansible.yml into
+    the image and the inventory-reconciler installs it as group_vars; this
+    check does not model that layer, so it stops instead of checking against
+    the wrong variables.
+    """
+    for name in (f"v{version}", version):
+        path = Path(templates_root) / RELEASE_OVERLAY.format(version=name)
+        if path.is_file():
+            raise InputError(
+                f"{path.relative_to(templates_root)} exists: the kolla-ansible "
+                "image of this release ships a per-release overlay, which the "
+                "tag check does not model"
+            )
+
+
 def patches(templates_root, series):
     """The patches of the series in the order the image build applies them."""
     directory = Path(templates_root) / "patches" / series
@@ -343,6 +365,7 @@ def predicted(options, registry, read_next, config):
     )
     templates_commit = source.resolve_commit(TEMPLATES, templates_ref, config)
     templates = source.tree_dir(TEMPLATES, templates_commit, config)
+    check_release_overlay(templates, options.version)
     patch_list = patches(templates, series)
     roles = role_defaults_from_tree(
         patched_tree(source.tree_dir(KOLLA_ANSIBLE, kolla_ansible, config), patch_list)
@@ -454,6 +477,7 @@ def recorded(options, registry, found, config):
     )
     revision = label_commit(TEMPLATES, labels, LABEL_REVISION, image, config)
     templates = source.tree_dir(TEMPLATES, revision, config)
+    check_release_overlay(templates, options.version)
     patch_list = patches(templates, series)
     roles = role_defaults_from_tree(
         patched_tree(source.tree_dir(KOLLA_ANSIBLE, kolla_ansible, config), patch_list)

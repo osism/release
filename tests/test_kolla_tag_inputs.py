@@ -304,6 +304,39 @@ def test_patch_that_does_not_apply_is_an_error(world):
         gather(options(world), FakeRegistry(sboms()), read_next=no_next)
 
 
+def add_overlay(world, name):
+    repo = world.base / "container-image-kolla-ansible"
+    git(repo, "checkout", "-q", "v0.1.0")
+    target = repo / f"overlays/release/{name}/release-kolla-ansible.yml"
+    target.parent.mkdir(parents=True)
+    target.write_text("some_var: x\n")
+    git(repo, "add", "-A")
+    git(repo, "commit", "-q", "-m", "release overlay")
+    git(repo, "tag", "-f", "v0.1.0")
+    return git(repo, "rev-parse", "HEAD")
+
+
+def test_release_overlay_is_refused_when_predicted(world):
+    add_overlay(world, "v0.1.0")
+    with pytest.raises(InputError, match="per-release overlay"):
+        gather(options(world), FakeRegistry(sboms()), read_next=no_next)
+
+
+def test_release_overlay_is_refused_when_recorded(world):
+    commit = add_overlay(world, "v0.1.0")
+    recorded = labels(world, **{"org.opencontainers.image.revision": commit})
+    with pytest.raises(InputError, match="per-release overlay"):
+        gather(
+            options(world), registry(world, kolla_ansible=recorded), read_next=no_next
+        )
+
+
+def test_release_overlay_without_the_v_is_refused_too(world):
+    add_overlay(world, "0.1.0")
+    with pytest.raises(InputError, match="per-release overlay"):
+        gather(options(world), FakeRegistry(sboms()), read_next=no_next)
+
+
 def test_missing_patch_program_is_an_error(world, monkeypatch):
     monkeypatch.setattr(kolla_tag_inputs.shutil, "which", lambda name: None)
     with pytest.raises(InputError, match="patch program"):
@@ -459,6 +492,7 @@ def test_short_revision_label(world):
     inputs = gather(
         options(world), registry(world, kolla_ansible=short), read_next=no_next
     )
+    assert inputs.mode == "recorded"
     assert inputs.versions["template_marker"] == "a"
 
 
@@ -513,6 +547,7 @@ def test_defaults_ref_overrides_the_label(world):
     inputs = gather(
         options(world, defaults_ref="v0.2"), registry(world), read_next=no_next
     )
+    assert inputs.mode == "recorded"
     assert inputs.defaults == [("001-common.yml", {"common_marker": "two"})]
 
 
