@@ -41,7 +41,6 @@ allow:
   # Cut from the osism-ansible release transport (versions.yml.j2) by decision:
   # the role default governs the deployed tag, so a lag behind the release pin
   # is expected. Remove the entry if the service is carried again.
-  - {plugin: role_shadows, image: homer, reason: "role-managed: cut from the osism-ansible release transport; the homer role default governs the deployed tag"}
   - {plugin: role_shadows, image: nexus, reason: "role-managed: cut from the osism-ansible release transport; the nexus role default governs the deployed tag"}
   # --- rolling_pin ---
   # base.yml pins whose value is a rolling tag but are rolling by design or not
