@@ -315,7 +315,10 @@ pushed. A container that requests a tag the build never pushed fails the
 check, whether its service is enabled by default or not: the deployment pulls
 that tag the moment someone enables it. A pushed image no container uses is
 listed and does not fail the check. The output shows, for every mismatch,
-the variables the tag was resolved through and where each comes from.
+the variables the tag was resolved through and where each comes from. The
+list contains every variable the templates read on the way, including
+`default()` fallbacks that were not needed because the variable before them
+was set.
 
 The inputs are what a deployment of the release uses: the role defaults of
 kolla-ansible with OSISM's patches applied, the `versions.yml` and overlay of

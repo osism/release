@@ -28,12 +28,28 @@
 #   -o, --openstack-version   OpenStack version of the build (default:
 #                             latest/openstack.yml at the release tag)
 #   -r, --registry            Harbor registry (default: osism.harbor.regio.digital)
+#   --predicted               Reconstruct the inputs from the sources even if the
+#                             kolla-ansible image exists
+#   --kolla-ansible-version   Version of the kolla-ansible image whose references
+#                             are checked (default: the tag)
+#   --inventory-reconciler-version
+#                             Version of the inventory-reconciler image that ships
+#                             osism/defaults (default: the tag)
+#   --kolla-ansible-ref       Ref of osism/container-image-kolla-ansible in
+#                             predicted mode (default: v<version> if it exists,
+#                             else main)
+#   --defaults-ref            Ref of osism/defaults (default: the defaults_version
+#                             the inventory-reconciler build takes)
+#   --base-dir                Read the source repositories from local clones under
+#                             DIR (repeatable)
+#   --remote-fallback         With --base-dir: read repositories not found locally
+#                             from GitHub
 #
 # The kolla project can be read anonymously; HARBOR_USERNAME and
 # HARBOR_PASSWORD are used if they are set.
 #
 # Wrapper for src/check-kolla-images.py: uv provisions its dependencies
-# (requests, PyYAML) from the inline script metadata (PEP 723); plain
+# (Jinja2, requests, PyYAML) from the inline script metadata (PEP 723); plain
 # python3 is the fallback and requires them to be installed.
 
 set -euo pipefail
