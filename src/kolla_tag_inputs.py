@@ -30,7 +30,7 @@ from ansible_templar import SUPPORTED_ANSIBLE_CORE
 from kolla_registry import SBOM_REPOSITORY, RegistryError, image_manifests
 from osism_drift import source
 from osism_drift.config import Config, Remote, SourceCfg
-from osism_drift.http import _get
+from osism_drift.http import SourceError, _get
 
 KOLLA_ANSIBLE = "kolla_ansible"
 TEMPLATES = "container_image_kolla_ansible"
@@ -49,6 +49,27 @@ VERSIONS_CONTEXT_KEYS = (
 NEXT_URL = (
     "https://raw.githubusercontent.com/osism/release/main/next/"
     "kolla-ansible-v{version}.yml"
+)
+LABEL_SERIES = "de.osism.release.openstack"
+LABEL_KOLLA_ANSIBLE = "de.osism.commit.kolla_ansible"
+LABEL_RELEASE = "de.osism.commit.release"
+LABEL_REVISION = "org.opencontainers.image.revision"
+LABEL_SBOM = "de.osism.sbom"
+LABEL_SBOM_DIGEST = "de.osism.sbom.digest"
+LABEL_DEFAULTS = "de.osism.commit.defaults"
+# The labels of the kolla-ansible image recorded mode reads (the label
+# baseline, osism/issues#1463)
+KOLLA_ANSIBLE_LABELS = (
+    LABEL_SERIES,
+    LABEL_KOLLA_ANSIBLE,
+    LABEL_RELEASE,
+    LABEL_REVISION,
+    LABEL_SBOM,
+    LABEL_SBOM_DIGEST,
+)
+BEFORE_BASELINE = (
+    "it was built before the label baseline (osism/issues#1463); "
+    "check it with --predicted"
 )
 
 
@@ -366,7 +387,121 @@ def predicted(options, registry, read_next, config):
     )
 
 
+def label_commit(repo, labels, label, image, config):
+    """The commit a label names, resolved in repo."""
+    value = labels[label]
+    try:
+        return source.resolve_commit(repo, value, config)
+    except SourceError as e:
+        raise InputError(
+            f"label {label}={value} of {image} names no commit of {repo}: {e}"
+        ) from e
+
+
+def recorded_defaults(options, registry, config, notes):
+    """osism/defaults as the inventory-reconciler image of the version ships it."""
+    if options.defaults_ref:
+        return predicted_defaults(options, config)
+    version = options.inventory_reconciler_version
+    image = f"osism/{INVENTORY_RECONCILER_IMAGE}:{version}"
+    found = registry.image(INVENTORY_RECONCILER_IMAGE, version)
+    if found is None:
+        notes.append(
+            f"{image} does not exist yet; osism/defaults taken as its build will take it"
+        )
+        return predicted_defaults(options, config)
+    digest, labels = found
+    if not labels.get(LABEL_DEFAULTS):
+        raise InputError(f"{image} has no label {LABEL_DEFAULTS}: {BEFORE_BASELINE}")
+    commit = label_commit(DEFAULTS, labels, LABEL_DEFAULTS, image, config)
+    files = defaults_files_from_tree(source.tree_dir(DEFAULTS, commit, config))
+    return files, f"osism/defaults @ {commit[:12]} (label of {image}@{digest})"
+
+
+def recorded(options, registry, found, config):
+    """The inputs the kolla-ansible image was built from, by its labels."""
+    notes = []
+    digest, labels = found
+    image = f"osism/{KOLLA_ANSIBLE_IMAGE}:{options.version}"
+    missing = [label for label in KOLLA_ANSIBLE_LABELS if not labels.get(label)]
+    if missing:
+        raise InputError(
+            f"{image} has no label {', '.join(missing)}: {BEFORE_BASELINE}"
+        )
+    series = labels[LABEL_SERIES]
+
+    sbom_digest = labels[LABEL_SBOM_DIGEST]
+    if not registry.sbom_exists(series, sbom_digest):
+        raise InputError(
+            f"Harbor no longer serves the SBOM {sbom_digest} that {image} was built with"
+        )
+    sbom = registry.sbom(series, sbom_digest)
+    note_other_build(labels[LABEL_SBOM], options, notes)
+
+    release = labels[LABEL_RELEASE]
+    if release_tags.git("cat-file", "-e", f"{release}^{{commit}}") is None:
+        raise InputError(
+            f"label {LABEL_RELEASE}={release} of {image} is not in this checkout "
+            "of osism/release (git fetch)"
+        )
+    openstack_file = release_file(
+        release, f"openstack-{series}.yml", f"label {LABEL_RELEASE}"
+    )
+    check_ansible_core(openstack_file, series)
+
+    kolla_ansible = label_commit(
+        KOLLA_ANSIBLE, labels, LABEL_KOLLA_ANSIBLE, image, config
+    )
+    revision = label_commit(TEMPLATES, labels, LABEL_REVISION, image, config)
+    templates = source.tree_dir(TEMPLATES, revision, config)
+    patch_list = patches(templates, series)
+    roles = role_defaults_from_tree(
+        patched_tree(source.tree_dir(KOLLA_ANSIBLE, kolla_ansible, config), patch_list)
+    )
+    versions = render_versions(
+        tree_file(
+            templates,
+            VERSIONS_TEMPLATE,
+            f"container-image-kolla-ansible {revision[:12]}",
+        ),
+        series,
+        openstack_file,
+        sbom.get("versions"),
+    )
+    defaults, defaults_source = recorded_defaults(options, registry, config, notes)
+    templates_source = f"osism/container-image-kolla-ansible @ {revision[:12]}"
+    return Inputs(
+        mode="recorded",
+        series=series,
+        sbom=sbom,
+        roles=roles,
+        overlay=overlay_from_tree(templates, series),
+        versions=versions,
+        defaults=defaults,
+        sources=[
+            ("image", f"{image}@{digest}"),
+            (
+                "SBOM",
+                f"kolla/release/{series}/sbom@{sbom_digest} (build {labels[LABEL_SBOM]})",
+            ),
+            (
+                "role defaults",
+                f"openstack/kolla-ansible @ {kolla_ansible[:12]}, "
+                f"{len(patch_list)} patches (patches/{series})",
+            ),
+            ("versions.yml", f"{templates_source}, osism/release @ {release[:12]}"),
+            ("overlay", templates_source),
+            ("defaults", defaults_source),
+        ],
+        notes=notes,
+    )
+
+
 def gather(options, registry, read_next=read_next):
     """The inputs of the tag resolution for options."""
     config = source_config(options.base_dirs, options.remote_fallback)
+    if not options.predicted:
+        found = registry.image(KOLLA_ANSIBLE_IMAGE, options.version)
+        if found is not None:
+            return recorded(options, registry, found, config)
     return predicted(options, registry, read_next, config)

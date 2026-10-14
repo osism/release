@@ -395,3 +395,133 @@ def test_versions_context_matches_render_versions_py():
     assert {key.value for key in first.args[0].keys} == set(
         kolla_tag_inputs.VERSIONS_CONTEXT_KEYS
     )
+
+
+SBOM_DIGEST = "sha256:" + "d" * 64
+
+
+def labels(world, **overrides):
+    """The labels of a kolla-ansible image built from the fixture sources."""
+    values = {
+        "de.osism.release.openstack": SERIES,
+        "de.osism.commit.kolla_ansible": world.kolla_ansible[0],
+        "de.osism.commit.release": world.release,
+        "org.opencontainers.image.revision": world.templates[0],
+        "de.osism.sbom": "0.1.0",
+        "de.osism.sbom.digest": SBOM_DIGEST,
+    }
+    values.update(overrides)
+    return {key: value for key, value in values.items() if value is not None}
+
+
+def registry(world, kolla_ansible=None, reconciler=None, digest_served=True):
+    """kolla-ansible and inventory-reconciler 0.1.0 with the given labels;
+    reconciler=False leaves the inventory-reconciler image out."""
+    sbom_map = sboms()
+    if digest_served:
+        sbom_map[(SERIES, SBOM_DIGEST)] = SBOM
+    images = {
+        ("kolla-ansible", "0.1.0"): (
+            labels(world) if kolla_ansible is None else kolla_ansible
+        )
+    }
+    if reconciler is not False:
+        images[("inventory-reconciler", "0.1.0")] = (
+            {"de.osism.commit.defaults": world.defaults[0]}
+            if reconciler is None
+            else reconciler
+        )
+    return FakeRegistry(sbom_map, images)
+
+
+def test_recorded_reads_every_input_from_its_label(world):
+    inputs = gather(options(world), registry(world), read_next=no_next)
+    assert inputs.mode == "recorded"
+    assert inputs.sbom is SBOM
+    assert inputs.roles["prometheus"]["prometheus_marker"] == "patched"
+    assert inputs.versions["template_marker"] == "a"
+    assert inputs.overlay == {"overlay_marker": "here"}
+    assert dict(inputs.defaults)["001-common.yml"] == {"common_marker": "one"}
+    sources = dict(inputs.sources)
+    assert sources["image"] == "osism/kolla-ansible:0.1.0@sha256:kolla-ansible-0.1.0"
+    assert sources["SBOM"] == f"kolla/release/{SERIES}/sbom@{SBOM_DIGEST} (build 0.1.0)"
+    assert world.kolla_ansible[0][:12] in sources["role defaults"]
+    assert world.release[:12] in sources["versions.yml"]
+    assert world.defaults[0][:12] in sources["defaults"]
+    assert inputs.notes == []
+
+
+def test_short_revision_label(world):
+    # Images labelled before the baseline carry a short revision.
+    short = labels(
+        world, **{"org.opencontainers.image.revision": world.templates[0][:7]}
+    )
+    inputs = gather(
+        options(world), registry(world, kolla_ansible=short), read_next=no_next
+    )
+    assert inputs.versions["template_marker"] == "a"
+
+
+def test_image_built_before_the_label_baseline_points_to_predicted(world):
+    old = labels(world, **{"de.osism.sbom": None, "de.osism.sbom.digest": None})
+    with pytest.raises(InputError) as error:
+        gather(options(world), registry(world, kolla_ansible=old), read_next=no_next)
+    message = str(error.value)
+    assert "de.osism.sbom, de.osism.sbom.digest" in message
+    assert "osism/issues#1463" in message
+    assert "--predicted" in message
+
+
+def test_unknown_revision_is_an_error(world):
+    bad = labels(world, **{"org.opencontainers.image.revision": "deadbee"})
+    with pytest.raises(InputError, match="org.opencontainers.image.revision=deadbee"):
+        gather(options(world), registry(world, kolla_ansible=bad), read_next=no_next)
+
+
+def test_sbom_digest_no_longer_served_is_an_error(world):
+    with pytest.raises(InputError, match="no longer serves"):
+        gather(options(world), registry(world, digest_served=False), read_next=no_next)
+
+
+def test_sbom_of_another_build_is_noted(world):
+    other = labels(world, **{"de.osism.sbom": "0.0.9"})
+    inputs = gather(
+        options(world), registry(world, kolla_ansible=other), read_next=no_next
+    )
+    assert any("run the script for 0.0.9" in note for note in inputs.notes)
+
+
+def test_defaults_label_missing_is_an_error(world):
+    reconciler = {"de.osism.commit.release": world.release}
+    with pytest.raises(InputError, match="de.osism.commit.defaults"):
+        gather(
+            options(world), registry(world, reconciler=reconciler), read_next=no_next
+        )
+
+
+def test_inventory_reconciler_not_built_yet_takes_predicted_defaults(world):
+    inputs = gather(
+        options(world), registry(world, reconciler=False), read_next=no_next
+    )
+    assert dict(inputs.defaults)["001-common.yml"] == {"common_marker": "one"}
+    assert any(
+        "inventory-reconciler:0.1.0 does not exist yet" in note for note in inputs.notes
+    )
+
+
+def test_defaults_ref_overrides_the_label(world):
+    inputs = gather(
+        options(world, defaults_ref="v0.2"), registry(world), read_next=no_next
+    )
+    assert inputs.defaults == [("001-common.yml", {"common_marker": "two"})]
+
+
+def test_predicted_flag_ignores_an_existing_image(world):
+    inputs = gather(options(world, predicted=True), registry(world), read_next=no_next)
+    assert inputs.mode == "predicted"
+
+
+def test_release_label_not_in_checkout_is_an_error_with_fetch_hint(world):
+    bad = labels(world, **{"de.osism.commit.release": "f" * 40})
+    with pytest.raises(InputError, match="git fetch"):
+        gather(options(world), registry(world, kolla_ansible=bad), read_next=no_next)
