@@ -308,6 +308,48 @@ repository and has to point to the same commit as on `origin`, as for the
 other images below. The `kolla` project can be read anonymously;
 `HARBOR_USERNAME` and `HARBOR_PASSWORD` are used if they are set.
 
+After the registry checks, the script checks the tags the release deploys.
+For every container kolla-ansible deploys, it resolves the image reference
+(`<x>_image_full`) as Ansible would and compares its tag with the tag the build
+pushed. A container that requests a tag the build never pushed fails the
+check, whether its service is enabled by default or not: the deployment pulls
+that tag the moment someone enables it. A pushed image no container uses is
+listed and does not fail the check. The output shows, for every mismatch,
+the variables the tag was resolved through and where each comes from.
+
+The inputs are what a deployment of the release uses: the role defaults of
+kolla-ansible with OSISM's patches applied, the `versions.yml` and overlay of
+the kolla-ansible image, and osism/defaults as the inventory-reconciler image
+ships it. The script reads them in one of two modes and names the mode:
+
+- **predicted**, while `osism/kolla-ansible:<version>` does not exist yet (right
+  after the kolla build): the inputs are reconstructed from the sources the
+  next build will use. Upstream kolla-ansible is read at the head of
+  `stable/<series>`, container-image-kolla-ansible at its tag `v<version>` (or
+  `main` if the tag does not exist yet), and osism/defaults at the
+  `defaults_version` of `latest/base.yml` at `inventory-reconciler-v<version>`.
+  The result is a prediction: a change on those branches before the next build
+  can change it.
+- **recorded**, once the kolla-ansible image exists: the inputs are read from
+  the commits and the SBOM digest the labels of the kolla-ansible and
+  inventory-reconciler images record (`de.osism.commit.*`,
+  `org.opencontainers.image.revision`, `de.osism.sbom.digest`). Images built
+  before these labels were introduced (OSISM 11.0.1 and older) are checked with
+  `--predicted`.
+
+```bash
+./scripts/check-kolla-images.sh v0.20261101.0               # mode chosen automatically
+./scripts/check-kolla-images.sh --predicted v0.20261008.0   # reconstruct from the sources
+```
+
+`--kolla-ansible-version` and `--inventory-reconciler-version` check another
+combination than the images of the same version, `--kolla-ansible-ref` and
+`--defaults-ref` test a fix branch, and `--base-dir DIR` (repeatable, with
+`--remote-fallback`) reads the source repositories from local clones. The check
+needs GitHub access (`GITHUB_TOKEN` or `GH_TOKEN` is used if set) and the
+`patch` program, and it models the templating of ansible-core 2.18: a release
+pinning another ansible-core version stops the check with an error.
+
 #### Checking the other images of a tag
 
 After the builds of a tag in the other container image repositories have

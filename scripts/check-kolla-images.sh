@@ -11,7 +11,16 @@
 # printed with the digest of its tag. The SBOM image has to be signed as well.
 # Nothing is changed in the registry; the exit code is 1 if a check fails.
 #
-# Usage: ./scripts/check-kolla-images.sh [-j <jobs>] [-o <openstack version>] [-r <registry>] <tag>
+# Then it checks the tags the release deploys: every container kolla-ansible
+# deploys has to request the tag the build pushed for its image. Before the
+# kolla-ansible image exists, the inputs are reconstructed from the sources
+# (predicted); afterwards they are read from the commits its labels record
+# (recorded). See the README, "Checking the kolla images of a tag", for the
+# options of the tag check.
+#
+# Usage: ./scripts/check-kolla-images.sh [-j <jobs>] [-o <openstack version>] [-r <registry>]
+#        [--predicted] [--kolla-ansible-version <v>] [--inventory-reconciler-version <v>]
+#        [--kolla-ansible-ref <ref>] [--defaults-ref <ref>] [--base-dir <dir>]... [--remote-fallback] <tag>
 # Example: ./scripts/check-kolla-images.sh v0.20261008.0
 #
 # Options:
