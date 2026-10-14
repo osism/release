@@ -263,8 +263,8 @@ def test_defaults_files_override_in_name_order():
         {"a": role},
         osism(
             more_defaults=[
-                ("010-x.yml", {"a_version": "1"}),
                 ("099-kolla.yml", {"a_version": "2"}),
+                ("010-x.yml", {"a_version": "1"}),
             ]
         ),
         pushed("img:2"),
