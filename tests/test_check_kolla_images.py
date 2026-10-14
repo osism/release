@@ -11,6 +11,7 @@ import responses
 import yaml
 
 import release_tags
+from kolla_tag_inputs import InputError, Inputs
 
 # check-kolla-images.py is hyphenated -> not importable by name; load it by path.
 _SRC = pathlib.Path(__file__).resolve().parents[1] / "src" / "check-kolla-images.py"
@@ -153,6 +154,15 @@ def release(release_repo, monkeypatch):
 @pytest.fixture(autouse=True)
 def token():
     responses.get(f"https://{REGISTRY}/service/token", json={"token": "t"})
+
+
+CHECK_TAGS = cki.check_tags
+
+
+@pytest.fixture(autouse=True)
+def no_tags(monkeypatch):
+    """The registry tests do not run the tag resolution."""
+    monkeypatch.setattr(cki, "check_tags", lambda args, tag, openstack_version: True)
 
 
 @responses.activate
@@ -371,3 +381,153 @@ def test_build_for_another_series_than_the_tag(release_repo):
 def test_missing_release_tag():
     with pytest.raises(cki.ReleaseError, match="kolla-v0.20261009.0"):
         cki.run(args(tag="v0.20261009.0"))
+
+
+def tag_args(**kwargs):
+    defaults = dict(
+        registry=REGISTRY,
+        kolla_ansible_version=None,
+        inventory_reconciler_version=None,
+        kolla_ansible_ref=None,
+        defaults_ref=None,
+        predicted=False,
+        base_dir=None,
+        remote_fallback=False,
+    )
+    return argparse.Namespace(**{**defaults, **kwargs})
+
+
+PROMETHEUS_ROLE = {
+    "prometheus_server_image": "registry.osism.tech/kolla/release/prometheus-server",
+    "prometheus_server_tag": "{{ prometheus_tag }}",
+    "prometheus_server_image_full": "{{ prometheus_server_image }}:{{ prometheus_server_tag }}",
+    "prometheus_valkey_exporter_image": "registry.osism.tech/kolla/release/prometheus-valkey-exporter",
+    "prometheus_valkey_exporter_tag": "{{ prometheus_tag }}",
+    "prometheus_valkey_exporter_image_full": "{{ prometheus_valkey_exporter_image }}:{{ prometheus_valkey_exporter_tag }}",
+}
+
+
+def tag_inputs():
+    build = "harbor.example.com/kolla/release/2026.1"
+    return Inputs(
+        mode="predicted",
+        series="2026.1",
+        sbom={
+            "images": [
+                {"image": f"{build}/prometheus-server:3.5.5.20261008"},
+                {"image": f"{build}/prometheus-valkey-exporter:1.82.0.20261008"},
+                {"image": f"{build}/aodh-expirer:22.0.1.20261008"},
+            ]
+        },
+        roles={"prometheus": PROMETHEUS_ROLE},
+        overlay={},
+        versions={"kolla_prometheus_version": "3.5.5.20261008"},
+        defaults=[
+            (
+                "002-images-kolla.yml",
+                {"prometheus_tag": "{{ kolla_prometheus_version }}"},
+            )
+        ],
+        sources=[("SBOM", "kolla/release/2026.1/sbom:0.20261008.0 (the same version)")],
+        notes=["a note"],
+    )
+
+
+def test_tag_section_reports_mismatches(monkeypatch, capsys):
+    monkeypatch.setattr(cki, "gather", lambda options, registry: tag_inputs())
+    assert CHECK_TAGS(tag_args(), "0.20261008.0", "2026.1") is False
+    out = capsys.readouterr().out
+    assert "Tag resolution (predicted):" in out
+    assert (
+        "  SBOM:          kolla/release/2026.1/sbom:0.20261008.0 (the same version)"
+        in out
+    )
+    assert "  note: a note" in out
+    assert "  prometheus-valkey-exporter:1.82.0.20261008: FAILED" in out
+    assert (
+        "    prometheus_valkey_exporter_image_full (prometheus) resolves to tag 3.5.5.20261008"
+        in out
+    )
+    assert (
+        '      prometheus_tag = "{{ kolla_prometheus_version }}" (defaults all/002-images-kolla.yml)'
+        in out
+    )
+    assert "      kolla_prometheus_version = 3.5.5.20261008 (versions.yml)" in out
+    assert "prometheus_valkey_exporter_image =" not in out  # only tag/version hops
+    assert "  Not deployed by kolla-ansible: aodh-expirer" in out
+    assert "Tags: 1 ok, 1 failed, 1 not deployed (1 of 2 image references)" in out
+
+
+def test_tag_section_passes_without_findings(monkeypatch, capsys):
+    inputs = tag_inputs()
+    inputs.versions["kolla_prometheus_valkey_exporter_version"] = "1.82.0.20261008"
+    inputs.roles["prometheus"] = {
+        **PROMETHEUS_ROLE,
+        "prometheus_valkey_exporter_tag": "{{ kolla_prometheus_valkey_exporter_version }}",
+    }
+    monkeypatch.setattr(cki, "gather", lambda options, registry: inputs)
+    assert CHECK_TAGS(tag_args(), "0.20261008.0", "2026.1") is True
+    assert (
+        "Tags: 2 ok, 0 failed, 1 not deployed (0 of 2 image references)"
+        in capsys.readouterr().out
+    )
+
+
+def test_tag_input_error_fails_the_section(monkeypatch, capsys):
+    def fail(options, registry):
+        raise InputError("the patch 0001-x.patch does not apply")
+
+    monkeypatch.setattr(cki, "gather", fail)
+    assert CHECK_TAGS(tag_args(), "0.20261008.0", "2026.1") is False
+    out = capsys.readouterr().out
+    assert "Tag resolution:" in out
+    assert "  Error: the patch 0001-x.patch does not apply" in out
+
+
+def test_tag_options_from_args(monkeypatch):
+    seen = []
+    monkeypatch.setattr(
+        cki, "gather", lambda options, registry: seen.append(options) or tag_inputs()
+    )
+    CHECK_TAGS(tag_args(), "0.20261008.0", "2026.1")
+    CHECK_TAGS(
+        tag_args(
+            kolla_ansible_version="v0.20261009.0",
+            inventory_reconciler_version="0.20261007.0",
+            defaults_ref="main",
+            predicted=True,
+            base_dir=["/src"],
+        ),
+        "0.20261008.0",
+        "2026.1",
+    )
+    first, second = seen
+    assert (
+        first.version,
+        first.inventory_reconciler_version,
+        first.build,
+        first.series,
+    ) == (
+        "0.20261008.0",
+        "0.20261008.0",
+        "0.20261008.0",
+        "2026.1",
+    )
+    assert (second.version, second.inventory_reconciler_version) == (
+        "0.20261009.0",
+        "0.20261007.0",
+    )
+    assert (
+        second.defaults_ref == "main"
+        and second.predicted
+        and second.base_dirs == ("/src",)
+    )
+
+
+@responses.activate
+def test_tag_failure_fails_the_check(monkeypatch, capsys):
+    monkeypatch.setattr(cki, "check_tags", lambda args, tag, openstack_version: False)
+    keystone = add_image("keystone", "26.0.1.20261008")
+    add_sbom([{"image": f"{PREFIX}/keystone:26.0.1.20261008", "digest": keystone}])
+    assert cki.run(args()) == 1
+    assert "FAILED" in capsys.readouterr().out
