@@ -14,6 +14,7 @@ sources:
   kolla_ansible: {owner: openstack}
   ceph_ansible: {owner: ceph, branch: main}
   ansible_playbooks: {owner: osism, branch: main}
+  UBUNTU24-CIS: {owner: ansible-lockdown, branch: devel}
 
 release_version: latest
 
@@ -39,3 +40,4 @@ plugins:
   catalog_role_missing: {enabled: true}
   kolla_version_gate_orphan: {enabled: true}
   defaults_orphan: {enabled: true}
+  ubuntu24_cis_level2: {enabled: true}
