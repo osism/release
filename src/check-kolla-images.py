@@ -47,6 +47,7 @@ import sys
 import tarfile
 from concurrent.futures import ThreadPoolExecutor
 
+import jinja2
 import requests
 
 from kolla_registry import (
@@ -187,6 +188,11 @@ def check_tags(args, tag, openstack_version):
     print()
     try:
         inputs = gather(options, registry)
+        report = kolla_tags.check(
+            inputs.roles,
+            kolla_tags.osism_layers(inputs.overlay, inputs.versions, inputs.defaults),
+            sbom_images(inputs.sbom),
+        )
     except (
         InputError,
         SourceError,
@@ -194,6 +200,8 @@ def check_tags(args, tag, openstack_version):
         ReleaseError,
         requests.RequestException,
         tarfile.TarError,
+        jinja2.TemplateError,
+        OSError,
     ) as e:
         print("Tag resolution:")
         print(f"  Error: {e}")
@@ -204,11 +212,6 @@ def check_tags(args, tag, openstack_version):
     for note in inputs.notes:
         print(f"  note: {note}")
     print()
-    report = kolla_tags.check(
-        inputs.roles,
-        kolla_tags.osism_layers(inputs.overlay, inputs.versions, inputs.defaults),
-        sbom_images(inputs.sbom),
-    )
     print_report(report)
     return not report.mismatches and not report.unresolvable
 
