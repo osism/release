@@ -14,10 +14,6 @@ redis: library/redis
 vault: hashicorp/vault
 sonic_vs: osism/sonic-vs
 
-# mirror
-
-nexus: osism/nexus
-
 # ceph
 
 ceph: osism/ceph-daemon
