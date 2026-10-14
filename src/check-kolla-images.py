@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # /// script
-# requires-python = ">=3.9"
+# requires-python = ">=3.10"
 # dependencies = [
+#     "jinja2",
 #     "requests",
 #     "pyyaml",
 # ]
@@ -30,6 +31,15 @@
 # release tag fails the check. The release tag is read from the local
 # checkout and has to point to the same commit as on origin
 # (src/release_tags.py). Nothing is changed in the registry.
+#
+# Then the tag resolution: for every container kolla-ansible deploys, its
+# image reference (<x>_image_full) is resolved as Ansible would, and its tag
+# compared with the tag the build pushed (src/kolla_tags.py). Before the
+# kolla-ansible image of the release exists, its inputs are reconstructed
+# from the sources (predicted); once it exists, they are read from the
+# commits and the SBOM digest its labels record (recorded,
+# src/kolla_tag_inputs.py; an image without these labels is checked with
+# --predicted). Every mismatch fails the check.
 
 import argparse
 import os
@@ -51,6 +61,9 @@ from kolla_registry import (
     sbom_images,
     signed,
 )
+import kolla_tags
+from kolla_tag_inputs import InputError, Options, Registry, gather
+from osism_drift.http import SourceError
 from release_tags import ReleaseError, release_commit, release_series
 
 VERSION_LABEL = "de.osism.version"
@@ -103,6 +116,101 @@ def check_image(
     if sbom_digest and sbom_digest != digest:
         problems.append(f"the SBOM lists the digest {sbom_digest}")
     return digest, problems
+
+
+# The hops worth printing: the reference itself and the tag chain
+CHAIN_SUFFIXES = ("_image_full", "_tag", "_version")
+
+
+def format_raw(raw):
+    if isinstance(raw, str) and any(m in raw for m in ("{{", "{%", "{#")):
+        return f'"{raw}"'
+    return str(raw)
+
+
+def print_report(report):
+    by_image = {}
+    for mismatch in report.mismatches:
+        by_image.setdefault(mismatch.image, []).append(mismatch)
+    for image in sorted(by_image):
+        print(f"  {image}:{report.pushed[image]}: FAILED")
+        for mismatch in by_image[image]:
+            print(
+                f"    {mismatch.var} ({mismatch.role}) resolves to tag {mismatch.resolved}"
+            )
+            for hop in mismatch.hops:
+                if hop.name.endswith(CHAIN_SUFFIXES) and hop.name != mismatch.var:
+                    print(f"      {hop.name} = {format_raw(hop.raw)} ({hop.layer})")
+    if report.unresolvable:
+        print("  Unresolvable:")
+        for entry in report.unresolvable:
+            where = (
+                f"{entry.image}:{report.pushed[entry.image]}, " if entry.image else ""
+            )
+            print(f"    {where}{entry.var} ({entry.role}): {entry.cause}")
+    if report.unconsumed:
+        print(f"  Not deployed by kolla-ansible: {', '.join(report.unconsumed)}")
+    print()
+    print(
+        f"Tags: {report.ok_images} ok, {len(report.failed_images)} failed, "
+        f"{len(report.unconsumed)} not deployed "
+        f"({report.failed_references} of {report.references} image references)"
+        + (
+            f", {len(report.unplaced)} references of unknown image"
+            if report.unplaced
+            else ""
+        )
+    )
+
+
+def check_tags(args, tag, openstack_version):
+    """Print the tag resolution section; True if it passed."""
+    options = Options(
+        version=normalize_tag(args.kolla_ansible_version or tag),
+        inventory_reconciler_version=normalize_tag(
+            args.inventory_reconciler_version or tag
+        ),
+        build=tag,
+        series=openstack_version,
+        kolla_ansible_ref=args.kolla_ansible_ref,
+        defaults_ref=args.defaults_ref,
+        predicted=args.predicted,
+        base_dirs=tuple(args.base_dir or ()),
+        remote_fallback=args.remote_fallback,
+    )
+    username = os.environ.get("HARBOR_USERNAME", "")
+    password = os.environ.get("HARBOR_PASSWORD", "")
+    registry = Registry(
+        Harbor(args.registry, username, password),
+        Harbor(args.registry, username, password, project="osism"),
+    )
+    print()
+    try:
+        inputs = gather(options, registry)
+    except (
+        InputError,
+        SourceError,
+        RegistryError,
+        ReleaseError,
+        requests.RequestException,
+        tarfile.TarError,
+    ) as e:
+        print("Tag resolution:")
+        print(f"  Error: {e}")
+        return False
+    print(f"Tag resolution ({inputs.mode}):")
+    for what, description in inputs.sources:
+        print(f"  {what + ':':<15}{description}")
+    for note in inputs.notes:
+        print(f"  note: {note}")
+    print()
+    report = kolla_tags.check(
+        inputs.roles,
+        kolla_tags.osism_layers(inputs.overlay, inputs.versions, inputs.defaults),
+        sbom_images(inputs.sbom),
+    )
+    print_report(report)
+    return not report.mismatches and not report.unresolvable
 
 
 def run(args):
@@ -179,7 +287,8 @@ def run(args):
 
     print()
     print(f"Images: {len(images) - failed} ok, {failed} failed")
-    if failed or not sbom_signed or not series_ok:
+    tags_ok = check_tags(args, tag, openstack_version)
+    if failed or not sbom_signed or not series_ok or not tags_ok:
         print(f"Check of {sbom_ref} FAILED")
         return 1
     print(f"Check of {sbom_ref} passed")
@@ -211,6 +320,39 @@ def main():
         type=int,
         default=DEFAULT_JOBS,
         help=f"Images checked in parallel (default: {DEFAULT_JOBS})",
+    )
+    tags = parser.add_argument_group("tag resolution")
+    tags.add_argument(
+        "--kolla-ansible-version",
+        help="Version of the kolla-ansible image whose references are checked (default: the tag)",
+    )
+    tags.add_argument(
+        "--inventory-reconciler-version",
+        help="Version of the inventory-reconciler image that ships osism/defaults (default: the tag)",
+    )
+    tags.add_argument(
+        "--kolla-ansible-ref",
+        help="Ref of osism/container-image-kolla-ansible in predicted mode (default: v<version> if it exists, else main)",
+    )
+    tags.add_argument(
+        "--defaults-ref",
+        help="Ref of osism/defaults (default: the defaults_version the inventory-reconciler build takes)",
+    )
+    tags.add_argument(
+        "--predicted",
+        action="store_true",
+        help="Reconstruct the inputs from the sources even if the kolla-ansible image exists",
+    )
+    tags.add_argument(
+        "--base-dir",
+        action="append",
+        metavar="DIR",
+        help="Read the source repositories from local clones under DIR (repeatable)",
+    )
+    tags.add_argument(
+        "--remote-fallback",
+        action="store_true",
+        help="With --base-dir: read repositories not found locally from GitHub",
     )
     args = parser.parse_args()
     if args.jobs < 1:
