@@ -39,7 +39,6 @@ dnsdist: osism/dnsdist
 dnsmasq: osism/dnsmasq-osism
 fleet: fleetdm/fleet
 homer: osism/homer
-memcached: memcached
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
 squid: ubuntu/squid
