@@ -18,6 +18,7 @@ from osism_drift.drift import (
     kolla_version_chain_inner,
     kolla_version_chain_upstream,
     kolla_version_gate_orphan,
+    release_pin_orphan,
     release_vs_manager,
     role_registry_orphan,
     role_shadows,
@@ -47,6 +48,7 @@ IMAGE_PLUGINS = [
     role_unpinned,
     rolling_pin,
     image_orphan,
+    release_pin_orphan,
     role_registry_orphan,
 ]
 

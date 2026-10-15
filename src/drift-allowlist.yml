@@ -37,6 +37,14 @@ allow:
   - plugin: role_unpinned
     image: kepler
     reason: "energy exporter; role-managed via registry.osism.tech/quay, Renovate-tracked in the kepler role, not release-pinned (osism/issues#1403)"
+  # --- release_pin_orphan ---
+  # Pinned ahead of the role that will deploy them. Remove the entry once the
+  # role and its versions.yml.j2 line land, or drop the pin if the plan is dropped.
+  - {plugin: release_pin_orphan, image: pushgateway, reason: "planned service for Tally; the pushgateway role is not written yet (osism/issues#1446)"}
+  - {plugin: release_pin_orphan, image: openstack_database_exporter, reason: "planned service for Tally; the openstack-database-exporter role is not written yet (osism/issues#1443)"}
+  # Used outside the two transports.
+  - {plugin: release_pin_orphan, image: syft, reason: "SBOM tool run by the image builds, not deployed by a transport"}
+  - {plugin: release_pin_orphan, image: sonic_vs, reason: "SONiC virtual switch run by testbed's containerlab topology, not deployed by a transport"}
   # --- rolling_pin ---
   # base.yml pins whose value is a rolling tag but are rolling by design or not
   # deployed. substation is deliberately NOT here: it deploys 'latest' on a live

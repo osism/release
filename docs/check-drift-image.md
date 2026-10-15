@@ -287,6 +287,52 @@ deploys them), so skipping on that criterion would mask the signal.
 **Inputs**: generics manager template, and every file under
 ansible-collection-services/roles/ and ansible-playbooks-manager/playbooks/.
 
+### `release_pin_orphan`
+
+Reports `docker_images` pins in `release/<version>/base.yml` that **no release
+transport reads**. A pin reaches a deployment only through one of two
+templates:
+
+- the generics manager render (`environments/manager/images.yml`), for the
+  manager environment, and
+- container-image-osism-ansible's `versions.yml.j2`, for the services
+  osism-ansible deploys.
+
+A pin that neither template references as `versions['<key>']` reaches no
+deployment. Renovate keeps bumping it, but nothing runs that tag. This usually means its consumer was removed and the pin
+was left behind, as happened with `memcached` after the patchman roles were
+removed.
+
+This is the release-side counterpart of `image_orphan`. That plugin starts
+from the aliases the manager render emits, so it never sees a pin the render
+does not carry. This plugin starts from `base.yml` itself.
+
+Any `versions['<key>']` reference counts, not only whole-line `<alias>_tag`
+pins. A key read only in a Jinja condition (`osism`, `osism_ansible`) keeps its
+pin, because the plugin's remediation is to delete the pin.
+
+The other runner images do not count as readers. container-image-kolla-ansible's
+`versions.yml.j2` takes its `versions` from the Kolla image SBOM, and
+container-image-ceph-ansible's reads only `manager_version` from `base.yml`.
+Neither reads `docker_images`. A mirror that copies a pinned image, such as
+metalbox's registry tarballs, does not count either: mirroring a tag does not
+deploy it.
+
+**Inputs**: release `<release_version>/base.yml`, the generics manager
+template, and container-image-osism-ansible's `versions.yml.j2`.
+
+**Fix**: find out what the pin was added for.
+
+- If a role deploys the image but no transport carries the pin, wire it by
+  adding the `<alias>_tag` line to `versions.yml.j2`.
+- If its consumer is gone, remove the pin from `base.yml` together with its
+  `etc/images.yml` entry.
+- If the pin was added ahead of a role that is still planned, allowlist it
+  with the tracking issue as the reason.
+- If something reads it outside the two transports (a role default that
+  governs on purpose, or a CI job that fetches `base.yml`), allowlist it with
+  that reader as the reason.
+
 ### `role_registry_orphan`
 
 Reports `docker_registry_<alias>` variables **defined** in a role's
@@ -436,6 +482,16 @@ every image of OSISM's own services", each role-managed on purpose:
 
 - `role_unpinned` kepler (osism/issues#1403), httpd and httpd_data (rolling
   by design) and the zuul stack (osism/issues#1397): no release pin at all.
+
+The `release_pin_orphan` entries fall into two groups:
+
+- Pins added ahead of the role that will deploy them, for Tally: pushgateway
+  (osism/issues#1446) and openstack_database_exporter (osism/issues#1443).
+  Each entry goes once its role and `versions.yml.j2` line land, or together
+  with the pin if the plan is dropped.
+- Pins for images used outside the two transports: syft, the SBOM
+  tool the image builds run, and sonic_vs, the SONiC virtual switch that
+  testbed's containerlab topology runs.
 
 **Stale entries are a hard error.** An entry that matches no real drift is
 reported and makes the run exit non-zero. Remove it once its drift is fixed.
