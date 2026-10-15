@@ -30,8 +30,6 @@ osism_projects:
 docker_images:
   # renovate: datasource=docker depName=adminer
   adminer: '5.5.1'
-  # renovate: datasource=docker depName=alerta/alerta-web
-  alerta: '9.1.0'
   # renovate: datasource=docker depName=registry.osism.tech/osism/ara-server
   ara_server: '1.8.0-r1'
   # renovate: datasource=docker depName=registry.osism.tech/osism/cgit
@@ -44,8 +42,6 @@ docker_images:
   homer: 'v26.4.2'
   # renovate: datasource=docker depName=registry.osism.tech/osism/inventory-reconciler
   inventory_reconciler: '0.20261011.0'
-  # renovate: datasource=docker depName=fleetdm/fleet
-  fleet: 'v4.92.3'
   # renovate: datasource=docker depName=registry.osism.tech/osism/gnmic
   gnmic: '0.41.0'
   # renovate: datasource=docker depName=mariadb

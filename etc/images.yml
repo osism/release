@@ -33,11 +33,9 @@ substation: cloudnull/substation/substation
 # infrastructure
 
 adminer: library/adminer
-alerta: alerta/alerta-web
 cgit: osism/cgit
 dnsdist: osism/dnsdist
 dnsmasq: osism/dnsmasq-osism
-fleet: fleetdm/fleet
 homer: osism/homer
 phpmyadmin: phpmyadmin/phpmyadmin
 postgres: library/postgres
