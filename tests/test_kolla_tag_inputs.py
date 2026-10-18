@@ -198,6 +198,7 @@ def world(tmp_path, release_repo, monkeypatch, request):
         ],
     )
     return SimpleNamespace(
+        ansible_core=ansible_core,
         base=base,
         release=release,
         kolla_ansible=kolla_ansible,
@@ -343,10 +344,17 @@ def test_missing_patch_program_is_an_error(world, monkeypatch):
         gather(options(world), FakeRegistry(sboms()), read_next=no_next)
 
 
-@pytest.mark.parametrize("world", ["2.19.1"], indirect=True)
-def test_ansible_core_other_than_2_18_is_refused(world):
-    with pytest.raises(InputError, match="ansible-core 2.19.1"):
+@pytest.mark.parametrize("world", ["2.19.1", "2.21.0"], indirect=True)
+def test_ansible_core_other_than_2_18_or_2_20_is_refused(world):
+    pinned = world.ansible_core
+    with pytest.raises(InputError, match=f"ansible-core {pinned}"):
         gather(options(world), FakeRegistry(sboms()), read_next=no_next)
+
+
+@pytest.mark.parametrize("world", ["2.20.10"], indirect=True)
+def test_ansible_core_2_20_is_accepted(world):
+    inputs = gather(options(world), FakeRegistry(sboms()), read_next=no_next)
+    assert inputs.series == SERIES
 
 
 def test_missing_sbom_is_an_error(world):
