@@ -198,8 +198,9 @@ def check_ansible_core(openstack_file, series):
     if not version.startswith(SUPPORTED_ANSIBLE_CORE):
         raise InputError(
             f"latest/openstack-{series}.yml pins ansible-core {version or '(none)'}; "
-            f"the tag check models the templating of ansible-core "
-            f"{SUPPORTED_ANSIBLE_CORE}x only"
+            "the tag check models the templating of ansible-core "
+            + " and ".join(f"{v}x" for v in SUPPORTED_ANSIBLE_CORE)
+            + " only"
         )
 
 

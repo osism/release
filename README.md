@@ -350,8 +350,10 @@ combination than the images of the same version, `--kolla-ansible-ref` and
 `--defaults-ref` test a fix branch, and `--base-dir DIR` (repeatable, with
 `--remote-fallback`) reads the source repositories from local clones. The check
 needs GitHub access (`GITHUB_TOKEN` or `GH_TOKEN` is used if set) and the
-`patch` program, and it models the templating of ansible-core 2.18: a release
-pinning another ansible-core version stops the check with an error.
+`patch` program, and it models the templating of ansible-core 2.18, which
+resolves the image references the same way as 2.20 (measured over the OSISM
+11.0.0 inputs, see `src/ansible_templar.py`): a release pinning another
+ansible-core version stops the check with an error.
 
 #### Checking the other images of a tag
 

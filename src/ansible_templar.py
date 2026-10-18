@@ -10,6 +10,14 @@
 # boolean. ansible-core 2.19 changes these rules; the caller refuses other
 # versions (SUPPORTED_ANSIBLE_CORE).
 #
+# 2.20 is accepted as well because it was measured to resolve the image
+# references identically: over the OSISM 11.0.0 inputs
+# (tests/fixtures/kolla-tags-11.0.0.json.gz, 153 *_image_full in 71 roles)
+# this model, the Templar of ansible-core 2.18.18 and that of 2.20.10 agree
+# on every reference. Where 2.19+ differs, a template that makes up a whole
+# value and renders a non-string, no image reference goes. kolla-ansible
+# 2026.1 requires ansible-core >=2.19, so its image runs 2.20.
+#
 # Variables come from layers with a rank: a higher rank wins, and layers of
 # the same rank have to agree on a value, compared after resolving it in
 # each. Jinja2 looks up every name of a template before it evaluates it,
@@ -26,7 +34,7 @@ import jinja2
 from jinja2.runtime import Context
 from jinja2.utils import missing
 
-SUPPORTED_ANSIBLE_CORE = "2.18."
+SUPPORTED_ANSIBLE_CORE = ("2.18.", "2.20.")
 TEMPLATE_MARKERS = ("{{", "{%", "{#")
 _JSON_NAMES = {"true": True, "false": False, "null": None}
 
