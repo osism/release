@@ -30,11 +30,15 @@
 #             whose fixes the kolla images contain in addition to the
 #             previous release, plus the effective OSISM kolla defaults
 #             (osism/defaults) as a reference for checking configuration
-#             advice
+#             advice. Changelog entries crediting an external
+#             contributor ("contributed by ...") become an "External
+#             contributors" section with the credit sentence to use.
 #   sanitize  Sanitize a model-generated release notes body (stdin to
 #             stdout): strip any preamble before the first "### " heading,
 #             demote forbidden "# "/"## " headings, move a "### MetalBox"
-#             subsection to the end, collapse blank lines.
+#             subsection to the end, collapse blank lines. With --input,
+#             credit sentences of the input missing from the body are
+#             appended in a "### Contributors" subsection.
 #             Code fences are honored so that e.g. shell comments in
 #             examples are never touched.
 #   insert    Insert a generated section into a release notes page of
@@ -51,6 +55,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections import Counter
 from datetime import datetime, timedelta
 
 import requests
@@ -89,6 +94,20 @@ RELEASE_HEADING_RE = re.compile(
 )
 
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
+
+# Credit of an external contributor at the end of a changelog entry, as
+# written by generate-changelog-input.sh: "(org/repo#N, contributed by
+# Name (@login), @login2)"
+CHANGELOG_CREDIT_RE = re.compile(r"(?:\(|, )contributed by (.+)\)\s*$")
+CHANGELOG_REFERENCE_RE = re.compile(r"[\w.-]+/[\w.-]+(?:#\d+|@[0-9a-f]{7,40})")
+# One credit of a "contributed by" list: "@login", or a name with an
+# optional " (@login)". A name containing a comma or a double quote is
+# double-quoted, with backslash escapes inside (generate-changelog-input.sh
+# quote_credit_name); any other name runs up to the next ", ".
+CHANGELOG_CREDIT_TOKEN_RE = re.compile(
+    r'(?:@([\w-]+)|(?:"((?:[^"\\]|\\.)*)"|([^",]+?))(?: \(@([\w-]+)\))?)(?=, |$)'
+)
+CONTRIBUTORS_HEADING = "## External contributors"
 
 # The kolla-ansible container image clones this repository at build time
 # (branch stable/<openstack_version>); an image rebuild therefore pulls in
@@ -1384,6 +1403,100 @@ def extract_sections(changelog, old, new):
     return "\n\n".join(reversed(selected))
 
 
+def parse_credits(text):
+    """Split a "contributed by" list into (name, login) pairs.
+
+    Either part may be None. A list that does not parse is kept whole as a
+    single name, with a warning, rather than split at a guessed boundary.
+    """
+    credits = []
+    pos = 0
+    while True:
+        m = CHANGELOG_CREDIT_TOKEN_RE.match(text, pos)
+        if not m:
+            warn(f"Cannot parse the contributor list {text!r}, keeping it whole")
+            return [(text.strip(), None)]
+        bare_login, quoted, name, login = m.groups()
+        if quoted is not None:
+            name = re.sub(r"\\(.)", r"\1", quoted)
+        credits.append((name, bare_login or login))
+        if m.end() == len(text):
+            return credits
+        pos = m.end() + len(", ")
+
+
+def credit_sentence(credits):
+    """Build the release notes credit for changelog credits.
+
+    The credits are (name, login) pairs from parse_credits; names are only
+    those the contributor shared, so nothing is looked up here. A name
+    containing a comma stays quoted, so the sentence still reads as one
+    person.
+    """
+    people = []
+    for name, login in credits:
+        if name is not None and "," in name:
+            name = f'"{name}"'
+        link = f"[@{login}](https://github.com/{login})" if login else None
+        if name and link:
+            people.append(f"{name} ({link})")
+        else:
+            people.append(link or name)
+    if len(people) > 1:
+        people = [", ".join(people[:-1]) + " and " + people[-1]]
+    return f"Contributed by {people[0]}."
+
+
+def external_contributions(text):
+    """Return (references, credits) of the credited changelog entries."""
+    contributions = []
+    for line in text.splitlines():
+        if not line.startswith("- "):
+            continue
+        m = CHANGELOG_CREDIT_RE.search(line)
+        if not m:
+            continue
+        credits = parse_credits(m.group(1).strip())
+        references = CHANGELOG_REFERENCE_RE.findall(line[: m.start()])
+        contributions.append((references, credits))
+    return contributions
+
+
+def contributors_section(contributions):
+    lines = [CONTRIBUTORS_HEADING, ""]
+    lines.append(
+        "These changes were contributed from outside OSISM. Each line names "
+        "the changelog reference(s) and the credit sentence for that change."
+    )
+    lines.append("")
+    for references, credits in contributions:
+        lines.append(f"- {', '.join(references)}: {credit_sentence(credits)}")
+    return "\n".join(lines)
+
+
+def read_contributor_credits(path):
+    """Read (references, sentence) pairs from an input document."""
+    with open(path) as fp:
+        lines = fp.read().splitlines()
+    credits = []
+    in_section = False
+    for line in lines:
+        if line.startswith("## "):
+            in_section = line == CONTRIBUTORS_HEADING
+            continue
+        if in_section and line.startswith("- "):
+            references, _, sentence = line[2:].partition(": ")
+            if sentence:
+                credits.append((references, sentence))
+    return credits
+
+
+def reference_link(reference):
+    repo, sep, ident = re.split(r"([#@])", reference, maxsplit=1)
+    kind = "pull" if sep == "#" else "commit"
+    return f"[{reference}](https://github.com/{repo}/{kind}/{ident})"
+
+
 def format_table(headers, rows):
     lines = ["| " + " | ".join(headers) + " |"]
     lines.append("|" + "|".join("---" for _ in headers) + "|")
@@ -1519,6 +1632,11 @@ def cmd_input(args):
         out.append("")
     for lines in branch_sections:
         out.extend(lines)
+        out.append("")
+
+    contributions = external_contributions("\n".join(out))
+    if contributions:
+        out.append(contributors_section(contributions))
         out.append("")
 
     upstream = kolla_ansible_upstream_section(previous, current)
@@ -1682,6 +1800,33 @@ def cmd_sanitize(args):
         if FENCE_RE.match(line):
             in_fence = not in_fence
 
+    # Every external contribution must be credited; a credit the model
+    # dropped is added in a closing subsection. Contributions by the same
+    # people share one sentence, so a sentence must appear once per
+    # contribution; when it appears fewer times, which contribution lacks
+    # it cannot be told, and all of them get a closing line.
+    if args.input:
+        body_text = "\n".join(out)
+        credits = read_contributor_credits(args.input)
+        expected = Counter(sentence for _, sentence in credits)
+        short = {
+            sentence
+            for sentence, count in expected.items()
+            if body_text.count(sentence) < count
+        }
+        missing = [
+            (references, sentence)
+            for references, sentence in credits
+            if sentence in short
+        ]
+        if missing:
+            warn(f"Added {len(missing)} missing contributor credit(s):")
+            out += ["", "### Contributors", ""]
+            for references, sentence in missing:
+                links = ", ".join(reference_link(r) for r in references.split(", "))
+                out.append(f"* {sentence[:-1]}: {links}")
+                print(f"  {references}: {sentence}", file=sys.stderr)
+
     sys.stdout.write("\n".join(out) + "\n")
 
 
@@ -1804,6 +1949,10 @@ def main():
     sub.set_defaults(func=cmd_input)
 
     sub = subparsers.add_parser("sanitize")
+    sub.add_argument(
+        "--input",
+        help="input document whose contributor credits must appear in the body",
+    )
     sub.set_defaults(func=cmd_sanitize)
 
     sub = subparsers.add_parser("insert")

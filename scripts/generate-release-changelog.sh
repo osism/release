@@ -39,7 +39,10 @@
 # lists, so Claude is allowed to look up the referenced pull requests
 # itself via the GitHub CLI (gh pr view/diff, read-only) to describe
 # operator-relevant changes in detail; chores and dependency bumps
-# (Renovate) are not looked up.
+# (Renovate) are not looked up. Changes from external contributors
+# (credited in the component changelogs) must end with the credit
+# sentence given in the input; a dropped credit is added in a closing
+# "### Contributors" subsection (src/release-notes.py sanitize --input).
 #
 # The model output is sanitized deterministically: it must
 # start with a "### " subsection, "# "/"## " headings are demoted so that
@@ -325,7 +328,7 @@ if [ "$RUN_CLAUDE" = false ]; then
     echo "  1. Run Claude on the input file:"
     echo "     claude --model $CLAUDE_MODEL --effort $CLAUDE_EFFORT --allowedTools '$CLAUDE_ALLOWED_TOOLS' -p \"\$(cat $INPUT_FILE)\""
     echo "  2. Sanitize the result:"
-    echo "     uv run src/release-notes.py sanitize"
+    echo "     uv run src/release-notes.py sanitize --input $INPUT_FILE"
     echo "  3. Assemble the section in $OUTPUT_FILE and insert it into"
     echo "     docs/release-notes/osism-${MAJOR}.md of $SITE_REPO"
     exit 0
@@ -539,6 +542,9 @@ Output format:
 - Do NOT invent anything that is not covered by the input or the pull
   requests you read; when unsure, leave it out
 - Do NOT include PR/issue references like (org/repo#123)
+- If the input has an "External contributors" section, describe every
+  change listed there, and end the bullet or paragraph describing it with
+  the credit sentence given for it, copied exactly
 - Do NOT include the release heading "## __VERSION__"; it is added by
   the calling script
 - Do NOT write generic "images have been rebuilt, an upgrade is
@@ -607,7 +613,7 @@ RESULT=$(claude --model "$CLAUDE_MODEL" --effort "$CLAUDE_EFFORT" \
     --allowedTools "$CLAUDE_ALLOWED_TOOLS" -p "$PROMPT" \
     2> "$CLAUDE_STDERR_FILE") || true
 
-if ! BODY=$(echo "$RESULT" | release_notes_py sanitize); then
+if ! BODY=$(echo "$RESULT" | release_notes_py sanitize --input "$INPUT_FILE"); then
     echo ""
     echo "Error: Claude did not return a usable release notes body:"
     echo "----------------------------------------"
