@@ -1067,16 +1067,23 @@ if [ "$DO_COMMIT" = true ]; then
     TAG_LIST="${TAG_LIST%, }"
     NEWEST_TAG="${TAGS_TO_PROCESS[${#TAGS_TO_PROCESS[@]}-1]}"
 
-    echo "Generating commit message with Claude..."
+    # The subject is fixed so that all changelog PRs share one title
+    if [ ${#TAGS_TO_PROCESS[@]} -eq 1 ]; then
+        COMMIT_SUBJECT="changelog: add release notes for $NEWEST_TAG"
+    else
+        COMMIT_SUBJECT="changelog: add release notes up to $NEWEST_TAG"
+    fi
+
+    echo "Generating commit message body with Claude..."
 
     CHANGELOG_DIFF=$(git diff -- CHANGELOG.md; git diff --cached -- CHANGELOG.md)
 
-    COMMIT_PROMPT="Write a git commit message for the following change to CHANGELOG.md.
+    COMMIT_PROMPT="Write the body of a git commit message for the following change to CHANGELOG.md.
 It adds the release notes for: $TAG_LIST
 
 Rules:
-- Subject line: 'changelog: ' followed by a short summary, max 72 characters, imperative mood
-- Then a blank line, then a body wrapped at 72 characters
+- Write only the body, no subject line: the subject is set separately
+- Wrap the body at 72 characters
 - The body summarises what the release(s) contain, in a few sentences or bullets
 - Do NOT repeat the changelog verbatim and do NOT list every entry
 - Do NOT add any trailers (no Signed-off-by, no Assisted-by, no Co-authored-by)
@@ -1085,19 +1092,23 @@ Rules:
 Diff:
 $CHANGELOG_DIFF"
 
-    COMMIT_MSG=$(claude --model "$CLAUDE_MODEL" --effort "$CLAUDE_EFFORT" -p "$COMMIT_PROMPT" 2>&1) || true
+    COMMIT_BODY=$(claude --model "$CLAUDE_MODEL" --effort "$CLAUDE_EFFORT" -p "$COMMIT_PROMPT" 2>&1) || true
 
-    # Drop code fences and any trailers the model added anyway
-    COMMIT_MSG=$(echo "$COMMIT_MSG" \
+    # Drop code fences, any trailers and a subject the model added anyway
+    COMMIT_BODY=$(echo "$COMMIT_BODY" \
         | sed '/^```/d' \
-        | grep -viE '^(Signed-off-by|Assisted-by|Co-authored-by):' || true)
+        | grep -viE '^(Signed-off-by|Assisted-by|Co-authored-by):' \
+        | sed '1{/^changelog:/d}' \
+        | sed '/./,$!d' || true)
 
-    if [ -z "$(echo "$COMMIT_MSG" | tr -d '[:space:]')" ]; then
-        echo "Warning: Claude returned no commit message, using fallback"
-        COMMIT_MSG="changelog: add entry for $TAG_LIST"
+    if [ -z "$(echo "$COMMIT_BODY" | tr -d '[:space:]')" ]; then
+        echo "Warning: Claude returned no commit message body, using fallback"
+        COMMIT_BODY="Add the release notes for $TAG_LIST."
     fi
 
-    COMMIT_SUBJECT=$(echo "$COMMIT_MSG" | head -1)
+    COMMIT_MSG="$COMMIT_SUBJECT
+
+$COMMIT_BODY"
 
     # Branch off if we are on the default branch
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
