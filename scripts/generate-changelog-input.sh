@@ -49,6 +49,18 @@
 # last resort, repaired or appended deterministically. Entries without any
 # reference are removed.
 #
+# Changes contributed from outside OSISM are credited deterministically:
+# the commit author and the Co-authored-by trailers of every commit are
+# checked, and an email address outside INTERNAL_EMAIL_DOMAINS (default:
+# osism.tech and osism.de) that does not belong to a bot counts as
+# external. The entry
+# carrying the reference of such a commit gets the contributor appended to
+# its reference list: (org/repo#N, contributed by Name (@login)). The
+# GitHub login is always published; a full name only if the contributor
+# shared it (GitHub profile, commit author, own Signed-off-by), see
+# external_credits. The release notes generation
+# (generate-release-changelog.sh) picks these credits up.
+#
 # The final entry is reduced to pure changelog content (version header,
 # category headers, entries, blank lines); any other line — e.g. model
 # commentary like "Note: ..." about batches or its own corrections — is
@@ -213,6 +225,26 @@ fi
 # here and are therefore never classified as housekeeping.
 is_changelog_only_commit() {
     [ "$(git diff-tree --no-commit-id --name-only -r "$1")" = "CHANGELOG.md" ]
+}
+
+# Email domains of OSISM itself; authors outside of them are credited as
+# external contributors
+INTERNAL_EMAIL_DOMAINS="${INTERNAL_EMAIL_DOMAINS:-osism.tech osism.de}"
+
+# Bots and no-reply addresses (e.g. AI assistants in Co-authored-by
+# trailers) are never credited
+is_external_email() {
+    local email domain
+    email=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+    case "$email" in
+        ""|*"[bot]"*|*@renovateapp.com|noreply@*|no-reply@*) return 1 ;;
+    esac
+    for domain in $INTERNAL_EMAIL_DOMAINS; do
+        case "$email" in
+            *@"$domain") return 1 ;;
+        esac
+    done
+    return 0
 }
 
 # Count the commits in a range that are relevant for release notes, i.e.
@@ -632,10 +664,101 @@ fi
 #
 # COMMIT_REFS holds one line per commit: "<hash> <ref>[ <ref>...]" where a
 # ref is "#N" or "@hash". REF_SUBJECTS maps each ref to the subject of the
-# first commit carrying it: "<ref>\t<subject>".
+# first commit carrying it: "<ref>\t<subject>". REF_CREDITS holds the
+# external contributors of each ref: "<ref>\t<@login or name>".
 echo "  Resolving PR/issue references..."
 COMMIT_REFS=""
 REF_SUBJECTS=""
+REF_CREDITS=""
+
+# Credits are published as a comma-separated list, so a name that
+# contains a comma (e.g. "Doe, Jane") is double-quoted to keep the list
+# unambiguous for the release notes parser; a double quote or backslash
+# inside the name is escaped with a backslash. Other names are published
+# as they are.
+quote_credit_name() {
+    case "$1" in
+        *[,\\\"]*) printf '"%s"\n' "$(printf '%s' "$1" | sed 's/[\\"]/\\&/g')" ;;
+        *) printf '%s\n' "$1" ;;
+    esac
+}
+
+# Print the external contributors of a commit, one per line, as
+# "Name (@login)", "@login" or "Name". Logins come from GitHub's own
+# mapping of commit email addresses to accounts, which covers co-authors
+# as well. A full name is only published if the contributor shared it:
+# on the GitHub profile, as commit author, or in a Signed-off-by trailer
+# with the same email address. The name in a Co-authored-by trailer was
+# written by someone else and is never used. Different names for the same
+# contributor are reported, as they risk a wrong attribution.
+external_credits() {
+    local commit="$1" author_email emails email lc logins="" login
+    local names name sources distinct credit
+    author_email=$(git log -1 --format='%ae' "$commit")
+    emails=$({
+        echo "$author_email"
+        git log -1 --format='%(trailers:key=Co-authored-by,valueonly)' "$commit" | sed -nE 's/.*<([^>]+)>.*/\1/p'
+    } | while IFS= read -r email; do
+        if is_external_email "$email"; then
+            echo "$email"
+        fi
+    done)
+    [ -n "$emails" ] || return 0
+
+    if [ "$GH_AVAILABLE" = true ]; then
+        logins=$(gh api graphql \
+            -f query='query($owner: String!, $name: String!, $sha: String!) { repository(owner: $owner, name: $name) { object(expression: $sha) { ... on Commit { authors(first: 50) { nodes { email user { login } } } } } } }' \
+            -f owner="${GITHUB_REPO%%/*}" -f name="${GITHUB_REPO#*/}" -f sha="$(git rev-parse "$commit")" \
+            --jq '.data.repository.object.authors.nodes[] | select(.user) | [(.email | ascii_downcase), .user.login] | @tsv' 2>/dev/null || true)
+    fi
+
+    while IFS= read -r email; do
+        lc=$(echo "$email" | tr '[:upper:]' '[:lower:]')
+        login=$(echo "$logins" | awk -F'\t' -v e="$lc" '$1 == e { print $2; exit }')
+        if [ -z "$login" ]; then
+            login=$(echo "$lc" | sed -nE 's/^([0-9]+\+)?([^@]+)@users\.noreply\.github\.com$/\2/p')
+        fi
+
+        # Names the contributor shared, most authoritative first; a name
+        # equal to the login is the handle, not a name
+        names=""
+        if [ -n "$login" ] && [ "$GH_AVAILABLE" = true ]; then
+            name=$(gh api "users/${login}" --jq '.name // empty' 2>/dev/null || true)
+            names+="GitHub profile	${name}"$'\n'
+        fi
+        if [ "$lc" = "$(echo "$author_email" | tr '[:upper:]' '[:lower:]')" ]; then
+            names+="commit author	$(git log -1 --format='%an' "$commit")"$'\n'
+        fi
+        names+=$(git log -1 --format='%(trailers:key=Signed-off-by,valueonly)' "$commit" | while IFS= read -r line; do
+            if [ "$(echo "$line" | sed -nE 's/.*<([^>]+)>.*/\1/p' | tr '[:upper:]' '[:lower:]')" = "$lc" ]; then
+                echo "Signed-off-by	$(echo "$line" | sed -E 's/ *<[^>]*>.*//')"
+            fi
+        done)
+        names=$(echo "$names" | awk -F'\t' -v l="$login" '
+            { n = $2; gsub(/^[ \t]+|[ \t]+$/, "", n); gsub(/[ \t]+/, " ", n) }
+            n != "" && tolower(n) != tolower(l) { print $1 "\t" n }')
+
+        distinct=$(echo "$names" | cut -f2 | grep -v '^$' | tr '[:upper:]' '[:lower:]' | sort -u | wc -l)
+        if [ "$distinct" -gt 1 ]; then
+            sources=$(echo "$names" | sed 's/\t/: /' | paste -sd ';' - | sed 's/;/; /g')
+            echo "Warning: ${GITHUB_REPO}@${commit}: different names for ${login:+@$login }<${email}>: ${sources}; using the first, check the attribution" >&2
+        fi
+        name=$(echo "$names" | head -n 1 | cut -f2)
+
+        [ -z "$name" ] || name=$(quote_credit_name "$name")
+        if [ -n "$login" ] && [ -n "$name" ]; then
+            credit="${name} (@${login})"
+        elif [ -n "$login" ]; then
+            credit="@${login}"
+        elif [ -n "$name" ]; then
+            credit="$name"
+        else
+            echo "Warning: ${GITHUB_REPO}@${commit}: co-author <${email}> has no GitHub account and shared no name; not credited, credit by hand if appropriate" >&2
+            continue
+        fi
+        echo "$credit"
+    done <<< "$emails"
+}
 for commit in "${COMMITS[@]}"; do
     SUBJECT=$(git log -1 --format='%s' "$commit")
     REFS=$(echo "$SUBJECT" | grep -oE '#[0-9]+' | sort -u | tr '\n' ' ')
@@ -660,12 +783,23 @@ for commit in "${COMMITS[@]}"; do
     fi
 
     COMMIT_REFS+="${commit} ${REFS}"$'\n'
+    while IFS= read -r credit; do
+        [ -n "$credit" ] || continue
+        for ref in $REFS; do
+            REF_CREDITS+="${ref}	${credit}"$'\n'
+        done
+    done < <(external_credits "$commit")
     for ref in $REFS; do
         if ! echo "$REF_SUBJECTS" | grep -q "^${ref}	"; then
             REF_SUBJECTS+="${ref}	${SUBJECT}"$'\n'
         fi
     done
 done
+
+if [ -n "$REF_CREDITS" ]; then
+    echo "  External contributors:"
+    echo "$REF_CREDITS" | grep -v '^$' | sort -u | sed "s|^|    ${GITHUB_REPO}|; s|	| |"
+fi
 
 # Create the prompt template
 PROMPT_TEMPLATE='# Changelog Generation Prompt
@@ -940,6 +1074,36 @@ $(cat "$OUTPUT_FILE")"
 
     MISSING_REFS=$(find_missing_refs)
 
+    # Append ", contributed by ..." to the reference list of every entry
+    # that carries a reference of an external contribution
+    apply_credits() {
+        local line ref credit credits
+        while IFS= read -r line; do
+            if [ "${line:0:2}" = "- " ]; then
+                credits=""
+                while IFS='	' read -r ref credit; do
+                    [ -n "$ref" ] || continue
+                    case "$ref" in
+                        \#*) echo "$line" | grep -qE "${GITHUB_REPO_RE}#${ref#\#}([^0-9]|\$)" || continue ;;
+                        @*) echo "$line" | grep -qF "${GITHUB_REPO}${ref}" || continue ;;
+                    esac
+                    case ", $credits, " in
+                        *", $credit, "*) ;;
+                        *) credits+="${credits:+, }${credit}" ;;
+                    esac
+                done <<< "$REF_CREDITS"
+                if [ -n "$credits" ]; then
+                    if [ "${line: -1}" = ")" ]; then
+                        line="${line%)}, contributed by ${credits})"
+                    else
+                        line="${line} (contributed by ${credits})"
+                    fi
+                fi
+            fi
+            echo "$line"
+        done <<< "$1"
+    }
+
     if [ -n "$MISSING_REFS" ]; then
         echo ""
         echo "Warning: Generated entry is missing PR/issue references:"
@@ -1027,6 +1191,11 @@ $CLEAN_RESULT"
         echo "$UNREFERENCED" | sed 's/^/  /'
         CLEAN_RESULT=$(echo "$CLEAN_RESULT" | awk -v repo="$GITHUB_REPO" \
             '!/^- / || index($0, repo "#") || index($0, repo "@")')
+    fi
+
+    # Credit external contributors on the entries carrying their references
+    if [ -n "$REF_CREDITS" ]; then
+        CLEAN_RESULT=$(apply_credits "$CLEAN_RESULT")
     fi
 
     # Write final result
