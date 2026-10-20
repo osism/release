@@ -1166,6 +1166,88 @@ def security_advisory_section(previous, current, previous_release, date, site_di
     return "\n".join(out).rstrip()
 
 
+def collect_release_notes(repo_dir, base, head):
+    """Return the reno release notes changed between two commits.
+
+    Returns (kind, path, text) tuples. An "added" note is new in the
+    range and comes with its full text. A "modified" note was released
+    before and comes with its diff only: upstream edits notes after the
+    fact (e.g. to correct a file name), and the full text of such a note
+    would read like a new change. Deleted notes and notes renamed without
+    changes are skipped.
+    """
+    notes = []
+    name_status = (
+        run_git(
+            [
+                "diff",
+                "--name-status",
+                "--find-renames",
+                base,
+                head,
+                "--",
+                "releasenotes/notes",
+            ],
+            cwd=repo_dir,
+        )
+        or ""
+    )
+    for line in name_status.splitlines():
+        parts = line.split("\t")
+        status, path = parts[0], parts[-1]
+        if not path.endswith((".yaml", ".yml")):
+            continue
+        if status.startswith("A"):
+            content = run_git(["show", f"{head}:{path}"], cwd=repo_dir)
+            if content and content.strip():
+                notes.append(("added", path, content.strip()))
+        elif status.startswith("M") or (status.startswith("R") and status != "R100"):
+            diff = (
+                run_git(
+                    ["diff", "--find-renames", base, head, "--"] + parts[1:],
+                    cwd=repo_dir,
+                )
+                or ""
+            ).splitlines()
+            hunks = [i for i, d in enumerate(diff) if d.startswith("@@")]
+            if hunks:
+                notes.append(("modified", path, "\n".join(diff[hunks[0] :])))
+    return notes
+
+
+def release_note_lines(notes):
+    """Markdown lines for the notes returned by collect_release_notes."""
+    out = []
+    for kind, title, fence in (
+        ("added", "added in this range", "yaml"),
+        (
+            "modified",
+            "modified in this range (released before; only the diff is new)",
+            "diff",
+        ),
+    ):
+        selected = [(path, text) for k, path, text in notes if k == kind]
+        out.append(f"### Upstream release notes (reno) {title}")
+        out.append("")
+        if not selected:
+            out.append("(none)")
+            out.append("")
+            continue
+        dropped = len(selected) - MAX_UPSTREAM_NOTES
+        for path, text in selected[:MAX_UPSTREAM_NOTES]:
+            out.append(f"#### {path}")
+            out.append("")
+            out.append(f"```{fence}")
+            out.append(text)
+            out.append("```")
+            out.append("")
+        if dropped > 0:
+            warn(f"Dropped {dropped} upstream release note(s) over the cap")
+            out.append(f"({dropped} more release notes omitted)")
+            out.append("")
+    return out
+
+
 def upstream_change_lines(old, new, release):
     """Markdown lines for the upstream kolla-ansible changes of a rebuild.
 
@@ -1238,23 +1320,7 @@ def upstream_change_lines(old, new, release):
             if line.strip()
         ]
 
-        notes = []
-        name_status = (
-            run_git(
-                ["diff", "--name-status", base, head, "--", "releasenotes/notes"],
-                cwd=tmpdir,
-            )
-            or ""
-        )
-        for line in name_status.splitlines():
-            parts = line.split("\t")
-            path = parts[-1]
-            if parts[0].startswith(("A", "M", "R")) and path.endswith(
-                (".yaml", ".yml")
-            ):
-                content = run_git(["show", f"{head}:{path}"], cwd=tmpdir)
-                if content and content.strip():
-                    notes.append((path, content.strip()))
+        notes = collect_release_notes(tmpdir, base, head)
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 
@@ -1267,24 +1333,7 @@ def upstream_change_lines(old, new, release):
         "the release notes."
     )
     out.append("")
-    out.append("### Upstream release notes (reno) in this range")
-    out.append("")
-    if notes:
-        dropped = len(notes) - MAX_UPSTREAM_NOTES
-        for path, content in notes[:MAX_UPSTREAM_NOTES]:
-            out.append(f"#### {path}")
-            out.append("")
-            out.append("```yaml")
-            out.append(content)
-            out.append("```")
-            out.append("")
-        if dropped > 0:
-            warn(f"Dropped {dropped} upstream release note(s) over the cap")
-            out.append(f"({dropped} more release notes omitted)")
-            out.append("")
-    else:
-        out.append("(none)")
-        out.append("")
+    out.extend(release_note_lines(notes))
     out.append("### Upstream commit subjects")
     out.append("")
     if subjects:
