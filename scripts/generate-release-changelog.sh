@@ -452,6 +452,11 @@ OpenStack services (kolla-ansible):
   features, deprecations, security and fixes sections); use the commit
   subjects only as supporting context and ignore test-only, CI, zuul and
   documentation-only commits
+- Upstream release notes listed as "modified in this range" were released
+  with an earlier OSISM release; only their diff is new, and it usually
+  just corrects the wording. Do NOT report them as new changes; mention a
+  modified note only if its diff changes what operators have to do, and
+  then describe only that difference
 - Name the OpenStack version the changes apply to (it is part of the
   section heading in the input)
 - The upstream changes are Gerrit changes without GitHub pull requests:
