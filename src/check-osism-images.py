@@ -68,7 +68,16 @@ MIN_COMMIT_LENGTH = 7
 # Image -> first version whose image has to carry COMMIT_LABEL. Older images
 # without it are checked by push time only.
 COMMIT_LABEL_SINCE = {
+    # osism/container-image-kolla-ansible#949
     "kolla-ansible": "0.20261001.0",
+    # osism/container-image-osism-ansible#785
+    "osism-ansible": "0.20261019.0",
+    # osism/osism-kubernetes#342
+    "osism-kubernetes": "0.20261019.0",
+    # osism/container-image-ceph-ansible#724
+    "ceph-ansible": "0.20261019.0",
+    # osism/container-image-inventory-reconciler#581
+    "inventory-reconciler": "0.20261019.0",
 }
 # Image -> label of the series it is built for, the files in latest/ naming
 # the series (the first one that exists at the tag) and their key. Release

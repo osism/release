@@ -258,9 +258,15 @@ def test_version_key_orders_numerically():
     assert coi.version_key("0.20261008.10") > coi.version_key("0.20261008.9")
 
 
-def test_kolla_ansible_cutoff():
-    # 7ba0595 (osism/container-image-kolla-ansible#949) is first in v0.20261001.0
-    assert coi.COMMIT_LABEL_SINCE["kolla-ansible"] == "0.20261001.0"
+def test_cutoffs():
+    # The first tag containing the merge of the PR named in COMMIT_LABEL_SINCE
+    assert coi.COMMIT_LABEL_SINCE == {
+        "kolla-ansible": "0.20261001.0",
+        "osism-ansible": "0.20261019.0",
+        "osism-kubernetes": "0.20261019.0",
+        "ceph-ansible": "0.20261019.0",
+        "inventory-reconciler": "0.20261019.0",
+    }
 
 
 @responses.activate
