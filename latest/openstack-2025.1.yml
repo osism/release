@@ -45,27 +45,27 @@ infrastructure_projects:
   valkey:
 
 openstack_projects:
-  aodh: stable-2025.1
+  aodh: unmaintained-2025.1
   barbican: stable-2025.1
-  blazar: stable-2025.1
-  ceilometer: stable-2025.1
-  cinder: stable-2025.1
-  designate: stable-2025.1
+  blazar: unmaintained-2025.1
+  ceilometer: unmaintained-2025.1
+  cinder: unmaintained-2025.1
+  designate: unmaintained-2025.1
   glance: stable-2025.1
   gnocchi: stable/4.7
-  heat: stable-2025.1
+  heat: unmaintained-2025.1
   horizon: stable-2025.1
-  ironic: stable-2025.1
+  ironic: unmaintained-2025.1
   keystone: stable-2025.1
   magnum: stable-2025.1
   manila: stable-2025.1
   masakari: stable-2025.1
-  neutron-dynamic-routing: stable-2025.1
-  neutron-vpnaas: stable-2025.1
-  neutron: stable-2025.1
-  nova: stable-2025.1
-  octavia: stable-2025.1
-  placement: stable-2025.1
-  skyline-apiserver: stable-2025.1
-  skyline-console: stable-2025.1
-  watcher: stable-2025.1
+  neutron-dynamic-routing: unmaintained-2025.1
+  neutron-vpnaas: unmaintained-2025.1
+  neutron: unmaintained-2025.1
+  nova: unmaintained-2025.1
+  octavia: unmaintained-2025.1
+  placement: unmaintained-2025.1
+  skyline-apiserver: unmaintained-2025.1
+  skyline-console: unmaintained-2025.1
+  watcher: unmaintained-2025.1
