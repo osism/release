@@ -5,6 +5,7 @@ from osism_drift.drift import (
     catalog_role_missing,
     defaults_orphan,
     image_orphan,
+    kolla_build_conf_unknown_section,
     kolla_enablement_build,
     kolla_enablement_orphan,
     kolla_groupvars_missing,
@@ -28,6 +29,7 @@ from osism_drift.drift import (
 
 KOLLA_PLUGINS = [
     kolla_source_ref_phase,
+    kolla_build_conf_unknown_section,
     kolla_enablement_orphan,
     kolla_groupvars_missing,
     kolla_mirror_verbatim,
