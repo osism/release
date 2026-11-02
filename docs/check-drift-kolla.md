@@ -114,9 +114,11 @@ stage or the transition into it:
    versions template and the producer's SBOM map.
 4. **deployed** — the service has ansible inventory groups to deploy into.
 
-One check sits ahead of the stages: `kolla_source_ref_phase` asks whether the
-sources a build consumes are still maintained upstream, which is a property of
-the release manifest rather than of any one service.
+Two checks sit ahead of the stages, because they concern the sources a build
+consumes rather than any one service. `kolla_source_ref_phase` asks whether the
+refs pinned in the release manifest are still maintained upstream, and
+`kolla_build_conf_unknown_section` asks whether the build config actually hands
+those pins to kolla.
 
 The plugins run in that order, and the report renders them the same way.
 Each opens with the stage it guards. Each is independent and can be run alone
@@ -167,6 +169,38 @@ reaching the network unannounced.
   `latest/openstack-<release>.yml`, and drop any downstream patch the newer
   sources already carry. Allowlist a project deliberately pinned to a frozen
   tarball.
+
+### Plugin: kolla_build_conf_unknown_section
+
+**Sourced — a pinned source must reach kolla under a name kolla reads.** For
+every supported release, renders `osism/container-images-kolla`
+`templates/<release>/kolla-build.conf.j2` with the `openstack_projects` of
+`osism/release` `latest/openstack-<release>.yml`, the way
+`src/generate-kolla-build-config.py` does, and checks every source section
+(every section that sets `type`) against the keys of `SOURCES` in
+`kolla/common/sources.py` at the release's resolved kolla ref. kolla ignores a
+section that is not one of those keys **without a warning**. It then builds that
+image from its default upstream URL, so the pin in the release file and any
+patch prepared for that tarball have no effect, and the build still succeeds.
+
+`kolla_source_ref_phase` cannot see this: it checks that the pinned ref is the
+right one, and a correct pin still has no effect if it sits in a section kolla
+never reads. The check renders the real template rather than copying its naming
+rules, so it also catches a later template change or an upstream key rename.
+Only the generator's project selection is copied (it skips `gnocchi`,
+`novajoin`, `monasca` and projects without a version), because the generator is
+a script and cannot be imported. If the generator changes which projects it
+passes, update `_GENERATOR_SKIPS` to match.
+
+    python3 src/check-drift.py --group kolla --plugin kolla_build_conf_unknown_section
+
+- **Reads:** `osism/release` `latest/openstack-<release>.yml`,
+  `osism/container-images-kolla` `templates/<release>/kolla-build.conf.j2`, and
+  `openstack/kolla` `kolla/common/sources.py`, each per supported release.
+- **Fix:** rename the section in the template to the key kolla uses for that
+  source. One OSISM project can need more than one section, for example
+  `neutron-vpnaas` feeds both `neutron-base-plugin-vpnaas-agent` and
+  `neutron-vpnaas-agent`.
 
 ### Plugin: kolla_enablement_orphan
 
