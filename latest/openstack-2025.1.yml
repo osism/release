@@ -46,20 +46,20 @@ infrastructure_projects:
 
 openstack_projects:
   aodh: unmaintained-2025.1
-  barbican: stable-2025.1
+  barbican: unmaintained-2025.1
   blazar: unmaintained-2025.1
   ceilometer: unmaintained-2025.1
   cinder: unmaintained-2025.1
   designate: unmaintained-2025.1
-  glance: stable-2025.1
+  glance: unmaintained-2025.1
   gnocchi: stable/4.7
   heat: unmaintained-2025.1
-  horizon: stable-2025.1
+  horizon: unmaintained-2025.1
   ironic: unmaintained-2025.1
-  keystone: stable-2025.1
-  magnum: stable-2025.1
-  manila: stable-2025.1
-  masakari: stable-2025.1
+  keystone: unmaintained-2025.1
+  magnum: unmaintained-2025.1
+  manila: unmaintained-2025.1
+  masakari: unmaintained-2025.1
   neutron-dynamic-routing: unmaintained-2025.1
   neutron-vpnaas: unmaintained-2025.1
   neutron: unmaintained-2025.1
