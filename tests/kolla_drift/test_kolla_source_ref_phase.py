@@ -366,3 +366,134 @@ def test_run_allowlists_an_unverified_ref_for_a_pinned_project(cfg):
     by_image = {d.image: d for d in drifts}
     assert by_image["bar"].allowlisted is True
     assert by_image["foo"].allowlisted is False
+
+
+# --- kolla_build: the kolla checkout and the requirements tarball -------------
+
+
+def test_build_refs_are_compared_in_tarball_form():
+    """kolla is a git branch; opendev's tarball for it uses the hyphenated name."""
+    assert plugin._build_refs_as_tarball_refs(
+        {"kolla": "stable/B", "requirements": "stable-B"}
+    ) == {"kolla": "stable-B", "requirements": "stable-B"}
+
+
+def test_build_refs_ignore_anything_but_the_two_sources():
+    got = plugin._build_refs_as_tarball_refs({"kolla": "stable/B", "other": "x"})
+    assert got == {"kolla": "stable-B", "requirements": None}
+
+
+def test_an_eol_tag_for_kolla_is_not_probed():
+    """2024.2-eol names no phase, like gnocchi's own branch scheme."""
+    probed = []
+
+    def exists(project, ref):
+        probed.append((project, ref))
+        return True
+
+    refs = plugin._build_refs_as_tarball_refs(
+        {"kolla": "B-eol", "requirements": "stable-B"}
+    )
+    got = plugin.scan(refs, "B", exists)
+    assert probed == [("requirements", "unmaintained-B")]
+    assert [p for p, *_ in got.stale] == ["requirements"]
+
+
+def test_declared_form_restores_the_kolla_branch_spelling():
+    assert plugin._declared_form("kolla", "unmaintained-B") == "unmaintained/B"
+    assert plugin._declared_form("requirements", "unmaintained-B") == "unmaintained-B"
+
+
+def _cfg_with_manifest(tmp_path, body):
+    latest = tmp_path / "release" / "latest"
+    latest.mkdir(parents=True)
+    (latest / "openstack-B.yml").write_text(body)
+    return Config(
+        remote=Remote("https://raw.githubusercontent.com/", f"{API}/", "main", "osism"),
+        base_dirs=(str(tmp_path),),
+        remote_fallback=True,
+        release_version="latest",
+        plugins={"kolla_source_ref_phase": PluginCfg(enabled=True)},
+        releases=("B",),
+    )
+
+
+@responses.activate
+def test_run_flags_kolla_build_refs_left_on_a_frozen_phase(tmp_path):
+    """Both build refs on stable while upstream publishes unmaintained."""
+    cfg = _cfg_with_manifest(
+        tmp_path,
+        "kolla_build:\n  kolla: stable/B\n  requirements: stable-B\n"
+        "openstack_projects:\n  nova: unmaintained-B\n",
+    )
+    _mock_tarball("kolla", "unmaintained-B", 200)
+    _mock_tarball("requirements", "unmaintained-B", 200)
+
+    drifts = plugin.run(cfg, Allowlist(()))
+
+    got = {d.image: (d.found, d.expected, d.found_src) for d in drifts}
+    assert got == {
+        "kolla_build.kolla": (
+            "stable/B",
+            "unmaintained/B",
+            "osism/release latest/openstack-B.yml kolla_build",
+        ),
+        "kolla_build.requirements": (
+            "stable-B",
+            "unmaintained-B",
+            "osism/release latest/openstack-B.yml kolla_build",
+        ),
+    }
+
+
+@responses.activate
+def test_run_is_silent_for_kolla_build_refs_on_the_latest_phase(tmp_path):
+    cfg = _cfg_with_manifest(
+        tmp_path,
+        "kolla_build:\n  kolla: unmaintained/B\n  requirements: unmaintained-B\n"
+        "openstack_projects:\n  nova: unmaintained-B\n",
+    )
+    assert plugin.run(cfg, Allowlist(())) == []
+
+
+@responses.activate
+def test_run_reports_an_unverified_kolla_build_ref(tmp_path):
+    cfg = _cfg_with_manifest(
+        tmp_path,
+        "kolla_build:\n  kolla: stable/B\n  requirements: unmaintained-B\n"
+        "openstack_projects: {}\n",
+    )
+    _mock_tarball("kolla", "unmaintained-B", 503)
+
+    drifts = plugin.run(cfg, Allowlist(()))
+
+    assert [(d.image, d.found, d.expected) for d in drifts] == [
+        ("kolla_build.kolla", "stable/B", plugin.UNRESOLVED_EXPECTED)
+    ]
+
+
+def test_kolla_build_refs_moving_together_share_one_report_block():
+    """kolla and requirements move in one edit, so they report as one block."""
+    from osism_drift import report
+
+    def entry(name, found, expected):
+        return DriftEntry(
+            plugin=plugin.NAME,
+            image=f"kolla_build.{name}",
+            alias=f"kolla_build.{name}",
+            expected=expected,
+            found=found,
+            expected_src=plugin.EXPECTED_SRC,
+            found_src="osism/release latest/openstack-B.yml kolla_build",
+            remediation=plugin.build_remediation_for("B", "unmaintained-B"),
+        )
+
+    drifts = [
+        entry("kolla", "stable/B", "unmaintained/B"),
+        entry("requirements", "stable-B", "unmaintained-B"),
+    ]
+    text = "\n".join(report.format_text(drifts, [plugin]))
+    flowed = " ".join(text.split())
+    assert text.count(plugin.NAME) == 1
+    assert "kolla: unmaintained/B" in flowed
+    assert "requirements: unmaintained-B" in flowed

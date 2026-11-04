@@ -42,6 +42,13 @@ infrastructure_projects:
   redis:
   tgtd:
 
+# Sources container-images-kolla builds from besides openstack_projects:
+# kolla is the git ref of openstack/kolla it checks out, requirements the
+# tarball ref of openstack/requirements, named like openstack_projects.
+kolla_build:
+  kolla: 2024.2-eol
+  requirements: stable-2024.2
+
 openstack_projects:
   aodh: stable-2024.2
   barbican: stable-2024.2

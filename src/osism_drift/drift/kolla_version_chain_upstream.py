@@ -20,6 +20,7 @@ DESCRIPTION = (
     "kolla-ansible template (unwired pins)."
 )
 INPUT_FILES = [
+    ("release", "latest/openstack-<release>.yml"),
     ("kolla", "docker (newest resolved ref)"),
     ("container_image_kolla_ansible", "files/src/templates/versions.yml.j2"),
 ]
@@ -41,7 +42,7 @@ _FOUND_SRC = "container-image-kolla-ansible/files/src/templates/versions.yml.j2"
 def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     """Return unwired-pin drifts: upstream services with no template key."""
     newest = sorted(enablement.release_range(config))[-1]
-    ref = source.release_to_ref("kolla", newest, config)
+    ref = enablement.kolla_ref(newest, config)
     expected_src = f"openstack/kolla/docker/ @ {ref}"
     docker_names = source.list_dir_at_ref("kolla", _DOCKER, ref, config, dirs_only=True)
     upstream = kolla_docker.parse(docker_names)

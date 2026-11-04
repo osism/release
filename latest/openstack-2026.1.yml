@@ -45,6 +45,13 @@ infrastructure_projects:
   tgtd:
   valkey:
 
+# Sources container-images-kolla builds from besides openstack_projects:
+# kolla is the git ref of openstack/kolla it checks out, requirements the
+# tarball ref of openstack/requirements, named like openstack_projects.
+kolla_build:
+  kolla: stable/2026.1
+  requirements: stable-2026.1
+
 openstack_projects:
   aodh: stable-2026.1
   barbican: stable-2026.1

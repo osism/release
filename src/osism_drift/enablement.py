@@ -240,6 +240,37 @@ def parse_source_refs(body: bytes) -> dict:
     return dict(data.get("openstack_projects") or {})
 
 
+def parse_kolla_build_refs(body: bytes) -> dict:
+    """kolla_build as {"kolla": git ref, "requirements": tarball ref}.
+
+    These are the two sources container-images-kolla builds from besides
+    openstack_projects: the openstack/kolla checkout and the
+    openstack/requirements tarball. A manifest without the block yields {}.
+    """
+    data = yaml.safe_load(body) or {}
+    return dict(data.get("kolla_build") or {})
+
+
+def kolla_ref(release: str, config) -> str:
+    """The openstack/kolla ref container-images-kolla builds `release` from.
+
+    A release_refs override wins, so a pinned snapshot stays pinned. Otherwise
+    the kolla_build.kolla ref declared in latest/openstack-<release>.yml, which
+    is what the build checks out. source.release_to_ref() is only the fallback
+    for a manifest without the key: it probes stable/ first, so during an
+    unmaintained transition it resolves the frozen stable branch.
+    """
+    override = (config.release_refs.get("kolla") or {}).get(release)
+    if override:
+        return override
+    declared = parse_kolla_build_refs(
+        source.read("release", f"latest/openstack-{release}.yml", config)
+    ).get("kolla")
+    if declared:
+        return declared
+    return source.release_to_ref("kolla", release, config)
+
+
 def release_range(config) -> list:
     """Supported releases: config.releases override, else derived from the
     osism/release latest/openstack-*.yml file set (sorted)."""

@@ -11,6 +11,14 @@ latest/openstack-<R>.yml against the latest lifecycle phase opendev actually
 publishes a tarball for. A later phase being available means the configured
 artifact is frozen and the build no longer receives upstream fixes.
 
+The same holds for the two refs in kolla_build: the requirements tarball, and
+the openstack/kolla branch container-images-kolla checks out. That branch is
+renamed with the release, and opendev publishes a kolla-<phase>-<release>
+tarball for it, so the same probe answers it once the branch name
+(unmaintained/<R>) is read in tarball form (unmaintained-<R>). A tag such as
+2024.2-eol names no phase and is skipped, like a project on its own branch
+scheme.
+
 Artifact-driven rather than branch-driven on purpose. The question is which
 tarball the build consumes, and probing the published set answers it directly:
 no upstream repository owner is needed for every project, and the check
@@ -131,6 +139,45 @@ def remediation_for(release: str, latest: str) -> str:
     )
 
 
+def build_remediation_for(release: str, latest: str) -> str:
+    """Remediation for kolla_build refs, shared per (release, phase).
+
+    Names both target spellings, since kolla takes a git branch and
+    requirements a tarball ref, but no entry name, so kolla and requirements
+    moving together render as one block.
+    """
+    phase = latest[: -len(release) - 1]
+    return (
+        f"set kolla_build in release/latest/openstack-{release}.yml to the "
+        f"{phase} phase (kolla: {phase}/{release}, requirements: "
+        f"{phase}-{release}), and drop any downstream patch the newer sources "
+        f"already carry. Once the release moves on, upstream freezes the old "
+        f"branch and its tarball, and nothing breaks until the branch is "
+        f"deleted, so the {phase} phase has to be set deliberately."
+    )
+
+
+def _build_refs_as_tarball_refs(build_refs: dict) -> dict:
+    """kolla_build in the tarball form scan() compares.
+
+    kolla is a git ref (unmaintained/<R>); its tarball is kolla-unmaintained-<R>.
+    requirements is already a tarball ref. Anything else in the block is not a
+    source and is ignored.
+    """
+    out = {}
+    for name in ("kolla", "requirements"):
+        ref = build_refs.get(name)
+        if name == "kolla" and ref:
+            ref = ref.replace("/", "-", 1)
+        out[name] = ref
+    return out
+
+
+def _declared_form(name: str, ref: str) -> str:
+    """A tarball-form phase back in the spelling kolla_build.<name> takes."""
+    return ref.replace("-", "/", 1) if name == "kolla" else ref
+
+
 def unresolved_remediation(kind: str) -> str:
     """Remediation for refs a failed probe left unverified.
 
@@ -218,36 +265,57 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     one entry per ref a failed probe left unverified."""
     drifts = []
     for release in enablement.release_range(config):
-        refs = enablement.parse_source_refs(
-            source.read("release", f"latest/openstack-{release}.yml", config)
-        )
+        body = source.read("release", f"latest/openstack-{release}.yml", config)
         found_src = f"osism/release latest/openstack-{release}.yml"
-        result = scan(refs, release, tarball_exists)
-        for project, configured, latest in result.stale:
-            d = DriftEntry(
-                plugin=NAME,
-                image=project,
-                alias=project,
-                expected=latest,
-                found=configured,
-                expected_src=EXPECTED_SRC,
-                found_src=found_src,
-                remediation=remediation_for(release, latest),
-            )
-            drifts.append(allowlist.apply(d))
-        for project, configured, kind, detail in result.unresolved:
-            if verbose:
-                print(f"warning: {detail}", file=sys.stderr)
-            d = DriftEntry(
-                plugin=NAME,
-                image=project,
-                alias=project,
-                expected=UNRESOLVED_EXPECTED,
-                found=configured,
-                expected_src=EXPECTED_SRC,
-                found_src=found_src,
-                summary=UNRESOLVED_SUMMARY,
-                remediation=unresolved_remediation(kind),
-            )
-            drifts.append(allowlist.apply(d))
+        projects = scan(enablement.parse_source_refs(body), release, tarball_exists)
+        drifts += _entries(projects, release, found_src, allowlist, verbose)
+        build = enablement.parse_kolla_build_refs(body)
+        result = scan(_build_refs_as_tarball_refs(build), release, tarball_exists)
+        drifts += _entries(
+            result, release, f"{found_src} kolla_build", allowlist, verbose, build
+        )
     return drifts
+
+
+def _entries(result, release, found_src, allowlist, verbose, build=None) -> list:
+    """DriftEntries for one scan. `build` is the kolla_build block when the
+    scan covered it: entries then name the key, report the refs in the
+    spelling the block takes, and carry the kolla_build remediation."""
+    out = []
+    for project, configured, latest in result.stale:
+        if build is None:
+            image, found, expected = project, configured, latest
+            remediation = remediation_for(release, latest)
+        else:
+            image = f"kolla_build.{project}"
+            found = build[project]
+            expected = _declared_form(project, latest)
+            remediation = build_remediation_for(release, latest)
+        d = DriftEntry(
+            plugin=NAME,
+            image=image,
+            alias=image,
+            expected=expected,
+            found=found,
+            expected_src=EXPECTED_SRC,
+            found_src=found_src,
+            remediation=remediation,
+        )
+        out.append(allowlist.apply(d))
+    for project, configured, kind, detail in result.unresolved:
+        if verbose:
+            print(f"warning: {detail}", file=sys.stderr)
+        image = project if build is None else f"kolla_build.{project}"
+        d = DriftEntry(
+            plugin=NAME,
+            image=image,
+            alias=image,
+            expected=UNRESOLVED_EXPECTED,
+            found=configured if build is None else build[project],
+            expected_src=EXPECTED_SRC,
+            found_src=found_src,
+            summary=UNRESOLVED_SUMMARY,
+            remediation=unresolved_remediation(kind),
+        )
+        out.append(allowlist.apply(d))
+    return out
