@@ -11,7 +11,7 @@ buildable upstream at R yet missing from OSISM's build set for R:
 The upstream docker/ universe is the scope filter, so feature flags (which have
 no image) are out of scope and no alias table is needed.
 
-Range-aware: the upstream ref per release comes from source.release_to_ref. The
+Range-aware: the upstream ref per release comes from enablement.kolla_ref. The
 remote is consulted only for the docker/ listing and the ref probe; defaults and
 release are read at their pins.
 """
@@ -44,7 +44,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     enabled = enablement.truthy_enables(enablement.osism_enable_flags(config))
     drifts = []
     for release in enablement.release_range(config):
-        ref = source.release_to_ref("kolla", release, config)
+        ref = enablement.kolla_ref(release, config)
         buildable = {
             enablement.canon(d)
             for d in source.list_dir_at_ref(

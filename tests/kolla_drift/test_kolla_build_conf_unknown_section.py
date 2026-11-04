@@ -109,7 +109,7 @@ def fake_sources(monkeypatch):
         "read_at_ref",
         lambda repo, path, ref, config, optional=False: SOURCES_PY.encode(),
     )
-    return type("Cfg", (), {"releases": ("A", "B")})()
+    return type("Cfg", (), {"releases": ("A", "B"), "release_refs": {}})()
 
 
 def test_run_reports_per_release(fake_sources):
@@ -122,6 +122,42 @@ def test_run_reports_per_release(fake_sources):
         )
     ]
     assert not drifts[0].allowlisted
+
+
+def test_run_reads_sources_py_at_the_declared_kolla_ref(fake_sources, monkeypatch):
+    """kolla_build.kolla is what the build checks out, so it wins over the probe.
+
+    release_to_ref tries stable/ first, which during an unmaintained transition
+    resolves the frozen branch.
+    """
+    files = {
+        (
+            "release",
+            "latest/openstack-A.yml",
+        ): b"openstack_projects:\n  nova: stable-A\n",
+        ("release", "latest/openstack-B.yml"): b"kolla_build:\n"
+        b"  kolla: unmaintained/B\n  requirements: unmaintained-B\n"
+        b"openstack_projects:\n  nova: stable-B\n  skyline-apiserver: stable-B\n",
+        (
+            "container_images_kolla",
+            "templates/A/kolla-build.conf.j2",
+        ): TEMPLATE.encode(),
+        (
+            "container_images_kolla",
+            "templates/B/kolla-build.conf.j2",
+        ): TEMPLATE.encode(),
+    }
+    monkeypatch.setattr(source, "read", lambda repo, path, config: files[(repo, path)])
+    read_refs = []
+
+    def read_at_ref(repo, path, ref, config, optional=False):
+        read_refs.append(ref)
+        return SOURCES_PY.encode()
+
+    monkeypatch.setattr(source, "read_at_ref", read_at_ref)
+    drifts = plugin.run(fake_sources, Allowlist(()))
+    assert read_refs == ["stable/A", "unmaintained/B"]
+    assert drifts[0].expected_src.endswith("@unmaintained/B")
 
 
 def test_run_allowlist_marks_allowlisted(fake_sources):

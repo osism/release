@@ -145,7 +145,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
         )
         template_path = _TEMPLATE.format(r=release)
         template = source.read("container_images_kolla", template_path, config)
-        ref = source.release_to_ref("kolla", release, config)
+        ref = enablement.kolla_ref(release, config)
         keys = kolla_source_keys(
             source.read_at_ref("kolla", _SOURCES_PY, ref, config).decode()
         )

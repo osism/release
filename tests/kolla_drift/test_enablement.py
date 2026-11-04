@@ -564,3 +564,57 @@ def test_upstream_groupvars_are_read_once_per_ref():
         if "/contents/ansible/group_vars/all" in c.request.url
     ]
     assert len(listings) == 1, listings
+
+
+def test_parse_kolla_build_refs_reads_the_block():
+    body = b"kolla_build:\n  kolla: unmaintained/2025.1\n  requirements: unmaintained-2025.1\n"
+    assert enablement.parse_kolla_build_refs(body) == {
+        "kolla": "unmaintained/2025.1",
+        "requirements": "unmaintained-2025.1",
+    }
+
+
+def test_parse_kolla_build_refs_is_empty_without_the_block():
+    assert enablement.parse_kolla_build_refs(b"openstack_projects: {}\n") == {}
+
+
+def _kolla_ref_stubs(monkeypatch, manifest, release_refs=None):
+    """kolla_ref with the release manifest stubbed and release_to_ref recorded."""
+    from osism_drift import source
+
+    probed = []
+    monkeypatch.setattr(source, "read", lambda repo, path, config: manifest)
+
+    def release_to_ref(repo, release, config):
+        probed.append((repo, release))
+        return f"stable/{release}"
+
+    monkeypatch.setattr(source, "release_to_ref", release_to_ref)
+    cfg = type("Cfg", (), {"release_refs": release_refs or {}})()
+    return cfg, probed
+
+
+def test_kolla_ref_is_the_declared_kolla_build_ref(monkeypatch):
+    """What container-images-kolla checks out, not the stable-first probe."""
+    cfg, probed = _kolla_ref_stubs(
+        monkeypatch, b"kolla_build:\n  kolla: unmaintained/B\n"
+    )
+    assert enablement.kolla_ref("B", cfg) == "unmaintained/B"
+    assert probed == []
+
+
+def test_kolla_ref_override_wins_over_the_declared_ref(monkeypatch):
+    """A pinned snapshot stays pinned."""
+    cfg, probed = _kolla_ref_stubs(
+        monkeypatch,
+        b"kolla_build:\n  kolla: unmaintained/B\n",
+        release_refs={"kolla": {"B": "B-eol"}},
+    )
+    assert enablement.kolla_ref("B", cfg) == "B-eol"
+    assert probed == []
+
+
+def test_kolla_ref_falls_back_to_the_probe_without_the_key(monkeypatch):
+    cfg, probed = _kolla_ref_stubs(monkeypatch, b"openstack_projects: {}\n")
+    assert enablement.kolla_ref("B", cfg) == "stable/B"
+    assert probed == [("kolla", "B")]
