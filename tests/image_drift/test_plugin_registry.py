@@ -17,6 +17,7 @@ def test_image_plugins_registered():
     assert "image_orphan" in names
     assert "release_pin_orphan" in names
     assert "role_registry_orphan" in names
+    assert "ubuntu24_cis_level2" in names
 
 
 def test_image_plugin_group_matches_registry():
@@ -46,6 +47,20 @@ def test_role_registry_orphan_enabled_in_config():
 def test_rolling_pin_enabled_in_config():
     cfg = yaml.safe_load(_CONFIG_PATH.read_text())
     assert cfg["plugins"]["rolling_pin"]["enabled"] is True
+
+
+def test_ubuntu24_cis_level2_enabled_in_config():
+    cfg = yaml.safe_load(_CONFIG_PATH.read_text())
+    assert cfg["plugins"]["ubuntu24_cis_level2"]["enabled"] is True
+
+
+def test_ubuntu24_cis_source_configured():
+    """ubuntu24_cis_level2 reads the role from ansible-lockdown."""
+    cfg = yaml.safe_load(_CONFIG_PATH.read_text())
+    assert cfg["sources"]["UBUNTU24-CIS"]["owner"] == "ansible-lockdown"
+    # A branch makes the source pinned: a local clone is then read via git
+    # objects at the role pin instead of falling through to GitHub.
+    assert cfg["sources"]["UBUNTU24-CIS"]["branch"]
 
 
 def test_each_plugin_has_required_metadata():
