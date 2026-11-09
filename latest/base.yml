@@ -133,7 +133,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=containers.podman
   containers.podman: '1.21.2'
   # renovate: datasource=galaxy-collection depName=debops.debops
-  debops.debops: '3.3.2'
+  debops.debops: '3.4.0'
   # renovate: datasource=galaxy-collection depName=fortinet.fortios
   fortinet.fortios: '2.6.0'
   # renovate: datasource=galaxy-collection depName=netbox.netbox
