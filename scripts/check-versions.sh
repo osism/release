@@ -13,16 +13,21 @@
 # netbox-manager, openstack-image-manager and openstack-flavor-manager pins
 # of the python-osism version in use with the newest releases on PyPI. For
 # an outdated pin the open Renovate pull request is named, if there is one.
+# It also reports the component repositories with changes on the default
+# branch that no tag contains, which are not part of a release yet.
 # Run it before creating the tags of a release (step 2 of the release
 # process).
 #
-# Usage: ./scripts/check-versions.sh [-v]
+# Usage: ./scripts/check-versions.sh [-v] [--allow NAME]...
 #
 # Options:
 #   -v, --verbose   Also list the pins that are current
+#   --allow NAME    Do not fail on the rows of this pin, symlink or
+#                   repository (e.g. latest/ceph.yml); repeatable
 #
 # Exits with 1 if a symlink or a pin is outdated or its newest version
-# could not be determined.
+# could not be determined, or a repository has untagged changes, unless
+# the row is allowed.
 #
 # Wrapper for src/check-versions.py: uv provisions its dependencies
 # (requests, PyYAML) from the inline script metadata (PEP 723); plain

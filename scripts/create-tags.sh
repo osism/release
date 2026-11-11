@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to create and push git tags for OSISM projects
-# Usage: ./create-tags.sh [--skip-check-versions] v0.20250920.0
+# Usage: ./create-tags.sh [--allow NAME]... [--skip-check-versions] v0.20250920.0
 #
 # The tags are only created on the pushed state of main: the script fetches
 # origin and stops unless the current branch is main and HEAD equals
@@ -13,8 +13,10 @@
 # determined, no tag is created. Pins of the images built from these tags
 # whose newest published version is the version being tagged count as
 # current, so moving tags after a first build is not stopped; all other pins
-# have to be current. --skip-check-versions skips the check for
-# the rare case where an outdated pin is intended.
+# have to be current, and the component repositories must not have untagged
+# changes. --allow NAME (repeatable) is passed to the check and accepts the
+# rows of one pin, symlink or repository that are intentionally not current;
+# --skip-check-versions skips the check altogether.
 #
 # For every project the tag <project>-<version> is created on the current
 # HEAD and pushed to origin. If a tag already exists (locally and/or on the
@@ -24,9 +26,11 @@
 # the script after tags have been created on the wrong commit.
 
 usage() {
-    echo "Usage: $0 [--skip-check-versions] <version>"
+    echo "Usage: $0 [--allow NAME]... [--skip-check-versions] <version>"
     echo ""
     echo "Options:"
+    echo "  --allow NAME            Pass --allow NAME to scripts/check-versions.sh:"
+    echo "                          do not fail on this pin, symlink or repository"
     echo "  --skip-check-versions   Do not run scripts/check-versions.sh first"
     echo "  -h, --help              Show this help"
     echo ""
@@ -34,6 +38,7 @@ usage() {
 }
 
 SKIP_CHECK_VERSIONS=false
+ALLOW_ARGS=()
 VERSION=""
 
 while [ $# -gt 0 ]; do
@@ -41,6 +46,15 @@ while [ $# -gt 0 ]; do
         --skip-check-versions)
             SKIP_CHECK_VERSIONS=true
             shift
+            ;;
+        --allow)
+            if [ $# -lt 2 ] || [ -z "$2" ]; then
+                echo "Error: --allow requires a name" >&2
+                usage >&2
+                exit 1
+            fi
+            ALLOW_ARGS+=(--allow "$2")
+            shift 2
             ;;
         -h|--help)
             usage
@@ -100,9 +114,10 @@ else
     if ! "$REPO_ROOT/scripts/check-versions.sh" \
         --latest "$CHECK_DIR/latest" \
         --repositories "$CHECK_DIR/etc/changelog-repositories.yml" \
-        --tagging "$VERSION"; then
+        --tagging "$VERSION" \
+        "${ALLOW_ARGS[@]}"; then
         echo "Error: scripts/check-versions.sh failed for $(git rev-parse --short HEAD), no tags created" >&2
-        echo "Merge the missing updates first, or use --skip-check-versions if an outdated pin is intended" >&2
+        echo "Merge the missing updates and tag the components first, or use --allow NAME for a row that is intended" >&2
         exit 1
     fi
 fi

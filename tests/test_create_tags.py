@@ -20,11 +20,13 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --latest) latest="$2"; shift 2 ;;
         --tagging) tagging="$2"; shift 2 ;;
+        --allow) allow="$allow $2"; shift 2 ;;
         *) shift ;;
     esac
 done
 echo "check-versions: $latest"
 echo "tagging: $tagging"
+echo "allow:$allow"
 [ "$(readlink "$latest/openstack.yml")" = "openstack-2026.1.yml" ]
 """
 
@@ -147,6 +149,28 @@ def test_check_runs_on_an_extracted_copy(repo):
     assert len(checked) == 1
     assert str(repo.checkout) not in checked[0]
     assert "tagging: v0.20261009.0" in result.stdout
+
+
+def test_allow_is_passed_to_the_check(repo):
+    result = create_tags(
+        repo, "--allow", "latest/ceph.yml", "--allow", "osism/defaults"
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "allow: latest/ceph.yml osism/defaults" in result.stdout
+
+
+def test_allow_requires_a_name(repo):
+    result = subprocess.run(
+        ["bash", str(repo.checkout / "scripts" / "create-tags.sh"), "--allow"],
+        cwd=repo.checkout,
+        env=repo.env,
+        stdin=subprocess.DEVNULL,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    assert "--allow requires a name" in result.stderr
+    assert repo.upstream_tags() == {}
 
 
 def test_unknown_option(repo):

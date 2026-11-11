@@ -30,10 +30,21 @@
 #   e.g. openstack-image-manager in python-osism): the pin in the version of
 #   the source component used by latest/base.yml, compared with the newest
 #   release on PyPI.
+# - the source repositories of the components of a release (etc/
+#   changelog-repositories.yml, "components" and the "derived" ones with a
+#   "file"): a change on the default branch that no tag contains is not in
+#   the release, and neither Renovate nor the checks above see it before it
+#   is tagged. Changes that do not reach a release (CHANGELOG.md, CI, tests)
+#   do not count. The repositories of the images built from the release tags
+#   are not checked, the release process tags them itself.
+#
+# A row can be allowed with --allow (a pin, a symlink or a repository): it is
+# listed, but does not fail the check.
 #
 # For an outdated pin the open Renovate pull request that updates it is
 # named, if there is one. Exits with 1 if a symlink or a pin is outdated or
-# its newest version could not be determined.
+# its newest version could not be determined, or a component has untagged
+# changes.
 
 import argparse
 import collections
@@ -59,6 +70,7 @@ OPENSTACK_SERIES_URL = RAW_URL.format(
     repo="openstack/releases", ref="master", path="data/series_status.yaml"
 )
 PULLS_URL = "https://api.github.com/repos/{repo}/pulls"
+COMPARE_URL = "https://api.github.com/repos/{repo}/compare/{base}...HEAD"
 
 # The repository whose latest/ directory is checked
 RELEASE_REPO = "osism/release"
@@ -76,6 +88,24 @@ TAGGED_IMAGES = {
         "ceph-ansible",
     )
 }
+
+# The source repositories of the images built from the release tags: the
+# release process tags them on their default branch, so they cannot have
+# untagged changes that are left out of a release
+RELEASE_TAGGED_REPOS = {
+    "osism/container-images-kolla",
+    "osism/container-image-osism-ansible",
+    "osism/osism-kubernetes",
+    "osism/container-image-inventory-reconciler",
+    "osism/container-image-kolla-ansible",
+    "osism/container-image-ceph-ansible",
+}
+# Changes that do not reach a release: the changelog, CI and repository
+# configuration (dotfiles), tests, the Pipfile development environment
+UNRELEASED_PATH = re.compile(
+    r"CHANGELOG\.md|renovate\.json|tox\.ini|Pipfile(\.lock)?"
+    r"|\.[^/]+(/.*)?|(molecule|tests?)/.*"
+)
 
 OSISM_VERSION = re.compile(r"v?0\.\d{8}\.\d+")
 ANNOTATION = re.compile(r"\s*# renovate: datasource=(\S+) depName=(\S+)")
@@ -541,6 +571,89 @@ def check_symlinks(directory):
     return rows
 
 
+def unreleased_files(repo, base):
+    """Files changed on the default branch since base that reach a release.
+
+    Returns (files, head) with the short commit of the default branch. A
+    comparison that lists no files (more than GitHub returns) counts as
+    changed.
+    """
+    data = get_json(COMPARE_URL.format(repo=repo, base=base), headers=github_headers())
+    if not data.get("ahead_by"):
+        return [], None
+    head = data["commits"][-1]["sha"][:7]
+    files = [f["filename"] for f in data.get("files") or []]
+    if not files:
+        return ["(file list not available)"], head
+    return [f for f in files if not UNRELEASED_PATH.fullmatch(f)], head
+
+
+def component_repositories(mapping):
+    """The source repositories of the components of a release, sorted."""
+    repos = set(mapping.get("components", {}).values())
+    repos |= {
+        cfg["repository"]
+        for cfg in mapping.get("derived", {}).values()
+        if "file" in cfg
+    }
+    return sorted(repos - RELEASE_TAGGED_REPOS)
+
+
+def check_untagged(mapping):
+    rows = []
+    for repo in component_repositories(mapping):
+        tag, error = newest_version("github-tags", repo)
+        if tag is None:
+            rows.append(Row("error", repo, "untagged changes", repo, "-", None, error))
+            continue
+        try:
+            files, head = unreleased_files(repo, tag)
+        except (KeyError, ValueError, requests.RequestException) as e:
+            rows.append(Row("error", repo, "untagged changes", repo, tag, None, str(e)))
+            continue
+        if not files:
+            rows.append(Row("ok", repo, "untagged changes", repo, tag, tag, ""))
+            continue
+        shown = ", ".join(files[:3]) + (
+            f" and {len(files) - 3} more" if len(files) > 3 else ""
+        )
+        rows.append(
+            Row(
+                "untagged",
+                repo,
+                "untagged changes",
+                repo,
+                tag,
+                head,
+                f"changed: {shown}",
+            )
+        )
+    return rows
+
+
+def apply_allowed(rows, allowed):
+    """Mark the rows matching an --allow value (pin, symlink or repository)."""
+    allowed = set(allowed)
+    used = set()
+    result = []
+    for row in rows:
+        # a path also matches by its end: create-tags.sh checks a copy of latest/
+        names = {
+            name
+            for name in allowed
+            if name in (row.name, row.dependency)
+            or row.where == name
+            or row.where.endswith(f"/{name}")
+        }
+        if row.status != "ok" and names:
+            used |= names
+            row = row._replace(status="allowed", note=f"{row.note} (allowed)".lstrip())
+        result.append(row)
+    for name in sorted(allowed - used):
+        warn(f"--allow {name} matches no failing row")
+    return result
+
+
 def print_report(rows, verbose):
     shown = [row for row in rows if verbose or row.status != "ok"]
     if shown:
@@ -556,8 +669,9 @@ def print_report(rows, verbose):
         print()
     counts = collections.Counter(row.status for row in rows)
     print(
-        f"{len(rows)} pins and symlinks checked: {counts['ok']} current, "
-        f"{counts['outdated']} outdated, {counts['error']} unresolved"
+        f"{len(rows)} pins, symlinks and repositories checked: {counts['ok']} current, "
+        f"{counts['outdated']} outdated, {counts['untagged']} untagged, "
+        f"{counts['allowed']} allowed, {counts['error']} unresolved"
     )
 
 
@@ -582,6 +696,14 @@ def main():
         "kolla-ansible, ceph-ansible) whose newest published version is this "
         "version counts as current",
     )
+    parser.add_argument(
+        "--allow",
+        action="append",
+        default=[],
+        metavar="NAME",
+        help="do not fail on the rows of this pin (e.g. osism.commons), symlink "
+        "(e.g. latest/ceph.yml) or repository (e.g. osism/defaults); repeatable",
+    )
     args = parser.parse_args()
 
     with open(args.repositories) as fp:
@@ -590,8 +712,10 @@ def main():
     rows = check_symlinks(args.latest)
     rows += check_latest(args.latest, tagging=args.tagging)
     rows += check_derived(mapping, os.path.join(args.latest, "base.yml"))
+    rows += check_untagged(mapping)
+    rows = apply_allowed(rows, args.allow)
     print_report(rows, args.verbose)
-    return 0 if all(row.status == "ok" for row in rows) else 1
+    return 0 if all(row.status in ("ok", "allowed") for row in rows) else 1
 
 
 if __name__ == "__main__":
