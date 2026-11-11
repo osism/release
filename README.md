@@ -188,16 +188,44 @@ The script checks:
   unmerged PR in python-osism, a python-osism release that is still to be
   tagged, or a newer python-osism release that `latest/base.yml` does not
   use yet
+- the source repositories of the components (`components` and `derived`
+  with a `file` in `etc/changelog-repositories.yml`): a change on the
+  default branch that no tag contains is not part of the release, and no
+  pin can be updated to it before the repository is tagged. The newest tag
+  is compared with the default branch; changes that do not reach a release
+  (`CHANGELOG.md`, dotfiles such as `.github/` and `.zuul.yaml`, `tox.ini`,
+  `renovate.json`, `Pipfile`, `molecule/`, `test/`, `tests/`) do not count.
+  The repositories of the images built from the release tags are not
+  checked, they are tagged in step 2. A component that is no longer part of
+  a release (e.g. osism/kolla-operations, retired with OpenStack 2025.1) is
+  not listed in `etc/changelog-repositories.yml` and not checked either
 
 For an outdated pin the open Renovate PR that updates it is named; without
-one, trigger a Renovate run. The script exits with 1 if a symlink or a pin is
-outdated or its newest version could not be determined.
+one, trigger a Renovate run: tick the checkbox at the end of the
+[Dependency Dashboard](https://github.com/osism/release/issues/152). For
+untagged changes, tag the repository (a Renovate PR follows) or decide that
+the changes are not part of the release.
+
+A row that is intentionally not current, e.g. a default Ceph release that is
+not adopted in a minor release, is allowed with `--allow` and the name of the
+pin (`osism.commons`), the symlink (`latest/ceph.yml`) or the repository
+(`osism/defaults`); it is still listed:
+
+```bash
+./scripts/check-versions.sh --allow latest/ceph.yml --allow osism/generics
+```
+
+The script exits with 1 if a symlink or a pin is outdated or its newest
+version could not be determined, or if a repository has untagged changes,
+unless the row is allowed.
 
 ### 2. Tag creation
 
-Before creating tags, trigger a Renovate run on this repository once (e.g. via the
-Renovate dashboard issue or the Mend app) and make sure that all required PRs have
-been merged beforehand. This applies above all to the `osism` Python package, but
+Before creating tags, tag the component repositories whose untagged changes
+belong into the release (`./scripts/check-versions.sh` lists them, see step 1).
+Then trigger a Renovate run on this repository once (via the checkbox of the
+[Dependency Dashboard](https://github.com/osism/release/issues/152)) and make
+sure that all required PRs have been merged beforehand. This applies above all to the `osism` Python package, but
 also to the Ansible collections (`osism.commons`, `osism.services`,
 `osism.validations`, ...) and the Ansible playbooks (`osism.playbooks`,
 `manager-playbooks`). Only then does `latest/base.yml` reflect the state that the
@@ -208,9 +236,11 @@ if it fails, also if a version could not be determined. Pins of the images built
 from these tags (osism-ansible, osism-kubernetes, inventory-reconciler,
 kolla-ansible, ceph-ansible) whose newest published version is the version
 being tagged count as current, so a re-run to move tags after a first build is
-not stopped. All other pins have to be current.
-`--skip-check-versions` skips the check for the rare case where an outdated pin
-is intended.
+not stopped. All other pins have to be current, and no component repository may
+have untagged changes. `--allow NAME` (repeatable) is passed to the check for a
+row that is intentionally not current, e.g.
+`./scripts/create-tags.sh --allow latest/ceph.yml v0.20260322.0`.
+`--skip-check-versions` skips the check altogether.
 
 Then create tags for the core projects. `create-tags.sh` only tags the pushed
 state of `main`: it fetches `origin` and stops unless the current branch is

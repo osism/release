@@ -544,3 +544,155 @@ def test_check_symlinks_reports_a_failed_lookup(tmp_path):
     assert [row.status for row in rows] == ["error", "error"]
     assert rows[0].note.startswith("lookup failed: 404")
     assert rows[1].note == "no released SLURP release"
+
+
+COMPARE = "https://api.github.com/repos/{repo}/compare/{base}...HEAD"
+
+
+def _compare(repo, base, files, ahead_by=1):
+    responses.add(
+        responses.GET,
+        COMPARE.format(repo=repo, base=base),
+        json={
+            "ahead_by": ahead_by,
+            "commits": [{"sha": "abcdef0123456789"}] * ahead_by,
+            "files": [{"filename": f} for f in files],
+        },
+        status=200,
+    )
+
+
+UNTAGGED_MAPPING = {
+    "components": {
+        "defaults": "osism/defaults",
+        "osism.validations": "osism/ansible-collection-validations",
+        "kolla": "osism/container-images-kolla",
+    },
+    "derived": {
+        "openstack-image-manager": {
+            "repository": "osism/openstack-image-manager",
+            "source": "osism",
+            "file": "requirements.openstack-image-manager.txt",
+        },
+        "openstack-project-manager": {
+            "repository": "osism/openstack-project-manager",
+            "source": "osism",
+            "branch": "main",
+        },
+    },
+}
+
+
+def test_component_repositories_skip_release_tagged_images_and_branch_installs():
+    assert cv.component_repositories(UNTAGGED_MAPPING) == [
+        "osism/ansible-collection-validations",
+        "osism/defaults",
+        "osism/openstack-image-manager",
+    ]
+
+
+@responses.activate
+def test_check_untagged_ignores_changes_that_do_not_reach_a_release(monkeypatch):
+    monkeypatch.setattr(
+        cv,
+        "newest_version",
+        _newest(
+            {
+                ("github-tags", "osism/defaults"): "v0.20261019.0",
+                (
+                    "github-tags",
+                    "osism/ansible-collection-validations",
+                ): "v0.20261023.0",
+                ("github-tags", "osism/openstack-image-manager"): "v0.20261007.0",
+            }
+        ),
+    )
+    _compare("osism/defaults", "v0.20261019.0", [], ahead_by=0)
+    _compare(
+        "osism/ansible-collection-validations",
+        "v0.20261023.0",
+        [
+            "CHANGELOG.md",
+            ".github/workflows/publish-collection.yml",
+            ".zuul.yaml",
+            "molecule/delegated/converge.yml",
+            "roles/chrony/tasks/main.yml",
+        ],
+    )
+    _compare(
+        "osism/openstack-image-manager",
+        "v0.20261007.0",
+        ["Pipfile", "Pipfile.lock", "test/unit/test_manage.py", "tox.ini"],
+        ahead_by=3,
+    )
+    rows = {row.dependency: row for row in cv.check_untagged(UNTAGGED_MAPPING)}
+    assert rows["osism/defaults"].status == "ok"
+    assert rows["osism/openstack-image-manager"].status == "ok"
+    untagged = rows["osism/ansible-collection-validations"]
+    assert untagged.status == "untagged"
+    assert untagged.pinned == "v0.20261023.0"
+    assert untagged.newest == "abcdef0"
+    assert untagged.note == "changed: roles/chrony/tasks/main.yml"
+
+
+@responses.activate
+def test_check_untagged_counts_a_comparison_without_file_list(monkeypatch):
+    mapping = {"components": {"defaults": "osism/defaults"}}
+    monkeypatch.setattr(
+        cv, "newest_version", _newest({("github-tags", "osism/defaults"): "v0.1.0"})
+    )
+    _compare("osism/defaults", "v0.1.0", [])
+    (row,) = cv.check_untagged(mapping)
+    assert row.status == "untagged"
+    assert row.note == "changed: (file list not available)"
+
+
+def test_check_untagged_reports_a_repository_without_tag(monkeypatch):
+    mapping = {"components": {"defaults": "osism/defaults"}}
+    monkeypatch.setattr(cv, "newest_version", _newest({}))
+    (row,) = cv.check_untagged(mapping)
+    assert row.status == "error"
+
+
+def test_apply_allowed_matches_pins_symlinks_and_repositories(capsys):
+    rows = [
+        cv.Row(
+            "outdated",
+            "/tmp/x/latest/ceph.yml",
+            "symlink",
+            "ceph/ceph",
+            "a",
+            "b",
+            "newest",
+        ),
+        cv.Row(
+            "untagged",
+            "osism/defaults",
+            "untagged changes",
+            "osism/defaults",
+            "v1",
+            "abc",
+            "",
+        ),
+        cv.Row(
+            "outdated",
+            "latest/base.yml",
+            "ansible_collections.osism.commons",
+            "osism.commons",
+            "1",
+            "2",
+            "",
+        ),
+        cv.Row(
+            "ok", "latest/base.yml", "generics_version", "osism/generics", "1", "1", ""
+        ),
+    ]
+    result = cv.apply_allowed(
+        rows, ["latest/ceph.yml", "osism/defaults", "osism/generics", "osism/unknown"]
+    )
+    assert [row.status for row in result] == ["allowed", "allowed", "outdated", "ok"]
+    assert result[0].note == "newest (allowed)"
+    assert result[1].note == "(allowed)"
+    err = capsys.readouterr().err
+    assert "--allow osism/unknown matches no failing row" in err
+    assert "--allow osism/generics matches no failing row" in err
