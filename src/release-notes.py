@@ -1491,6 +1491,30 @@ def read_contributor_credits(path):
     return credits
 
 
+def credited_changes(credits):
+    """Merge credited changelog entries into changes.
+
+    Entries with the same credit sentence that share a reference describe
+    one change. Returns (references, sentence) pairs with the merged,
+    de-duplicated references in order of first appearance.
+    """
+    changes = []
+    for references, sentence in credits:
+        refs = [r for r in references.split(", ") if r]
+        overlapping = [
+            change
+            for change in changes
+            if change[1] == sentence and set(change[0]) & set(refs)
+        ]
+        merged = []
+        for change in overlapping:
+            merged += [r for r in change[0] if r not in merged]
+            changes.remove(change)
+        merged += [r for r in refs if r not in merged]
+        changes.append((merged, sentence))
+    return changes
+
+
 def reference_link(reference):
     repo, sep, ident = re.split(r"([#@])", reference, maxsplit=1)
     kind = "pull" if sep == "#" else "commit"
@@ -1802,13 +1826,15 @@ def cmd_sanitize(args):
 
     # Every external contribution must be credited; a credit the model
     # dropped is added in a closing subsection. Contributions by the same
-    # people share one sentence, so a sentence must appear once per
-    # contribution; when it appears fewer times, which contribution lacks
-    # it cannot be told, and all of them get a closing line.
+    # people share one sentence, so a sentence must appear once per change;
+    # when it appears fewer times, which change lacks it cannot be told,
+    # and all of them get a closing line. Changelog entries that share a
+    # reference describe one change (two entries of one PR, or a follow-up
+    # PR listed together with it), so they count once.
     if args.input:
         body_text = "\n".join(out)
-        credits = read_contributor_credits(args.input)
-        expected = Counter(sentence for _, sentence in credits)
+        changes = credited_changes(read_contributor_credits(args.input))
+        expected = Counter(sentence for _, sentence in changes)
         short = {
             sentence
             for sentence, count in expected.items()
@@ -1816,16 +1842,16 @@ def cmd_sanitize(args):
         }
         missing = [
             (references, sentence)
-            for references, sentence in credits
+            for references, sentence in changes
             if sentence in short
         ]
         if missing:
             warn(f"Added {len(missing)} missing contributor credit(s):")
             out += ["", "### Contributors", ""]
             for references, sentence in missing:
-                links = ", ".join(reference_link(r) for r in references.split(", "))
+                links = ", ".join(reference_link(r) for r in references)
                 out.append(f"* {sentence[:-1]}: {links}")
-                print(f"  {references}: {sentence}", file=sys.stderr)
+                print(f"  {', '.join(references)}: {sentence}", file=sys.stderr)
 
     sys.stdout.write("\n".join(out) + "\n")
 
