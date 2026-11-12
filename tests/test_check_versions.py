@@ -696,3 +696,55 @@ def test_apply_allowed_matches_pins_symlinks_and_repositories(capsys):
     err = capsys.readouterr().err
     assert "--allow osism/unknown matches no failing row" in err
     assert "--allow osism/generics matches no failing row" in err
+
+
+def test_check_release_tag_requires_the_round_tag_without_changes(monkeypatch):
+    mapping = {
+        "components": {
+            "defaults": "osism/defaults",
+            "manager_playbooks": "osism/ansible-playbooks-manager",
+            "osism": "osism/python-osism",
+            "kolla": "osism/container-images-kolla",
+        },
+        "derived": {
+            "openstack-image-manager": {
+                "repository": "osism/openstack-image-manager",
+                "source": "osism",
+                "file": "requirements.openstack-image-manager.txt",
+            },
+        },
+    }
+    monkeypatch.setattr(
+        cv,
+        "newest_version",
+        _newest(
+            {
+                ("github-tags", "osism/defaults"): "v0.20261111.0",
+                ("github-tags", "osism/ansible-playbooks-manager"): "v0.20260721.0",
+                ("github-tags", "osism/python-osism"): "v0.20261111.1",
+            }
+        ),
+    )
+    rows = {
+        row.dependency: row for row in cv.check_release_tag(mapping, "0.20261111.0")
+    }
+    # images built from the release tags and derived components are not checked
+    assert set(rows) == {
+        "osism/defaults",
+        "osism/ansible-playbooks-manager",
+        "osism/python-osism",
+    }
+    assert rows["osism/defaults"].status == "ok"
+    assert rows["osism/python-osism"].status == "ok"
+    stale = rows["osism/ansible-playbooks-manager"]
+    assert stale.status == "untagged"
+    assert stale.pinned == "v0.20260721.0"
+    assert stale.newest == "v0.20261111.0"
+
+
+def test_check_release_tag_reports_a_repository_without_tag(monkeypatch):
+    monkeypatch.setattr(cv, "newest_version", _newest({}))
+    (row,) = cv.check_release_tag(
+        {"components": {"defaults": "osism/defaults"}}, "v0.20261111.0"
+    )
+    assert row.status == "error"

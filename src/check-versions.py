@@ -38,6 +38,12 @@
 #   do not count. The repositories of the images built from the release tags
 #   are not checked, the release process tags them itself.
 #
+# - with --release-tag: every component that latest/base.yml pins directly
+#   ("components" of etc/changelog-repositories.yml) carries the tag of the
+#   release round or a newer one, also if nothing changed since its previous
+#   tag, so that all components of a release are tagged alike. The images
+#   built from the release tags are skipped, they are tagged after the check.
+#
 # A row can be allowed with --allow (a pin, a symlink or a repository): it is
 # listed, but does not fail the check.
 #
@@ -631,6 +637,40 @@ def check_untagged(mapping):
     return rows
 
 
+def check_release_tag(mapping, release_tag):
+    """Rows for the directly pinned components that lack the release tag.
+
+    A component counts as tagged if its newest tag is the release tag or
+    newer (e.g. python-osism v0.20261111.1 for the round v0.20261111.0).
+    """
+    release_tag = tag(release_tag)
+    repos = sorted(set(mapping.get("components", {}).values()) - RELEASE_TAGGED_REPOS)
+    rows = []
+    for repo in repos:
+        newest_tag, error = newest_version("github-tags", repo)
+        if newest_tag is None:
+            rows.append(
+                Row("error", repo, "release tag", repo, "-", release_tag, error)
+            )
+        elif version_key(newest_tag) < version_key(release_tag):
+            rows.append(
+                Row(
+                    "untagged",
+                    repo,
+                    "release tag",
+                    repo,
+                    newest_tag,
+                    release_tag,
+                    f"not tagged for this release, newest tag {newest_tag}",
+                )
+            )
+        else:
+            rows.append(
+                Row("ok", repo, "release tag", repo, newest_tag, release_tag, "")
+            )
+    return rows
+
+
 def apply_allowed(rows, allowed):
     """Mark the rows matching an --allow value (pin, symlink or repository)."""
     allowed = set(allowed)
@@ -697,6 +737,12 @@ def main():
         "version counts as current",
     )
     parser.add_argument(
+        "--release-tag",
+        metavar="VERSION",
+        help="tag of the release round (e.g. v0.20261111.0): every directly "
+        "pinned component has to carry it or a newer tag, also without changes",
+    )
+    parser.add_argument(
         "--allow",
         action="append",
         default=[],
@@ -713,6 +759,8 @@ def main():
     rows += check_latest(args.latest, tagging=args.tagging)
     rows += check_derived(mapping, os.path.join(args.latest, "base.yml"))
     rows += check_untagged(mapping)
+    if args.release_tag:
+        rows += check_release_tag(mapping, args.release_tag)
     rows = apply_allowed(rows, args.allow)
     print_report(rows, args.verbose)
     return 0 if all(row.status in ("ok", "allowed") for row in rows) else 1

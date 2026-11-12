@@ -13,8 +13,9 @@
 # determined, no tag is created. Pins of the images built from these tags
 # whose newest published version is the version being tagged count as
 # current, so moving tags after a first build is not stopped; all other pins
-# have to be current, and the component repositories must not have untagged
-# changes. --allow NAME (repeatable) is passed to the check and accepts the
+# have to be current, the component repositories must not have untagged
+# changes, and every directly pinned component must carry <version> (or a
+# newer tag), also if it has no changes since its previous tag. --allow NAME (repeatable) is passed to the check and accepts the
 # rows of one pin, symlink or repository that are intentionally not current;
 # --skip-check-versions skips the check altogether.
 #
@@ -115,6 +116,7 @@ else
         --latest "$CHECK_DIR/latest" \
         --repositories "$CHECK_DIR/etc/changelog-repositories.yml" \
         --tagging "$VERSION" \
+        --release-tag "$VERSION" \
         "${ALLOW_ARGS[@]}"; then
         echo "Error: scripts/check-versions.sh failed for $(git rev-parse --short HEAD), no tags created" >&2
         echo "Merge the missing updates and tag the components first, or use --allow NAME for a row that is intended" >&2

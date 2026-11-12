@@ -21,12 +21,14 @@ while [ $# -gt 0 ]; do
         --latest) latest="$2"; shift 2 ;;
         --tagging) tagging="$2"; shift 2 ;;
         --allow) allow="$allow $2"; shift 2 ;;
+        --release-tag) release_tag="$2"; shift 2 ;;
         *) shift ;;
     esac
 done
 echo "check-versions: $latest"
 echo "tagging: $tagging"
 echo "allow:$allow"
+echo "release-tag: $release_tag"
 [ "$(readlink "$latest/openstack.yml")" = "openstack-2026.1.yml" ]
 """
 
@@ -149,6 +151,7 @@ def test_check_runs_on_an_extracted_copy(repo):
     assert len(checked) == 1
     assert str(repo.checkout) not in checked[0]
     assert "tagging: v0.20261009.0" in result.stdout
+    assert "release-tag: v0.20261009.0" in result.stdout
 
 
 def test_allow_is_passed_to_the_check(repo):
