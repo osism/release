@@ -512,6 +512,48 @@ else
     echo "         commits without a PR reference in the subject will be referenced by commit hash"
 fi
 
+# Run Claude with prompt $1 and print its response. A non-zero exit status
+# means the call failed (e.g. an expired login or an unavailable model).
+# The CLI prints its error message to stdout, so on failure the output is
+# reported on stderr and must never be used as content. Call it as
+# RESULT=$(run_claude "$PROMPT") || exit 1: an exit inside the command
+# substitution would only leave the subshell.
+run_claude() {
+    local out rc=0
+    out=$(claude --model "$CLAUDE_MODEL" --effort "$CLAUDE_EFFORT" -p "$1") || rc=$?
+    if [ "$rc" -ne 0 ]; then
+        echo "Error: claude exited with status $rc:" >&2
+        echo "$out" | sed 's/^/  /' >&2
+        return 1
+    fi
+    printf '%s\n' "$out"
+}
+
+# Restore CHANGELOG.md to its state before the run if the script fails
+# before committing: an aborted run must not leave entries for some of
+# the tags behind, which a later --auto run would take as done
+CHANGELOG_BACKUP=$(mktemp)
+CHANGELOG_EXISTED=false
+if [ -f CHANGELOG.md ]; then
+    cp CHANGELOG.md "$CHANGELOG_BACKUP"
+    CHANGELOG_EXISTED=true
+fi
+RESTORE_CHANGELOG=true
+
+on_exit() {
+    local rc=$?
+    if [ "$rc" -ne 0 ] && [ "$RESTORE_CHANGELOG" = true ]; then
+        if [ "$CHANGELOG_EXISTED" = true ]; then
+            cp "$CHANGELOG_BACKUP" CHANGELOG.md
+        else
+            rm -f CHANGELOG.md
+        fi
+        echo "Run failed: CHANGELOG.md restored to its state before the run" >&2
+    fi
+    rm -f "$CHANGELOG_BACKUP"
+}
+trap on_exit EXIT
+
 _USER_OUTPUT_FILE="$OUTPUT_FILE"
 
 # Process each tag
@@ -989,7 +1031,7 @@ if [ "$RUN_CLAUDE" = true ]; then
         echo "Processing batch $((batch+1)) of $NUM_BATCHES..."
 
         # Run Claude and append output to main file
-        RESULT=$(claude --model "$CLAUDE_MODEL" --effort "$CLAUDE_EFFORT" -p "$(cat "$BATCH_FILE")" 2>&1) || true
+        RESULT=$(run_claude "$(cat "$BATCH_FILE")") || exit 1
         BATCH_RESULTS+=("$RESULT")
 
         echo "" >> "$OUTPUT_FILE"
@@ -1033,14 +1075,18 @@ Rules:
 $(cat "$OUTPUT_FILE")"
 
     # Run final merge
-    FINAL_RESULT=$(claude --model "$CLAUDE_MODEL" --effort "$CLAUDE_EFFORT" -p "$MERGE_PROMPT" 2>&1) || true
+    FINAL_RESULT=$(run_claude "$MERGE_PROMPT") || exit 1
 
     fi  # NUM_BATCHES
 
     # Strip any preamble before the first ## [v line
     CLEAN_RESULT=$(echo "$FINAL_RESULT" | sed -n '/^## \[v/,$p')
     if [ -z "$CLEAN_RESULT" ]; then
-        CLEAN_RESULT="$FINAL_RESULT"
+        # Without the version header the entry would be inserted into
+        # CHANGELOG.md as part of the previous version
+        echo "Error: Generated entry has no version header (## [$LATEST_TAG] - $TAG_DATE):" >&2
+        echo "$FINAL_RESULT" | sed 's/^/  /' >&2
+        exit 1
     fi
 
     # Ensure that every reference resolved for this release (subject, GitHub
@@ -1131,13 +1177,26 @@ Rules:
 Changelog entry:
 $CLEAN_RESULT"
 
-        FIX_RESULT=$(claude --model "$CLAUDE_MODEL" --effort "$CLAUDE_EFFORT" -p "$FIX_PROMPT" 2>&1) || true
+        FIX_RESULT=$(run_claude "$FIX_PROMPT") || exit 1
         FIX_CLEAN=$(echo "$FIX_RESULT" | sed -n '/^## \[v/,$p')
         if [ -n "$FIX_CLEAN" ]; then
             CLEAN_RESULT="$FIX_CLEAN"
         fi
 
         MISSING_REFS=$(find_missing_refs)
+
+        # The direct repair below patches a few references the model
+        # dropped. If most of them are missing, the model output is not a
+        # usable entry, and the repair would turn the raw commit subjects
+        # into the changelog.
+        NUM_EXPECTED=$(echo "$EXPECTED_REFS" | grep -c . || true)
+        NUM_MISSING=$(echo "$MISSING_REFS" | grep -c . || true)
+        if [ $((NUM_MISSING * 2)) -gt "$NUM_EXPECTED" ]; then
+            echo "Error: $NUM_MISSING of $NUM_EXPECTED references are missing from the generated entry, not repairing:" >&2
+            echo "$CLEAN_RESULT" | sed 's/^/  /' >&2
+            exit 1
+        fi
+
         if [ -n "$MISSING_REFS" ]; then
             # Last resort: repair or append the missing references
             # deterministically so that no change ends up in the changelog
@@ -1261,7 +1320,7 @@ Rules:
 Diff:
 $CHANGELOG_DIFF"
 
-    COMMIT_BODY=$(claude --model "$CLAUDE_MODEL" --effort "$CLAUDE_EFFORT" -p "$COMMIT_PROMPT" 2>&1) || true
+    COMMIT_BODY=$(run_claude "$COMMIT_PROMPT") || exit 1
 
     # Drop code fences, any trailers and a subject the model added anyway
     COMMIT_BODY=$(echo "$COMMIT_BODY" \
@@ -1278,6 +1337,11 @@ $CHANGELOG_DIFF"
     COMMIT_MSG="$COMMIT_SUBJECT
 
 $COMMIT_BODY"
+
+    # The restore on failure ends here: CHANGELOG.md is committed next, and
+    # restoring it afterwards would leave the working tree out of step with
+    # the commit
+    RESTORE_CHANGELOG=false
 
     # Branch off if we are on the default branch
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
