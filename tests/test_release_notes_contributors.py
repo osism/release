@@ -209,3 +209,59 @@ def test_internal_email_domains_default(email, external):
     )
     r = subprocess.run(["bash", "-c", code, "-", email], env={"PATH": "/usr/bin:/bin"})
     assert (r.returncode == 0) is external
+
+
+ALEX = (
+    "Contributed by Alex Example " "([@alex-example](https://github.com/alex-example))."
+)
+SAM = "Contributed by Sam Sample " "([@sam-sample](https://github.com/sam-sample))."
+REPO = "osism/example"
+# Two entries of one PR, and a PR listed alone and again
+# together with its follow-up. These are two changes, not four.
+FOUR_ENTRIES_TWO_CHANGES = f"""# Input
+
+{rn.CONTRIBUTORS_HEADING}
+
+- {REPO}#101: {ALEX}
+- {REPO}#101: {ALEX}
+- {REPO}#102: {ALEX}
+- {REPO}#102, {REPO}#103: {ALEX}
+"""
+
+
+def test_credited_changes_merges_entries_that_share_a_reference():
+    entries = [
+        (f"{REPO}#101", ALEX),
+        (f"{REPO}#101", ALEX),
+        (f"{REPO}#102", ALEX),
+        (f"{REPO}#102, {REPO}#103", ALEX),
+        (f"{REPO}#102", SAM),
+    ]
+    assert rn.credited_changes(entries) == [
+        ([f"{REPO}#101"], ALEX),
+        ([f"{REPO}#102", f"{REPO}#103"], ALEX),
+        ([f"{REPO}#102"], SAM),
+    ]
+
+
+@pytest.mark.parametrize(
+    "credited, fallback",
+    [
+        (
+            1,
+            "\n### Contributors\n\n"
+            + f"* {ALEX[:-1]}: [{REPO}#101](https://github.com/{REPO}/pull/101)\n"
+            + f"* {ALEX[:-1]}: [{REPO}#102](https://github.com/{REPO}/pull/102), "
+            + f"[{REPO}#103](https://github.com/{REPO}/pull/103)\n",
+        ),
+        (2, ""),
+        (3, ""),
+    ],
+)
+def test_sanitize_counts_a_credit_per_change_not_per_entry(
+    tmp_path, monkeypatch, capsys, credited, fallback
+):
+    items = [f"* Change {i}." + (f" {ALEX}" if i < credited else "") for i in range(3)]
+    body = "### Example\n\n" + "\n".join(items) + "\n"
+    out = _sanitize(tmp_path, monkeypatch, capsys, body, FOUR_ENTRIES_TWO_CHANGES)
+    assert out == body + fallback
