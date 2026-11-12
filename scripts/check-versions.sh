@@ -18,12 +18,15 @@
 # Run it before creating the tags of a release (step 2 of the release
 # process).
 #
-# Usage: ./scripts/check-versions.sh [-v] [--allow NAME]...
+# Usage: ./scripts/check-versions.sh [-v] [--allow NAME]... [--release-tag VERSION]
 #
 # Options:
 #   -v, --verbose   Also list the pins that are current
 #   --allow NAME    Do not fail on the rows of this pin, symlink or
 #                   repository (e.g. latest/ceph.yml); repeatable
+#   --release-tag VERSION
+#                   Every directly pinned component has to carry the tag of
+#                   the release round (e.g. v0.20261111.0) or a newer one
 #
 # Exits with 1 if a symlink or a pin is outdated or its newest version
 # could not be determined, or a repository has untagged changes, unless
