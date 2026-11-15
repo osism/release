@@ -103,7 +103,7 @@ ansible_collections:
   # renovate: datasource=galaxy-collection depName=ansible.mysql
   ansible.mysql: '5.2.1'
   # renovate: datasource=galaxy-collection depName=ansible.netcommon
-  ansible.netcommon: '8.7.1'
+  ansible.netcommon: '8.8.0'
   # renovate: datasource=galaxy-collection depName=ansible.posix
   ansible.posix: '2.2.2'
   # renovate: datasource=galaxy-collection depName=ansible.utils
