@@ -17,7 +17,7 @@ changelogs.
 │   ├── base.yml         # Core component versions
 │   ├── ceph-*.yml       # Ceph-specific versions (quincy, reef, squid)
 │   ├── ceph.yml         # Symlink → default Ceph version (newest active Ceph release)
-│   ├── openstack-*.yml  # OpenStack-specific versions (2024.1, 2024.2, 2025.1, 2025.2)
+│   ├── openstack-*.yml  # OpenStack-specific versions (2024.1 ... 2026.2)
 │   └── openstack.yml    # Symlink → default OpenStack version (newest SLURP release)
 ├── <VERSION>/           # Pinned release versions (e.g. 10.0.0/, 9.5.0/)
 │   └── base.yml         # Frozen component versions for this release
@@ -86,7 +86,7 @@ Each file pins the versions specific to one Ceph release stream:
 - `docker_images` — Ceph container image versions (`ceph`, `cephclient`)
 
 **OpenStack files** (`openstack-2024.1.yml`, `openstack-2024.2.yml`, `openstack-2025.1.yml`,
-`openstack-2025.2.yml`):
+`openstack-2025.2.yml`, `openstack-2026.1.yml`, `openstack-2026.2.yml`):
 
 Each file pins the versions specific to one OpenStack release:
 - `openstack_version` / `openstack_previous_version` — the release identifier and its
