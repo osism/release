@@ -1,0 +1,79 @@
+---
+# renovate: datasource=pypi depName=ansible
+ansible_version: '13.8.0'
+# renovate: datasource=pypi depName=ansible-core
+ansible_core_version: '2.20.10'
+
+openstack_version: "2026.2"
+openstack_previous_version: "2026.1"
+
+# renovate: datasource=github-tags depName=osism/defaults
+defaults_version: 'v0.20261111.0'
+# renovate: datasource=github-tags depName=osism/generics
+generics_version: 'v0.20261111.0'
+# renovate: datasource=github-tags depName=osism/ansible-playbooks
+playbooks_version: 'v0.20261111.0'
+
+docker_images:
+  # renovate: datasource=docker depName=registry.osism.tech/osism/openstackclient
+  openstackclient: '10.5.0'
+
+infrastructure_projects:
+  cron:
+  dnsmasq:
+  fluentd:
+  grafana:
+  hacluster:
+  haproxy:
+  httpd:
+  iscsid:
+  keepalived:
+  kolla-toolbox:
+  letsencrypt:
+  mariadb:
+  memcached:
+  multipathd:
+  opensearch:
+  openstack-base:
+  openvswitch:
+  ovn:
+  ovsdpdk:
+  prometheus:
+  proxysql:
+  rabbitmq:
+  redis:
+  tgtd:
+  valkey:
+
+# Sources container-images-kolla builds from besides openstack_projects:
+# kolla is the git ref of openstack/kolla it checks out, requirements the
+# tarball ref of openstack/requirements, named like openstack_projects.
+kolla_build:
+  kolla: stable/2026.2
+  requirements: stable-2026.2
+
+openstack_projects:
+  aodh: stable-2026.2
+  barbican: stable-2026.2
+  blazar: stable-2026.2
+  ceilometer: stable-2026.2
+  cinder: stable-2026.2
+  designate: stable-2026.2
+  glance: stable-2026.2
+  gnocchi: stable/4.7
+  heat: stable-2026.2
+  horizon: stable-2026.2
+  ironic: stable-2026.2
+  keystone: stable-2026.2
+  magnum: stable-2026.2
+  manila: stable-2026.2
+  masakari: stable-2026.2
+  neutron-dynamic-routing: stable-2026.2
+  neutron-vpnaas: stable-2026.2
+  neutron: stable-2026.2
+  nova: stable-2026.2
+  octavia: stable-2026.2
+  placement: stable-2026.2
+  skyline-apiserver: stable-2026.2
+  skyline-console: stable-2026.2
+  watcher: stable-2026.2
