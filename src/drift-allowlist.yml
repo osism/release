@@ -1,6 +1,9 @@
 ---
 # Known-intentional exceptions. Each entry needs a non-empty `reason`.
 # An entry that suppresses no real drift is reported as stale (a hard error).
+# Nothing checks that a reason is still true: re-read the ones that state a fact
+# about upstream whenever a new OpenStack series is added
+# (docs/check-drift-kolla.md, "Allowlist").
 allow:
   - plugin: release_vs_manager
     image: inventory_reconciler
