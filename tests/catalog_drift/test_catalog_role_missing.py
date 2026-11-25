@@ -447,3 +447,27 @@ def test_validator_missing_at_pinned_tag_is_flagged(ceph_keys_cfg):
     )
     drifts = plugin.run(cfg, Allowlist(()))
     assert [d.image for d in drifts] == ["validate-ceph-keys"]
+
+
+def test_unresolvable_role_blocks_release(cfg, monkeypatch):
+    """Both a role missing everywhere and one missing at some releases."""
+    _serve(
+        monkeypatch,
+        collections={"nutshell": ["gone", "partial"]},
+        iface={"A": {"partial"}, "B": set()},
+    )
+    drifts = plugin.run(cfg, Allowlist(()))
+    assert {d.image for d in drifts} == {"gone", "partial"}
+    assert all(d.blocks_release is True for d in drifts)
+
+
+def test_dead_bounds_does_not_block_release(cfg_real, monkeypatch):
+    _serve(
+        monkeypatch,
+        collections={"nutshell": [_role("ancient", until="2023.2")]},
+        iface={r: {"ancient"} for r in cfg_real.releases},
+    )
+    drifts = plugin.run(cfg_real, Allowlist(()))
+    assert len(drifts) == 1
+    assert drifts[0].blocks_release is False
+    assert drifts[0].severity == "actionable"

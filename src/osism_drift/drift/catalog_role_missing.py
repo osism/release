@@ -20,6 +20,9 @@ from osism_drift.model import DriftEntry
 from osism_drift.source import SourceError
 
 NAME = "catalog_role_missing"
+# Entries with an unresolvable role block a release; dead-bounds entries stay
+# actionable but do not.
+RELEASE_GATE = True
 DESCRIPTION = (
     "Flag roles in python-osism's static catalogs that no runtime image "
     "advertises at some supported OpenStack release."
@@ -298,6 +301,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
                         else _summary(check["ok"], check["bad"])
                     ),
                     remediation=check["remediation"],
+                    blocks_release=RELEASE_GATE and bool(check["bad"]),
                 )
             )
         )
