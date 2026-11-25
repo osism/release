@@ -177,8 +177,11 @@ every supported release, renders `osism/container-images-kolla`
 `templates/<release>/kolla-build.conf.j2` with the `openstack_projects` of
 `osism/release` `latest/openstack-<release>.yml`, the way
 `src/generate-kolla-build-config.py` does, and checks every source section
-(every section that sets `type`) against the keys of `SOURCES` in
-`kolla/common/sources.py` at the release's resolved kolla ref. kolla ignores a
+(every section that sets `type`) against the keys of kolla's `SOURCES` at the
+release's resolved kolla ref. Up to 2026.1 that is a dict literal in
+`kolla/common/sources.py`; from 2026.2 on it is the top-level keys of
+`kolla/common/sources.yaml`, which the check reads whenever the ref has it.
+kolla ignores a
 section that is not one of those keys **without a warning**. It then builds that
 image from its default upstream URL, so the pin in the release file and any
 patch prepared for that tarball have no effect, and the build still succeeds.
@@ -196,7 +199,8 @@ passes, update `_GENERATOR_SKIPS` to match.
 
 - **Reads:** `osism/release` `latest/openstack-<release>.yml`,
   `osism/container-images-kolla` `templates/<release>/kolla-build.conf.j2`, and
-  `openstack/kolla` `kolla/common/sources.py`, each per supported release.
+  `openstack/kolla` `kolla/common/sources.yaml` (else `kolla/common/sources.py`),
+  each per supported release.
 - **Fix:** rename the section in the template to the key kolla uses for that
   source. One OSISM project can need more than one section, for example
   `neutron-vpnaas` feeds both `neutron-base-plugin-vpnaas-agent` and

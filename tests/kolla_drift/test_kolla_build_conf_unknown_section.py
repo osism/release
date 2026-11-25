@@ -39,6 +39,19 @@ SOURCES = {
 }
 """
 
+SOURCES_YAML = """\
+---
+openstack-base:
+  type: "url"
+  location: "x"
+nova-base:
+  type: "url"
+  location: "x"
+skyline-apiserver:
+  type: "url"
+  location: "x"
+"""
+
 KEYS = {"openstack-base", "nova-base", "horizon", "neutron-bgp-dragent"}
 
 
@@ -85,6 +98,47 @@ def test_kolla_source_keys_without_sources_is_loud():
         plugin.kolla_source_keys("OTHER = {}\n")
 
 
+def test_kolla_yaml_source_keys_reads_top_level_keys():
+    assert plugin.kolla_yaml_source_keys(SOURCES_YAML) == {
+        "openstack-base",
+        "nova-base",
+        "skyline-apiserver",
+    }
+
+
+@pytest.mark.parametrize("text", ["", "---\n", "- a\n- b\n"])
+def test_kolla_yaml_source_keys_without_mapping_is_loud(text):
+    with pytest.raises(SourceError):
+        plugin.kolla_yaml_source_keys(text)
+
+
+def _sources_at(yaml_text):
+    """A read_at_ref fake: sources.yaml only when `yaml_text` is given."""
+
+    def read_at_ref(repo, path, ref, config, optional=False):
+        if path == "kolla/common/sources.yaml":
+            assert optional
+            return None if yaml_text is None else yaml_text.encode()
+        return SOURCES_PY.encode()
+
+    return read_at_ref
+
+
+def test_read_kolla_source_keys_prefers_sources_yaml(monkeypatch):
+    """kolla 2026.2 moved SOURCES out of sources.py into sources.yaml."""
+    monkeypatch.setattr(source, "read_at_ref", _sources_at(SOURCES_YAML))
+    keys, path = plugin.read_kolla_source_keys("stable/2026.2", None)
+    assert path == "kolla/common/sources.yaml"
+    assert "neutron-bgp-dragent" not in keys and "skyline-apiserver" in keys
+
+
+def test_read_kolla_source_keys_falls_back_to_sources_py(monkeypatch):
+    monkeypatch.setattr(source, "read_at_ref", _sources_at(None))
+    keys, path = plugin.read_kolla_source_keys("stable/2026.1", None)
+    assert path == "kolla/common/sources.py"
+    assert keys == KEYS | {"skyline-apiserver"}
+
+
 @pytest.fixture
 def fake_sources(monkeypatch):
     """Two releases; the release file adds skyline-apiserver only at B."""
@@ -104,11 +158,7 @@ def fake_sources(monkeypatch):
     }
     monkeypatch.setattr(source, "read", lambda repo, path, config: files[(repo, path)])
     monkeypatch.setattr(source, "release_to_ref", lambda repo, r, config: f"stable/{r}")
-    monkeypatch.setattr(
-        source,
-        "read_at_ref",
-        lambda repo, path, ref, config, optional=False: SOURCES_PY.encode(),
-    )
+    monkeypatch.setattr(source, "read_at_ref", _sources_at(None))
     return type("Cfg", (), {"releases": ("A", "B"), "release_refs": {}})()
 
 
@@ -151,13 +201,26 @@ def test_run_reads_sources_py_at_the_declared_kolla_ref(fake_sources, monkeypatc
     read_refs = []
 
     def read_at_ref(repo, path, ref, config, optional=False):
-        read_refs.append(ref)
-        return SOURCES_PY.encode()
+        if path.endswith(".py"):
+            read_refs.append(ref)
+        return _sources_at(None)(repo, path, ref, config, optional)
 
     monkeypatch.setattr(source, "read_at_ref", read_at_ref)
     drifts = plugin.run(fake_sources, Allowlist(()))
     assert read_refs == ["stable/A", "unmaintained/B"]
     assert drifts[0].expected_src.endswith("@unmaintained/B")
+
+
+def test_run_names_sources_yaml_when_read(fake_sources, monkeypatch):
+    monkeypatch.setattr(source, "read_at_ref", _sources_at(SOURCES_YAML))
+    drifts = plugin.run(fake_sources, Allowlist(()))
+    # skyline-apiserver is a yaml key; its -base section is still unknown.
+    assert [(d.image, d.expected_src) for d in drifts] == [
+        (
+            "skyline-apiserver-base",
+            "openstack/kolla kolla/common/sources.yaml@stable/B",
+        )
+    ]
 
 
 def test_run_allowlist_marks_allowlisted(fake_sources):
