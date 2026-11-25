@@ -76,6 +76,9 @@ class Config:  # pylint: disable=too-many-instance-attributes  # data record
     ref_exists_cache: dict = field(
         default_factory=dict
     )  # per-run (repo, ref) -> bool memo of remote existence probes
+    ref_overrides: dict = field(
+        default_factory=dict
+    )  # per-run repo -> ref; runtime-only, never read from the config file
 
 
 def load_config(path) -> Config:

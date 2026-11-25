@@ -7,6 +7,7 @@ checkout's current branch. Its `branch` is optional; without one, the repo is
 read per release only.
 """
 
+import posixpath
 import re
 import subprocess
 from pathlib import Path
@@ -98,6 +99,8 @@ def _ref(repo: str, config) -> str:
     only, through release_to_ref() and the *_at_ref readers. Falling back to
     remote.branch there would silently read the upstream development branch.
     """
+    if repo in config.ref_overrides:
+        return config.ref_overrides[repo]
     s = _source(repo, config)
     if s is not None and s.branch:
         return s.branch
@@ -116,7 +119,7 @@ def _is_pinned(repo: str, config) -> bool:
     tree, so a local checkout must be a git clone. A `branch` is optional; it
     only sets the ref for the ref-less readers.
     """
-    return _source(repo, config) is not None
+    return repo in config.ref_overrides or _source(repo, config) is not None
 
 
 def current_ref(repo: str, config) -> str:
@@ -181,6 +184,9 @@ def _resolve_local_ref(d, ref):
     return None
 
 
+_MAX_SYMLINK_HOPS = 8
+
+
 def _git_show(d, ref, rel_path, optional=False):
     rref = _resolve_local_ref(d, ref)
     if rref is None:
@@ -188,6 +194,22 @@ def _git_show(d, ref, rel_path, optional=False):
             f"ref {ref!r} not found in {d} — fetch it "
             f"(this repo is read at named refs via git)"
         )
+    for _ in range(_MAX_SYMLINK_HOPS + 1):
+        entry = _git(d, "ls-tree", rref, "--", rel_path).stdout.decode()
+        if not entry.startswith("120000 "):
+            break
+        # A symlink blob holds its target; follow it like archive extraction does.
+        target = _git(d, "show", f"{rref}:{rel_path}").stdout.decode()
+        resolved = posixpath.normpath(
+            posixpath.join(posixpath.dirname(rel_path), target)
+        )
+        if resolved.startswith("..") or posixpath.isabs(resolved):
+            raise SourceError(
+                f"symlink {rel_path} at {ref} in {d} points outside the repository"
+            )
+        rel_path = resolved
+    else:
+        raise SourceError(f"too many symlink hops resolving {rel_path} at {ref}")
     r = _git(d, "show", f"{rref}:{rel_path}")
     if r.returncode != 0:
         if optional:
@@ -744,6 +766,8 @@ def _git_tree_dir(d, repo, ref, config) -> Path:
 
 def _pinned_refs(repo: str, config) -> str:
     """The refs a pinned repo is read at, as describe_resolution() labels them."""
+    if repo in config.ref_overrides:
+        return f"{config.ref_overrides[repo]} (override)"
     s = _source(repo, config)
     if s.branch:
         return f"{s.branch} (+per-release range refs)"
