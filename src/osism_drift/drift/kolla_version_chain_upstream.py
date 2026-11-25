@@ -21,7 +21,7 @@ DESCRIPTION = (
 )
 INPUT_FILES = [
     ("release", "latest/openstack-<release>.yml"),
-    ("kolla", "docker (newest resolved ref)"),
+    ("kolla", "docker or kolla/docker (newest resolved ref)"),
     ("container_image_kolla_ansible", "files/src/templates/versions.yml.j2"),
 ]
 SUMMARY = (
@@ -34,7 +34,6 @@ REMEDIATION = (
     "allowlist the name if it is intentionally unpinned."
 )
 
-_DOCKER = "docker"
 _TEMPLATE = "files/src/templates/versions.yml.j2"
 _FOUND_SRC = "container-image-kolla-ansible/files/src/templates/versions.yml.j2"
 
@@ -43,8 +42,8 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     """Return unwired-pin drifts: upstream services with no template key."""
     newest = sorted(enablement.release_range(config))[-1]
     ref = enablement.kolla_ref(newest, config)
-    expected_src = f"openstack/kolla/docker/ @ {ref}"
-    docker_names = source.list_dir_at_ref("kolla", _DOCKER, ref, config, dirs_only=True)
+    docker_names, docker_dir = kolla_docker.list_services(ref, config)
+    expected_src = f"openstack/kolla/{docker_dir}/ @ {ref}"
     upstream = kolla_docker.parse(docker_names)
     template_bytes = source.read("container_image_kolla_ansible", _TEMPLATE, config)
     template_keys = {
@@ -60,7 +59,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
             plugin=NAME,
             image=service,
             alias=service,
-            expected=f"present in openstack/kolla docker/ at {ref}",
+            expected=f"present in openstack/kolla {docker_dir}/ at {ref}",
             found="absent (no versions['...'] template key)",
             expected_src=expected_src,
             found_src=_FOUND_SRC,

@@ -84,6 +84,15 @@ def test_buildable_only_at_an_older_release_is_a_remove(kolla_clone):
     assert "@ stable/B" in d.expected_src
 
 
+def test_reads_kolla_docker_on_moved_layout(kolla_clone):
+    """kolla 2026.2 moved the image dirs from docker/ to kolla/docker/."""
+    base = kolla_clone({"stable/A": DOCKER, "stable/B": DOCKER}, moved=("stable/B",))
+    drifts = plugin.run(_cfg((base, FIXT)), Allowlist(()))
+    assert sorted(d.image for d in drifts) == ["foo", "inert_x", "off"]
+    off = [d for d in drifts if d.image == "off"][0]
+    assert "openstack/kolla kolla/docker/ @ stable/B" in off.expected_src
+
+
 def test_reads_enable_flags_split_across_files(tmp_path, kolla_clone):
     # enable_foo lives in a file OTHER than 099-kolla.yml. A single-file reader
     # would not see foo enabled and would misclassify its inert pin as a dead

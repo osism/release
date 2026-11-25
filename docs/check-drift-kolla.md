@@ -624,7 +624,8 @@ release that resolves to no ref is a hard error, not a silent skip.
     python3 src/check-drift.py --group kolla --plugin kolla_enablement_build
 
 - **Reads:** `osism/defaults` `all/*.yml`; `osism/release`
-  `latest/openstack-<release>.yml`; `openstack/kolla` `docker/` per resolved ref.
+  `latest/openstack-<release>.yml`; `openstack/kolla` `docker/` (`kolla/docker/`
+  from 2026.2 on) per resolved ref.
 - **Fix:** add the service to `infrastructure_projects` or `openstack_projects`
   in the release file, or allowlist it if it is intentionally not built.
 
@@ -640,7 +641,8 @@ service present in the producer but missing a template line still flags here.
 
     python3 src/check-drift.py --group kolla --plugin kolla_version_chain_upstream
 
-- **Reads:** `openstack/kolla` `docker/` at the newest resolved ref;
+- **Reads:** `openstack/kolla` `docker/` (`kolla/docker/` from 2026.2 on) at the
+  newest resolved ref;
   `container-image-kolla-ansible` `files/src/templates/versions.yml.j2`.
 - **Fix:** add a `versions['<name>']` line to the template to pin the image (and
   wire the producer); if intentionally unpinned, add an allowlist entry with a
@@ -672,8 +674,8 @@ at the repo to edit.
 
 - **Reads:** `container-image-kolla-ansible` `files/src/templates/versions.yml.j2`;
   `container-images-kolla` `src/tag-images-with-the-version.py`;
-  `osism/defaults` `all/*.yml`; `openstack/kolla` `docker/` at the newest
-  resolved ref.
+  `osism/defaults` `all/*.yml`; `openstack/kolla` `docker/` (`kolla/docker/` from
+  2026.2 on) at the newest resolved ref.
 - **Fix:** wire the key into `SBOM_IMAGE_TO_VERSION` if OSISM deploys it, else
   remove the dead template line; allowlist keys meant to default.
 

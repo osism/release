@@ -16,7 +16,7 @@ remote is consulted only for the docker/ listing and the ref probe; defaults and
 release are read at their pins.
 """
 
-from osism_drift import enablement, source
+from osism_drift import enablement, kolla_docker, source
 from osism_drift.model import DriftEntry
 
 NAME = "kolla_enablement_build"
@@ -27,7 +27,7 @@ DESCRIPTION = (
 INPUT_FILES = [
     ("defaults", "all/*.yml"),
     ("release", "latest/openstack-<release>.yml"),
-    ("kolla", "docker/ (per resolved release ref)"),
+    ("kolla", "docker/ or kolla/docker/ (per resolved release ref)"),
 ]
 SUMMARY = (
     "{n} services enabled in OSISM and buildable upstream at this release, but "
@@ -45,12 +45,8 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
     drifts = []
     for release in enablement.release_range(config):
         ref = enablement.kolla_ref(release, config)
-        buildable = {
-            enablement.canon(d)
-            for d in source.list_dir_at_ref(
-                "kolla", "docker", ref, config, dirs_only=True
-            )
-        }
+        names, docker_dir = kolla_docker.list_services(ref, config)
+        buildable = {enablement.canon(d) for d in names}
         built = enablement.parse_build_set(
             source.read("release", f"latest/openstack-{release}.yml", config)
         )
@@ -60,14 +56,15 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
                 image=svc,
                 alias=svc,
                 expected=(
-                    f"buildable upstream at {ref} (docker/{svc}) and enabled in OSISM; "
+                    f"buildable upstream at {ref} ({docker_dir}/{svc}) and enabled "
+                    "in OSISM; "
                     f"expected in release/latest/openstack-{release}.yml build set"
                 ),
                 found=(
                     "absent from infrastructure_projects/openstack_projects "
                     f"@ openstack-{release}.yml"
                 ),
-                expected_src=f"openstack/kolla docker/ @ {ref}",
+                expected_src=f"openstack/kolla {docker_dir}/ @ {ref}",
                 found_src=f"osism/release latest/openstack-{release}.yml",
             )
             drifts.append(allowlist.apply(d))
