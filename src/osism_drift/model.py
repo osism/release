@@ -23,6 +23,9 @@ class DriftEntry:  # pylint: disable=too-many-instance-attributes  # data record
     summary: Optional[str] = None
     remediation: Optional[str] = None
     severity: str = "actionable"  # "actionable" | "advisory"
+    # True when the finding makes a release unsafe to tag; the release gate
+    # fails only on non-allowlisted entries with this set.
+    blocks_release: bool = False
 
     def as_allowlisted(self, reason: str) -> "DriftEntry":
         """Return a copy marked allowlisted, carrying the match reason."""
@@ -39,6 +42,7 @@ class DriftEntry:  # pylint: disable=too-many-instance-attributes  # data record
             summary=self.summary,
             remediation=self.remediation,
             severity=self.severity,
+            blocks_release=self.blocks_release,
         )
 
     def to_dict(self) -> dict:

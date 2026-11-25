@@ -61,3 +61,18 @@ def test_as_allowlisted_preserves_severity():
         severity="advisory",
     )
     assert d.as_allowlisted("because").severity == "advisory"
+
+
+def test_as_allowlisted_keeps_blocks_release():
+    d = DriftEntry(
+        plugin="p",
+        image="i",
+        alias="a",
+        expected="1",
+        found="2",
+        expected_src="s",
+        found_src="f",
+        blocks_release=True,
+    )
+    assert d.as_allowlisted("r").blocks_release is True
+    assert d.to_dict()["blocks_release"] is True
