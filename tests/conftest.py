@@ -119,12 +119,13 @@ def kolla_clone(tmp_path):
     """Build a kolla clone with one branch per release, returns its base dir.
 
     Called with {branch: [docker service dir, ...]}; pass the returned dir as a
-    --base-dir. A pinned repo is read from git objects at named refs, never from
+    --base-dir. Branches named in `moved` get the 2026.2+ layout, with the
+    service dirs under kolla/docker/ instead of docker/. A pinned repo is read from git objects at named refs, never from
     a working tree, so a plugin that lists openstack/kolla per release needs a
     clone rather than a plain fixture directory.
     """
 
-    def make(branches):
+    def make(branches, moved=()):
         base = tmp_path / "kolla-base"
         repo = base / "kolla"
         repo.mkdir(parents=True)
@@ -132,10 +133,12 @@ def kolla_clone(tmp_path):
         for branch, services in branches.items():
             run_git(repo, "checkout", "-q", "--orphan", branch)
             shutil.rmtree(repo / "docker", ignore_errors=True)
+            shutil.rmtree(repo / "kolla", ignore_errors=True)
+            docker = repo / ("kolla/docker" if branch in moved else "docker")
             for service in services:
-                (repo / "docker" / service).mkdir(parents=True)
-                (repo / "docker" / service / "Dockerfile.j2").write_text("")
-            (repo / "docker" / "macros.j2").write_text("")
+                (docker / service).mkdir(parents=True)
+                (docker / service / "Dockerfile.j2").write_text("")
+            (docker / "macros.j2").write_text("")
             run_git(repo, "add", "-A")
             run_git(repo, "commit", "-q", "-m", branch)
         return base

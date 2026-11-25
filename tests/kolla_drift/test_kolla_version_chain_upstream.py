@@ -42,6 +42,25 @@ def test_reads_the_newest_supported_release(cfg):
     assert all("@ stable/B" in d.expected_src for d in drifts)
 
 
+def test_reads_kolla_docker_on_moved_layout(kolla_clone):
+    """kolla 2026.2 moved the image dirs from docker/ to kolla/docker/."""
+    base = kolla_clone(
+        {"stable/A": DOCKER + ["retired"], "stable/B": DOCKER}, moved=("stable/B",)
+    )
+    cfg = Config(
+        remote=Remote("https://raw/", "https://api/", "main", "osism"),
+        base_dirs=(str(base), str(FIXT)),
+        release_version="latest",
+        plugins={"kolla_version_chain_upstream": PluginCfg(enabled=True)},
+        sources={"kolla": SourceCfg(owner="openstack")},
+    )
+    drifts = plugin.run(cfg, Allowlist(()))
+    assert sorted(d.image for d in drifts) == ["ignored_svc", "newsvc"]
+    assert all(
+        d.expected_src == "openstack/kolla/kolla/docker/ @ stable/B" for d in drifts
+    )
+
+
 def test_present_service_not_flagged(cfg):
     drifts = plugin.run(cfg, Allowlist(()))
     assert all(d.image != "present_a" for d in drifts)

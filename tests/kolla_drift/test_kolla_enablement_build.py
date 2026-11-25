@@ -44,6 +44,17 @@ def _mock_docker(dirs):
     )
 
 
+def _mock_moved_docker(dirs):
+    # kolla 2026.2+: docker/ is gone, the image dirs live under kolla/docker/.
+    responses.add(responses.GET, f"{API}/openstack/kolla/contents/docker", status=404)
+    responses.add(
+        responses.GET,
+        f"{API}/openstack/kolla/contents/kolla/docker",
+        json=[{"name": d, "type": "dir"} for d in dirs],
+        status=200,
+    )
+
+
 def _mock_all():
     _mock_commit("stable/A")
     _mock_commit("stable/B")
@@ -94,3 +105,15 @@ def test_allowlist_marks_allowlisted(cfg):
     )
     drifts = plugin.run(cfg, al)
     assert len(drifts) == 1 and drifts[0].allowlisted is True
+
+
+@responses.activate
+def test_reads_kolla_docker_on_moved_layout(cfg):
+    _mock_commit("stable/A")
+    _mock_commit("stable/B")
+    _mock_docker(["foo", "bar", "multi-word"])  # release A, old layout
+    _mock_moved_docker(["foo", "bar", "baz", "multi-word"])  # release B
+    drifts = plugin.run(cfg, Allowlist(()))
+    assert [(d.image, d.expected_src) for d in drifts] == [
+        ("foo", "openstack/kolla docker/ @ stable/A")
+    ]
