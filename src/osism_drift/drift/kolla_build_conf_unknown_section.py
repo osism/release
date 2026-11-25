@@ -5,7 +5,7 @@ osism/container-images-kolla renders kolla-build.conf from
 templates/<release>/kolla-build.conf.j2 and the openstack_projects of release
 latest/openstack-<release>.yml. Each project gets a source section that points
 kolla at the tarball the release file pins. kolla only reads a source section
-whose name is a key of SOURCES in kolla/common/sources.py. It ignores any other
+whose name is a key of its SOURCES. It ignores any other
 section without a warning and builds that image from its default upstream URL.
 The pin then has no effect, and nothing fails.
 
@@ -20,6 +20,11 @@ generator's project selection (src/generate-kolla-build-config.py) is mirrored
 here, because the generator is a script and cannot be imported. Section names
 depend only on project names, so the generator's repository mapping is not
 needed.
+
+kolla keeps SOURCES as a dict literal in kolla/common/sources.py up to 2026.1.
+From 2026.2 on, sources.py loads it from kolla/common/sources.yaml, whose
+top-level keys are the source names. The plugin reads sources.yaml when the
+release ref has it and falls back to the dict literal otherwise.
 
 A section counts as a source section when it sets `type`, which every kolla
 source section must. Other sections in the file (DEFAULT, or option groups such
@@ -44,7 +49,11 @@ DESCRIPTION = (
 INPUT_FILES = [
     ("release", "latest/openstack-<release>.yml"),
     ("container_images_kolla", "templates/<release>/kolla-build.conf.j2"),
-    ("kolla", "kolla/common/sources.py (per resolved release ref)"),
+    (
+        "kolla",
+        "kolla/common/sources.yaml, else kolla/common/sources.py "
+        "(per resolved release ref)",
+    ),
 ]
 SUMMARY = (
     "{n} source sections in the rendered kolla-build.conf that kolla does not "
@@ -54,12 +63,14 @@ SUMMARY = (
 REMEDIATION = (
     "rename the section in container-images-kolla "
     "templates/<release>/kolla-build.conf.j2 to the key kolla uses for that "
-    "source in kolla/common/sources.py. kolla ignores an unknown section "
-    "without a warning, so the build keeps succeeding with unpinned sources."
+    "source in kolla/common/sources.yaml (sources.py before 2026.2). kolla "
+    "ignores an unknown section without a warning, so the build keeps "
+    "succeeding with unpinned sources."
 )
 
 _TEMPLATE = "templates/{r}/kolla-build.conf.j2"
 _SOURCES_PY = "kolla/common/sources.py"
+_SOURCES_YAML = "kolla/common/sources.yaml"
 
 # Projects src/generate-kolla-build-config.py leaves out of `projects`, so the
 # template renders no per-project section for them. Keep in step with the
@@ -129,6 +140,27 @@ def kolla_source_keys(sources_py: str) -> set:
     raise SourceError(f"no SOURCES assignment found in {_SOURCES_PY}")
 
 
+def kolla_yaml_source_keys(sources_yaml: str) -> set:
+    """The top-level keys of kolla/common/sources.yaml."""
+    data = yaml.safe_load(sources_yaml)
+    if not isinstance(data, dict) or not data:
+        raise SourceError(f"{_SOURCES_YAML} is not a non-empty mapping")
+    return set(data)
+
+
+def read_kolla_source_keys(ref: str, config) -> tuple[set, str]:
+    """The source names kolla reads at `ref`, and the file they came from.
+
+    sources.yaml is probed first because a ref that has it keeps no SOURCES
+    literal in sources.py.
+    """
+    raw = source.read_at_ref("kolla", _SOURCES_YAML, ref, config, optional=True)
+    if raw is not None:
+        return kolla_yaml_source_keys(raw.decode()), _SOURCES_YAML
+    raw = source.read_at_ref("kolla", _SOURCES_PY, ref, config)
+    return kolla_source_keys(raw.decode()), _SOURCES_PY
+
+
 def unknown_sections(template: str, versions: dict, keys: set) -> list:
     """Source sections of the rendered template that are not in `keys`."""
     return sorted(
@@ -146,9 +178,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
         template_path = _TEMPLATE.format(r=release)
         template = source.read("container_images_kolla", template_path, config)
         ref = enablement.kolla_ref(release, config)
-        keys = kolla_source_keys(
-            source.read_at_ref("kolla", _SOURCES_PY, ref, config).decode()
-        )
+        keys, sources_path = read_kolla_source_keys(ref, config)
         try:
             unknown = unknown_sections(template.decode(), versions or {}, keys)
         except (jinja2.TemplateError, configparser.Error) as e:
@@ -162,7 +192,7 @@ def run(config, allowlist, verbose: bool = False) -> list[DriftEntry]:
                 alias=section,
                 expected="(a key of kolla SOURCES)",
                 found=section,
-                expected_src=f"openstack/kolla {_SOURCES_PY}@{ref}",
+                expected_src=f"openstack/kolla {sources_path}@{ref}",
                 found_src=f"osism/container-images-kolla {template_path}",
             )
             drifts.append(allowlist.apply(d))
