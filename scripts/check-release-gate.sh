@@ -9,10 +9,13 @@
 # tree) and the gate fails on a finding that would break the release, e.g.
 # a role that python-osism calls but no pinned playbook repository provides.
 # Allowlisted findings do not block. scripts/create-tags.sh runs it on the
-# commit it tags; run it by hand on origin/main once the pins of a release
-# round are merged.
+# commit it tags; run it by hand to investigate a failure.
 #
-# Usage: ./scripts/check-release-gate.sh <sha>
+# Usage: ./scripts/check-release-gate.sh [<commit>]
+#
+# Without an argument, origin/main is fetched and checked. <commit> is any
+# commit of this repository that has been pushed (a SHA, tag or branch);
+# the gate reads it from GitHub.
 #
 # Exits with 0 if there is no blocking finding, 1 on a blocking finding and
 # 2 if an input could not be read (e.g. a missing pin or tag).
@@ -26,16 +29,31 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 CHECK_DRIFT_PY="$REPO_ROOT/src/check-drift.py"
 
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <sha>" >&2
+if [ $# -gt 1 ]; then
+    echo "Usage: $0 [<commit>]" >&2
     exit 2
 fi
 
 cd "$REPO_ROOT"
 
+if [ $# -eq 0 ]; then
+    if ! git fetch -q origin main; then
+        echo "Error: could not fetch origin main" >&2
+        exit 2
+    fi
+    REF=origin/main
+else
+    REF=$1
+fi
+if ! SHA=$(git rev-parse -q --verify "$REF^{commit}"); then
+    echo "Error: $REF is not a commit of this repository" >&2
+    exit 2
+fi
+echo "Release drift gate for $REF ($(git log -1 --format='%h %s' "$SHA"))" >&2
+
 if command -v uv >/dev/null 2>&1; then
     exec uv run -q --no-project --with-requirements requirements.txt \
-        python3 "$CHECK_DRIFT_PY" --group catalog --release-gate "$1"
+        python3 "$CHECK_DRIFT_PY" --group catalog --release-gate "$SHA"
 else
-    exec python3 "$CHECK_DRIFT_PY" --group catalog --release-gate "$1"
+    exec python3 "$CHECK_DRIFT_PY" --group catalog --release-gate "$SHA"
 fi
