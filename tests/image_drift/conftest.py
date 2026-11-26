@@ -10,9 +10,6 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
-# The tag fixtures/release/latest/base.yml pins as playbooks_version.
-PLAYBOOKS_REF = "v0.fixture"
-
 # playbooks/<env>/<name>.yml of the fixture ansible-playbooks repo. With the
 # fixture generate-playbook-symlinks.py (SKIP: manager-netbox.yml) and
 # render-playbooks.py (PREFIXES: infrastructure, manager) the interface is
@@ -47,10 +44,10 @@ def _git(repo, *args):
 
 @pytest.fixture(scope="session")
 def playbooks_base(tmp_path_factory):
-    """A --base-dir holding a git ansible-playbooks repo tagged PLAYBOOKS_REF.
+    """A --base-dir holding a git ansible-playbooks repo with the content at main.
 
-    ansible-playbooks is read at a ref (playbooks_version), which the source
-    layer serves locally only from git objects of a pinned repo, so the
+    ansible-playbooks is read at a ref (its `sources:` branch, main), which the
+    source layer serves locally only from git objects of a pinned repo, so the
     checkout cannot live in the static fixtures tree. Pass this directory as a
     second base dir and pin ansible_playbooks (SourceCfg(branch="main")).
     """
@@ -63,5 +60,4 @@ def playbooks_base(tmp_path_factory):
     _git(repo, "init", "-q", "-b", "main")
     _git(repo, "add", ".")
     _git(repo, "commit", "-q", "-m", "fixture")
-    _git(repo, "tag", PLAYBOOKS_REF)
     return base

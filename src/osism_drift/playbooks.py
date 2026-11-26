@@ -178,10 +178,11 @@ def kolla_interface(release, config) -> dict:
 def pin(release_file: str, key: str, config) -> str:
     """A *_version pin read from release/latest/<release_file>, or SourceError.
 
-    These pins (playbooks_version, ceph_ansible_version, ...) are what each
-    Containerfile's `git checkout "$(yq ... /release/latest/<file>)"` resolves
-    at build time, so reading them is how a release/flavour ref is discovered
-    rather than assumed.
+    These pins (ceph_ansible_version, ...) are what each Containerfile's
+    `git checkout "$(yq ... /release/latest/<file>)"` resolves at build time,
+    so reading them is how a flavour ref is discovered rather than assumed.
+    ansible-playbooks is not read through a pin: it is read at the view's ref
+    (see osism_files).
     """
     data = (
         yaml.safe_load(source.read("release", f"latest/{release_file}", config)) or {}
@@ -193,6 +194,11 @@ def pin(release_file: str, key: str, config) -> str:
 
 def osism_files(config) -> frozenset:
     """/ansible/<env>-<name>.yml basenames the osism-ansible image ships.
+
+    ansible-playbooks is read at source.current_ref: `main` by default, or the
+    release tag when the release gate overrides it. Reading it at the same ref
+    as python-osism keeps both sides of the comparison on one view; the
+    release's playbooks_version is deliberately not consulted.
 
     Containerfile:151 (`cp -r /playbooks/playbooks/* /ansible`) lands
     ansible-playbooks' playbooks/<env>/*.yml under /ansible/<env>/;
@@ -219,7 +225,7 @@ def osism_files(config) -> frozenset:
     body = source.read(_CONTAINER_IMAGE_OSISM_ANSIBLE, _SYMLINK_SCRIPT, config)
     skip = load_const(body, "SKIP")
     envs = load_const(body, "ENVIRONMENTS")
-    ref = pin("base.yml", "playbooks_version", config)
+    ref = source.current_ref(_ANSIBLE_PLAYBOOKS, config)
     # GitHub's contents API 404s identically for a missing directory and for a
     # bad ref (source.py's list_dir_at_ref). missing_ok=True below is needed
     # for the former (some ENVIRONMENTS entries have no upstream directory),
@@ -228,8 +234,8 @@ def osism_files(config) -> frozenset:
     # the ref once up front closes that hole without a per-environment request.
     if not source.ref_exists(_ANSIBLE_PLAYBOOKS, ref, config):
         raise SourceError(
-            f"playbooks_version={ref!r} (latest/base.yml) does not exist in "
-            f"{_ANSIBLE_PLAYBOOKS}"
+            f"ref {ref!r} (the ref {_ANSIBLE_PLAYBOOKS} is read at) does not "
+            f"exist in {_ANSIBLE_PLAYBOOKS}"
         )
     files = {
         n
@@ -256,6 +262,9 @@ def osism_files(config) -> frozenset:
 
 def osism_interface(config) -> dict:
     """role -> environment, as the image's render-playbooks.py would write it.
+
+    Built from osism_files(), so ansible-playbooks is read at the view's ref
+    (`main`, or the release tag in a gate run), not at playbooks_version.
 
     Iterates PREFIXES in order, exactly as render-playbooks.py's own
     `for prefix in PREFIXES: for path in Path("/ansible").glob(f"{prefix}-*.yml")`

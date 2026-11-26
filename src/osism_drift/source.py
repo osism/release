@@ -430,13 +430,13 @@ def ref_exists(repo: str, ref: str, config) -> bool:
     when it resolves under a --base-dir, else the GitHub commits API).
 
     Remote answers are memoized on config.ref_exists_cache, keyed by (repo, ref),
-    because callers re-ask the same question many times in one run: osism_files()
-    re-checks playbooks_version on every call, and runtime_interface() is
+    because callers re-ask the same question many times in one run: the
+    ceph-ansible pin check repeats on every call, and runtime_interface() is
     memoized per release while osism_interface() is release-independent, so the
     same probe is repeated per caller. Each probe is one request against the
     GitHub core API budget -- 60/hr unauthenticated -- and that is what a run
     crossed, spending 70 of its 86 budgeted requests re-asking whether one
-    playbooks_version tag exists, then aborting mid-run before it reported any
+    pinned tag exists, then aborting mid-run before it reported any
     drift.
 
     Absence is memoized too, so that release_to_ref()'s walk through its

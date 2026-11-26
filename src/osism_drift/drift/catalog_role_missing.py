@@ -28,11 +28,14 @@ INPUT_FILES = [
     ("python_osism", "osism/data/enums.py"),
     ("container_image_kolla_ansible", "files/{src,scripts,playbooks}/..."),
     ("kolla_ansible", "ansible/site.yml + ansible/*.yml (per resolved release ref)"),
-    ("ansible_playbooks", "playbooks/<env>/*.yml (at playbooks_version)"),
+    (
+        "ansible_playbooks",
+        "playbooks/<env>/*.yml (at main, or the release tag in a gate run)",
+    ),
     ("container_image_ceph_ansible", "files/playbooks/..."),
     ("osism_kubernetes", "playbooks/kubernetes-*.yml"),
-    # release_range's own listing, plus the *_version pins playbooks.py's
-    # pin()/_ceph_flavours() read to resolve ansible-playbooks/ceph-ansible refs.
+    # release_range's own listing, plus the ceph_ansible_version pins
+    # playbooks.py's pin()/_ceph_flavours() read to resolve ceph-ansible refs.
     (
         "release",
         "latest/ (openstack-*.yml, ceph-*.yml) + latest/{base,ceph-<flavour>}.yml",

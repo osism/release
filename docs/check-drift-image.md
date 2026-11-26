@@ -95,7 +95,7 @@ map, and the two transports that decide each finding's advice class); role
 `defaults/main.yml` files of both collections; and the reconstructed playbook
 map (`osism_drift/playbooks.py`: container-image-osism-ansible's
 `generate-playbook-symlinks.py` and `render-playbooks.py` applied to
-ansible-playbooks at `playbooks_version`), which says in which environment
+ansible-playbooks at its configured ref, `main`), which says in which environment
 each role's `osism apply` runs.
 
 Alias resolution reads both templates: `<alias>_tag: "{{ versions['<key>'] }}"`
@@ -514,9 +514,10 @@ reported and makes the run exit non-zero. Remove it once its drift is fixed.
 The shared config includes `sources:` pins. Image plugins read their repos
 unpinned, as consumer reads at `main`, and discover local checkouts by
 directory name under `--base-dir` — with one exception: `role_shadows`
-reads `ansible_playbooks` (pinned) at the release's `playbooks_version` for
-the playbook map, so a `--base-dir` run needs a git checkout of
-ansible-playbooks holding that tag, or `--remote-fallback`.
+reads `ansible_playbooks` (pinned) at its `sources:` branch (`main`) for
+the playbook map, or at the release tag when the release gate overrides the
+ref. A `--base-dir` run therefore needs a git checkout of ansible-playbooks
+holding that ref, or `--remote-fallback`.
 
 ## Adding a plugin
 

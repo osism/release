@@ -19,7 +19,10 @@ INPUT_FILES = [
     # The playbook map (playbooks.osism_interface): the environment each role's
     # `osism apply` runs in, which decides whether generics' manager render
     # reaches it.
-    ("ansible_playbooks", "playbooks/<env>/*.yml (at playbooks_version)"),
+    (
+        "ansible_playbooks",
+        "playbooks/<env>/*.yml (at main, or the release tag in a gate run)",
+    ),
     (
         "container_image_osism_ansible",
         "files/src/templates/versions.yml.j2 + files/playbooks/*.yml + "

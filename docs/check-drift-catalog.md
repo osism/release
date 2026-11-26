@@ -97,7 +97,9 @@ The `:174-176` fixup itself is two independent rules:
 
 - **osism-ansible** — `container-image-osism-ansible` `files/playbooks/*.yml`
   (own top-level playbooks) plus `ansible-playbooks` `playbooks/<env>/*.yml`
-  (at the `playbooks_version` pin from `release/latest/base.yml`), symlinked
+  (at `main`, or at the release tag in a gate run; the release's
+  `playbooks_version` is not consulted, so python-osism and ansible-playbooks
+  are compared at the same view), symlinked
   as `<env>-<name>.yml` for every `ENVIRONMENTS` entry not in `SKIP`.
 - **ceph-ansible** — `container-image-ceph-ansible` `files/playbooks/*.yml`
   (flavour-independent) and `files/playbooks/<flavour>/*.yml` (per flavour),
@@ -108,6 +110,8 @@ The `:174-176` fixup itself is two independent rules:
   (a `ln -s` regardless of source), and every `ceph-purge-*.yml` is wiped and
   replaced by exactly `ceph-purge-storage-node.yml` +
   `ceph-purge-cluster.yml`.
+  Because the ceph file set is the union over all flavours, a playbook that
+  is missing for one flavour but present for another is not flagged.
 - **osism-kubernetes** — `osism-kubernetes` `playbooks/*.yml`, copied straight
   in with no separate `ansible-playbooks` checkout and no release/flavour ref
   to resolve.
@@ -200,8 +204,8 @@ wrong):
    steps and *both* fixup rules, not just the one you'd expect it to come
    from — a role landing via step 2 (site.yml split) is easy to overlook if
    you're only checking step 3 (top-level files).
-3. **The per-runtime `pin()` refs** — `playbooks_version` (base.yml) for
-   osism-ansible, `ceph_ansible_version` per flavour for ceph-ansible. A role
+3. **The per-runtime refs** — the view's ref for ansible-playbooks
+   (osism-ansible), `ceph_ansible_version` per flavour for ceph-ansible. A role
    resolving upstream at HEAD but not at the pinned ref (or vice versa) means
    the pin, not the role, is the actual mismatch.
 4. **`osism_interface`/`ceph_interface`'s HIDE/KEEP_PREFIX transforms** — a
