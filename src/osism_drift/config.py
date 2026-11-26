@@ -213,7 +213,12 @@ def load_allowlist(path) -> Allowlist:
     p = Path(path)
     if not p.exists():
         return Allowlist(entries=())
-    raw = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    return parse_allowlist(p.read_text(encoding="utf-8"))
+
+
+def parse_allowlist(text) -> Allowlist:
+    """Parse and validate allowlist YAML text into an Allowlist."""
+    raw = yaml.safe_load(text) or {}
     out = []
     for i, item in enumerate(raw.get("allow", [])):
         extra = set(item) - _ALLOWED_ALLOW_KEYS
