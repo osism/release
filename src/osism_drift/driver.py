@@ -15,8 +15,9 @@ from osism_drift.config import (
     ConfigError,
     load_allowlist,
     load_config,
+    parse_allowlist,
 )
-from osism_drift import demo, http, report, source
+from osism_drift import demo, http, release_pins, report, source
 from osism_drift.source import SourceError
 
 
@@ -40,7 +41,7 @@ def run(
         _emit(args, drifts, plugins, drifts, [], [], [], plugin_groups, report_headers)
         return 0
     try:
-        config, allowlist = _load_runtime(args)
+        config, allowlist = _load_runtime(args, default_allowlist)
     except ConfigError as e:
         print(f"config error: {e}", file=sys.stderr)
         return 2
@@ -57,6 +58,16 @@ def run(
     if blocked:
         print(f"source error: {blocked}", file=sys.stderr)
         return 2
+
+    if args.release_gate is not None:
+        try:
+            config, allowlist = _release_gate_runtime(args, config, selected)
+        except ConfigError as e:
+            print(f"config error: {e}", file=sys.stderr)
+            return 2
+        except SourceError as e:
+            print(f"source error: {e}", file=sys.stderr)
+            return 2
 
     repos = {repo for p in selected for repo, _ in p.INPUT_FILES}
     try:
@@ -108,8 +119,14 @@ def run(
     advisory = [d for d in non_allowlisted if d.severity == "advisory"]
     actionable = [d for d in non_allowlisted if d.severity != "advisory"]
     allowlisted = [d for d in drifts if d.allowlisted]
-    ran = {p.NAME for p in selected}
-    stale = allowlist.stale(drifts, ran)
+    if args.release_gate is not None:
+        # Stale entries are the nightly run's concern: an entry for a finding
+        # already fixed on main must not stop a release.
+        stale = []
+        failed = any(d.blocks_release for d in non_allowlisted)
+    else:
+        stale = allowlist.stale(drifts, {p.NAME for p in selected})
+        failed = bool(actionable or stale)
 
     _emit(
         args,
@@ -122,7 +139,36 @@ def run(
         plugin_groups,
         report_headers,
     )
-    return 1 if (actionable or stale) else 0
+    return 1 if failed else 0
+
+
+def _release_gate_runtime(args, config, selected):
+    """Config and allowlist for a --release-gate run.
+
+    Reads release at the gated commit and every repo it pins at its pinned
+    tag, and takes the allowlist from that commit. Raises ConfigError when a
+    selected plugin cannot gate a release, before anything is read.
+    """
+    if not selected:
+        raise ConfigError("--release-gate selected no plugin to run")
+    refused = [p.NAME for p in selected if not getattr(p, "RELEASE_GATE", False)]
+    if refused:
+        raise ConfigError(
+            "--release-gate runs only release-gate plugins; not: " + ", ".join(refused)
+        )
+    # Pin release first, so gate_refs reads the pins as the gated commit has them.
+    config = dataclasses.replace(config, ref_overrides={"release": args.release_gate})
+    config = dataclasses.replace(
+        config,
+        ref_overrides={
+            "release": args.release_gate,
+            **release_pins.gate_refs(config),
+        },
+    )
+    if args.no_allowlist:
+        return config, Allowlist(entries=())
+    raw = source.read("release", "src/drift-allowlist.yml", config)
+    return config, parse_allowlist(raw.decode("utf-8"))
 
 
 def _network_blocked(selected, config) -> str | None:
@@ -187,9 +233,11 @@ def _build_parser(plugin_groups, description, default_config, default_allowlist)
         default=default_config,
         help=f"config file (default: {_display_default(default_config)})",
     )
+    # Default None so an explicit --allowlist is detectable; _load_runtime
+    # falls back to default_allowlist.
     p.add_argument(
         "--allowlist",
-        default=default_allowlist,
+        default=None,
         help=f"allowlist file (default: {_display_default(default_allowlist)})",
     )
     p.add_argument(
@@ -234,6 +282,16 @@ def _build_parser(plugin_groups, description, default_config, default_allowlist)
         help="fetch repo files one raw GET at a time instead of per-(repo,ref) "
         "archive tarballs (slower; more requests; only if the archive backend misbehaves)",
     )
+    p.add_argument(
+        "--release-gate",
+        metavar="SHA",
+        help=(
+            "check the release commit SHA: read release at SHA and every repo "
+            "it pins at its pinned tag, take the allowlist from SHA, and fail "
+            "only on findings that block the release (release-gate plugins "
+            "only; excludes --allowlist)"
+        ),
+    )
     p.add_argument("-v", "--verbose", action="store_true")
     p.add_argument("-q", "--quiet", action="store_true")
     return p
@@ -266,6 +324,8 @@ def _exit_codes_help() -> str:
         "      advisory findings (e.g. dormant role-default lags) may be\n"
         "      present and are reported but do not fail\n"
         "  1   actionable drift or stale allowlist entries found\n"
+        "  1   with --release-gate: a finding that blocks the release;\n"
+        "      stale allowlist entries are not reported and do not fail\n"
         "  2   input error (missing file, unparseable, bad config)"
     )
 
@@ -286,8 +346,21 @@ def _format_stale_text(stale) -> list:
     return out
 
 
-def _load_runtime(args):
-    """Build the resolved config and allowlist from parsed CLI args."""
+def _load_runtime(args, default_allowlist):
+    """Build the resolved config and allowlist from parsed CLI args.
+
+    Under --release-gate the allowlist returned here is a placeholder:
+    _release_gate_runtime reads the real one from the release commit.
+    """
+    if args.release_gate is not None and not args.release_gate.strip():
+        # An empty SHA (say, from a failed $(git rev-parse ...)) must not
+        # quietly turn the gate into a normal run at main.
+        raise ConfigError("--release-gate needs a commit SHA, got an empty value")
+    if args.release_gate is not None and args.allowlist is not None:
+        raise ConfigError(
+            "--allowlist cannot be combined with --release-gate, which reads "
+            "src/drift-allowlist.yml from the release commit"
+        )
     config = load_config(args.config)
     config = dataclasses.replace(
         config,
@@ -295,10 +368,10 @@ def _load_runtime(args):
         remote_fallback=args.remote_fallback,
         archive=not args.use_raw_get,
     )
-    allowlist = (
-        Allowlist(entries=()) if args.no_allowlist else load_allowlist(args.allowlist)
-    )
-    return config, allowlist
+    if args.no_allowlist or args.release_gate is not None:
+        return config, Allowlist(entries=())
+    path = default_allowlist if args.allowlist is None else args.allowlist
+    return config, load_allowlist(path)
 
 
 def _emit(
