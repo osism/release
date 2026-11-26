@@ -255,7 +255,7 @@ row that is intentionally not current, e.g.
 `--skip-check-versions` skips the check altogether.
 
 After the version check, also with `--skip-check-versions`, `create-tags.sh`
-runs the release drift gate (`./scripts/check-release-gate.sh <sha>`) on the
+runs the release drift gate (`scripts/check-release-gate.sh`) on the
 same commit. It reads the pins of the commit being tagged (`latest/` and
 `src/drift-allowlist.yml` of that commit, not the working tree) and checks the
 OSISM repositories at exactly those versions: a role that python-osism calls
@@ -266,6 +266,8 @@ tag), no tag is created. `--skip-drift-gate` skips the gate to release anyway.
 The gate reads GitHub, so set `GITHUB_TOKEN` or `GH_TOKEN` (e.g.
 `GH_TOKEN=$(gh auth token)`): unauthenticated runs are limited to 60 API
 requests per hour, and a rate-limited gate exits 2 and blocks the tagging.
+To investigate a gate failure, run `./scripts/check-release-gate.sh`: it
+fetches and checks `origin/main` (or a commit given as argument).
 
 Then create tags for the core projects. `create-tags.sh` only tags the pushed
 state of `main`: it fetches `origin` and stops unless the current branch is

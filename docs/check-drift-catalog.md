@@ -219,9 +219,9 @@ wrong):
 
 ## Release gate
 
-`scripts/check-release-gate.sh <sha>` (run by `create-tags.sh`) runs only the
-plugins marked `RELEASE_GATE`, via `check-drift.py --release-gate <sha>`. It
-reads `osism/release` at the given commit, every pinned OSISM repository at
+`scripts/check-release-gate.sh [<commit>]` (default: `origin/main`, fetched
+first; `create-tags.sh` runs it on the commit it tags) runs only the plugins
+marked `RELEASE_GATE`, via `check-drift.py --release-gate <sha>`. It reads `osism/release` at the given commit, every pinned OSISM repository at
 `refs/tags/<pin>`, and the unpinned image repositories (`container-image-*`,
 `osism-kubernetes`) at `main`. Ceph flavours are unioned (a limitation: a role
 shipped by only one flavour counts as shipped).
