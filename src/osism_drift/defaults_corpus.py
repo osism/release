@@ -26,6 +26,7 @@ import yaml
 
 from osism_drift import enablement, playbooks, source, var_refs
 from osism_drift.http import SourceError
+from osism_drift.release_pins import PIN_KEYS, collection_pins, pin_to_ref
 
 # The only hand-kept repo list: OSISM repos that read defaults and are not
 # osism.* collections. A new consumer repo shows up as false findings for the
@@ -40,13 +41,6 @@ CORE_REPOS = (
     "container_image_ceph_ansible",
     "container_image_kolla_ansible",
     "container_image_inventory_reconciler",
-)
-
-# latest/base.yml *_version keys -> the repo they pin.
-PIN_KEYS = (
-    ("ansible_playbooks", "playbooks_version"),
-    ("ansible_playbooks_manager", "manager_playbooks_version"),
-    ("generics", "generics_version"),
 )
 
 # Never searched: VCS metadata and tooling/vendored trees of a local checkout.
@@ -104,23 +98,12 @@ class Corpus:
         return None
 
 
-def pin_to_ref(pin: str) -> str:
-    """The git tag for a base.yml pin: collection pins lack the tag's `v`
-    (`0.20261005.0`), *_version pins carry it (`v0.20261005.0`). Anything not
-    starting with a digit (`v…`, a branch) is used verbatim."""
-    return f"v{pin}" if pin[:1].isdigit() else pin
-
-
 def sources(config) -> list:
     """Every Source to search, in a stable order, without duplicates."""
     base = yaml.safe_load(source.read("release", "latest/base.yml", config)) or {}
     out = [Source("defaults", None)]
-    pinned = []
-    for name, pin in sorted((base.get("ansible_collections") or {}).items()):
-        if name.startswith("osism."):
-            repo = "ansible_collection_" + name[len("osism.") :]
-            out.append(Source(repo, None))
-            pinned.append((repo, str(pin)))
+    pinned = collection_pins(base)
+    out.extend(Source(repo, None) for repo, _pin in pinned)
     if not pinned:
         raise SourceError(
             "no osism.* collection in release latest/base.yml ansible_collections: "
