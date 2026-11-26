@@ -217,6 +217,35 @@ wrong):
    is a direct AST read of `enums.py`, but a role reachable only through a
    dependency shape `_role_names` doesn't expect would be a bug here.
 
+## Release gate
+
+`scripts/check-release-gate.sh <sha>` (run by `create-tags.sh`) runs only the
+plugins marked `RELEASE_GATE`, via `check-drift.py --release-gate <sha>`. It
+reads `osism/release` at the given commit, every pinned OSISM repository at
+`refs/tags/<pin>`, and the unpinned image repositories (`container-image-*`,
+`osism-kubernetes`) at `main`. Ceph flavours are unioned (a limitation: a role
+shipped by only one flavour counts as shipped).
+
+- **`catalog_role_missing` is the gate plugin.** A finding blocks the release
+  when a catalog entry has no playbook at every or at some supported series (a
+  shipped call with no callee). `dead_bounds` findings (a role whose own
+  `since`/`until` bounds exclude every supported series, so it is never
+  deployed) compare nothing across repositories and do not block.
+- **Not in the gate:** the plugins that compare OSISM repositories with each
+  other report cleanup or advisory findings, not a shipped call with no callee.
+  - `role_shadows`: role-default tags that disagree with the release (pin
+    drift).
+  - `role_unpinned`: role-default tags with no canonical release pin (pin
+    drift).
+  - `release_vs_manager`: release pins that differ from the rendered manager
+    images (pin drift).
+  - `release_pin_orphan`: release pins that nothing reads (unread entries).
+  - `image_orphan`: manager image variables that nothing consumes (orphans).
+  - `role_registry_orphan`: registry overrides that nothing references
+    (orphans).
+  - `defaults_orphan`: `osism/defaults` variables that nothing reads
+    (orphans).
+
 ## Known mirrored upstream bugs
 
 Two real upstream build quirks are deliberately reproduced rather than
