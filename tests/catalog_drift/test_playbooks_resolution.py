@@ -100,7 +100,7 @@ def _mock_all(kolla_releases=("A",)):
     # no matching upstream directory today, a genuine 404 (legitimate absence).
     responses.add(
         responses.GET,
-        f"{API}/osism/ansible-playbooks/commits/v1",
+        f"{API}/osism/ansible-playbooks/commits/main",
         json={"sha": "deadbeef"},
         status=200,
     )

@@ -11,12 +11,21 @@ the plugin's aggregation/naming/ordering is wrong, not a hand-rolled resolver th
 duplicates -- and could silently diverge from -- playbooks.py's own logic.
 """
 
+import dataclasses
+import subprocess
 from pathlib import Path
 
 import pytest
 
 from osism_drift import catalog
-from osism_drift.config import Allowlist, AllowEntry, Config, PluginCfg, Remote
+from osism_drift.config import (
+    Allowlist,
+    AllowEntry,
+    Config,
+    PluginCfg,
+    Remote,
+    SourceCfg,
+)
 from osism_drift.drift import catalog_role_missing as plugin
 from osism_drift.source import SourceError
 
@@ -374,3 +383,67 @@ def test_unparseable_release_bound_raises(cfg_real, monkeypatch):
     )
     with pytest.raises(SourceError, match="redis"):
         plugin.run(cfg_real, Allowlist(()))
+
+
+def _git(repo, *args):
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "user.name=fixture",
+            "-c",
+            "user.email=fixture@example.invalid",
+            "-C",
+            str(repo),
+            *args,
+        ],
+        check=True,
+        capture_output=True,
+    )
+
+
+@pytest.fixture
+def ceph_keys_cfg(cfg, tmp_path, monkeypatch):
+    """ansible-playbooks as a git repo: tag v1 lacks validate-ceph-keys, main
+    has it. python-osism's catalog names the ceph-keys validator."""
+    repo = tmp_path / "ansible-playbooks"
+    (repo / "playbooks" / "ceph").mkdir(parents=True)
+    (repo / "playbooks" / "ceph" / "validate-ceph-mons.yml").write_text("---\n")
+    _git(repo, "init", "-q", "-b", "main")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-q", "-m", "v1")
+    _git(repo, "tag", "v1")
+    (repo / "playbooks" / "ceph" / "validate-ceph-keys.yml").write_text("---\n")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-q", "-m", "main")
+
+    real_osism_files = plugin.playbooks.osism_files
+    _serve(
+        monkeypatch,
+        validators={
+            "ceph-keys": {
+                "runtime": "osism-ansible",
+                "environment": "ceph",
+                "playbook": "validate-ceph-keys",
+            }
+        },
+    )
+    monkeypatch.setattr(plugin.playbooks, "osism_files", real_osism_files)
+    return dataclasses.replace(
+        cfg,
+        base_dirs=(str(FIXT), str(tmp_path)),
+        sources={"ansible_playbooks": SourceCfg(owner="osism", branch="main")},
+    )
+
+
+def test_validator_added_on_both_mains_is_not_flagged(ceph_keys_cfg):
+    drifts = plugin.run(ceph_keys_cfg, Allowlist(()))
+    assert [d for d in drifts if d.image == "validate-ceph-keys"] == []
+
+
+def test_validator_missing_at_pinned_tag_is_flagged(ceph_keys_cfg):
+    cfg = dataclasses.replace(
+        ceph_keys_cfg, ref_overrides={"ansible_playbooks": "refs/tags/v1"}
+    )
+    drifts = plugin.run(cfg, Allowlist(()))
+    assert [d.image for d in drifts] == ["validate-ceph-keys"]
