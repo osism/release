@@ -1,15 +1,18 @@
 #!/bin/bash
 
 # Script to create and push git tags for OSISM projects
-# Usage: ./create-tags.sh [--allow NAME]... [--skip-check-versions] v0.20250920.0
+# Usage: ./create-tags.sh [--allow NAME]... [--skip-check-versions]
+#                         [--skip-drift-gate] v0.20250920.0
 #
 # The tags are only created on the pushed state of main: the script fetches
 # origin and stops unless the current branch is main and HEAD equals
 # origin/main, because the component builds check the tags out from origin.
+# The commit HEAD points to at that moment is the one that is checked and
+# tagged, also if the local branch moves while the script runs.
 #
 # Before any tag is created, scripts/check-versions.sh checks the commit to
-# be tagged (latest/ and etc/ of HEAD, extracted with git archive, not the
-# working tree). If it fails, also because a version could not be
+# be tagged (latest/ and etc/ of that commit, extracted with git archive,
+# not the working tree). If it fails, also because a version could not be
 # determined, no tag is created. Pins of the images built from these tags
 # whose newest published version is the version being tagged count as
 # current, so moving tags after a first build is not stopped; all other pins
@@ -19,26 +22,36 @@
 # rows of one pin, symlink or repository that are intentionally not current;
 # --skip-check-versions skips the check altogether.
 #
-# For every project the tag <project>-<version> is created on the current
-# HEAD and pushed to origin. If a tag already exists (locally and/or on the
-# remote), the script asks whether to move it to the current HEAD (the
+# Then scripts/check-release-gate.sh runs the release drift gate on the same
+# commit, also with --skip-check-versions: it reads the OSISM repositories at
+# the versions that commit pins and fails on a finding that breaks the
+# release, e.g. a role that python-osism calls but no pinned playbook
+# repository provides. If it fails, also because an input could not be read,
+# no tag is created. --skip-drift-gate skips the gate.
+#
+# For every project the tag <project>-<version> is created on the checked
+# commit and pushed to origin. If a tag already exists (locally and/or on the
+# remote), the script asks whether to move it to the checked commit (the
 # existing tag is deleted locally and on the remote and created again) or
 # to ignore it (the existing tag is left untouched). This allows re-running
 # the script after tags have been created on the wrong commit.
 
 usage() {
-    echo "Usage: $0 [--allow NAME]... [--skip-check-versions] <version>"
+    echo "Usage: $0 [--allow NAME]... [--skip-check-versions] [--skip-drift-gate] <version>"
     echo ""
     echo "Options:"
     echo "  --allow NAME            Pass --allow NAME to scripts/check-versions.sh:"
     echo "                          do not fail on this pin, symlink or repository"
     echo "  --skip-check-versions   Do not run scripts/check-versions.sh first"
+    echo "  --skip-drift-gate       Do not run the release drift gate"
+    echo "                          (scripts/check-release-gate.sh) first"
     echo "  -h, --help              Show this help"
     echo ""
     echo "Example: $0 v0.20250920.0"
 }
 
 SKIP_CHECK_VERSIONS=false
+SKIP_DRIFT_GATE=false
 ALLOW_ARGS=()
 VERSION=""
 
@@ -46,6 +59,10 @@ while [ $# -gt 0 ]; do
     case "$1" in
         --skip-check-versions)
             SKIP_CHECK_VERSIONS=true
+            shift
+            ;;
+        --skip-drift-gate)
+            SKIP_DRIFT_GATE=true
             shift
             ;;
         --allow)
@@ -98,8 +115,12 @@ if [ "$CURRENT_BRANCH" != "main" ]; then
     exit 1
 fi
 
-if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
-    echo "Error: HEAD ($(git rev-parse --short HEAD)) is not origin/main ($(git rev-parse --short origin/main)): pull or push first" >&2
+# The commit that is checked and tagged, captured once so that a local
+# branch advance while the script runs cannot tag an unchecked commit
+TARGET_SHA=$(git rev-parse HEAD)
+TARGET_SHORT=$(git rev-parse --short "$TARGET_SHA")
+if [ "$TARGET_SHA" != "$(git rev-parse origin/main)" ]; then
+    echo "Error: HEAD ($TARGET_SHORT) is not origin/main ($(git rev-parse --short origin/main)): pull or push first" >&2
     exit 1
 fi
 
@@ -108,8 +129,8 @@ if [ "$SKIP_CHECK_VERSIONS" = true ]; then
 else
     CHECK_DIR=$(mktemp -d)
     trap 'rm -rf "$CHECK_DIR"' EXIT
-    if ! (set -o pipefail; git archive HEAD latest etc | tar -x -C "$CHECK_DIR"); then
-        echo "Error: Could not extract latest/ and etc/ of HEAD" >&2
+    if ! (set -o pipefail; git archive "$TARGET_SHA" latest etc | tar -x -C "$CHECK_DIR"); then
+        echo "Error: Could not extract latest/ and etc/ of $TARGET_SHORT" >&2
         exit 1
     fi
     if ! "$REPO_ROOT/scripts/check-versions.sh" \
@@ -118,8 +139,24 @@ else
         --tagging "$VERSION" \
         --release-tag "$VERSION" \
         "${ALLOW_ARGS[@]}"; then
-        echo "Error: scripts/check-versions.sh failed for $(git rev-parse --short HEAD), no tags created" >&2
+        echo "Error: scripts/check-versions.sh failed for $TARGET_SHORT, no tags created" >&2
         echo "Merge the missing updates and tag the components first, or use --allow NAME for a row that is intended" >&2
+        exit 1
+    fi
+fi
+
+if [ "$SKIP_DRIFT_GATE" = true ]; then
+    echo "Skipping the release drift gate (--skip-drift-gate)"
+else
+    DRIFT_GATE_STATUS=0
+    "$REPO_ROOT/scripts/check-release-gate.sh" "$TARGET_SHA" || DRIFT_GATE_STATUS=$?
+    if [ "$DRIFT_GATE_STATUS" -eq 1 ]; then
+        echo "Error: release drift gate failed for $TARGET_SHORT, no tags created" >&2
+        echo "Fix the findings above, or re-run with --skip-drift-gate to release anyway" >&2
+        exit 1
+    elif [ "$DRIFT_GATE_STATUS" -ne 0 ]; then
+        echo "Error: release drift gate could not run for $TARGET_SHORT, no tags created" >&2
+        echo "Fix the source error above, or re-run with --skip-drift-gate to release anyway" >&2
         exit 1
     fi
 fi
@@ -134,11 +171,9 @@ PROJECTS=(
     "inventory-reconciler"
 )
 
-HEAD_COMMIT=$(git rev-parse HEAD)
-
 echo "Creating tags with version: $VERSION"
 echo "Projects: ${PROJECTS[*]}"
-echo "Target commit: $HEAD_COMMIT ($(git log -1 --format=%s HEAD))"
+echo "Target commit: $TARGET_SHA ($(git log -1 --format=%s "$TARGET_SHA"))"
 echo
 
 # Process each project
@@ -166,15 +201,15 @@ for project in "${PROJECTS[@]}"; do
             echo "    remote: (missing)"
         fi
 
-        if [ "$local_commit" = "$HEAD_COMMIT" ] && [ "$remote_commit" = "$HEAD_COMMIT" ]; then
-            echo "✅ Tag $tag_name already points to the current HEAD, nothing to do"
+        if [ "$local_commit" = "$TARGET_SHA" ] && [ "$remote_commit" = "$TARGET_SHA" ]; then
+            echo "✅ Tag $tag_name already points to the target commit, nothing to do"
             echo
             continue
         fi
 
         answer=""
         while [[ ! "$answer" =~ ^[MmIi]$ ]]; do
-            read -r -p "Move tag $tag_name to the current HEAD or ignore it? [m]ove/[i]gnore: " answer
+            read -r -p "Move tag $tag_name to the target commit or ignore it? [m]ove/[i]gnore: " answer
         done
 
         if [[ "$answer" =~ ^[Ii]$ ]]; then
@@ -204,7 +239,7 @@ for project in "${PROJECTS[@]}"; do
     fi
 
     # Create the tag
-    if git tag "$tag_name"; then
+    if git tag "$tag_name" "$TARGET_SHA"; then
         echo "✅ Tag $tag_name created successfully"
 
         # Push the tag to origin

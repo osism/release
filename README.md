@@ -254,9 +254,24 @@ row that is intentionally not current, e.g.
 `./scripts/create-tags.sh --allow latest/ceph.yml v0.20260322.0`.
 `--skip-check-versions` skips the check altogether.
 
+After the version check, also with `--skip-check-versions`, `create-tags.sh`
+runs the release drift gate (`./scripts/check-release-gate.sh <sha>`) on the
+same commit. It reads the pins of the commit being tagged (`latest/` and
+`src/drift-allowlist.yml` of that commit, not the working tree) and checks the
+OSISM repositories at exactly those versions: a role that python-osism calls
+but no pinned playbook repository provides, at any supported OpenStack series,
+blocks the release. Allowlisted findings do not block. If the gate reports a
+blocking finding, or cannot read one of its inputs (e.g. a missing pin or
+tag), no tag is created. `--skip-drift-gate` skips the gate to release anyway.
+The gate reads GitHub, so set `GITHUB_TOKEN` or `GH_TOKEN` (e.g.
+`GH_TOKEN=$(gh auth token)`): unauthenticated runs are limited to 60 API
+requests per hour, and a rate-limited gate exits 2 and blocks the tagging.
+
 Then create tags for the core projects. `create-tags.sh` only tags the pushed
 state of `main`: it fetches `origin` and stops unless the current branch is
-`main` and `HEAD` equals `origin/main`.
+`main` and `HEAD` equals `origin/main`. The commit `HEAD` points to at that
+moment is the one that both checks run on and that every tag is created on,
+also if the local branch moves while the script runs.
 
 ```bash
 ./scripts/create-tags.sh v0.20260322.0
@@ -272,14 +287,14 @@ container image projects:
 - `ceph-ansible`
 - `inventory-reconciler`
 
-The tags reference the current HEAD of this repository and serve as version anchors
+The tags reference the checked commit of this repository and serve as version anchors
 for the container image build pipelines. The order in which the tags are created
 here does not matter.
 
 The script checks for every project whether the tag already exists (locally or on
-the remote) and where it points to. A tag that already points to the current HEAD
+the remote) and where it points to. A tag that already points to the checked commit
 is left as it is. Otherwise the script asks whether to **move** the tag to the
-current HEAD (the existing tag is deleted locally and on the remote and created
+checked commit (the existing tag is deleted locally and on the remote and created
 again) or to **ignore** it (the existing tag is left untouched). This allows
 re-running the script with the same version after tags have been created on the
 wrong commit: merge the fix into `main`, pull, run the script again and answer
