@@ -22,7 +22,7 @@ import yaml
 # First python-osism release (package and image) whose fact cache readers
 # handle both key schemas. None while no such release exists: then any
 # ansible-core >= 2.19 in latest/base.yml fails.
-FACT_CACHE_OSISM = None
+FACT_CACHE_OSISM = "0.20261127.0"
 
 NEW_SCHEMA_CORE = (2, 19)
 
